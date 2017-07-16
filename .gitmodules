@@ -1,0 +1,3 @@
+[submodule "anyfx"]
+	path = anyfx
+	url = https://github.com/Duttenheim/AnyFX.git
