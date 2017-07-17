@@ -1,9 +1,26 @@
 #
-# fips-glfw
+# fips-anyfx
 #
 ---
 exports:
-    header-dirs: [ glfw/include ]
-    modules :
-        glfw3: . 
+    header-dirs: 
+    - anyfx 
+    - anyfx/api   
+    #- anyfx/api/highlevel
+    - anyfx/api/lowlevel
+    - anyfx/compiler/code
+    - anyfx/compiler/antlr/include
+    - anyfx/compiler/mcpp
+    - anyfx/util/code
+    - anyfx/exts/glslang/
+    - anyfx/exts/glslang/glslang
+    - anyfx/exts/glslang/External
+    - anyfx/exts/glslang/hlsl
+    - anyfx/exts/glslang/OGLCompilersDLL
+    - anyfx/exts/glslang/SPIRV
+    - anyfx/exts/glslang/StandAlone
+    - anyfx/exts/eastl/include
+    - anyfx/exts/glew/include
+    modules:
+        anyfx: .
 
