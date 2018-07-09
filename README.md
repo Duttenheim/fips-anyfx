@@ -1,7 +1,7 @@
-fips-glfw
+fips-anyfx
 =========
 
-fipsified GLFW (https://github.com/glfw/glfw)
+fipsified AnyFX (https://github.com/Duttenheim/AnyFX)
 
 fips build system: https://github.com/floooh/fips
 
