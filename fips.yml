@@ -19,7 +19,7 @@ exports:
     - anyfx/exts/glslang/OGLCompilersDLL
     - anyfx/exts/glslang/SPIRV
     - anyfx/exts/glslang/StandAlone
-    - anyfx/exts/eastl/include
+    #- anyfx/exts/eastl/include
     - anyfx/exts/glew/include
     modules:
         anyfx: .
