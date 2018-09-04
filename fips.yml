@@ -2,6 +2,12 @@
 # fips-anyfx
 #
 ---
+imports:
+     fips-glslang:
+        git: https://github.com/gscept/fips-glslang.git
+     fips-glew:
+        git: https://github.com/gscept/fips-glew.git
+        
 exports:
     header-dirs: 
     - anyfx 
@@ -12,15 +18,6 @@ exports:
     - anyfx/compiler/antlr/include
     - anyfx/compiler/mcpp
     - anyfx/util/code
-    - anyfx/exts/glslang/
-    - anyfx/exts/glslang/glslang
-    - anyfx/exts/glslang/External
-    - anyfx/exts/glslang/hlsl
-    - anyfx/exts/glslang/OGLCompilersDLL
-    - anyfx/exts/glslang/SPIRV
-    - anyfx/exts/glslang/StandAlone
-    #- anyfx/exts/eastl/include
-    - anyfx/exts/glew/include
     modules:
         anyfx: .
 
