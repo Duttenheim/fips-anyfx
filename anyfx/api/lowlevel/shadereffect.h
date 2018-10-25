@@ -74,6 +74,10 @@ public:
 	bool HasVariable(const std::string& name) const;
 	/// returns true if variables for given group exists
 	bool HasVariables(const unsigned group) const;
+	/// returns index into list of variables, or -1 if it doesn't exist
+	const unsigned FindVariable(const std::string& name) const;
+	/// return variable based on map-index from FindVariable
+	VariableBase* GetVariableFromMap(const unsigned idx) const;
 
 	/// returns number of varblocks
 	unsigned GetNumVarblocks() const;
@@ -89,6 +93,10 @@ public:
 	bool HasVarblock(const std::string& name) const;
 	/// returns true if varblocks for given group exists
 	bool HasVarblocks(const unsigned group) const;
+	/// returns index into list of variables, or -1 if it doesn't exist
+	const unsigned FindVarblock(const std::string& name) const;
+	/// return varblock based on map-index from FindVarblock
+	VarblockBase* GetVarblockFromMap(const unsigned idx) const;
 
 	/// returns number of varbuffers
 	unsigned GetNumVarbuffers() const;
@@ -104,6 +112,10 @@ public:
 	bool HasVarbuffer(const std::string& name) const;
 	/// returns true if varbuffers for given group exists
 	bool HasVarbuffers(const unsigned group) const;
+	/// returns index into map of variables, or -1 if it doesn't exist
+	const unsigned FindVarbuffer(const std::string& name) const;
+	/// return varbuffer based on map-index from FindVarbuffer
+	VarbufferBase* GetVarbufferFromMap(const unsigned idx) const;
 
 	/// returns number of subroutine
 	unsigned GetNumSubroutines() const;

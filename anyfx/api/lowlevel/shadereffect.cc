@@ -243,6 +243,28 @@ ShaderEffect::HasVariables(const unsigned group) const
 //------------------------------------------------------------------------------
 /**
 */
+const unsigned 
+ShaderEffect::FindVariable(const std::string& name) const
+{
+	const auto it = this->variables.find(name);
+	if (it == this->variables.end())	return UINT_MAX;
+	else								return std::distance(this->variables.begin(), it);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VariableBase*
+ShaderEffect::GetVariableFromMap(const unsigned idx) const
+{
+	auto it = this->variables.begin();
+	std::advance(it, idx);
+	return (*it).second;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned
 ShaderEffect::GetNumVarblocks() const
 {
@@ -311,6 +333,28 @@ ShaderEffect::HasVarblocks(const unsigned group) const
 //------------------------------------------------------------------------------
 /**
 */
+const unsigned
+ShaderEffect::FindVarblock(const std::string& name) const
+{
+	const auto it = this->varblocks.find(name);
+	if (it == this->varblocks.end())	return UINT_MAX;
+	else								return std::distance(this->varblocks.begin(), it);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VarblockBase* 
+ShaderEffect::GetVarblockFromMap(const unsigned idx) const
+{
+	auto it = this->varblocks.begin();
+	std::advance(it, idx);
+	return (*it).second;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned
 ShaderEffect::GetNumVarbuffers() const
 {
@@ -374,6 +418,28 @@ ShaderEffect::HasVarbuffers(const unsigned group) const
 {
 	const auto it = this->varbuffersByGroup.find(group);
 	return it != this->varbuffersByGroup.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const unsigned
+ShaderEffect::FindVarbuffer(const std::string& name) const
+{
+	const auto it = this->varbuffers.find(name);
+	if (it == this->varbuffers.end())	return UINT_MAX;
+	else								return std::distance(this->varbuffers.begin(), it);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VarbufferBase*
+ShaderEffect::GetVarbufferFromMap(const unsigned idx) const
+{
+	auto it = this->varbuffers.begin();
+	std::advance(it, idx);
+	return (*it).second;
 }
 
 //------------------------------------------------------------------------------
