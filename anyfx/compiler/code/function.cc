@@ -3,7 +3,6 @@
 //  (C) 2013 Gustav Sterbrant
 //------------------------------------------------------------------------------
 #include "function.h"
-#include "antlr3collections.h"
 #include "util.h"
 #include "typechecker.h"
 
@@ -72,7 +71,6 @@ Function::SetReturnType(const DataType& type)
 {
 	this->returnType = type;
 }
-
 
 //------------------------------------------------------------------------------
 /**
@@ -304,7 +302,7 @@ Function::Restore(const Header& header, int index)
 	const Header::Type& type = header.GetType();
 
 	// restore return value and name
-	std::string line = Format("#line %d \"%s\"\n", this->functionLine, this->file.c_str());
+	std::string line = Format("#line %d %s\n", this->functionLine, this->file.c_str());
 	restoredCode.append(line);
 	restoredCode.append(DataType::ToProfileType(this->returnType, type));
 	restoredCode.append("\n");
@@ -354,7 +352,7 @@ Function::Restore(const Header& header, int index)
 
 	// finalize by closing parameter list and append the code
 	restoredCode.append(")\n{\n");
-	line = Format("#line %d \"%s\"\n", this->codeLine, this->file.c_str());
+	line = Format("#line %d %s\n", this->codeLine, this->file.c_str());
 	restoredCode.append(line);
 	restoredCode.append(this->code);
 	restoredCode.append("\n}\n\n");

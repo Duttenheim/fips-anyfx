@@ -7,16 +7,22 @@
 //------------------------------------------------------------------------------
 #include "cmdlineargs.h"
 #include "afxcompiler.h"
-#include "antlr3.h"
-#include "parser/AnyFXLexer.h"
-#include "parser/AnyFXParser.h"
-#include "lexererrorhandler.h"
-#include "parsererrorhandler.h"
 #include "typechecker.h"
 #include "generator.h"
 #include "header.h"
 #include <fstream>
 #include <algorithm>
+
+#include <iostream>
+
+#include "antlr4-runtime.h"
+#include "antlr4-common.h"
+#include "parser4/AnyFXLexer.h"
+#include "parser4/AnyFXParser.h"
+#include "parser4/AnyFXBaseListener.h"
+#include "parser4/anyfxerrorhandlers.h"
+
+using namespace antlr4;
 
 #if __linux__
 #include <X11/X.h>
@@ -30,15 +36,13 @@
 #include <OpenGL/OpenGL.h>
 #endif
 
-extern bool lexerError;
-extern std::string lexerErrorBuffer;
-extern bool parserError;
-extern std::string parserErrorBuffer;
-
 #include "mcpp_lib.h"
+#include "mcpp_out.h"
 #include "glslang/Public/ShaderLang.h"
 
 #if __WIN32__
+#define WIN32_LEAN_AND_MEAN 1
+#include "windows.h"
 //------------------------------------------------------------------------------
 /**
 */
@@ -111,7 +115,7 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     }
     else
     {
-        char* preprocessed = mcpp_get_mem_buffer(OUT);
+        char* preprocessed = mcpp_get_mem_buffer((OUTDEST)0);
         output.append(preprocessed);
 		delete[] args;
         return true;
@@ -148,7 +152,7 @@ AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string
 	int result = mcpp_lib_main(numTotalArgs, (char**)args);
 	if (result == 0)
 	{
-		std::string output = mcpp_get_mem_buffer(OUT);
+		std::string output = mcpp_get_mem_buffer((OUTDEST)0);
 
 		// grah, remove the padding and the Makefile stuff, using std::string...
 		size_t colon = output.find_first_of(':')+1;
@@ -194,22 +198,47 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
     // if preprocessor is successful, continue parsing the actual code
 	if (AnyFXPreprocess(file, defines, vendor, preprocessed))
     {
-        // when we preprocess, we save it 
-        pANTLR3_INPUT_STREAM input;
-        pAnyFXLexer lex;
-        pAnyFXParser parser;
-        pANTLR3_COMMON_TOKEN_STREAM tokens;
+		ANTLRInputStream input;
+		input.load(preprocessed);
 
-        input = antlr3StringStreamNew((pANTLR3_UINT8)preprocessed.c_str(), ANTLR3_ENC_UTF8, preprocessed.size(), (pANTLR3_UINT8)file.c_str());
-        lex = AnyFXLexerNew(input);
-        tokens = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lex));
-        parser = AnyFXParserNew(tokens);
+		AnyFXLexer lexer(&input);
+		lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
+		CommonTokenStream tokens(&lexer);
+		AnyFXParser parser(&tokens);
+
+		// setup preprocessor
+		parser.preprocess();
+
+		// remove all preprocessor crap left by mcpp
+		size_t i;
+		for (i = 0; i < parser.lines.size(); i++)
+		{
+			size_t start = std::get<2>(parser.lines[i]);
+			size_t stop = preprocessed.find('\n', start);
+			std::string fill(stop - start, ' ');
+			preprocessed.replace(start, stop - start, fill);
+		}
+
+		AnyFXLexerHandler lexerErrorHandler;
+		lexerErrorHandler.lines = parser.lines;
+		AnyFXParserHandler parserErrorHandler;
+		parserErrorHandler.lines = parser.lines;
+
+		// reload the preprocessed data
+		input.reset();
+		input.load(preprocessed);
+		lexer.setInputStream(&input);
+		lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
+		lexer.addErrorListener(&lexerErrorHandler);
+		tokens.setTokenSource(&lexer);
+		parser.setTokenStream(&tokens);
+		parser.addErrorListener(&parserErrorHandler);
 
         // create new effect
-        Effect effect = parser->entry(parser);
+        Effect effect = parser.entry()->returnEffect;
 
         // stop the process if lexing or parsing fails
-        if (!lexerError && !parserError)
+        if (!lexerErrorHandler.hasError && !parserErrorHandler.hasError)
         {
             // create header
             Header header;
@@ -272,11 +301,6 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                         // close writer and finish file
                         writer.Close();
 
-						// destroy compiler state and return
-						parser->free(parser);
-						tokens->free(tokens);
-						lex->free(lex);
-						input->free(input);				
 						mcpp_use_mem_buffers(1);	// clear mcpp
                         return true;
                     }
@@ -290,10 +314,6 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                         (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
 						// destroy compiler state and return
-						parser->free(parser);
-						tokens->free(tokens);
-						lex->free(lex);
-						input->free(input);
 						mcpp_use_mem_buffers(1);	// clear mcpp
                         return false;
                     }
@@ -313,10 +333,6 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                     (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
 					// destroy compiler state and return
-					parser->free(parser);
-					tokens->free(tokens);
-					lex->free(lex);
-					input->free(input);
 					mcpp_use_mem_buffers(1);	// clear mcpp
                     return false;
                 }
@@ -336,10 +352,6 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                 (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
 				// destroy compiler state and return
-				parser->free(parser);
-				tokens->free(tokens);
-				lex->free(lex);
-				input->free(input);
 				mcpp_use_mem_buffers(1);	// clear mcpp
                 return false;
             }
@@ -347,12 +359,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
         else
         {
             std::string errorMessage;
-            errorMessage.append(lexerErrorBuffer);
-            errorMessage.append(parserErrorBuffer);
-            lexerError = false;
-            parserError = false;
-            lexerErrorBuffer.clear();
-            parserErrorBuffer.clear();
+            errorMessage.append(lexerErrorHandler.errorBuffer);
+            errorMessage.append(parserErrorHandler.errorBuffer);
 
             *errorBuffer = new AnyFXErrorBlob;
             (*errorBuffer)->buffer = new char[errorMessage.size()];
@@ -361,10 +369,6 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
 			// destroy compiler state and return
-			parser->free(parser);
-			tokens->free(tokens);
-			lex->free(lex);
-			input->free(input);
 			mcpp_use_mem_buffers(1);	// clear mcpp
             return false;
         }

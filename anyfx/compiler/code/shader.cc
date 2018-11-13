@@ -468,42 +468,37 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
 		{
 			char* lineRow = message + sizeof("ERROR:");
 			lineRow = strtok(lineRow, "\n");
-			char* rhs = strrchr(lineRow, ':') + 3;
-
 #if _MSC_VER
-			std::string drive = strtok(lineRow, ":") + std::string(":");
-			std::string path = strtok(NULL, ":");
-			path = drive + path;
+			char* offset = strtok(lineRow + 2, ":"); // this is to skip past <<drive>>:
 #else
-			std::string path = strtok(lineRow, ":");
-#endif			
-
+			char* offset = strtok(lineRow + 1, ":");
+#endif
 			char* line = strtok(NULL, ":");
+			char* rhs = strtok(NULL, "\n");
+	
+
 #if _MSC_VER
-			res = Format("%s(%d): error: %s", path.c_str(), atoi(line), rhs);
+			res = Format("%s(%s): error: %s", lineRow, line, rhs);
 #else
-			res = Format("%s:%d: error: %s\n", path.c_str(), atoi(line), rhs);
+			res = Format("%s:%s: error: %s\n", lineRow, line, rhs);
 #endif
 		}
 		else
 		{
 			char* lineRow = message + sizeof("WARNING:");
 			lineRow = strtok(lineRow, "\n");
-			char* rhs = strrchr(lineRow, ':') + 3;
-
 #if _MSC_VER
-			std::string drive = strtok(lineRow, ":") + std::string(":");
-			std::string path = strtok(NULL, ":");
-			path = drive + path;
+			char* offset = strtok(lineRow + 2, ":"); // this is to skip past <<drive>>:
 #else
-			std::string path = strtok(lineRow, ":");
-#endif			
-
+			char* offset = strtok(lineRow + 1, ":");
+#endif
 			char* line = strtok(NULL, ":");
+			char* rhs = strtok(NULL, "\n");
+
 #if _MSC_VER
-			res = Format("%s(%d): warning: %s", path.c_str(), atoi(line), rhs);
+			res = Format("%s(%s): warning: %s", lineRow, line, rhs);
 #else
-			res = Format("%s:%d: warning: %s\n", path.c_str(), atoi(line), rhs);
+			res = Format("%s:%s: warning: %s\n", lineRow, line, rhs);
 #endif
 		}
 		delete[] message;

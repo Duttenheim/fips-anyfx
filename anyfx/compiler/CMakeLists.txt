@@ -2,14 +2,13 @@
 # anyfx compiler
 #-------------------------------------------------------------------------------
 
-
-ADD_SUBDIRECTORY(antlr)
+ADD_SUBDIRECTORY(antlr4)
 ADD_SUBDIRECTORY(mcpp)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
 		    ${ANYFX_SOURCE_DIR}/util/code
 		    ${ANYFX_SOURCE_DIR}/compiler/code
-		    ${ANYFX_SOURCE_DIR}/compiler/antlr/include
+			${ANYFX_SOURCE_DIR}/compiler/antlr4/src
 			${ANYFX_SOURCE_DIR}/exts/glslang
 		    ${ANYFX_SOURCE_DIR}/compiler/mcpp
 )
@@ -29,36 +28,11 @@ FILE(GLOB SRC "code/generators/*.cc")
 SOURCE_GROUP("compiler\\generators" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
-FILE(GLOB SRC code/lexererrorhandler.cc code/parsererrorhandler.cc)
-FILE(GLOB HEAD code/lexererrorhandler.h code/parsererrorhandler.h)
-SOURCE_GROUP("parser" FILES ${SRC} ${HEAD})
-LIST(APPEND CODE ${SRC} ${HEAD})
-
-FILE(GLOB SRC code/parser/AnyFXParser.c code/parser/AnyFXLexer.c)
-FILE(GLOB HEAD code/parser/AnyFXParser.h code/parser/AnyFXLexer.h)
+FILE(GLOB SRC code/parser4/AnyFXParser.cpp code/parser4/AnyFXLexer.cpp)
+FILE(GLOB HEAD code/parser4/AnyFXParser.h code/parser4/AnyFXLexer.h)
 SOURCE_GROUP("parser" FILES ${SRC} ${HEAD})
 SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
 LIST(APPEND CODE ${SRC} ${HEAD})
-
-
-
-IF(ANYFX_BUILD_GRAMMAR)
-	FILE(GLOB GRAMMAR "antlr/grammar/AnyFX.g")
-	SOURCE_GROUP("grammar" FILES ${GRAMMAR})
-	LIST(APPEND CODE ${GRAMMAR})
-
-	SET_DIRECTORY_PROPERTIES(PROPERTIES 
-		DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/code/parser PROPERTY ADDITIONAL_MAKE_CLEAN_FILES)
-
-	ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/code/parser
-				COMMAND java -jar ${CMAKE_CURRENT_SOURCE_DIR}/antlr/antlr.jar ${GRAMMAR} -fo ${CMAKE_CURRENT_SOURCE_DIR}/code/parser
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				DEPENDS ${GRAMMAR}
-	)
-
-	ADD_CUSTOM_TARGET(GenerateParser ALL
-		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/code/parser)
-ENDIF()
 	
 IF (ANYFX_BUILD_COMPILER_LIBRARY)
 
@@ -75,7 +49,7 @@ ENDIF()
 	ADD_DEPENDENCIES(compiler
 		#GenerateParser
 		util
-		antlr
+		antlr4
 		glslang
 		OGLCompiler
 		OSDependent
@@ -85,7 +59,7 @@ ENDIF()
 		
 	TARGET_LINK_LIBRARIES(compiler
 		util
-		antlr
+		antlr4
 		mcpp
 		glslang
 		OGLCompiler

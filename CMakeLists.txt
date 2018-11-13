@@ -60,6 +60,8 @@ fips_project(fips-anyfx)
 		OPTION(ANYFX_BUILD_DEMO "Build AnyFX Demo" OFF)
 		OPTION(ANYFX_BUILD_COMPILER_LIBRARY "Build AnyFX Compiler as a library" ON)
 		OPTION(ANYFX_TRANSPOSE_MATRICES "Builds AnyFX with automatic matrix transposing for variables")
+
+		ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
 		
 		fips_src(anyfx/api/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/ NO_RECURSE)
@@ -70,7 +72,7 @@ fips_project(fips-anyfx)
 		fips_include_directories(anyfx/api/lowlevel)
 		fips_include_directories(anyfx/api/highlevel)
 		fips_include_directories(anyfx/compiler/code)
-		fips_include_directories(anyfx/compiler/antlr/include)
+		fips_include_directories(anyfx/compiler/antlr4/src)
 		fips_include_directories(anyfx/compiler/mcpp)
 		fips_include_directories(anyfx/util/code)
 		fips_src(anyfx/api/lowlevel/ NO_RECURSE)
@@ -84,7 +86,7 @@ fips_project(fips-anyfx)
 		fips_src(anyfx/compiler/code/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/expressions/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/generators/ NO_RECURSE)
-		fips_src(anyfx/compiler/code/parser/ NO_RECURSE)
+		fips_src(anyfx/compiler/code/parser4/ NO_RECURSE)
 		
 		fips_src(anyfx/util/code/ NO_RECURSE)			
 		
@@ -97,7 +99,7 @@ fips_project(fips-anyfx)
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr)
 		
 		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
-		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr)
+		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
 	#	fips_dir(${ANYFX_SOURCE_DIR}/exts/eastl)
 	#	fips_files(*.*)
 	#	fips_dir(${ANYFX_SOURCE_DIR}/exts/glslang)
@@ -111,10 +113,10 @@ fips_project(fips-anyfx)
 
 		# set target subdirs
 		SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
-		SET_TARGET_PROPERTIES(antlr PROPERTIES FOLDER Extlibs)
+		SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
 
 		ADD_LIBRARY(libglslang INTERFACE)
-		TARGET_LINK_LIBRARIES(libglslang INTERFACE glslang glslang-default-resource-limits OGLCompiler OSDependent HLSL SPIRV)
+		TARGET_LINK_LIBRARIES(libglslang INTERFACE glslang)
 		
 		IF(ANYFX_TRANSPOSE_MATRICES)
 			ADD_DEFINITIONS(-D__ANYFX_TRANSPOSE_MATRIX__)
@@ -127,7 +129,8 @@ fips_project(fips-anyfx)
 		
 	fips_end_lib()
 	
-	FILE(GLOB SRC anyfx/compiler/code/parser/AnyFXParser.c anyfx/compiler/code/parser/AnyFXLexer.c)
+	#FILE(GLOB SRC anyfx/compiler/code/parser/AnyFXParser.c anyfx/compiler/code/parser/AnyFXLexer.c)
+	FILE(GLOB SRC anyfx/compiler/code/parser4/AnyFXParser.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXBaseListener.cpp anyfx/compiler/code/parser4/AnyFXListener.cpp)
 	SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
 	
 	FIND_PACKAGE(Vulkan)
