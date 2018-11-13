@@ -15,7 +15,7 @@ exports:
     #- anyfx/api/highlevel
     - anyfx/api/lowlevel
     - anyfx/compiler/code
-    - anyfx/compiler/antlr/include
+    - anyfx/compiler/antlr4/src
     - anyfx/compiler/mcpp
     - anyfx/util/code
     modules:
