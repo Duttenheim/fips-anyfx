@@ -1138,6 +1138,7 @@ public:
     antlr4::Token *integerliteralToken = nullptr;;
     antlr4::Token *floatliteralToken = nullptr;;
     antlr4::Token *doubleliteralToken = nullptr;;
+    antlr4::Token *hexToken = nullptr;;
     AnyFXParser::BooleanContext *booleanContext = nullptr;;
     AnyFXParser::ParantexpressionContext *parantexpressionContext = nullptr;;
     BinaryexpatomContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -1145,6 +1146,7 @@ public:
     antlr4::tree::TerminalNode *INTEGERLITERAL();
     antlr4::tree::TerminalNode *FLOATLITERAL();
     antlr4::tree::TerminalNode *DOUBLELITERAL();
+    antlr4::tree::TerminalNode *HEX();
     BooleanContext *boolean();
     ParantexpressionContext *parantexpression();
 
