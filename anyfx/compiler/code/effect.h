@@ -21,6 +21,7 @@
 #include "subroutine.h"
 #include "compileable.h"
 #include "sampler.h"
+#include "util/code/textwriter.h"
 
 namespace AnyFX
 {
@@ -71,9 +72,13 @@ public:
 	void Generate(Generator& generator);
 	/// compile effect
 	void Compile(BinWriter& writer);
+	/// generate header file
+	void GenerateHeader(TextWriter& writer);
 
 	/// set debug output
 	void SetDebugOutputPath(const std::string& debugOutput);
+	/// set name of effect
+	void SetName(const std::string& name);
 
 	/// align value to nearest power of two
 	static unsigned AlignToPow(unsigned num, unsigned pow);
@@ -82,6 +87,7 @@ public:
 
 private:
 	Header header;
+	std::string name;
 	std::vector<Program> programs;
 	std::vector<Variable> variables;
 	std::vector<Constant> constants;
@@ -127,6 +133,15 @@ inline void
 Effect::SetDebugOutputPath(const std::string& debugOutput)
 {
 	this->debugOutput = debugOutput;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+Effect::SetName(const std::string & name)
+{
+	this->name = name;
 }
 
 //------------------------------------------------------------------------------

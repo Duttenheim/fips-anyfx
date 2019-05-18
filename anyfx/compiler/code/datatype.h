@@ -161,6 +161,8 @@ private:
 	static std::string ToGLSLType(const DataType& type);
 	/// converts type to string for hlsl
 	static std::string ToHLSLType(const DataType& type);
+	/// converts to c type
+	static std::string ToCType(const DataType& type);
 
 	Style style;
 	Type type;

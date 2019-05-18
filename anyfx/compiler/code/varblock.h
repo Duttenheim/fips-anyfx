@@ -19,8 +19,6 @@ class VarBlock : public Symbol
 {
 public:
 
-
-
 	/// constructor
 	VarBlock();
 	/// destructor

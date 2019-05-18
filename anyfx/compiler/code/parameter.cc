@@ -150,6 +150,7 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 			format.replace(location, 2, "");
 		}
 
+		formattedCode.append("\t");
 		formattedCode.append(format);
 		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 		formattedCode.append(" ");
@@ -170,6 +171,33 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 				formattedCode.append("[]");
 			}
 		}		
+		formattedCode.append(";\n");
+	}
+	else if (header.GetType() == Header::C)
+	{
+		unsigned vecSize = DataType::ToVectorSize(this->GetDataType());
+		formattedCode.append("\t");
+
+		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+		formattedCode.append(" ");
+		formattedCode.append(this->GetName());
+
+		if (this->isArray)
+		{
+			if (this->arraySize > 1)
+			{
+				std::string number = AnyFX::Format("%d", this->arraySize);
+				formattedCode.append("[");
+				formattedCode.append(number);
+				formattedCode.append("]");
+			}
+		}
+
+		if (vecSize > 1)
+		{
+			formattedCode.append(AnyFX::Format("[%d]", vecSize));
+		}
+
 		formattedCode.append(";\n");
 	}
 	

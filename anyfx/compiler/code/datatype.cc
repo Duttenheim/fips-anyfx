@@ -319,6 +319,138 @@ DataType::ToHLSLType(const DataType& type)
 //------------------------------------------------------------------------------
 /**
 */
+std::string 
+DataType::ToCType(const DataType & type)
+{
+	switch (type.type)
+	{
+	case Float:
+		return "float";
+	case Float2:
+		return "float";
+	case Float3:
+		return "float";
+	case Float4:
+		return "float";
+	case Double:
+		return "double";
+	case Double2:
+		return "double";
+	case Double3:
+		return "double";
+	case Double4:
+		return "double";
+	case Integer:
+		return "int";
+	case Integer2:
+		return "int";
+	case Integer3:
+		return "int";
+	case Integer4:
+		return "int";
+	case UInteger:
+		return "unsigned int";
+	case UInteger2:
+		return "unsigned int";
+	case UInteger3:
+		return "unsigned int";
+	case UInteger4:
+		return "unsigned int";
+	case Short:
+		return "short";
+	case Short2:
+		return "short";
+	case Short3:
+		return "short";
+	case Short4:
+		return "short";
+	case Bool:
+		return "bool";
+	case Bool2:
+		return "bool";
+	case Bool3:
+		return "bool";
+	case Bool4:
+		return "bool";
+	case Matrix2x2:
+		return "float";
+	case Matrix2x3:
+		return "float";
+	case Matrix2x4:
+		return "float";
+	case Matrix3x2:
+		return "float";
+	case Matrix3x3:
+		return "float";
+	case Matrix3x4:
+		return "float";
+	case Matrix4x2:
+		return "float";
+	case Matrix4x3:
+		return "float";
+	case Matrix4x4:
+		return "float";
+	case Sampler1D:
+		return "void*";
+	case Sampler1DArray:
+		return "void*";
+	case Sampler2D:
+		return "void*";
+	case Sampler2DArray:
+		return "void*";
+	case Sampler2DMS:
+		return "void*";
+	case Sampler2DMSArray:
+		return "void*";
+	case Sampler3D:
+		return "void*";
+	case SamplerCube:
+		return "void*";
+	case SamplerCubeArray:
+		return "void*";
+	case Image1D:
+		return "void*";
+	case Image1DArray:
+		return "void*";
+	case Image2D:
+		return "void*";
+	case Image2DArray:
+		return "RWTexture2DArray";
+	case Image3D:
+		return "void*";
+	case TextureHandle:
+	case ImageHandle:
+	case SamplerHandle:
+		return "unsigned int";
+	case Void:
+		return "void*";
+	case UserType:
+		return type.name;
+
+		// these types are undefined for hlsl
+	case ImageCube:
+		return "void*";
+	case ImageCubeArray:
+		return "void*";
+	case Image2DMS:
+		return "void*";
+	case Image2DMSArray:
+		return "void*";
+	case InputAttachment:
+	case InputAttachmentMS:
+	case InputAttachmentInteger:
+	case InputAttachmentIntegerMS:
+	case InputAttachmentUInteger:
+	case InputAttachmentUIntegerMS:
+	case Undefined:
+	default:
+		return "void*";
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 std::string
 DataType::ToProfileType(const DataType& dtype, const Header::Type& ttype)
 {
@@ -329,6 +461,8 @@ DataType::ToProfileType(const DataType& dtype, const Header::Type& ttype)
 	case Header::SPIRV:
 	case Header::GLSL:
 		return ToGLSLType(dtype);
+	case Header::C:
+		return ToCType(dtype);
 	default:
 		Error("Type cannot be converted");
 		return "";

@@ -12,7 +12,7 @@
 #include "header.h"
 #include <fstream>
 #include <algorithm>
-
+#include <locale>
 #include <iostream>
 
 #include "antlr4-runtime.h"
@@ -190,7 +190,7 @@ AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string
     @param errorBuffer	Buffer containing errors, created in function but must be deleted manually
 */
 bool
-AnyFXCompile(const std::string& file, const std::string& output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, const std::vector<std::string>& flags, AnyFXErrorBlob** errorBuffer)
+AnyFXCompile(const std::string& file, const std::string& output, const std::string& header_output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, const std::vector<std::string>& flags, AnyFXErrorBlob** errorBuffer)
 {
     std::string preprocessed;
     (*errorBuffer) = NULL;
@@ -205,6 +205,20 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
 		lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
 		CommonTokenStream tokens(&lexer);
 		AnyFXParser parser(&tokens);
+
+		// get the name of the shader
+		std::locale loc;
+		size_t extension = file.rfind('.');
+		size_t lastFolder = file.rfind('/') + 1;
+		std::string effectName = file.substr(lastFolder, (file.length() - lastFolder) - (file.length() - extension));
+		effectName[0] = std::toupper(effectName[0], loc);
+		size_t undersc = effectName.find('_');
+		while (undersc != std::string::npos)
+		{
+			effectName[undersc + 1] = std::toupper(effectName[undersc + 1], loc);
+			effectName = effectName.erase(undersc, 1);
+			undersc = effectName.find('_');
+		}
 
 		// setup preprocessor
 		parser.preprocess();
@@ -243,10 +257,14 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             // create header
             Header header;
             header.SetProfile(target);
+
+			// handle shader-file level compile flags
 			header.SetFlags(flags);
 
             // set effect header and setup effect
             effect.SetHeader(header);
+			effect.SetName(effectName);
+			effect.SetFile(file);
             effect.Setup();
 
 			// set debug output dump if flag is supplied
@@ -300,6 +318,22 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
 
                         // close writer and finish file
                         writer.Close();
+
+						// output header file
+						{
+							TextWriter headerWriter;
+
+							// the path is going to be .fxb.h, but that's okay, it makes it super clear its generated from a shader
+							headerWriter.SetPath(header_output);
+							if (headerWriter.Open())
+							{
+								// call the effect to generate a header
+								header.SetProfile("c");
+								effect.SetHeader(header);
+								effect.GenerateHeader(headerWriter);
+								headerWriter.Close();
+							}
+						}
 
 						mcpp_use_mem_buffers(1);	// clear mcpp
                         return true;

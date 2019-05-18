@@ -183,6 +183,10 @@ VarBuffer::Format(const Header& header) const
 		std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d) buffer ", this->group, this->binding);
 		formattedCode.append(layout);
 	}
+	else if (header.GetType() == Header::C)
+	{
+		formattedCode.append("struct ");
+	}
 	
 	formattedCode.append(this->GetName());
 	formattedCode.append("\n{\n");

@@ -130,7 +130,9 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		const DataType& type = var.GetDataType();
 
 		// align offset with current alignment
-		offset = Effect::AlignToPow(offset, alignment);
+		if (offset % alignment > 0)
+			offset = offset + alignment - (offset % alignment);
+		var.alignedOffset = offset;
 
 		// avoid adding actual struct
 		if (type.GetType() == DataType::UserType)
@@ -213,7 +215,10 @@ VarBlock::Format(const Header& header) const
 			std::string layout = AnyFX::Format("layout(std140, set=%d, binding=%d) uniform ", this->group, this->binding);
 			formattedCode.append(layout);
 		}
-        else if (header.GetType() == Header::HLSL) formattedCode.append("shared cbuffer ");
+        else if (header.GetType() == Header::HLSL) 
+			formattedCode.append("shared cbuffer ");
+		else if (header.GetType() == Header::C)
+			formattedCode.append("struct ");
     }
 	else
 	{
@@ -237,7 +242,10 @@ VarBlock::Format(const Header& header) const
 			}
 			
 		}
-        else if (header.GetType() == Header::HLSL) formattedCode.append("cbuffer ");
+        else if (header.GetType() == Header::HLSL) 
+			formattedCode.append("cbuffer ");
+		else if (header.GetType() == Header::C)
+			formattedCode.append("struct ");
     }
 	
 	// hmm, if this is a push constant range, setup as a single instance struct
@@ -253,6 +261,7 @@ VarBlock::Format(const Header& header) const
 
 			// format code and add to code
 			formattedCode.append(var.Format(header, true));
+			formattedCode.append("\n");
 		}
 
 		// finalize and return
@@ -265,10 +274,14 @@ VarBlock::Format(const Header& header) const
 		formattedCode.append(this->GetName());
 		formattedCode.append("\n{\n");
 
+
 		unsigned i;
 		for (i = 0; i < this->variables.size(); i++)
 		{
 			const Variable& var = this->variables[i];
+
+			// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
+			formattedCode.append(AnyFX::Format("/* Offset:%d, Alignment:%d */", var.alignedOffset, var.alignedOffset & 0xF));
 
 			// format code and add to code
 			formattedCode.append(var.Format(header, true));

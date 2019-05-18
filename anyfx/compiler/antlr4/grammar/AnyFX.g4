@@ -422,9 +422,9 @@ structure	returns [ Structure struc ]
 varblock	returns [ VarBlock block ]
 	: 
 	(qualifier { $block.AddQualifier($qualifier.str); } | qualifierExpression { $block.AddQualifierExpression($qualifierExpression.q); })*
-	'varblock' name = IDENTIFIER { SetupFile(&$block, _input); } 
+	'varblock' name = IDENTIFIER { SetupFile(&$block, _input); $block.SetName($name.text); } 
 	(annotation { $block.SetAnnotation($annotation.annot); })?
-	LB ( variable { $block.AddVariable($variable.var); } )* RB SC { $block.SetName($name.text); }
+	LB ( variable { $block.AddVariable($variable.var); } )* RB SC
 	;
 	
 // a varbuffer denotes a data type which has a dynamic size.
@@ -433,9 +433,9 @@ varblock	returns [ VarBlock block ]
 varbuffer	returns [ VarBuffer buffer ]
 	:
 	(qualifier { $buffer.AddQualifier($qualifier.str); } | qualifierExpression { $buffer.AddQualifierExpression($qualifierExpression.q); })*
-	'varbuffer' name = IDENTIFIER { SetupFile(&$buffer, _input); }
+	'varbuffer' name = IDENTIFIER { SetupFile(&$buffer, _input); $buffer.SetName($name.text); }
 	(annotation { $buffer.SetAnnotation($annotation.annot); })?
-	LB ( variable {$buffer.AddVariable($variable.var); } )* RB SC { $buffer.SetName($name.text); }
+	LB ( variable {$buffer.AddVariable($variable.var); } )* RB SC
 	;
 	
 // a subroutine denotes a function which can be dynamically switched without switching shader states.

@@ -194,6 +194,9 @@ private:
 
 	// index used if variable is an input attachment
 	unsigned index;
+
+	// aligned offset
+	unsigned alignedOffset;
 }; 
 
 //------------------------------------------------------------------------------

@@ -250,6 +250,9 @@ Effect::Setup()
 				i--;
 			}
 		}
+
+		// sort variables, since we can't handle the alignment manually here
+		this->placeholderVarBlock.SortVariables();
 		this->varBlocks.insert(this->varBlocks.begin(), this->placeholderVarBlock);
 	}
 	else
@@ -364,7 +367,7 @@ Effect::TypeCheck(TypeChecker& typechecker)
 
 	for (i = 0; i < this->varBlocks.size(); i++)
 	{
-		this->varBlocks[i].SortVariables();
+		//this->varBlocks[i].SortVariables();
 		this->varBlocks[i].TypeCheck(typechecker);
 	}
 
@@ -559,6 +562,44 @@ Effect::Compile(BinWriter& writer)
 //------------------------------------------------------------------------------
 /**
 */
+void 
+Effect::GenerateHeader(TextWriter& writer)
+{
+	
+	std::string output = AnyFX::Format("\
+//------------------------------------------------------------------------------\n\
+/** \n	Generated from shader '%s' \n\n\
+	DO NOT MODIFY HERE!!! \n \
+*/\
+\n\nnamespace %s\n{\n\n", 
+		this->file.c_str(), this->name.c_str());
+	writer.WriteString(output);
+
+	// compile structs for runtime
+	unsigned i;
+	for (i = 0; i < this->structures.size(); i++)
+	{
+		writer.WriteString(this->structures[i].Format(this->header));
+	}
+
+	// compile varblocks for runtime
+	for (i = 0; i < this->varBlocks.size(); i++)
+	{
+		writer.WriteString(this->varBlocks[i].Format(this->header));
+	}
+
+	// compile varbuffers for runtime
+    for (i = 0; i < this->varBuffers.size(); i++)
+    {
+		writer.WriteString(this->varBuffers[i].Format(this->header));
+    }
+
+	writer.WriteString("}");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned
 Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, unsigned& elementStride, std::vector<unsigned>& suboffsets, const bool& std140, TypeChecker& typechecker)
 {
@@ -640,7 +681,7 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 			}
 
 			// all matrices are column major
-			if (std140) alignment = std::max(alignment, vec4alignment);
+			//if (std140) alignment = std::max(alignment, vec4alignment);
 			alignedSize = AlignToPow(alignedSize, alignment);
 			elementStride = alignedSize;
 			alignedSize *= dims.y;
@@ -650,7 +691,7 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 	{
 		// get alignment for non-array
 		alignment = Effect::GetAlignmentGLSL(type, 1, alignedSize, unusedStride, unusedElementStride, suboffsets, std140, typechecker);
-		if (std140) alignment = std::max(alignment, vec4alignment);
+		//if (std140) alignment = std::max(alignment, vec4alignment);
 		alignedSize = AlignToPow(alignedSize, alignment);
 		elementStride = alignedSize;
 		alignedSize *= arraySize;

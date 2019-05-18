@@ -27,6 +27,7 @@ public:
 		Metal,
 		PS,
 		Wii,
+		C,
 
 		InvalidType,
 

@@ -199,6 +199,12 @@ Header::SetProfile(const std::string& profile)
 		this->type = Wii;
 		this->major = 1;
 	}
+	else if (profile == "c")
+	{
+		this->type = C;
+		this->major = 0;
+		this->minor = 0;
+	}
 	else
 	{
 		this->type = InvalidType;
@@ -217,9 +223,9 @@ Header::SetFlags(const std::vector<std::string>& defines)
 	for (unsigned i = 0; i < defines.size(); i++)
 	{
 		const std::string& str = defines[i];
-		if (str == "/NOSUB" || str == "/N")		this->flags |= NoSubroutines;
-		else if (str == "/GBLOCK" || str == "/G")	this->flags |= PutGlobalVariablesInBlock;
-		else if (str == "/OUTPUT" || str == "/O") this->flags |= OutputGeneratedShaders;
+		if (str == "/NOSUB" || str == "/N")				this->flags |= NoSubroutines;
+		else if (str == "/GBLOCK" || str == "/G")		this->flags |= PutGlobalVariablesInBlock;
+		else if (str == "/OUTPUT" || str == "/O")		this->flags |= OutputGeneratedShaders;
 		else
 		{
 			if (str[0] == '/')

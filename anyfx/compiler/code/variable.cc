@@ -530,17 +530,59 @@ Variable::Format(const Header& header, bool inVarblock) const
         if (this->qualifierFlags & GroupShared) formattedCode.append("shared ");
 		else                                    formattedCode.append("uniform ");
 	}
-
-	formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-	formattedCode.append(" ");
-	formattedCode.append(this->GetName());
-	if (this->isArray)
+	
+	// if c, an unsized struct is just a pointer to it...
+	if (header.GetType() == Header::C)
 	{
-		std::string number = AnyFX::Format("%d", this->arraySize);
-		formattedCode.append("[");
-		if (this->arrayType != UnsizedArray) formattedCode.append(number);
-		formattedCode.append("]");
+		unsigned vecSize = DataType::ToVectorSize(this->GetDataType());
+		formattedCode.append("\t");
+		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+
+		if (this->isArray)
+		{
+			if (this->arrayType != UnsizedArray)
+			{
+				std::string number = AnyFX::Format("%d", this->arraySize);
+
+				formattedCode.append(" ");
+				formattedCode.append(this->GetName());
+				formattedCode.append("[");
+				formattedCode.append(number);
+				formattedCode.append("]");
+			}
+			else
+			{
+				formattedCode.append("*");
+				formattedCode.append(" ");
+				formattedCode.append(this->GetName());
+			}
+		}
+		else
+		{
+			formattedCode.append(" ");
+			formattedCode.append(this->GetName());
+		}
+
+		if (vecSize > 1)
+		{
+			formattedCode.append(AnyFX::Format("[%d]", vecSize));
+		}
 	}
+	else
+	{ 
+		formattedCode.append("\t");
+		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+		formattedCode.append(" ");
+		formattedCode.append(this->GetName());
+		if (this->isArray)
+		{
+			std::string number = AnyFX::Format("%d", this->arraySize);
+			formattedCode.append("[");
+			if (this->arrayType != UnsizedArray) formattedCode.append(number);
+			formattedCode.append("]");
+		}
+	}
+
 	formattedCode.append(";\n");
 
 	// input attachments are only available in fragment shaders in SPIR-V

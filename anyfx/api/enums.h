@@ -18,6 +18,7 @@ enum Implementation
 	Metal,
 	PS,
 	Wii,
+	C,
 
 	InvalidType,
 
@@ -217,7 +218,7 @@ enum DrawBoolFlag
 {
 	DepthEnabled,
 	DepthWrite,
-	DepthRead,
+	DepthAttachmentRead,
 	SeparateBlend,
 	StencilEnabled,
 	AlphaToCoverageEnabled,

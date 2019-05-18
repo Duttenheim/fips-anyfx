@@ -40,7 +40,7 @@ main(int argc, char** argv)
 			{
 				target = args.GetArgument("-target");
 				AnyFXErrorBlob* errors;
-				AnyFXCompile(file, output, target, "Intel", defines, flags, &errors);
+				AnyFXCompile(file, output, nullptr, target, "Intel", defines, flags, &errors);
 				if (errors)
 				{
 					printf(errors->buffer);
