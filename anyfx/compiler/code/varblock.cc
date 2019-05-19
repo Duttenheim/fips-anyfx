@@ -131,7 +131,12 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 
 		// align offset with current alignment
 		if (offset % alignment > 0)
+		{
+			var.padding = alignment - (offset % alignment);
 			offset = offset + alignment - (offset % alignment);
+		}
+		else
+			var.padding = 0;
 		var.alignedOffset = offset;
 
 		// avoid adding actual struct
@@ -281,7 +286,7 @@ VarBlock::Format(const Header& header) const
 			const Variable& var = this->variables[i];
 
 			// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
-			formattedCode.append(AnyFX::Format("/* Offset:%d, Alignment:%d */", var.alignedOffset, var.alignedOffset & 0xF));
+			formattedCode.append(AnyFX::Format("/* Offset:%d, Padding:%d */", var.alignedOffset, var.padding));
 
 			// format code and add to code
 			formattedCode.append(var.Format(header, true));

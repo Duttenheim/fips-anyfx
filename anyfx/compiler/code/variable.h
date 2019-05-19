@@ -197,6 +197,7 @@ private:
 
 	// aligned offset
 	unsigned alignedOffset;
+	unsigned padding;
 }; 
 
 //------------------------------------------------------------------------------

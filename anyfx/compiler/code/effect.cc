@@ -623,6 +623,10 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 		alignment = byteSize * 2;
 		alignedSize = byteSize * 2;
 		break;
+	case 3:
+		alignment = byteSize * 4;
+		alignedSize = byteSize * 3;
+		break;
 	default:	// this holds true for both 3, and 4 element vectors
 		alignment = byteSize * 4;
 		alignedSize = byteSize * 4;
@@ -673,6 +677,10 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 			case 2:
 				alignment = byteSize * 2;
 				alignedSize = byteSize * 2;
+				break;
+			case 3:
+				alignment = byteSize * 4;
+				alignedSize = byteSize * 3;
 				break;
 			default:	// this holds true for both 3, and 4 element vectors
 				alignment = byteSize * 4;
