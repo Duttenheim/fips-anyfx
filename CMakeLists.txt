@@ -107,7 +107,7 @@ fips_project(fips-anyfx)
 
 	IF (MSVC)
 			IF(CMAKE_CL_64)
-				SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "/wd4267")
+				SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " /wd4267")
 			ENDIF()
 		ENDIF()
 
@@ -135,6 +135,7 @@ fips_project(fips-anyfx)
 	
 	FIND_PACKAGE(Vulkan)
 	TARGET_INCLUDE_DIRECTORIES(anyfx PUBLIC ${Vulkan_INCLUDE_DIR})
-
+	
+        fips_add_subdirectory(anyfxcompiler)
 fips_finish()
 
