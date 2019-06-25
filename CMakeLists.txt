@@ -69,6 +69,7 @@ fips_project(fips-anyfx)
 		#fips_src(anyfx/api/highlevel/loaders/ NO_RECURSE)
 
 		fips_include_directories(anyfx/api)
+		fips_include_directories(anyfx)
 		fips_include_directories(anyfx/api/lowlevel)
 		fips_include_directories(anyfx/api/highlevel)
 		fips_include_directories(anyfx/compiler/code)
@@ -136,6 +137,8 @@ fips_project(fips-anyfx)
 	FIND_PACKAGE(Vulkan)
 	TARGET_INCLUDE_DIRECTORIES(anyfx PUBLIC ${Vulkan_INCLUDE_DIR})
 	
+    IF(BUILD_COMPILER)
         fips_add_subdirectory(anyfxcompiler)
+    ENDIF()
 fips_finish()
 
