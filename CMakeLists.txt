@@ -15,10 +15,11 @@ MACRO(SET_DEFAULT_OUTPUT TargetName)
 	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${OUTPUT_DEFAULT_DIR})
 	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${OUTPUT_DEFAULT_DIR})
 ENDMACRO(SET_DEFAULT_OUTPUT)
-		
+
+if(NOT FIPS_IMPORT)
 fips_setup()
 fips_project(fips-anyfx)
-
+endif()
     fips_begin_lib(anyfx)
 
 		get_filename_component(ANYFX_SOURCE_DIR "anyfx" ABSOLUTE)
@@ -140,5 +141,7 @@ fips_project(fips-anyfx)
     IF(BUILD_COMPILER)
         fips_add_subdirectory(anyfxcompiler)
     ENDIF()
-fips_finish()
+if(NOT FIPS_IMPORT)    
+    fips_finish()
+endif()    
 
