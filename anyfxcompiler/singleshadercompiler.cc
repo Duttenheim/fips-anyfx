@@ -162,10 +162,10 @@ SingleShaderCompiler::CreateDependencies(const std::string& src)
 	std::string folder = sp.parent_path().string();
 
 	// format destination
-	std::string destFile = this->dstDir + "/shaders/" + file + ".fxb";
+	std::string destFile = this->dstDir + "/shaders/" + file + ".dep";
 
 	// compile
-	fprintf(stderr, "[anyfxcompiler] \n Analyzing:\n   %s -> %s", src.c_str(), destFile.c_str());	
+	fprintf(stderr, "[anyfxcompiler] \n Analyzing:\n   %s -> %s\n", src.c_str(), destFile.c_str());	
 
 
 	std::vector<std::string> defines;
