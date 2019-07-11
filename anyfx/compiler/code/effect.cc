@@ -566,7 +566,7 @@ void
 Effect::GenerateHeader(TextWriter& writer)
 {
 	
-	std::string output = AnyFX::Format("\
+	std::string output = AnyFX::Format("#pragma once\n\
 //------------------------------------------------------------------------------\n\
 /** \n	Generated from shader '%s' \n\n\
 	DO NOT MODIFY HERE!!! \n \

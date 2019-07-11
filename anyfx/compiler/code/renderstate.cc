@@ -46,7 +46,7 @@ RenderState::RenderState() :
 	// set default render settings
 	this->drawBoolFlags[RenderStateRow::DepthEnabled] = true;
 	this->drawBoolFlags[RenderStateRow::DepthWrite] = true;
-	this->drawBoolFlags[RenderStateRow::DepthClamp] = true;
+	this->drawBoolFlags[RenderStateRow::DepthClamp] = false;
 	this->drawBoolFlags[RenderStateRow::SeparateBlend] = false;
 	this->drawBoolFlags[RenderStateRow::ScissorEnabled] = false;
 	this->drawBoolFlags[RenderStateRow::StencilEnabled] = false;
