@@ -285,8 +285,15 @@ VarBlock::Format(const Header& header) const
 		{
 			const Variable& var = this->variables[i];
 
+			// add padding member if we have a positive padding
+			if (header.GetType() == Header::C && var.padding > 0)
+			{
+				// convert byte to bits for padding format
+				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", var.padding * 8));
+			}
+
 			// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
-			formattedCode.append(AnyFX::Format("/* Offset:%d, Padding:%d */", var.alignedOffset, var.padding));
+			formattedCode.append(AnyFX::Format("/* Offset:%d */", var.alignedOffset));
 
 			// format code and add to code
 			formattedCode.append(var.Format(header, true));
