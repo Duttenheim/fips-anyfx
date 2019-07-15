@@ -158,6 +158,7 @@ public:
 
 private:
     friend class VarBlock;
+	friend class VarBuffer;
 	friend class Effect;
 	friend class Structure;
 
