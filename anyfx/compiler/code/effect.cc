@@ -662,7 +662,6 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 			}
 
 			// align size to the biggest alignment in the struct
-			alignedSize = RoundUp(alignedSize, maxAlignment);
 			alignment = maxAlignment;
 		}
 		else if (type.GetType() >= DataType::Matrix2x2 && type.GetType() <= DataType::Matrix4x4) // matrix types
