@@ -80,10 +80,10 @@ public:
 	/// set name of effect
 	void SetName(const std::string& name);
 
-	/// align value to nearest power of two
-	static unsigned AlignToPow(unsigned num, unsigned pow);
+	/// round up to closest multiple
+	static unsigned RoundUp(unsigned num, unsigned multiple);
 	/// calculate offset of variable using shared/std140 declared in GLSL/SPIR-V
-	static unsigned GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, unsigned& elementStride, std::vector<unsigned>& suboffsets, const bool& std140, TypeChecker& typechecker);
+	static unsigned GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, std::vector<unsigned>& suboffsets, const bool std140, const bool structMember, TypeChecker& typechecker);
 
 private:
 	Header header;
@@ -148,9 +148,9 @@ Effect::SetName(const std::string & name)
 /**
 */
 inline unsigned
-Effect::AlignToPow(unsigned num, unsigned pow)
+Effect::RoundUp(unsigned num, unsigned multiple)
 {
-	return ((num + pow - 1) & ~(pow - 1));
+	return ((num + multiple - 1) / multiple) * multiple;
 }
 
 } // namespace AnyFX

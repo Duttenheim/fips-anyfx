@@ -601,7 +601,7 @@ Effect::GenerateHeader(TextWriter& writer)
 /**
 */
 unsigned
-Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, unsigned& elementStride, std::vector<unsigned>& suboffsets, const bool& std140, TypeChecker& typechecker)
+Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, std::vector<unsigned>& suboffsets, const bool std140, const bool structMember, TypeChecker& typechecker)
 {
 	DataType::Dimensions dims = DataType::ToDimensions(type);
 	unsigned byteSize = DataType::ToByteSize(DataType::ToPrimitiveType(type));
@@ -624,7 +624,7 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 		alignedSize = byteSize * 2;
 		break;
 	case 3:
-		alignment = byteSize * 4;
+		alignment = (!std140 && (structMember || arraySize > 0)) ? byteSize * 3 : byteSize * 4; // avoid rounding to vec4 if using std430
 		alignedSize = byteSize * 3;
 		break;
 	default:	// this holds true for both 3, and 4 element vectors
@@ -634,7 +634,6 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 	}
 
 	unsigned unusedStride;
-	unsigned unusedElementStride;
 
 	// no array
 	if (arraySize == 1)
@@ -645,25 +644,25 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 			assert(structure != 0);
 			const std::vector<Parameter>& params = structure->GetParameters();
 			unsigned i;
-			unsigned maxAlignment = std140 ? vec4alignment : 0;
+			unsigned maxAlignment = std140 ? vec4alignment : 0; // use 16 byte max alignment as default
 			alignedSize = 0;
 			for (i = 0; i < params.size(); i++)
 			{
 				const Parameter& param = params[i];
 				const DataType& memberType = param.GetDataType();
 				unsigned memberSize;
-				unsigned memberAlignment = Effect::GetAlignmentGLSL(memberType, param.GetArraySize(), memberSize, stride, unusedElementStride, suboffsets, std140, typechecker);
+				unsigned memberAlignment = Effect::GetAlignmentGLSL(memberType, param.GetArraySize(), memberSize, stride, suboffsets, std140, true, typechecker);
+
+				// find max alignment, this will be used to align the whole struct when we are done
 				maxAlignment = std::max(maxAlignment, memberAlignment);
-				alignedSize = AlignToPow(alignedSize, memberAlignment);
-				if (memberType.GetType() != DataType::UserType) suboffsets.push_back(stride);
+
+				// add member size to total struct size, then 
+				if (memberType.GetType() != DataType::UserType) suboffsets.push_back(alignedSize);
 				alignedSize += memberSize;
-				stride = AlignToPow(alignedSize, memberAlignment);
 			}
 
-			// align all suboffsets
-			for (i = 0; i < suboffsets.size(); i++) suboffsets[i] = AlignToPow(suboffsets[i], maxAlignment);
-
-			alignedSize = AlignToPow(alignedSize, maxAlignment);
+			// align size to the biggest alignment in the struct
+			alignedSize = RoundUp(alignedSize, maxAlignment);
 			alignment = maxAlignment;
 		}
 		else if (type.GetType() >= DataType::Matrix2x2 && type.GetType() <= DataType::Matrix4x4) // matrix types
@@ -689,19 +688,15 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 			}
 
 			// all matrices are column major
-			//if (std140) alignment = std::max(alignment, vec4alignment);
-			alignedSize = AlignToPow(alignedSize, alignment);
-			elementStride = alignedSize;
+			alignedSize = RoundUp(alignedSize, alignment);
 			alignedSize *= dims.y;
 		}
 	}
 	else // array
 	{
 		// get alignment for non-array
-		alignment = Effect::GetAlignmentGLSL(type, 1, alignedSize, unusedStride, unusedElementStride, suboffsets, std140, typechecker);
-		//if (std140) alignment = std::max(alignment, vec4alignment);
-		alignedSize = AlignToPow(alignedSize, alignment);
-		elementStride = alignedSize;
+		alignment = Effect::GetAlignmentGLSL(type, 1, alignedSize, unusedStride, suboffsets, std140, structMember, typechecker);
+		alignedSize = RoundUp(alignedSize, alignment);
 		alignedSize *= arraySize;
 	}
 	return alignment;

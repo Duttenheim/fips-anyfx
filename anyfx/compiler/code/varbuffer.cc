@@ -111,7 +111,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 	unsigned i;
 	for (i = 0; i < this->variables.size(); i++)
 	{
-        Variable var = this->variables[i];
+        Variable& var = this->variables[i];
         if (var.GetArrayType() == Variable::UnsizedArray && i < this->variables.size() - 1)
         {
             std::string message = AnyFX::Format("Varbuffers can only have its last member as an unsized array, %s\n", var.GetName().c_str(), this->ErrorSuffix().c_str());
@@ -124,14 +124,23 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 		// handle offset later, now we know array size
 		unsigned alignedSize = 0;
 		unsigned stride = 0;
-		unsigned elementStride = 0;
 		unsigned alignment = 0;
 		std::vector<unsigned> suboffsets;
 		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
-			alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, elementStride, suboffsets, false, typechecker);
+			alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, suboffsets, false, false, typechecker);
 
 		// if we have a struct, we need to unroll it, and calculate the offsets
 		const DataType& type = var.GetDataType();
+
+		// align offset with current alignment
+		if (offset % alignment > 0)
+		{
+			var.padding = alignment - (offset % alignment);
+			offset = offset + alignment - (offset % alignment);
+		}
+		else
+			var.padding = 0;
+		var.alignedOffset = offset;
 
 		// avoid adding actual struct
 		if (type.GetType() == DataType::UserType)
@@ -158,7 +167,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 
 		// offset should be size of struct, round of
 		offset += alignedSize;
-		offset = Effect::AlignToPow(offset, alignment);
+		offset = Effect::RoundUp(offset, alignment);
 	}
 
 	this->alignedSize = offset;
@@ -199,8 +208,15 @@ VarBuffer::Format(const Header& header) const
 		// add padding member if we have a positive padding
 		if (header.GetType() == Header::C && var.padding > 0)
 		{
-			// convert byte to bits for padding format
-			formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", var.padding * 8));
+			int pads = var.padding / 4;
+			int remainder = var.padding % 4;
+			unsigned j;
+			for (j = 0; j < pads; j++)
+				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
+
+			if (remainder > 0)
+				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
+			
 		}
 
 		// write variable offset, in most languages, every float4 boundary must be 16 bit aligned

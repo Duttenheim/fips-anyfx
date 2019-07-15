@@ -114,16 +114,15 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		// handle offset later, now we know array size
 		unsigned alignedSize = 0;
 		unsigned stride = 0;
-		unsigned elementStride = 0;
 		unsigned alignment = 0;
 		std::vector<unsigned> suboffsets;
 		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
 		{
 			// if we have a push constant, use std430, otherwise std140
 			if (HasFlags(this->qualifierFlags, Qualifiers::Push))
-				alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, elementStride, suboffsets, false, typechecker);
+				alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, suboffsets, false, false, typechecker);
 			else
-				alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, elementStride, suboffsets, true, typechecker);
+				alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, suboffsets, true, false, typechecker);
 		}
 
 		// if we have a struct, we need to unroll it, and calculate the offsets
@@ -288,8 +287,14 @@ VarBlock::Format(const Header& header) const
 			// add padding member if we have a positive padding
 			if (header.GetType() == Header::C && var.padding > 0)
 			{
-				// convert byte to bits for padding format
-				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", var.padding * 8));
+				int pads = var.padding / 4;
+				int remainder = var.padding % 4;
+				unsigned j;
+				for (j = 0; j < pads; j++)
+					formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
+
+				if (remainder > 0)
+					formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
 			}
 
 			// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
