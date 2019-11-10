@@ -549,14 +549,14 @@ Shader::TypeCheck(TypeChecker& typechecker)
 		if (!hasInputSize)
 		{
 			std::string message = Format("Tessellation Control Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 
 		bool hasOutputSize = this->func.HasIntFlag(FunctionAttribute::OutputVertices);
 		if (!hasOutputSize)
 		{
 			std::string message = Format("Tessellation Control Shader: '%s' needs to define [outputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 	else if (this->shaderType == ProgramRow::DomainShader)
@@ -566,14 +566,14 @@ Shader::TypeCheck(TypeChecker& typechecker)
 		if (!hasInputVertices)
 		{
 			std::string message = Format("Tessellation Evaluation Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}		
 		
 		// input topology and spacing is not optional
 		if (!hasInputTopology)
 		{
 			std::string message = Format("Tessellation Evaluation Shader '%s' needs to define [topology], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 	else if (this->shaderType == ProgramRow::GeometryShader)
@@ -585,17 +585,17 @@ Shader::TypeCheck(TypeChecker& typechecker)
 		if (!hasInput)
 		{
 			std::string message = Format("Geometry Shader '%s' needs to define [inputprimitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 		if (!hasOutput)
 		{
 			std::string message = Format("Geometry Shader '%s' needs to define [outputprimitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 		if (!hasMaxVerts)
 		{
 			std::string message = Format("Geometry Shader '%s' needs to define [maxvertexcount], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 	else if (shaderType == ProgramRow::ComputeShader)
@@ -607,7 +607,7 @@ Shader::TypeCheck(TypeChecker& typechecker)
 		if (!(hasLocalX || hasLocalY || hasLocalZ))
 		{
 			std::string message = Format("Compute shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.LinkError(message);
+			typechecker.LinkError(message, this->GetFile(), this->GetLine());
 		}
 	}
 }

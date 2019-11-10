@@ -732,19 +732,19 @@ RenderState::TypeCheck(TypeChecker& typechecker)
 	for (i = 0; i < this->invalidExpressionFlags.size(); i++)
 	{
 		std::string msg = Format("Render state field '%s' is invalid, %s\n", this->invalidExpressionFlags[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
 	for (i = 0; i < this->invalidStringFlags.size(); i++)
 	{
 		std::string msg = Format("Render state field '%s' is invalid, %s\n", this->invalidStringFlags[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
 	for (i = 0; i < this->invalidValues.size(); i++)
 	{
 		std::string msg = AnyFX::Format("Invalid value '%s' for flag '%s' at entry %d, %s\n", this->invalidValues[i].value.c_str(), this->invalidValues[i].flag.c_str(), this->invalidValues[i].entry, this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
 	for (i = 0; i < this->blendEnumIndexExpressions.size(); i++)
@@ -756,7 +756,7 @@ RenderState::TypeCheck(TypeChecker& typechecker)
 		if (index > MaxNumRenderTargets)
 		{
 			std::string msg = AnyFX::Format("Blend index '%d' must be lower than %d (maximum amount of render targets) in '%s', %s\n", index, MaxNumRenderTargets, this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(msg);
+			typechecker.Error(msg, this->GetFile(), this->GetLine());
 		}
 		else
 		{
@@ -774,7 +774,7 @@ RenderState::TypeCheck(TypeChecker& typechecker)
 		if (index > MaxNumRenderTargets)
 		{
 			std::string msg = AnyFX::Format("Blend index '%d' must be lower than %d (maximum amount of render targets) in '%s', %s\n", index, MaxNumRenderTargets, this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(msg);
+			typechecker.Error(msg, this->GetFile(), this->GetLine());
 		}
 		else
 		{
@@ -835,7 +835,7 @@ RenderState::TypeCheck(TypeChecker& typechecker)
 	if (this->name == "placeholder")
 	{
 		std::string message = Format("Type error: Render state with name 'placeholder' is not allowed, %s", this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 }
 

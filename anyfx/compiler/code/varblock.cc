@@ -67,7 +67,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		else
 		{  
 			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 
@@ -79,7 +79,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		else
 		{
 			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 		delete expr;
 	}
@@ -105,7 +105,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
         if (var.GetArrayType() == Variable::UnsizedArray)
         {
             std::string message = AnyFX::Format("Varblocks cannot contain variables of unsized type! (%s), %s\n", var.GetName().c_str(), this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         // since TypeCheck might modify the variable, we must replace the old one. 
@@ -174,7 +174,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		if (major < 3)
 		{
 			std::string message = AnyFX::Format("Varblocks are only supported in GLSL versions 3+, %s\n", this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 	else if (type == Header::HLSL)
@@ -182,7 +182,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		if (major < 4)
 		{
 			std::string message = AnyFX::Format("Varblocks are only supported in HLSL versions 4+, %s\n", this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 	else if (type == Header::SPIRV)
@@ -190,7 +190,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		if (HasFlags(this->qualifierFlags, Qualifiers::Shared | Qualifiers::Push))
 		{
 			std::string message = AnyFX::Format("Varblocks can not both qualifiers 'shared' and 'push', %s\n", this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 }

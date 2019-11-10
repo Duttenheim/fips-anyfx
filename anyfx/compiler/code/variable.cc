@@ -148,7 +148,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		if (!typechecker.HasSymbol(this->GetDataType().GetName()))
 		{
 			std::string msg = AnyFX::Format("Undefined type '%s', %s\n", this->GetDataType().GetName().c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(msg);
+			typechecker.Error(msg, this->GetFile(), this->GetLine());
 		}
 	}
 
@@ -210,7 +210,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
             if (sym->GetType() != Symbol::StructureType && sym->GetType() != Symbol::SubroutineType)
             {
                 std::string msg = AnyFX::Format("Type '%s' must be either a struct or a subroutine prototype, %s\n", this->type.GetName().c_str(), this->ErrorSuffix().c_str());
-                typechecker.Error(msg);
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
             }
 
             if (sym->GetType() == Symbol::SubroutineType)
@@ -221,14 +221,14 @@ Variable::TypeCheck(TypeChecker& typechecker)
         else
         {
             std::string msg = AnyFX::Format("Type '%s' undefined, %s\n", this->type.GetName().c_str(), this->ErrorSuffix().c_str());
-            typechecker.Error(msg);
+            typechecker.Error(msg, this->GetFile(), this->GetLine());
         }
     }
 
     if (this->isSubroutine && this->isArray)
     {
         std::string msg = AnyFX::Format("Variable cannot be both a subroutine method pointer and an array, %s\n", this->ErrorSuffix().c_str());
-        typechecker.Error(msg);
+        typechecker.Error(msg, this->GetFile(), this->GetLine());
     }
 
 	// evaluate array size
@@ -261,7 +261,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
         if (this->qualifierFlags & Variable::GroupShared)
         {
             std::string message = AnyFX::Format("Qualifier 'groupshared' is not allowed on opaque types (images, samplers and counters), %s\n", this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
 
@@ -277,18 +277,18 @@ Variable::TypeCheck(TypeChecker& typechecker)
 				if (this->type.GetStyle() != DataType::Generic)
 				{
 					std::string message = AnyFX::Format("Non-basic types (types other than float, double, bool, int, uint and short) needs explicit type initializers, %s\n", this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 				if (pair.second.GetNumValues() != this->arraySize)
 				{
 					std::string message = AnyFX::Format("Wrong amount of initializers for array, got %d values, expected %d, %s\n", pair.second.GetNumValues(), this->arraySize, this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 			else if (this->valueTable.size() != this->arraySize)
 			{
 				std::string message = AnyFX::Format("Wrong amount of initializers for array, got %d initializers, expected %d, %s\n", this->valueTable.size(), this->arraySize, this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}	
 
 			unsigned i;
@@ -298,14 +298,14 @@ Variable::TypeCheck(TypeChecker& typechecker)
 				if (pair.first != this->type)
 				{
 					std::string message = AnyFX::Format("Array initializer at index %d has different type than array, %s\n", i+1, this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 				unsigned numVals = pair.second.GetNumValues();
 				unsigned vectorSize = DataType::ToVectorSize(this->type);
 				if (numVals != vectorSize)
 				{
 					std::string message = AnyFX::Format("Initializer at index %d is not completely initialized, got %d initializers, expected %d, %s\n", i+1, numVals, vectorSize, this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 		}
@@ -320,12 +320,12 @@ Variable::TypeCheck(TypeChecker& typechecker)
 			if (pair.first != this->type)
 			{
 				std::string message = AnyFX::Format("Cannot implicitly cast from '%s' to '%s', %s\n", DataType::ToString(this->type).c_str(), DataType::ToString(pair.first).c_str(), this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 			if (pair.second.GetNumValues() != vectorSize)
 			{
 				std::string message = AnyFX::Format("Type constructor at index %d isn't fully initialized, got %d values, expected %d, %s\n", i+1, pair.second.GetNumValues(), vectorSize, this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 		}
 	}
@@ -337,7 +337,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		if (this->accessMode == NoAccess)
 		{
 			std::string message = AnyFX::Format("Variable '%s' is of image type but does not have a required access qualifier, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 		else if (typechecker.GetHeader().GetType() != Header::SPIRV)
 		{
@@ -346,7 +346,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 				if (this->format == NoFormat)
 				{
 					std::string message = AnyFX::Format("Variable '%s' is of image type but does not have a required format qualifier, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 		}		
@@ -356,13 +356,13 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		if (this->format != NoFormat)
 		{
 			std::string message = AnyFX::Format("Variable '%s' has an image format qualifier, but is not an image variable, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Warning(message);
+			typechecker.Warning(message, this->GetFile(), this->GetLine());
 		}
 
 		if (this->accessMode != NoAccess)
 		{
 			std::string message = AnyFX::Format("Variable '%s' has an image access qualifier, but is not an image variable, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Warning(message);
+			typechecker.Warning(message, this->GetFile(), this->GetLine());
 		}
 	}
 	
@@ -372,7 +372,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		if (this->type.GetStyle() != DataType::GLSL && this->type.GetStyle() != DataType::Generic)
 		{
 			std::string message = AnyFX::Format("Variable '%s' is not formatted in GLSL, although compilation target is GLSL, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Warning(message);
+			typechecker.Warning(message, this->GetFile(), this->GetLine());
 		}
 	}
 	else if (type == Header::HLSL)
@@ -380,7 +380,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		if (this->type.GetStyle() != DataType::HLSL && this->type.GetStyle() != DataType::Generic)
 		{
 			std::string message = AnyFX::Format("Variable '%s' is not formatted in HLSL, although compilation target is HLSL, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Warning(message);
+			typechecker.Warning(message, this->GetFile(), this->GetLine());
 		}
 	}
 }

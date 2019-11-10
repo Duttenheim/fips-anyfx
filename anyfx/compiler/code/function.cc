@@ -182,7 +182,7 @@ Function::TypeCheck(TypeChecker& typechecker)
 	if (this->returnType.GetType() == DataType::Undefined)
 	{
 		std::string message = Format("Return type of function '%s' is undefined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	// remove any mcpp #line markers in the source code (because they have file paths in them)
@@ -212,13 +212,13 @@ Function::TypeCheck(TypeChecker& typechecker)
 	for (i = 0; i < this->invalidAttributes.size(); i++)
 	{
 		std::string message = Format("Invalid function attribute '%s', %s\n", this->invalidAttributes[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	for (i = 0; i < this->invalidAttributeValues.size(); i++)
 	{
 		std::string message = Format("Invalid function attribute value '%s', %s\n", this->invalidAttributeValues[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
     // type check parameters
@@ -233,7 +233,7 @@ Function::TypeCheck(TypeChecker& typechecker)
 			(param.GetIO() == Parameter::NoIO || param.GetIO() == Parameter::InputOutput))
 		{
 			std::string message = Format("Shader parameter '%s' must be either declared with 'out' or 'in', %s\n", param.GetName().c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 
         if (!param.HasExplicitSlot())
@@ -272,7 +272,7 @@ Function::TypeCheck(TypeChecker& typechecker)
 							secondParam.GetName().c_str(),
 							secondAttr.c_str(),
 							this->ErrorSuffix().c_str());
-						typechecker.Error(message);
+						typechecker.Error(message, this->GetFile(), this->GetLine());
 					}
 				}
 			}
@@ -284,7 +284,7 @@ Function::TypeCheck(TypeChecker& typechecker)
                     firstParam.GetSlot(),
                     this->name.c_str(),
                     this->ErrorSuffix().c_str());
-                typechecker.Error(msg);
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
             }
 		}		
 	}

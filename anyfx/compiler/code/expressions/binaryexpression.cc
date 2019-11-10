@@ -82,7 +82,7 @@ BinaryExpression::EvalType( TypeChecker& typechecker )
 
 error:
 	std::string msg = Format("Type '%s' cannot use binary operator '%s' with type '%s', %s\n", DataType::ToString(lhs).c_str(), this->op.c_str(), DataType::ToString(rhs).c_str(), this->ErrorSuffix().c_str());
-	typechecker.Error(msg);
+	typechecker.Error(msg, this->GetFile(), this->GetLine());
 	return lhs;
 }
 
@@ -130,7 +130,7 @@ BinaryExpression::EvalInt( TypeChecker& typechecker )
 	else
 	{
 		std::string msg = Format("Invalid operator '%s' with int, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return -1;
 	}
 }
@@ -179,7 +179,7 @@ BinaryExpression::EvalUInt(TypeChecker& typechecker)
 	else
 	{
 		std::string msg = Format("Invalid operator '%s' with int, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return -1;
 	}
 }
@@ -212,7 +212,7 @@ BinaryExpression::EvalFloat( TypeChecker& typechecker )
 	else
 	{
 		std::string msg = Format("Invalid operator '%s' with float, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return -1;
 	}
 }
@@ -271,7 +271,7 @@ BinaryExpression::EvalBool( TypeChecker& typechecker )
 
 error:
 	std::string msg = Format("Type '%s' cannot use binary operator '%s' with type '%s', %s\n", DataType::ToString(lhs).c_str(), this->op.c_str(), DataType::ToString(rhs).c_str(), this->ErrorSuffix().c_str());
-	typechecker.Error(msg);
+	typechecker.Error(msg, this->GetFile(), this->GetLine());
 	return false;
 
 }
@@ -309,7 +309,7 @@ BinaryExpression::EvalBool( int lhs, int rhs, TypeChecker& typechecker )
 	else
 	{
 		std::string err = Format("Invalid operator '%s' between int and int, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(err);
+		typechecker.Error(err, this->GetFile(), this->GetLine());
 		return false;
 	}
 }
@@ -347,7 +347,7 @@ BinaryExpression::EvalBool( float lhs, int rhs, TypeChecker& typechecker )
 	else
 	{
 		std::string err = Format("Invalid operator '%s' between float and int, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(err);
+		typechecker.Error(err, this->GetFile(), this->GetLine());
 		return false;
 	}
 }
@@ -393,7 +393,7 @@ BinaryExpression::EvalBool( int lhs, float rhs, TypeChecker& typechecker )
 	else
 	{
 		std::string err = Format("Invalid operator '%s' between int and float, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(err);
+		typechecker.Error(err, this->GetFile(), this->GetLine());
 		return false;
 	}
 }
@@ -431,7 +431,7 @@ BinaryExpression::EvalBool( float lhs, float rhs, TypeChecker& typechecker )
 	else
 	{
 		std::string err = Format("Invalid operator '%s' between float and float, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(err);
+		typechecker.Error(err, this->GetFile(), this->GetLine());
 		return false;
 	}
 }
@@ -453,7 +453,7 @@ BinaryExpression::EvalBool( bool lhs, bool rhs, TypeChecker& typechecker )
 	else
 	{
 		std::string err = Format("Invalid operator '%s' between bool and bool, %s\n", this->op.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(err);
+		typechecker.Error(err, this->GetFile(), this->GetLine());
 		return false;
 	}
 }

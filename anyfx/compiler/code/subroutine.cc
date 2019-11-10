@@ -39,7 +39,7 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
         if (this->signature.length() == 0)
         {
             std::string message = AnyFX::Format("Subroutine signature must not be empty, %s\n", this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         // get subroutine signature
@@ -47,7 +47,7 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
         if (signatureRoutine->GetType() != Symbol::SubroutineType)
         {
             std::string message = AnyFX::Format("Symbol '%s' must be a subroutine to be used as a signature, %s\n", this->signature.c_str(), this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
 
             // actually a fatal error, we cannot continue from here
             return;
@@ -55,20 +55,20 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
         if (signatureRoutine->GetSubroutineType() != Signature)
         {
             std::string message = AnyFX::Format("Prototype signature must not be the name of a formatted subroutine, %s\n", this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         // make sure our return type matches that of the signature
         if (this->func.GetReturnType() != signatureRoutine->GetReturnType())
         {
             std::string message = AnyFX::Format("Subroutine implementation doesn't match the return type from signature, %s\n", this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         if (signatureRoutine->GetNumParameters() != this->func.GetNumParameters())
         {
             std::string message = AnyFX::Format("Subroutine implementation and prototype does not have a matching amount of parameters, got %d expected %d, %s\n", this->func.GetNumParameters(), signatureRoutine->GetNumParameters(), this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         else
         {  
@@ -80,7 +80,7 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
                 if (param->GetDataType() != this->func.GetParameter(i)->GetDataType())
                 {
                     std::string message = AnyFX::Format("Subroutine implementation doesn't match prototype signature, argument %d is of type '%s', expected '%s', %s\n", i, DataType::ToString(this->func.GetParameter(i)->GetDataType()).c_str(), DataType::ToString(param->GetDataType()).c_str(), this->ErrorSuffix().c_str());
-                    typechecker.Error(message);
+                    typechecker.Error(message, this->GetFile(), this->GetLine());
                 }
                 else
                 {
@@ -100,7 +100,7 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
             if (!typechecker.HasSymbol(this->returnType.GetName()))
             {
                 std::string message = AnyFX::Format("Subroutine prototype '%s' has an undefined return type '%s', %s\n", this->GetName().c_str(), this->returnType.GetName().c_str(), this->ErrorSuffix().c_str());
-                typechecker.Error(message);
+                typechecker.Error(message, this->GetFile(), this->GetLine());
             }            
         }
 
@@ -146,7 +146,7 @@ Subroutine::CheckForOptimization(TypeChecker& typeChecker)
             if (optimizationList[i] == false)
             {
                 std::string message = AnyFX::Format("Parameter '%s' is not used by any subroutine implementation, this may cause compilation errors, %s\n", this->parameters[i].GetName().c_str(), this->ErrorSuffix().c_str());
-                typeChecker.Warning(message);
+                typeChecker.Warning(message, this->GetFile(), this->GetLine());
             }
         }
     }

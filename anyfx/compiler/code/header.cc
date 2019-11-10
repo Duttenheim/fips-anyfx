@@ -256,7 +256,7 @@ Header::TypeCheck(TypeChecker& typechecker)
 	if (this->type == InvalidType)
 	{
 		std::string message = Format("Profile '%s' is not supported\n", this->profile.c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 }
 

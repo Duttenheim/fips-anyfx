@@ -71,7 +71,7 @@ bool
 FloatExpression::EvalBool(TypeChecker& typechecker)
 {
 	std::string err = Format("Float cannot be explicitly cast to bool, %s\n", this->ErrorSuffix().c_str());
-	typechecker.Error(err);
+	typechecker.Error(err, this->GetFile(), this->GetLine());
 	return false;
 }
 } // namespace AnyFX

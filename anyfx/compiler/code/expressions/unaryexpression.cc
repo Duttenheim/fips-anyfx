@@ -47,7 +47,7 @@ UnaryExpression::EvalInt(TypeChecker& typechecker)
 	else
 	{
 		std::string msg = Format("Invalid operator '%c' for int, %s\n", this->op, this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return -1;
 	}
 }
@@ -65,7 +65,7 @@ UnaryExpression::EvalUInt(TypeChecker& typechecker)
 	else
 	{
 		std::string msg = Format("Invalid operator '%c' for unsigned int, %s\n", this->op, this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return -1;
 	}
 }
@@ -83,7 +83,7 @@ UnaryExpression::EvalFloat(TypeChecker& typechecker)
 	else
 	{
 		std::string msg = Format("Invalid operator '%c' for float, %s\n", this->op, this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return 0;
 	}
 }
@@ -101,7 +101,7 @@ UnaryExpression::EvalBool(TypeChecker& typechecker)
 	else
 	{
 		std::string msg = Format("Invalid operator '%c' for bool, %s\n", this->op, this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 		return false;
 	}
 }

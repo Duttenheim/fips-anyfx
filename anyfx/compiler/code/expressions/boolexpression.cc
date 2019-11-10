@@ -61,7 +61,7 @@ float
 BoolExpression::EvalFloat(TypeChecker& typechecker)
 {
 	std::string err = Format("Bool cannot be explicitly cast to float, %s\n", this->ErrorSuffix().c_str());
-	typechecker.Error(err);
+	typechecker.Error(err, this->GetFile(), this->GetLine());
 	return 0;
 }
 

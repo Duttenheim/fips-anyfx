@@ -46,13 +46,13 @@ public:
 	Symbol* GetSymbol(const std::string& name);
 
 	/// posts a type error
-	void Error(const std::string& message);
+	void Error(const std::string& message, const std::string& file, const unsigned line);
 	/// posts a type warning
-	void Warning(const std::string& message);
+	void Warning(const std::string& message, const std::string& file, const unsigned line);
 	/// post a link error
-	void LinkError(const std::string& message);
+	void LinkError(const std::string& message, const std::string& file, const unsigned line);
 	/// post a link warning
-	void LinkWarning(const std::string& message);
+	void LinkWarning(const std::string& message, const std::string& file, const unsigned line);
 
 	/// returns type checker error count
 	const unsigned GetErrorCount() const;

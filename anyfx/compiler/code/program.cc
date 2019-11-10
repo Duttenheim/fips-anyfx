@@ -90,7 +90,7 @@ Program::TypeCheck(TypeChecker& typechecker)
 	for (i = 0; i < this->invalidFlags.size(); i++)
 	{
 		std::string msg = Format("Invalid program flag '%s', %s\n", this->invalidFlags[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
     // make sure that subroutine bindings are valid, traverse all possible program rows besides the render state
@@ -106,7 +106,7 @@ Program::TypeCheck(TypeChecker& typechecker)
             if (!typechecker.HasSymbol((*it).first))
             {
                 std::string msg = AnyFX::Format("Subroutine interface '%s' is not defined, %s\n", (*it).first.c_str(), this->ErrorSuffix().c_str());
-                typechecker.Error(msg);
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
             }
             else
             {
@@ -117,20 +117,20 @@ Program::TypeCheck(TypeChecker& typechecker)
                     if (!sub->IsSubroutine())
                     {
                         std::string msg = AnyFX::Format("Symbol '%s' doesn't denote a subroutine prototype, %s\n", (*it).first.c_str(), this->ErrorSuffix().c_str());
-                        typechecker.Error(msg);
+                        typechecker.Error(msg, this->GetFile(), this->GetLine());
                     }
                 }
                 else
                 {
                     std::string msg = AnyFX::Format("Symbol '%s' is not of subroutine type, %s\n", (*it).first.c_str(), this->ErrorSuffix().c_str());
-                    typechecker.Error(msg);
+                    typechecker.Error(msg, this->GetFile(), this->GetLine());
                 }
             }
 
             if (!typechecker.HasSymbol((*it).second))
             {
                 std::string msg = AnyFX::Format("Subroutine implementation '%s' is not defined, %s\n", (*it).second.c_str(), this->ErrorSuffix().c_str());
-                typechecker.Error(msg);
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
             }
             else
             {
@@ -141,13 +141,13 @@ Program::TypeCheck(TypeChecker& typechecker)
                     if (sub->GetSubroutineType() != Subroutine::Implementation)
                     {
                         std::string msg = AnyFX::Format("Subroutine symbol '%s' must be declared as subroutine implementation, %s\n", (*it).second.c_str(), this->ErrorSuffix().c_str());
-                        typechecker.Error(msg);
+                        typechecker.Error(msg, this->GetFile(), this->GetLine());
                     }
                 }
                 else
                 {
                     std::string msg = AnyFX::Format("Symbol '%s' is not of subroutine type, %s\n", (*it).second.c_str(), this->ErrorSuffix().c_str());
-                    typechecker.Error(msg);
+                    typechecker.Error(msg, this->GetFile(), this->GetLine());
                 }
             }
         }
@@ -171,75 +171,75 @@ Program::TypeCheck(TypeChecker& typechecker)
 	if (!renderState)
 	{
 		std::string message = AnyFX::Format("RenderState '%s' undefined, %s\n", this->slotNames[ProgramRow::RenderState].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (vs && !vs->IsShader())
 	{
 		std::string message = AnyFX::Format("Function '%s' is not marked as a shader, %s\n", vs->GetName().c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 	if (ps && !ps->IsShader())
 	{
 		std::string message = AnyFX::Format("Function '%s' is not marked as a shader, %s\n", ps->GetName().c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 	if (hs && !hs->IsShader())
 	{
 		std::string message = AnyFX::Format("Function '%s' is not marked as a shader, %s\n", hs->GetName().c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 	if (ds && !ds->IsShader())
 	{
 		std::string message = AnyFX::Format("Function '%s' is not marked as a shader, %s\n", ds->GetName().c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 	if (gs && !gs->IsShader())
 	{
 		std::string message = AnyFX::Format("Function '%s' is not marked as a shader, %s\n", gs->GetName().c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 	if (cs && !cs->IsShader())
 	{
 		std::string message = AnyFX::Format("Function '%s' is not marked as a shader, %s\n", cs->GetName().c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	// first type check to see our functions truly do exist
 	if (slotMask[ProgramRow::VertexShader] && vs == 0)
 	{
 		std::string message = Format("Vertex shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::VertexShader].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (slotMask[ProgramRow::PixelShader] && ps == 0)
 	{
 		std::string message = Format("Pixel shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::PixelShader].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (slotMask[ProgramRow::HullShader] && hs == 0)
 	{
 		std::string message = Format("Hull/Control shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::HullShader].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);	
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (slotMask[ProgramRow::DomainShader] && ds == 0)
 	{
 		std::string message = Format("Domain/Evaluation shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::DomainShader].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (slotMask[ProgramRow::GeometryShader] && gs == 0)
 	{
 		std::string message = Format("Geometry shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::GeometryShader].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (slotMask[ProgramRow::ComputeShader] && cs == 0)
 	{
 		std::string message = Format("Compute shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::ComputeShader].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);		
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	if (hs)

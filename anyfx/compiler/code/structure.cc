@@ -157,7 +157,7 @@ Structure::TypeCheck(TypeChecker& typechecker)
     if (this->IsRecursive(typechecker))
     {
         std::string msg = AnyFX::Format("Recursive inclusion of structures detected, %s\n", this->ErrorSuffix().c_str());
-        typechecker.Error(msg);
+        typechecker.Error(msg, this->GetFile(), this->GetLine());
     }
 
 	unsigned i;

@@ -93,7 +93,7 @@ Annotation::TypeCheck(TypeChecker& typechecker)
 				this->values[i].floatValue = this->values[i].expr->EvalFloat(typechecker);
 				break;
 			case DataType::String:	// skip strings, because otherwise we will delete the string outside the switch
-				if (this->values[i].stringValue == NULL) typechecker.Error(AnyFX::Format("Annotation type 'string' doesn't match value, at %s\n", this->ErrorSuffix().c_str()));
+				if (this->values[i].stringValue == NULL) typechecker.Error(AnyFX::Format("Annotation type 'string' doesn't match value, at %s\n", this->ErrorSuffix().c_str()), this->GetFile(), this->GetLine());
 				continue;
 			}
 			delete this->values[i].expr;
@@ -110,7 +110,7 @@ Annotation::TypeCheck(TypeChecker& typechecker)
 			if (this->names[i] == this->names[j])
 			{
 				std::string message = Format("Annotation name '%s' redefined, %s\n", this->names[i].c_str(), this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 		}
 	}

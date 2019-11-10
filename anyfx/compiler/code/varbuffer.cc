@@ -65,7 +65,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 		else
 		{
 			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 
@@ -77,7 +77,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 		else
 		{
 			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 		delete expr;
 	}
@@ -96,14 +96,14 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
     if (header.GetType() != Header::GLSL && header.GetType() != Header::SPIRV)
     {
         std::string message = AnyFX::Format("Varbuffers are only supported in OpenGL, %s\n", this->ErrorSuffix().c_str());
-        typechecker.Error(message);
+        typechecker.Error(message, this->GetFile(), this->GetLine());
     }
     else
     {
         if ((header.GetMajor() < 4 && header.GetMinor() < 3) && header.GetType() != Header::SPIRV)
         {
             std::string message = AnyFX::Format("Varbuffers are only supported in OpenGL 4.3+, %s\n", this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
 
@@ -115,7 +115,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         if (var.GetArrayType() == Variable::UnsizedArray && i < this->variables.size() - 1)
         {
             std::string message = AnyFX::Format("Varbuffers can only have its last member as an unsized array, %s\n", var.GetName().c_str(), this->ErrorSuffix().c_str());
-            typechecker.Error(message);
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
 		var.TypeCheck(typechecker);

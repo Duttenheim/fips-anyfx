@@ -215,7 +215,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 	if (this->type.GetType() == DataType::Undefined)
 	{
 		std::string message = AnyFX::Format("Type of parameter '%s' is undefined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(message);
+		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 
 	unsigned i;
@@ -233,7 +233,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		else
 		{
 			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 	}
 
@@ -282,7 +282,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		if (this->isConst)
 		{
 			std::string message = AnyFX::Format("Qualifier 'const' is not allowed on shader parameter, %s\n", this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 
 		unsigned shaderType = this->parentShader->GetType();
@@ -291,7 +291,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
             if (shaderType != ProgramRow::VertexShader)
             {
                 std::string message = AnyFX::Format("Slot qualifier is not valid unless parameter is to a vertex shader, %s\n", this->ErrorSuffix().c_str());
-                typechecker.Warning(message);
+                typechecker.Warning(message, this->GetFile(), this->GetLine());
             }
             else
             {
@@ -302,7 +302,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		else if (type == Header::SPIRV && shaderType == ProgramRow::VertexShader && (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::InputOutput))
 		{
 			std::string message = AnyFX::Format("SPIR-V requires specific slot to be assigned explicitly in input to vertex shader, for vertex attributes to be consistently mapped on the API side, shader '%s', parameter '%s', %s\n", this->parentShader->GetName().c_str(), this->GetName().c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
+			typechecker.Error(message, this->GetFile(), this->GetLine());
 		}
 
 		if (shaderType == ProgramRow::VertexShader)
@@ -310,13 +310,13 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			if (this->GetPatchParam())
 			{
 				std::string message = AnyFX::Format("Pixel/Fragment shader inputs/outputs does not support the 'patch' qualifier. Ignoring qualifier, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 			if (this->attribute != Parameter::NoAttribute && (type == Header::GLSL || type == Header::SPIRV))
 			{
 				std::string attributeString = this->AttributeToString(this->attribute);
 				std::string message = AnyFX::Format("Qualifier '%s' serves no purpose in GLSL. Ignoring qualifier, %s\n", attributeString.c_str(), this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 		}
 		else if (shaderType == ProgramRow::PixelShader)
@@ -324,26 +324,26 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			if (this->GetPatchParam())
 			{
 				std::string message = AnyFX::Format("Pixel/Fragment shader inputs/outputs does not support the 'patch' qualifier. Ignoring qualifier, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 			if (this->feedbackBufferExpression || this->feedbackOffsetExpression)
 			{
 				std::string message = AnyFX::Format("Pixel/Fragment shader has no concept of transform feedbacks, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 			if (this->GetIO() == Parameter::Output)
 			{
 				if (!(this->attribute >= Color0 && this->attribute <= Color7))
 				{
 					std::string message = AnyFX::Format("Pixel/Fragment color output must be declared explicitly, resolve by giving output a qualifier in the range: [color0] - [color7], %s\n", this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 			if (this->GetIO() == Parameter::InputOutput)
 			{
 				// should throw an error if this happens
 				std::string message = AnyFX::Format("Pixel/Fragment shader doesn't support parameters with the 'inout' qualifier, since outputs has to use the [colorX] qualifier, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 		}
 		else if (shaderType == ProgramRow::GeometryShader)
@@ -351,21 +351,21 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			if (this->GetPatchParam())
 			{
 				std::string message = AnyFX::Format("Pixel/Fragment shader inputs/outputs does not support the 'patch' qualifier. Ignoring qualifier, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 			if (this->GetIO() == Parameter::Input)
 			{
 				if (!this->isArray)
 				{
 					std::string message = AnyFX::Format("Input to Geometry shader must be of array type, %s\n", this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}	
 			if (this->attribute != Parameter::NoAttribute && (type == Header::GLSL || type == Header::SPIRV))
 			{
 				std::string attributeString = this->AttributeToString(this->attribute);
 				std::string message = AnyFX::Format("Qualifier '%s' serves no purpose in GLSL. Ignoring qualifier, %s\n", attributeString.c_str(), this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 		}
 		else if (shaderType == ProgramRow::HullShader)
@@ -375,7 +375,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 				if (!this->isArray)
 				{
 					std::string message = AnyFX::Format("Input to Hull/Control shader '%s' must be of array type, %s\n", parentShader->GetName().c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 			else if (this->GetIO() == Parameter::Output)
@@ -383,19 +383,19 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			if (!this->isArray)
 				{
 					std::string message = AnyFX::Format("Output from Hull/Control shader '%s' must be of array type, %s\n", parentShader->GetName().c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 			else if (this->GetIO() == Parameter::InputOutput)
 			{
 				std::string message = AnyFX::Format("Hull/Control shaders does not support the 'inout' since input and output size may be of different size, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 			if (this->attribute != Parameter::NoAttribute && (type == Header::GLSL || type == Header::SPIRV))
 			{
 				std::string attributeString = this->AttributeToString(this->attribute);
 				std::string message = AnyFX::Format("Qualifier '%s' serves no purpose in GLSL. Ignoring qualifier, %s\n", attributeString.c_str(), this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 		}
 		else if (shaderType == ProgramRow::DomainShader)
@@ -405,14 +405,14 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 				if (!this->isArray)
 				{
 					std::string message = AnyFX::Format("Input to Domain/Evaluation shader '%s' must be of array type, %s\n", parentShader->GetName().c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 			if (this->attribute != Parameter::NoAttribute && (type == Header::GLSL || type == Header::SPIRV))
 			{
 				std::string attributeString = this->AttributeToString(this->attribute);
 				std::string message = AnyFX::Format("Qualifier '%s' serves no purpose in GLSL. Ignoring qualifier, %s\n", attributeString.c_str(), this->ErrorSuffix().c_str());
-				typechecker.Warning(message);
+				typechecker.Warning(message, this->GetFile(), this->GetLine());
 			}
 		}
 
@@ -422,7 +422,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			if (this->GetIO() != Parameter::Output)
 			{
 				std::string message = AnyFX::Format("Qualifier 'feedback' has no function unless the parameter is an output parameter, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 			this->feedbackBuffer = this->feedbackBufferExpression->EvalInt(typechecker);
 			this->feedbackOffset = this->feedbackOffsetExpression->EvalUInt(typechecker);
@@ -433,7 +433,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			if (this->feedbackOffset % DataType::ToByteSize(DataType::ToPrimitiveType(this->type)) != 0)
 			{
 				std::string message = AnyFX::Format("Feedback buffer parameter offset must be a multiple of the parameter type, %s\n", this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 		}
 	}	
@@ -478,7 +478,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 				{
 					std::string attrString = AttributeToString(this->attribute);
 					std::string message = AnyFX::Format("Parameter attribute type '%s' is not valid for GLSL4, %s\n", attrString.c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}	
 			}
 		}
@@ -515,26 +515,26 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case PointSize:
 				{
 					std::string message = AnyFX::Format("HLSL targets doesn't support [pointsize] as parameter qualifier, ignoring qualifier, %s\n", this->ErrorSuffix().c_str());
-					typechecker.Warning(message);
+					typechecker.Warning(message, this->GetFile(), this->GetLine());
 					break;
 				}				
 			case NumGroups:
 				{
 					std::string message = AnyFX::Format("HLSL targets doesn't support [numgroups] as parameter qualifier, ignoring qualifier, %s\n", this->ErrorSuffix().c_str());
-					typechecker.Warning(message);
+					typechecker.Warning(message, this->GetFile(), this->GetLine());
 					break;
 				}
 			case Coordinate:
 				{
 					std::string message = AnyFX::Format("HLSL targets doesn't support [coordinate] as parameter qualifier, ignoring qualifier, %s\n", this->ErrorSuffix().c_str());
-					typechecker.Warning(message);
+					typechecker.Warning(message, this->GetFile(), this->GetLine());
 					break;
 				}
 			default:
 				{
 					std::string attrString = AttributeToString(this->attribute);
 					std::string message = AnyFX::Format("Parameter qualifier type '%s' is not valid for HLSL, %s\n", attrString.c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}		
 			}
 		}

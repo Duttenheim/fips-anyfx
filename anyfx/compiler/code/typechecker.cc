@@ -54,7 +54,7 @@ TypeChecker::AddSymbol(Symbol* symbol)
 			std::string err;
 			if (origSymbol->IsReserved())										err = Format("Symbol '%s' is a reserved name and can not be used.", symbol->GetName().c_str());
 			else																err = Format("Symbol '%s' redefinition at %d in %s. Previously defined near row %d in %s\n", symbol->GetName().c_str(), symbol->GetLine(), symbol->GetFile().c_str(), origSymbol->GetLine(), origSymbol->GetFile().c_str());
-			this->Error(err);
+			this->Error(err, symbol->GetFile(), symbol->GetLine());
 			return false;
 		}        
 		else
@@ -89,7 +89,7 @@ TypeChecker::GetSymbol(const std::string& name)
 	if (this->symbols.find(name) == this->symbols.end())
 	{
 		std::string err = Format("Symbol '%s' is not defined\n", name.c_str());
-		this->Error(err);
+		this->Error(err, "", 0); // fake file and number
 		return NULL;
 	}
 	else
@@ -102,9 +102,11 @@ TypeChecker::GetSymbol(const std::string& name)
 /**
 */
 void
-TypeChecker::Error(const std::string& message)
+TypeChecker::Error(const std::string& message, const std::string& file, const unsigned line)
 {
-	this->errorBuffer += message + "\n";
+	std::string filename = file.substr(1, file.length() - 2);
+	std::string msg = Format("%s(%d) : error:%s\n", filename.c_str(), line, message.c_str());
+	this->errorBuffer += msg;
 	this->errorCount++;
 }
 
@@ -112,9 +114,11 @@ TypeChecker::Error(const std::string& message)
 /**
 */
 void
-TypeChecker::Warning(const std::string& message)
+TypeChecker::Warning(const std::string& message, const std::string& file, const unsigned line)
 {
-	this->errorBuffer += message + "\n";
+	std::string filename = file.substr(1, file.length() - 2);
+	std::string msg = Format("%s(%d) : warning:%s\n", filename.c_str(), line, message.c_str());
+	this->errorBuffer += msg;
 	this->warningCount++;
 }
 
@@ -122,9 +126,11 @@ TypeChecker::Warning(const std::string& message)
 /**
 */
 void
-TypeChecker::LinkError(const std::string& message)
+TypeChecker::LinkError(const std::string& message, const std::string& file, const unsigned line)
 {
-	this->errorBuffer += message + "\n";
+	std::string filename = file.substr(1, file.length() - 2);
+	std::string msg = Format("%s(%d) : error:%s\n", filename.c_str(), line, message.c_str());
+	this->errorBuffer += msg;
 	this->errorCount++;
 }
 
@@ -132,9 +138,11 @@ TypeChecker::LinkError(const std::string& message)
 /**
 */
 void
-TypeChecker::LinkWarning(const std::string& message)
+TypeChecker::LinkWarning(const std::string& message, const std::string& file, const unsigned line)
 {
-	this->errorBuffer += message + "\n";
+	std::string filename = file.substr(1, file.length() - 2);
+	std::string msg = Format("%s(%d) : warning:%s\n", filename.c_str(), line, message.c_str());
+	this->errorBuffer += msg;
 	this->warningCount++;
 }
 

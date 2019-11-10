@@ -222,13 +222,13 @@ Sampler::TypeCheck(TypeChecker& typechecker)
 	for (i = 0; i < this->invalidFlags.size(); i++)
 	{
 		std::string msg = AnyFX::Format("Invalid sampler flag '%s', %s\n", this->invalidFlags[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
 	for (i = 0; i < this->invalidValues.size(); i++)
 	{
 		std::string msg = AnyFX::Format("Invalid value '%s' for flag '%s' at entry %d, %s\n", this->invalidValues[i].value.c_str(), this->invalidValues[i].flag.c_str(), this->invalidValues[i].entry, this->ErrorSuffix().c_str());
-		typechecker.Error(msg);
+		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
 	// evaluate float expressions
@@ -289,7 +289,7 @@ Sampler::TypeCheck(TypeChecker& typechecker)
 		if (header.GetType() == Header::GLSL)
 		{
 			std::string err = AnyFX::Format("Sampler state must be supplied with at least one texture/sampler identifier, %s\n", this->ErrorSuffix().c_str());
-			typechecker.Error(err);
+			typechecker.Error(err, this->GetFile(), this->GetLine());
 		}
 		else
 		{
@@ -312,7 +312,7 @@ Sampler::TypeCheck(TypeChecker& typechecker)
 		if (header.GetType() == Header::HLSL && header.GetMajor() <= 3)
 		{
 			std::string warn = AnyFX::Format("Sampler '%s' uses multiple texture definitions, compiler will generate multiple samplers, one for each texture with a number succeeding the name. This object will generate samplers %s%d-%s%d, %s\n", this->name.c_str(), this->name.c_str(), 0, this->name.c_str(), numTextures, this->ErrorSuffix().c_str());
-			typechecker.Warning(warn);
+			typechecker.Warning(warn, this->GetFile(), this->GetLine());
 		}
 
 		unsigned i;
@@ -330,13 +330,13 @@ Sampler::TypeCheck(TypeChecker& typechecker)
 					if (!(var->GetDataType().GetType() >= DataType::Sampler1D && var->GetDataType().GetType() <= DataType::SamplerCubeArray))
 					{
 						std::string err = AnyFX::Format("Variable '%s' is not a texture variable, %s\n", textureObject->GetName().c_str(), this->ErrorSuffix().c_str());
-						typechecker.Error(err);
+						typechecker.Error(err, this->GetFile(), this->GetLine());
 					}
 				}
 				else
 				{
 					std::string err = AnyFX::Format("Sampler must be provided with a texture variable, '%s' is not a variable, %s\n", textureObject->GetName().c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(err);
+					typechecker.Error(err, this->GetFile(), this->GetLine());
 				}
 			}
 		}

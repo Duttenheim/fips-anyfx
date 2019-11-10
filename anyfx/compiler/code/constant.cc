@@ -170,18 +170,18 @@ Constant::TypeCheck(TypeChecker& typechecker)
 				if (this->type.GetStyle() != DataType::Generic)
 				{
 					std::string message = AnyFX::Format("Non-basic types (types other than float, double, bool, int, uint and short) needs explicit type initializers, %s\n", this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 				if (pair.second.GetNumValues() != this->arraySize)
 				{
 					std::string message = AnyFX::Format("Wrong amount of initializers for array, got %d values, expected %d, %s\n", pair.second.GetNumValues(), this->arraySize, this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 			else
 			{
 				std::string message = AnyFX::Format("Wrong amount of initializers for array, got %d initializers, expected %d, %s\n", this->valueTable.size(), this->arraySize, this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}			
 		}
 		else
@@ -193,14 +193,14 @@ Constant::TypeCheck(TypeChecker& typechecker)
 				if (pair.first != this->type)
 				{
 					std::string message = AnyFX::Format("Array initializer at index %d has different type than array, %s\n", i+1, this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 				unsigned numVals = pair.second.GetNumValues();
 				unsigned vectorSize = DataType::ToVectorSize(this->type);
 				if (numVals != vectorSize)
 				{
 					std::string message = AnyFX::Format("Initializer at index %d is not completely initialized, got %d initializers, expected %d, %s", i+1, numVals, vectorSize, this->ErrorSuffix().c_str());
-					typechecker.Error(message);
+					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
 		}
@@ -217,12 +217,12 @@ Constant::TypeCheck(TypeChecker& typechecker)
 			if (pair.first != this->type)
 			{
 				std::string message = AnyFX::Format("Cannot implicitly cast from '%s' to '%s', %s\n", DataType::ToString(this->type).c_str(), DataType::ToString(pair.first).c_str(), this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 			if (pair.second.GetNumValues() != vectorSize)
 			{
 				std::string message = AnyFX::Format("Type constructor at index %d isn't fully initialized, got %d values, expected %d, %s\n", i+1, pair.second.GetNumValues(), vectorSize, this->ErrorSuffix().c_str());
-				typechecker.Error(message);
+				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 		}
 	}
