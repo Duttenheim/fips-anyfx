@@ -865,7 +865,7 @@ Shader::GLSLProblemKhronos(Generator* generator, std::stringstream& stream)
 #if _MSC_VER
 					std::string msg = Format("%s(%d): warning: %s", this->func.GetFile().c_str(), lineValue, lineRow);
 #else
-					std::string msg = Format("%s:(%d): warning: %s\n", this->func.GetFile().c_str(), lineValue, lineRow);
+					std::string msg = Format("%s:%d: warning: %s\n", this->func.GetFile().c_str(), lineValue, lineRow);
 #endif
 					generator->Warning(msg);
 				}
@@ -876,7 +876,7 @@ Shader::GLSLProblemKhronos(Generator* generator, std::stringstream& stream)
 #if _MSC_VER
 					std::string msg = Format("%s(%d): warning: function '%s' %s", func.first.c_str(), lineValue, func.second.c_str(), lineRow);
 #else
-					std::string msg = Format("%s:(%d): warning: function '%s'%s\n", func.first.c_str(), lineValue, func.second.c_str(), lineRow);
+					std::string msg = Format("%s:%d: warning: function '%s'%s\n", func.first.c_str(), lineValue, func.second.c_str(), lineRow);
 #endif
 					generator->Warning(msg);
 				}

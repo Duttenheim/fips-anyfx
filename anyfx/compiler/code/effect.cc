@@ -5,6 +5,7 @@
 #include "./effect.h"
 #include <assert.h>
 #include "constant.h"
+#include "generator.h"
 #include <algorithm>
 
 #define VERSION_MAJOR 2
@@ -420,7 +421,7 @@ Effect::Generate(Generator& generator)
 		}
 	}
 
-	for (i = 0; i < this->programs.size(); i++)
+	if (generator.GetStatus() == Generator::Success) for (i = 0; i < this->programs.size(); i++)
 	{
 		Program& prog = this->programs[i];
 		prog.Generate(generator);
