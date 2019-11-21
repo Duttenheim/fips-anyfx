@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "structure.h"
 #include "typechecker.h"
+#include "effect.h"
 
 namespace AnyFX
 {
@@ -11,7 +12,9 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-Structure::Structure()
+Structure::Structure() :
+	alignedSize(0),
+	usage(Ordinary)
 {
 	this->symbolType = Symbol::StructureType;
 }
@@ -93,13 +96,29 @@ Structure::Format(const Header& header) const
 	formattedCode.append(" ");
 	formattedCode.append(this->GetName());
 	formattedCode.append("\n{\n");
-	
+
 	unsigned input, output;
 	input = output = 0;
 	unsigned i;
 	for (i = 0; i < this->parameters.size(); i++)
 	{
 		const Parameter& param = this->parameters[i];
+
+		// add padding member if we have a positive padding
+		if (header.GetType() == Header::C && param.padding > 0)
+		{
+			int pads = param.padding / 4;
+			int remainder = param.padding % 4;
+			unsigned j;
+			for (j = 0; j < pads; j++)
+					formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
+
+			if (remainder > 0)
+					formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
+		}
+
+		// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
+		formattedCode.append(AnyFX::Format("/* Offset:%d */", param.alignedOffset));
 
 		// generate parameter with a seemingly invalid shader, since 
 		formattedCode.append(param.Format(header, input, output));
@@ -112,8 +131,8 @@ Structure::Format(const Header& header) const
 //------------------------------------------------------------------------------
 /**
 */
-void
-Structure::Unroll(const std::string& name, std::vector<Variable>& vars, TypeChecker& typechecker)
+void 
+Structure::ResolveOffsets(TypeChecker& typechecker, std::map<std::string, unsigned>& offsets)
 {
 	unsigned i;
 	for (i = 0; i < this->parameters.size(); i++)
@@ -127,21 +146,52 @@ Structure::Unroll(const std::string& name, std::vector<Variable>& vars, TypeChec
 		if (type.GetType() == DataType::UserType)
 		{
 			Structure* str = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-			str->Unroll(name + "." + param.GetName(), vars, typechecker);
+			str->ResolveOffsets(typechecker, offsets);
 		}
 		else
 		{
-			// create variable from structure parameter
-			Variable var;
-			var.SetName(name + "." + param.GetName());
-			var.SetDataType(type);
-			var.SetLine(param.GetLine());
-			var.SetFile(param.GetFile());
-			var.isArray = param.IsArray();
-			var.arraySize = param.GetArraySize();
-			vars.push_back(var);
+			offsets[param.name] = param.alignedOffset;
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
+{
+	const Header& header = typechecker.GetHeader();
+
+	unsigned offset = 0;
+	unsigned i;
+	for (i = 0; i < this->parameters.size(); i++)
+	{
+		Parameter& param = this->parameters[i];
+
+		// handle offset later, now we know array size
+		unsigned alignedSize = 0;
+		unsigned stride = 0;
+		unsigned alignment = 0;
+		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
+		{
+			// align as if std140, but also pad every member
+			alignment = Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), alignedSize, stride, this->usage == VarbufferStorage ? false : true, false, typechecker);
+		}
+
+		// align offset with current alignment
+		if (offset % alignment > 0)
+		{
+			param.padding = alignment - (offset % alignment);
+			offset = offset + alignment - (offset % alignment);
+		}
+		else
+			param.padding = 0;
+		param.alignedOffset = offset;
+
+		offset += alignedSize;
+	}
+	this->alignedSize = offset;
 }
 
 //------------------------------------------------------------------------------
@@ -160,13 +210,15 @@ Structure::TypeCheck(TypeChecker& typechecker)
         typechecker.Error(msg, this->GetFile(), this->GetLine());
     }
 
+	this->alignedSize = 0;
 	unsigned i;
 	for (i = 0; i < this->parameters.size(); i++)
 	{
 		Parameter& param = this->parameters[i];
 		param.TypeCheck(typechecker);
+
+		this->alignedSize += DataType::ToByteSize(param.GetDataType());
 	}
 }
-
 
 } // namespace AnyFX

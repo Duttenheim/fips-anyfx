@@ -30,7 +30,6 @@ public:
 	std::string name;
 	std::string signature;
 	unsigned alignedSize;
-	unsigned size;
 	bool active;
 	std::map<std::string, unsigned> offsetsByName;
 

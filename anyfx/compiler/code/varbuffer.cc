@@ -17,7 +17,6 @@ namespace AnyFX
 */
 VarBuffer::VarBuffer() :
 	alignedSize(0),
-	size(0),
 	hasAnnotation(false),
 	group(0),
 	binding(0)
@@ -118,19 +117,29 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
+		// if we have a struct, we need to unroll it, and calculate the offsets
+		const DataType& type = var.GetDataType();
+
+		// avoid adding actual struct
+		if (type.GetType() == DataType::UserType)
+		{
+			// unroll structures to generate variables with proper names, they should come in the same order as the suboffsets
+			Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
+			if (structure->GetUsage() == Structure::VarblockStorage)
+				typechecker.Error(AnyFX::Format("struct %s is used in a varblock, but is elsewhere used in a varbuffer", structure->GetName().c_str()), this->GetFile(), this->GetLine());
+			structure->SetUsage(Structure::VarbufferStorage);
+			structure->UpdateAlignmentAndSize(typechecker);
+		}
+
 		var.TypeCheck(typechecker);
-		this->size += var.GetByteSize() * var.GetArraySize();
 
 		// handle offset later, now we know array size
 		unsigned alignedSize = 0;
 		unsigned stride = 0;
 		unsigned alignment = 0;
-		std::vector<unsigned> suboffsets;
 		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
-			alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, suboffsets, false, false, typechecker);
+			alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, false, false, typechecker);
 
-		// if we have a struct, we need to unroll it, and calculate the offsets
-		const DataType& type = var.GetDataType();
 
 		// align offset with current alignment
 		if (offset % alignment > 0)
@@ -147,17 +156,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 		{
 			// unroll structures to generate variables with proper names, they should come in the same order as the suboffsets
 			Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-			std::vector<Variable> subvars;
-			structure->Unroll(var.GetName(), subvars, typechecker);
-
-			// add suboffsets to this offset
-			assert(subvars.size() == suboffsets.size());
-			unsigned j;
-			for (j = 0; j < suboffsets.size(); j++)
-			{
-				// append structure offset to base
-				this->offsetsByName[subvars[j].GetName()] = offset + suboffsets[j];
-			}
+			structure->ResolveOffsets(typechecker, this->offsetsByName);
 		}
 		else
 		{
@@ -239,7 +238,6 @@ VarBuffer::Compile(BinWriter& writer)
 {
 	writer.WriteString(this->name);
 	writer.WriteUInt(this->alignedSize);
-	writer.WriteUInt(this->size);
 	writer.WriteUInt(ToInteger(this->qualifierFlags));
 	writer.WriteUInt(this->binding);
 	writer.WriteUInt(this->group);

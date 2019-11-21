@@ -53,7 +53,6 @@ VarbufferLoader::Load(BinReader* reader, ShaderEffect* effect)
 	// start loading
 	std::string name = reader->ReadString().c_str();
 	unsigned alignedSize = reader->ReadUInt();
-	unsigned size = reader->ReadUInt();
 	Qualifiers qualifierFlags = FromInteger(reader->ReadUInt());
 	unsigned binding = reader->ReadUInt();
 	unsigned set = reader->ReadUInt();
@@ -79,7 +78,6 @@ VarbufferLoader::Load(BinReader* reader, ShaderEffect* effect)
 	// load internal buffer
 	varbuffer->name = name;
 	varbuffer->alignedSize = alignedSize;
-	varbuffer->size = size;
 	varbuffer->qualifiers = qualifierFlags;
 	varbuffer->set = set;
 	varbuffer->binding = binding;

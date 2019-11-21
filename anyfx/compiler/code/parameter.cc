@@ -31,7 +31,9 @@ Parameter::Parameter() :
 	sizeExpression(NULL),
 	isArray(false),
 	arraySize(1),
-	parentShader(NULL)
+	parentShader(NULL),
+	padding(0),
+	alignedOffset(0)
 {
 	// empty
 }

@@ -602,7 +602,7 @@ Effect::GenerateHeader(TextWriter& writer)
 /**
 */
 unsigned
-Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, std::vector<unsigned>& suboffsets, const bool std140, const bool structMember, TypeChecker& typechecker)
+Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, const bool std140, const bool structMember, TypeChecker& typechecker)
 {
 	DataType::Dimensions dims = DataType::ToDimensions(type);
 	unsigned byteSize = DataType::ToByteSize(DataType::ToPrimitiveType(type));
@@ -643,27 +643,8 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 		{
 			Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
 			assert(structure != 0);
-			const std::vector<Parameter>& params = structure->GetParameters();
-			unsigned i;
-			unsigned maxAlignment = std140 ? vec4alignment : 0; // use 16 byte max alignment as default
-			alignedSize = 0;
-			for (i = 0; i < params.size(); i++)
-			{
-				const Parameter& param = params[i];
-				const DataType& memberType = param.GetDataType();
-				unsigned memberSize;
-				unsigned memberAlignment = Effect::GetAlignmentGLSL(memberType, param.GetArraySize(), memberSize, stride, suboffsets, std140, true, typechecker);
-
-				// find max alignment, this will be used to align the whole struct when we are done
-				maxAlignment = std::max(maxAlignment, memberAlignment);
-
-				// add member size to total struct size, then 
-				if (memberType.GetType() != DataType::UserType) suboffsets.push_back(alignedSize);
-				alignedSize += memberSize;
-			}
-
-			// align size to the biggest alignment in the struct
-			alignment = maxAlignment;
+			alignedSize = structure->alignedSize;
+			alignment = vec4alignment;
 		}
 		else if (type.GetType() >= DataType::Matrix2x2 && type.GetType() <= DataType::Matrix4x4) // matrix types
 		{
@@ -695,8 +676,7 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 	else // array
 	{
 		// get alignment for non-array
-		alignment = Effect::GetAlignmentGLSL(type, 1, alignedSize, unusedStride, suboffsets, std140, structMember, typechecker);
-		alignedSize = RoundUp(alignedSize, alignment);
+		alignment = Effect::GetAlignmentGLSL(type, 1, alignedSize, unusedStride, std140, structMember, typechecker);
 		alignedSize *= arraySize;
 	}
 	return alignment;

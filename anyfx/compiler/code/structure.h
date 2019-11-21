@@ -19,6 +19,13 @@ namespace AnyFX
 class Structure : public Symbol
 {
 public:
+
+	enum Usage
+	{
+		Ordinary,		 // struct is used as a container to be passed as parameters
+		VarblockStorage, // struct is used in a varblock
+		VarbufferStorage // struct is used in a varbuffer
+	};
 	/// constructor
 	Structure();
 	/// destructor
@@ -34,18 +41,49 @@ public:
 
 	/// format structure to fit target language
 	std::string Format(const Header& header) const;
-	/// unroll struct into list of variables (converts parameters to variables)
-	void Unroll(const std::string& name, std::vector<Variable>& vars, TypeChecker& typechecker);
+
+	/// resolve parameter offsets recursively
+	void ResolveOffsets(TypeChecker& typechecker, std::map<std::string, unsigned>& offsets);
+	/// update alignment and size, which happens when called from a varblock or varbuffer
+	void UpdateAlignmentAndSize(TypeChecker& typechecker);
+	/// set the usage
+	void SetUsage(const Usage usage);
+	/// get the usage
+	const Usage GetUsage() const;
 
 	/// type checks structure
 	void TypeCheck(TypeChecker& typechecker);
 
 private:
+	friend class Effect;
+
     /// check if structure contains type
     bool IsRecursive(TypeChecker& typeChecker);
 
 	std::vector<Parameter> parameters;
+	unsigned alignedSize;
+	Usage usage;
 }; 
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Structure::SetUsage(const Structure::Usage usage)
+{
+	this->usage = usage;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Structure::Usage
+Structure::GetUsage() const
+{
+	return this->usage;
+}
+
 
 } // namespace AnyFX
 

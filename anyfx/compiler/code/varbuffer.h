@@ -57,8 +57,6 @@ private:
 	
 	bool hasAnnotation;
 	Annotation annotation;
-
-	unsigned size;
 }; 
 
 //------------------------------------------------------------------------------

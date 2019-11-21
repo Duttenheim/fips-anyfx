@@ -155,6 +155,8 @@ public:
 	static std::string AttributeToString(const Attribute& attr);
 
 private:
+	friend class Structure;
+
 	/// formats attribute to target-specific string
 	std::string FormatAttribute(const Header::Type& type);
 
@@ -185,6 +187,9 @@ private:
 	Shader* parentShader;
 	std::string name;
 	DataType type;
+
+	unsigned padding;
+	unsigned alignedOffset;
 }; 
 
 //------------------------------------------------------------------------------
