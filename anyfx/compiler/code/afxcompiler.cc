@@ -86,11 +86,14 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     std::string fileName = file.substr(file.rfind("/")+1, file.length()-1);
 	std::string vend = "-DVENDOR=" + vendor;
 
+	std::string folder = file.substr(0, file.rfind("/")+1);
+
 	const char* constArgs[] =
 	{
 		"",			// first argument is supposed to be application system path, but is omitted since we run mcpp directly
 		"-W 0",
 		"-a",
+		"-v",
 		vend.c_str()
 	};
 	const unsigned numConstArgs = sizeof(constArgs) / sizeof(char*);

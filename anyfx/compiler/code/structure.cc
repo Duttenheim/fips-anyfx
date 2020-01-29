@@ -14,6 +14,7 @@ namespace AnyFX
 */
 Structure::Structure() :
 	alignedSize(0),
+	padding(0),
 	usage(Ordinary)
 {
 	this->symbolType = Symbol::StructureType;
@@ -111,10 +112,10 @@ Structure::Format(const Header& header) const
 			int remainder = param.padding % 4;
 			unsigned j;
 			for (j = 0; j < pads; j++)
-					formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
+				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
 
 			if (remainder > 0)
-					formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
+				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
 		}
 
 		// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
@@ -123,6 +124,18 @@ Structure::Format(const Header& header) const
 		// generate parameter with a seemingly invalid shader, since 
 		formattedCode.append(param.Format(header, input, output));
 	}
+
+	if (header.GetType() == Header::C && this->padding > 0)
+	{
+		int pads = this->padding / 4;
+		int remainder = this->padding % 4;
+		for (i = 0; i < pads; i++)
+			formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", 32));
+
+		if (remainder > 0)
+			formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", remainder * 8));
+	}
+		
 
 	formattedCode.append("};\n\n");
 	return formattedCode;
@@ -146,7 +159,8 @@ Structure::ResolveOffsets(TypeChecker& typechecker, std::map<std::string, unsign
 		if (type.GetType() == DataType::UserType)
 		{
 			Structure* str = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-			str->ResolveOffsets(typechecker, offsets);
+			if (str)
+				str->ResolveOffsets(typechecker, offsets);
 		}
 		else
 		{
@@ -165,6 +179,7 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 
 	unsigned offset = 0;
 	unsigned i;
+	unsigned structAlignment = 0;
 	for (i = 0; i < this->parameters.size(); i++)
 	{
 		Parameter& param = this->parameters[i];
@@ -178,6 +193,7 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 			// align as if std140, but also pad every member
 			alignment = Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), alignedSize, stride, this->usage == VarbufferStorage ? false : true, false, typechecker);
 		}
+		structAlignment = alignment > structAlignment ? alignment : structAlignment;
 
 		// align offset with current alignment
 		if (offset % alignment > 0)
@@ -192,6 +208,15 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 		offset += alignedSize;
 	}
 	this->alignedSize = offset;
+
+	// calculate structure alignment
+	if (this->alignedSize % structAlignment > 0)
+	{
+		this->padding = structAlignment - (this->alignedSize % structAlignment);
+		this->alignedSize = this->alignedSize + structAlignment - (this->alignedSize % structAlignment);
+	}
+	else
+		this->padding = 0;
 }
 
 //------------------------------------------------------------------------------

@@ -89,8 +89,9 @@ TypeChecker::GetSymbol(const std::string& name)
 	if (this->symbols.find(name) == this->symbols.end())
 	{
 		std::string err = Format("Symbol '%s' is not defined\n", name.c_str());
-		this->Error(err, "", 0); // fake file and number
-		return NULL;
+		this->errorBuffer += err;
+		this->errorCount++;
+		return nullptr;
 	}
 	else
 	{

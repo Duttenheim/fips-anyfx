@@ -3916,6 +3916,8 @@ static void cur_file(
     } else {                /* Usually, the path not "normalized"   */
         if (sharp_file) {                       /* Main input file  */
             name = file->filename;
+		} else if (option_flags.v) {
+			name = cur_fullname;
         } else if (str_eq( file->filename, file->real_fname)) {
             sprintf( work_buf, "%s%s", *(file->dirp), cur_fname);
             name = work_buf;

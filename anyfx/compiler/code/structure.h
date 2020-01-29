@@ -62,6 +62,7 @@ private:
 
 	std::vector<Parameter> parameters;
 	unsigned alignedSize;
+	unsigned padding;
 	Usage usage;
 }; 
 

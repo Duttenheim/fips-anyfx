@@ -642,9 +642,16 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 		if (type.GetType() == DataType::UserType) // struct
 		{
 			Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-			assert(structure != 0);
-			alignedSize = structure->alignedSize;
-			alignment = vec4alignment;
+			if (!structure)
+			{
+				alignedSize = 0;
+				alignment = vec4alignment;
+			}
+			else
+			{
+				alignedSize = structure->alignedSize;
+				alignment = vec4alignment;
+			}			
 		}
 		else if (type.GetType() >= DataType::Matrix2x2 && type.GetType() <= DataType::Matrix4x4) // matrix types
 		{
