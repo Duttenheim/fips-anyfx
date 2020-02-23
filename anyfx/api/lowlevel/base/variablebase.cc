@@ -3,7 +3,7 @@
 // (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "variablebase.h"
-
+#include <string.h>
 // disable 'strtok': This function or variable may be unsafe.
 #pragma warning (disable : 4996)
 namespace AnyFX

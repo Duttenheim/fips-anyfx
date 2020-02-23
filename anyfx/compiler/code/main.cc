@@ -24,7 +24,7 @@ main(int argc, char** argv)
 
 	AnyFXBeginCompile();
 	defines = args.GetArguments("-D");
-	std::vector<std::string>& includes = args.GetArguments("-I");
+	const std::vector<std::string>& includes = args.GetArguments("-I");
 	defines.insert(defines.end(), includes.begin(), includes.end());
 
 	flags = args.GetArguments("/");
