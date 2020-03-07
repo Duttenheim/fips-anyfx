@@ -2,7 +2,7 @@
 	#include <string>
 	#include <vector>
 	extern std::vector<std::string> uncaughtPreprocessorDirectives;
-	#include "AnyFXToken.h"
+	#include "anyfxtoken.h"
 
 
 // Generated from antlr4/grammar/AnyFX.g4 by ANTLR 4.7.1

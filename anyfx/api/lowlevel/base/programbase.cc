@@ -3,6 +3,7 @@
 // (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "programbase.h"
+#include <string.h>
 
 namespace AnyFX
 {

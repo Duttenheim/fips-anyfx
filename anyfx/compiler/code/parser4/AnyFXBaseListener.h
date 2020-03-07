@@ -9,7 +9,7 @@
 #include <tuple>
 extern std::vector<std::string> uncaughtPreprocessorDirectives;
 
-#include "AnyFXToken.h"
+#include "anyfxtoken.h"
 #include "../../code/qualifierexpression.h"
 #include "../../code/compileable.h"
 #include "../../code/effect.h"

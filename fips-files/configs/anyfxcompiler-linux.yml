@@ -1,6 +1,5 @@
 ---
 platform: linux
-generator-platform: x64
 generator: Ninja
 build_tool: ninja
 build_type: Release

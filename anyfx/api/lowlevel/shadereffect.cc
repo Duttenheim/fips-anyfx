@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "shadereffect.h"
 #include <assert.h>
+#include <limits.h>
 
 namespace AnyFX
 {
