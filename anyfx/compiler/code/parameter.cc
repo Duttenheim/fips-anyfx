@@ -110,6 +110,14 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 				else if (this->interpolation == NoPerspective)		format = AnyFX::Format(format.c_str(), "noperspective ", "%s");
 			}
 		}
+		else if (shaderType == ProgramRow::VertexShader)
+		{
+			if (this->GetIO() == Parameter::Output || this->GetIO() == Parameter::NoIO)
+			{
+				if (this->interpolation == Flat)					format = AnyFX::Format(format.c_str(), "flat ", "%s");
+				else if (this->interpolation == NoPerspective)		format = AnyFX::Format(format.c_str(), "noperspective ", "%s");
+			}
+		}
 		else if (shaderType == ProgramRow::GeometryShader)
 		{
 			if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)

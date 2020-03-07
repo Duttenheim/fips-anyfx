@@ -625,7 +625,7 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& ali
 		alignedSize = byteSize * 2;
 		break;
 	case 3:
-		alignment = (!std140 && (structMember || arraySize > 0)) ? byteSize * 3 : byteSize * 4; // avoid rounding to vec4 if using std430
+		alignment = (!std140 && (structMember || arraySize > 1)) ? byteSize * 3 : byteSize * 4; // avoid rounding to vec4 if using std430
 		alignedSize = byteSize * 3;
 		break;
 	default:	// this holds true for both 3, and 4 element vectors
