@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 fips_begin_app(anyfxcompiler cmdline)
     fips_vs_warning_level(3)
     fips_include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-    fips_deps(anyfx antlr4 mcpp glslang stdc++fs)
+    fips_deps(anyfx antlr4 mcpp glslang $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
     fips_files(
          shadercompilerapp.cc
          shadercompilerapp.h
