@@ -44,6 +44,7 @@ public:
 		LocalSizeX,
 		LocalSizeY,
 		LocalSizeZ,
+		PixelOrigin,
 
 		NumIntFlags,
 
@@ -87,6 +88,12 @@ public:
 		OPoints,
 		OLineStrip,
 		OTriangleStrip
+	};
+
+	enum PixelOriginMode
+	{
+		PDefault,	// upper-left on GLSL, lower-left on HLSL
+		PCenter		// center
 	};
 
 	enum FloatFlag

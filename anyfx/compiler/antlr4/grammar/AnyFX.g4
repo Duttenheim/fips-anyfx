@@ -721,11 +721,6 @@ samplerRow	returns [ SamplerRow row ]
 		if (flag == "Samplers") $row.SetTextures($samplerTextureList.list);
 		else					$row.SetString(flag, "Incorrectly formatted texture list"); 
 	}
-	| flag5 = IDENTIFIER EQ LB red = expression CO green = expression CO blue = expression CO alpha = expression RB SC
-	{
-		std::string flag($flag5.text);
-		$row.SetFloat4(flag, $red.tree, $green.tree, $blue.tree, $alpha.tree);
-	}
 	;
 	
 // program block, must have a vertex shader and pixel shader, the four other shaders are optional

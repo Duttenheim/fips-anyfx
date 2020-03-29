@@ -30,7 +30,7 @@ public:
 		NumAddressModes
 	};
 
-	enum FilterModes
+	enum FilterMode
 	{
 		MinMagMipPoint,
 		MinMagMipLinear,
@@ -63,12 +63,17 @@ public:
 		InvalidComparisonFunction
 	};
 
+	enum BorderColorMode
+	{
+		Transparent,
+		Black,
+		White
+	};
 
 	enum FlagType
 	{
 		ExpressionFlagType,
 		StringFlagType,
-		Float4FlagType,
 		TextureListFlagType,
 
 		NumFlagTypes
@@ -81,6 +86,7 @@ public:
 		AddressV,
 		AddressW,
 		ComparisonFunc,
+		BorderColor,
 
 		NumEnumFlags
 	};
@@ -88,6 +94,7 @@ public:
 	enum BoolFlag
 	{
 		Comparison,
+		Unnormalized,
 
 		NumBoolFlags
 	};
@@ -101,14 +108,7 @@ public:
 
 		NumFloatFlags
 	};
-
-	enum Float4Flag
-	{
-		BorderColor,
-
-		NumFloat4Flags
-	};
-
+	
 	/// constructor
 	SamplerRow();
 	/// destructor
@@ -127,10 +127,6 @@ public:
 	void SetString(const std::string& flag, const std::string& value);
 	/// gets string value
 	const std::string& GetString() const;
-	/// sets a float4 value
-	void SetFloat4(const std::string& flag, Expression* value0, Expression* value1, Expression* value2, Expression* value3);
-	/// gets float4 value
-	vector<Expression*, 4> GetFloat4() const;
 	/// set texture list
 	void SetTextures(const SamplerTextureList& list);
 	/// get texture list
@@ -175,16 +171,6 @@ SamplerRow::GetString() const
 {
 	assert(this->flagType == StringFlagType);
 	return this->stringValue;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline vector<Expression*, 4>
-SamplerRow::GetFloat4() const
-{
-	assert(this->flagType == Float4FlagType);
-	return this->rgbExprs;
 }
 
 //------------------------------------------------------------------------------

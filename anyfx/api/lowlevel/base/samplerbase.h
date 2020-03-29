@@ -33,7 +33,8 @@ public:
 		float maxLod;
 		float lodBias;
 		float maxAnisotropic;
-		float borderColor[4];
+		BorderColorMode borderColor;
+		bool unnormalized;
 
 	} samplerSettings;
 

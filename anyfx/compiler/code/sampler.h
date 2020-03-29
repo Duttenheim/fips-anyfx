@@ -58,7 +58,6 @@ private:
 	bool boolFlags[SamplerRow::NumBoolFlags];
 
 	int intFlags[SamplerRow::NumEnumFlags];	
-	vector<float, 4> float4Flags[SamplerRow::NumFloat4Flags];
 	vector<Expression*, 4> float4Expressions[SamplerRow::NumFloatFlags];
 
 	bool hasTextures;

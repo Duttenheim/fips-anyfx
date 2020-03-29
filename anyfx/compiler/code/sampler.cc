@@ -36,20 +36,14 @@ Sampler::Sampler() :
 		this->boolExpressions[i] = NULL;
 	}
 
-	for (i = 0; i < SamplerRow::NumFloat4Flags; i++)
-	{
-		this->float4Expressions[i].v[0] = NULL;
-		this->float4Expressions[i].v[1] = NULL;
-		this->float4Expressions[i].v[2] = NULL;
-		this->float4Expressions[i].v[3] = NULL;
-	}
-
 	// set all values to default
 	intFlags[SamplerRow::Filter] = SamplerRow::Linear;
 	intFlags[SamplerRow::AddressU] = SamplerRow::Wrap;
 	intFlags[SamplerRow::AddressV] = SamplerRow::Wrap;
 	intFlags[SamplerRow::AddressW] = SamplerRow::Wrap;
 	intFlags[SamplerRow::ComparisonFunc] = SamplerRow::LEqual;
+	intFlags[SamplerRow::BorderColor] = SamplerRow::Black;
+	intFlags[SamplerRow::Unnormalized] = false;
 
 	boolFlags[SamplerRow::Comparison] = false;
 	
@@ -57,11 +51,6 @@ Sampler::Sampler() :
 	floatFlags[SamplerRow::MinLod] = 0;
 	floatFlags[SamplerRow::MaxLod] = FLT_MAX;
 	floatFlags[SamplerRow::MaxAnisotropic] = 16.0f;
-
-	float4Flags[SamplerRow::BorderColor].v[0] = 0.0f;
-	float4Flags[SamplerRow::BorderColor].v[1] = 0.0f;
-	float4Flags[SamplerRow::BorderColor].v[2] = 0.0f;
-	float4Flags[SamplerRow::BorderColor].v[3] = 0.0f;
 
 	hasTextures = false;
 }
@@ -183,6 +172,16 @@ Sampler::ConsumeRow(const SamplerRow& row)
 
 			this->intFlags[SamplerRow::ComparisonFunc] = flagVal;
 		}
+		else if (row.GetFlag() == "BorderColor")
+		{
+			const std::string& value = row.GetString();
+			unsigned flagVal = -1;
+			if (value == "Transparent")			flagVal = SamplerRow::Transparent;
+			else if (value == "Black")			flagVal = SamplerRow::Black;
+			else if (value == "White")			flagVal = SamplerRow::White;
+
+			this->intFlags[SamplerRow::BorderColor] = flagVal;
+		}
 		else this->invalidFlags.push_back(row.GetFlag());
 		break;
 	case SamplerRow::ExpressionFlagType:
@@ -191,10 +190,7 @@ Sampler::ConsumeRow(const SamplerRow& row)
 		else if (row.GetFlag() == "MaxLod")			this->floatExpressions[SamplerRow::MaxLod] = row.GetExpression();
 		else if (row.GetFlag() == "MaxAnisotropic")	this->floatExpressions[SamplerRow::MaxAnisotropic] = row.GetExpression();
 		else if (row.GetFlag() == "Comparison")		this->boolExpressions[SamplerRow::Comparison] = row.GetExpression();
-		else this->invalidFlags.push_back(row.GetFlag());
-		break;
-	case SamplerRow::Float4FlagType:
-		if (row.GetFlag() == "BorderColor")			this->float4Expressions[SamplerRow::BorderColor] = row.GetFloat4();
+		else if (row.GetFlag() == "Unnormalized")	this->boolExpressions[SamplerRow::Unnormalized] = row.GetExpression();
 		else this->invalidFlags.push_back(row.GetFlag());
 		break;
 	case SamplerRow::TextureListFlagType:
@@ -247,25 +243,6 @@ Sampler::TypeCheck(TypeChecker& typechecker)
 		{
 			this->boolFlags[i] = this->boolExpressions[i]->EvalBool(typechecker);
 			delete this->boolExpressions[i];
-		}
-	}
-
-	for (i = 0; i < SamplerRow::NumFloat4Flags; i++)
-	{
-		if (this->float4Expressions[i].v[0] &&
-			this->float4Expressions[i].v[1] &&
-			this->float4Expressions[i].v[2] &&
-			this->float4Expressions[i].v[3])
-		{
-			this->float4Flags[i].v[0] = this->float4Expressions[i].v[0]->EvalFloat(typechecker);
-			this->float4Flags[i].v[1] = this->float4Expressions[i].v[1]->EvalFloat(typechecker);
-			this->float4Flags[i].v[2] = this->float4Expressions[i].v[2]->EvalFloat(typechecker);
-			this->float4Flags[i].v[3] = this->float4Expressions[i].v[3]->EvalFloat(typechecker);
-
-			delete this->float4Expressions[i].v[0];
-			delete this->float4Expressions[i].v[1];
-			delete this->float4Expressions[i].v[2];
-			delete this->float4Expressions[i].v[3];
 		}
 	}
 
@@ -363,14 +340,6 @@ Sampler::Compile(BinWriter& writer)
 	{
 		writer.WriteFloat(this->floatFlags[i]);
 	}
-
-	for (i = 0; i < SamplerRow::NumFloat4Flags; i++)
-	{
-		writer.WriteFloat(this->float4Flags[i].v[0]);
-		writer.WriteFloat(this->float4Flags[i].v[1]);
-		writer.WriteFloat(this->float4Flags[i].v[2]);
-		writer.WriteFloat(this->float4Flags[i].v[3]);
-	}
 	
 	for (i = 0; i < SamplerRow::NumBoolFlags; i++)
 	{
@@ -403,11 +372,17 @@ Sampler::Format(const Header& header) const
 			contents.append(AnyFX::Format("AddressU = %d;\n", intFlags[SamplerRow::AddressU]));
 			contents.append(AnyFX::Format("AddressV = %d;\n", intFlags[SamplerRow::AddressV]));
 			contents.append(AnyFX::Format("AddressW = %d;\n", intFlags[SamplerRow::AddressW]));
-			contents.append(AnyFX::Format("BorderColor = float4(%f,%f,%f,%f);\n", 
-				float4Flags[SamplerRow::BorderColor].v[0], 
-				float4Flags[SamplerRow::BorderColor].v[1], 
-				float4Flags[SamplerRow::BorderColor].v[2],
-				float4Flags[SamplerRow::BorderColor].v[3]));
+			switch (intFlags[SamplerRow::BorderColor])
+			{
+			case SamplerRow::Transparent:
+				contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 0);\n"));
+				break;
+			case SamplerRow::Black:
+				contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 1);\n"));
+				break;
+			case SamplerRow::White:
+				contents.append(AnyFX::Format("BorderColor = float4(1, 1, 1, 1);\n"));
+			}
 			contents.append(AnyFX::Format("MaxLOD = %f;\n", floatFlags[SamplerRow::MaxLod]));
 			contents.append(AnyFX::Format("MinLOD = %f;\n", floatFlags[SamplerRow::MinLod]));
 			contents.append(AnyFX::Format("MipLODBias = %f;\n", floatFlags[SamplerRow::LodBias]));
@@ -434,11 +409,17 @@ Sampler::Format(const Header& header) const
 				contents.append(AnyFX::Format("AddressU = %d;\n", intFlags[SamplerRow::AddressU]));
 				contents.append(AnyFX::Format("AddressV = %d;\n", intFlags[SamplerRow::AddressV]));
 				contents.append(AnyFX::Format("AddressW = %d;\n", intFlags[SamplerRow::AddressW]));
-				contents.append(AnyFX::Format("BorderColor = float4(%f,%f,%f,%f);\n", 
-					float4Flags[SamplerRow::BorderColor].v[0], 
-					float4Flags[SamplerRow::BorderColor].v[1], 
-					float4Flags[SamplerRow::BorderColor].v[2],
-					float4Flags[SamplerRow::BorderColor].v[3]));
+				switch (intFlags[SamplerRow::BorderColor])
+				{
+				case SamplerRow::Transparent:
+					contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 0);\n"));
+					break;
+				case SamplerRow::Black:
+					contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 1);\n"));
+					break;
+				case SamplerRow::White:
+					contents.append(AnyFX::Format("BorderColor = float4(1, 1, 1, 1);\n"));
+				}
 				contents.append(AnyFX::Format("MaxLOD = %f;\n", floatFlags[SamplerRow::MaxLod]));
 				contents.append(AnyFX::Format("MinLOD = %f;\n", floatFlags[SamplerRow::MinLod]));
 				contents.append(AnyFX::Format("MipLODBias = %f;\n", floatFlags[SamplerRow::LodBias]));

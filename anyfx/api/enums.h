@@ -123,6 +123,13 @@ enum ComparisonFunc
 	NumDrawDepthFuncs
 };
 
+enum BorderColorMode
+{
+	Transparent,
+	Black,
+	White
+};
+
 enum BlendMode
 {
 	ZeroBlend,

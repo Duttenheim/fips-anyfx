@@ -73,6 +73,13 @@ static const VkFilter vkMagTable[] =
 	VK_FILTER_LINEAR,									// Linear
 };
 
+static const VkBorderColor vkBorderColorTable[] =
+{
+	VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK,
+	VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK,
+	VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE
+};
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -113,8 +120,8 @@ VkSampler::OnLoaded()
 		vkComparisonTable[this->samplerSettings.comparisonFunc],
 		this->samplerSettings.minLod,
 		this->samplerSettings.maxLod,
-		VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK,	// fixme
-		VK_FALSE							// fixme
+		vkBorderColorTable[this->samplerSettings.borderColor],
+		this->samplerSettings.unnormalized
 	};
 
 	this->bindingLayout.binding = this->binding;

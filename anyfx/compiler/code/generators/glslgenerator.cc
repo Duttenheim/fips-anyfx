@@ -47,6 +47,20 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		{
 			code.append("layout(early_fragment_tests) in;\n");
 		}
+		if (this->func.HasIntFlag(FunctionAttribute::PixelOrigin))
+		{
+			int pixelOrigin = this->func.GetIntFlag(FunctionAttribute::PixelOrigin);
+			switch (pixelOrigin)
+			{
+			case FunctionAttribute::PCenter:
+				code.append("layout(pixel_center_integer) in vec4 gl_FragCoord;\n");
+				break;
+			case FunctionAttribute::PDefault:
+				code.append("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+				break;
+
+			}
+		}
 	}
 	else if (this->shaderType == ProgramRow::HullShader)
 	{

@@ -149,6 +149,13 @@ Function::ConsumeAttribute(const FunctionAttribute& attr)
 			else if (value == "triangle_strip")			{ this->intAttributes[FunctionAttribute::OutputPrimitive] = FunctionAttribute::OTriangleStrip; this->intAttributeMask[FunctionAttribute::OutputPrimitive] = true; }
 			else										this->invalidAttributeValues.push_back(value);
 		}
+		else if (attr.GetFlag() == "pixelorigin")
+		{
+			const std::string& value = attr.GetString();
+			if (value == "center")						{ this->intAttributes[FunctionAttribute::PixelOrigin] = FunctionAttribute::PCenter; this->intAttributeMask[FunctionAttribute::PixelOrigin] = true; }
+			else if (value == "default")				{ this->intAttributes[FunctionAttribute::PixelOrigin] = FunctionAttribute::PDefault; this->intAttributeMask[FunctionAttribute::PixelOrigin] = true; }
+			else										this->invalidAttributeValues.push_back(value);
+		}
 		else											this->invalidAttributes.push_back(attr.GetFlag());
 		break;
 	case FunctionAttribute::InvalidFlagType:

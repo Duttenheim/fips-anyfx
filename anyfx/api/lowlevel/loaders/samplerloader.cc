@@ -61,15 +61,13 @@ SamplerLoader::Load(BinReader* reader, ShaderEffect* effect)
 	sampler->samplerSettings.addressV =				(AddressMode)reader->ReadInt();
 	sampler->samplerSettings.addressW =				(AddressMode)reader->ReadInt();
 	sampler->samplerSettings.comparisonFunc =		(ComparisonFunc)reader->ReadInt();
+	sampler->samplerSettings.borderColor =			(BorderColorMode)reader->ReadInt();
 	sampler->samplerSettings.lodBias = reader->ReadFloat();
 	sampler->samplerSettings.minLod = reader->ReadFloat();
 	sampler->samplerSettings.maxLod = reader->ReadFloat();
 	sampler->samplerSettings.maxAnisotropic = reader->ReadFloat();
-	sampler->samplerSettings.borderColor[0] = reader->ReadFloat();
-	sampler->samplerSettings.borderColor[1] = reader->ReadFloat();
-	sampler->samplerSettings.borderColor[2] = reader->ReadFloat();
-	sampler->samplerSettings.borderColor[3] = reader->ReadFloat();
 	sampler->samplerSettings.isComparison = reader->ReadBool();
+	sampler->samplerSettings.unnormalized = reader->ReadBool();
 	
 	// read textures
 	unsigned numTextures = reader->ReadInt();

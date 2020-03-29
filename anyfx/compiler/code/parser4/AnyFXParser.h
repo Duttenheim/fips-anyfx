@@ -858,24 +858,16 @@ public:
     AnyFXParser::ExpressionContext *expressionContext = nullptr;;
     antlr4::Token *flag4 = nullptr;;
     AnyFXParser::SamplerTextureListContext *samplerTextureListContext = nullptr;;
-    antlr4::Token *flag5 = nullptr;;
-    AnyFXParser::ExpressionContext *red = nullptr;;
-    AnyFXParser::ExpressionContext *green = nullptr;;
-    AnyFXParser::ExpressionContext *blue = nullptr;;
-    AnyFXParser::ExpressionContext *alpha = nullptr;;
     SamplerRowContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *EQ();
     antlr4::tree::TerminalNode *SC();
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
+    ExpressionContext *expression();
     antlr4::tree::TerminalNode *LB();
     SamplerTextureListContext *samplerTextureList();
     antlr4::tree::TerminalNode *RB();
-    std::vector<antlr4::tree::TerminalNode *> CO();
-    antlr4::tree::TerminalNode* CO(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
