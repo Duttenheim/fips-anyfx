@@ -43,10 +43,10 @@ Sampler::Sampler() :
 	intFlags[SamplerRow::AddressW] = SamplerRow::Wrap;
 	intFlags[SamplerRow::ComparisonFunc] = SamplerRow::LEqual;
 	intFlags[SamplerRow::BorderColor] = SamplerRow::Black;
-	intFlags[SamplerRow::Unnormalized] = false;
 
 	boolFlags[SamplerRow::Comparison] = false;
-	
+	boolFlags[SamplerRow::Unnormalized] = false;
+
 	floatFlags[SamplerRow::LodBias] = 0.0f;
 	floatFlags[SamplerRow::MinLod] = 0;
 	floatFlags[SamplerRow::MaxLod] = FLT_MAX;

@@ -196,10 +196,10 @@ Constant::TypeCheck(TypeChecker& typechecker)
 					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 				unsigned numVals = pair.second.GetNumValues();
-				unsigned vectorSize = DataType::ToVectorSize(this->type);
-				if (numVals != vectorSize)
+				DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
+				if (numVals != dims.x)
 				{
-					std::string message = AnyFX::Format("Initializer at index %d is not completely initialized, got %d initializers, expected %d, %s", i+1, numVals, vectorSize, this->ErrorSuffix().c_str());
+					std::string message = AnyFX::Format("Initializer at index %d is not completely initialized, got %d initializers, expected %d, %s", i+1, numVals, dims.x, this->ErrorSuffix().c_str());
 					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
@@ -208,7 +208,7 @@ Constant::TypeCheck(TypeChecker& typechecker)
 	else
 	{
 		// get vector size of this type
-		unsigned vectorSize = DataType::ToVectorSize(this->type);
+		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
 
 		unsigned i;
 		for (i = 0; i < this->valueTable.size(); i++)
@@ -219,9 +219,9 @@ Constant::TypeCheck(TypeChecker& typechecker)
 				std::string message = AnyFX::Format("Cannot implicitly cast from '%s' to '%s', %s\n", DataType::ToString(this->type).c_str(), DataType::ToString(pair.first).c_str(), this->ErrorSuffix().c_str());
 				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
-			if (pair.second.GetNumValues() != vectorSize)
+			if (pair.second.GetNumValues() != dims.x)
 			{
-				std::string message = AnyFX::Format("Type constructor at index %d isn't fully initialized, got %d values, expected %d, %s\n", i+1, pair.second.GetNumValues(), vectorSize, this->ErrorSuffix().c_str());
+				std::string message = AnyFX::Format("Type constructor at index %d isn't fully initialized, got %d values, expected %d, %s\n", i+1, pair.second.GetNumValues(), dims.x, this->ErrorSuffix().c_str());
 				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 		}

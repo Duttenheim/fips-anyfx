@@ -301,10 +301,10 @@ Variable::TypeCheck(TypeChecker& typechecker)
 					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 				unsigned numVals = pair.second.GetNumValues();
-				unsigned vectorSize = DataType::ToVectorSize(this->type);
-				if (numVals != vectorSize)
+				DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
+				if (numVals != dims.x)
 				{
-					std::string message = AnyFX::Format("Initializer at index %d is not completely initialized, got %d initializers, expected %d, %s\n", i+1, numVals, vectorSize, this->ErrorSuffix().c_str());
+					std::string message = AnyFX::Format("Initializer at index %d is not completely initialized, got %d initializers, expected %d, %s\n", i+1, numVals, dims.x, this->ErrorSuffix().c_str());
 					typechecker.Error(message, this->GetFile(), this->GetLine());
 				}
 			}
@@ -313,7 +313,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 	else
 	{
 		// get vector size of this type
-		unsigned vectorSize = DataType::ToVectorSize(this->type);
+		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
 		for (i = 0; i < this->valueTable.size(); i++)
 		{
 			std::pair<DataType, ValueList> pair = this->valueTable[i];
@@ -322,9 +322,9 @@ Variable::TypeCheck(TypeChecker& typechecker)
 				std::string message = AnyFX::Format("Cannot implicitly cast from '%s' to '%s', %s\n", DataType::ToString(this->type).c_str(), DataType::ToString(pair.first).c_str(), this->ErrorSuffix().c_str());
 				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
-			if (pair.second.GetNumValues() != vectorSize)
+			if (pair.second.GetNumValues() != dims.x)
 			{
-				std::string message = AnyFX::Format("Type constructor at index %d isn't fully initialized, got %d values, expected %d, %s\n", i+1, pair.second.GetNumValues(), vectorSize, this->ErrorSuffix().c_str());
+				std::string message = AnyFX::Format("Type constructor at index %d isn't fully initialized, got %d values, expected %d, %s\n", i+1, pair.second.GetNumValues(), dims.x, this->ErrorSuffix().c_str());
 				typechecker.Error(message, this->GetFile(), this->GetLine());
 			}
 		}
@@ -534,7 +534,7 @@ Variable::Format(const Header& header, bool inVarblock) const
 	// if c, an unsized struct is just a pointer to it...
 	if (header.GetType() == Header::C)
 	{
-		unsigned vecSize = DataType::ToVectorSize(this->GetDataType());
+		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
 		formattedCode.append("\t");
 		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 
@@ -563,9 +563,13 @@ Variable::Format(const Header& header, bool inVarblock) const
 			formattedCode.append(this->GetName());
 		}
 
-		if (vecSize > 1)
+		if (dims.x > 1 || dims.y > 1)
 		{
-			formattedCode.append(AnyFX::Format("[%d]", vecSize));
+			// round up 3 column vectors to 4 if we have a matrix
+			if (dims.x == 3 && dims.y > 1)
+				formattedCode.append(AnyFX::Format("[%d][%d]", dims.y, 4));
+			else
+				formattedCode.append(AnyFX::Format("[%d]", dims.x * dims.y));
 		}
 	}
 	else

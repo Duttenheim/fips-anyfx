@@ -150,8 +150,6 @@ public:
 	static std::string ToSignature(const DataType& type);
 	/// formats type as string
 	static std::string ToString(const DataType& type);
-	/// translates type into vector size
-	static unsigned ToVectorSize(const DataType& type);
 	
 	/// converts from a profile to a string
 	static std::string ToProfileType(const DataType& dtype, const Header::Type& ttype);

@@ -126,16 +126,15 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		var.TypeCheck(typechecker);
 
 		// handle offset later, now we know array size
-		unsigned alignedSize = 0;
-		unsigned stride = 0;
+		unsigned size = 0;
 		unsigned alignment = 0;
 		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
 		{
 			// if we have a push constant, use std430, otherwise std140
 			if (HasFlags(this->qualifierFlags, Qualifiers::Push))
-				alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, false, false, typechecker);
+				Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), size, alignment, false, false, typechecker);
 			else
-				alignment = Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), alignedSize, stride, true, false, typechecker);
+				Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), size, alignment, true, false, typechecker);
 		}
 
 		// align offset with current alignment
@@ -162,7 +161,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 		}
 
 		// offset should be size of struct, round of
-		offset += alignedSize;
+		offset += size;
 	}
 	// aligned size must be the sum of all offsets
 	this->alignedSize = offset;

@@ -85,6 +85,7 @@ private:
 	std::vector<std::string> activeUniforms;
 	std::vector<std::string> activeUniformBlocks;
 	std::map<std::string, unsigned> uniformBufferOffsets;
+	std::map<std::string, unsigned> storageBufferOffsets;
 
 	bool hasAnnotation;
 	Annotation annotation;

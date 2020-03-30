@@ -865,10 +865,11 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
 	}
 
 	// build reflection to get uniform stuff
-	bool refbuilt = program->buildReflection();
+	bool refbuilt = program->buildReflection(EShReflectionBasicArraySuffix | EShReflectionSeparateBuffers);
 	assert(refbuilt);
 
 	// get uniform offsets and save to program
+	/*
 	int numVars = program->getNumLiveUniformVariables();
 	int numBlocks = program->getNumLiveUniformBlocks();
 	int i;
@@ -887,6 +888,25 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
 		int type = program->getUniformType(i);
 		unsigned offset = program->getUniformBufferOffset(i);
 		if (offset != -1) this->uniformBufferOffsets[uniformName] = offset;
+	}
+	*/
+
+	int numVars = program->getNumUniformVariables();
+	for (int i = 0; i < numVars; i++)
+	{
+		auto bufferVar = program->getUniform(i);
+		std::string varName = bufferVar.name;
+		unsigned offset = bufferVar.offset;
+		this->uniformBufferOffsets[varName] = offset;
+	}
+
+	numVars = program->getNumBufferVariables();
+	for (int i = 0; i < numVars; i++)
+	{
+		auto bufferVar = program->getBufferVariable(i);
+		std::string varName = bufferVar.name;
+		unsigned offset = bufferVar.offset;
+		storageBufferOffsets[varName] = offset;
 	}
 
 	glslang::TShader* shaders[] = { gvs, ghs, gds, ggs, gps, gcs };

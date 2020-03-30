@@ -5,6 +5,7 @@
 #include "structure.h"
 #include "typechecker.h"
 #include "effect.h"
+#include <algorithm>
 
 namespace AnyFX
 {
@@ -179,22 +180,23 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 
 	unsigned offset = 0;
 	unsigned i;
-	unsigned structAlignment = 0;
+	unsigned maxAlignment = this->usage == VarblockStorage ? 16 : 0;
 	for (i = 0; i < this->parameters.size(); i++)
 	{
 		Parameter& param = this->parameters[i];
 
 		// handle offset later, now we know array size
-		unsigned alignedSize = 0;
-		unsigned stride = 0;
+		unsigned size = 0;
 		unsigned alignment = 0;
+		unsigned stride = 0;
 		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
 		{
-			// align as if std140, but also pad every member
-			alignment = Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), alignedSize, stride, this->usage == VarbufferStorage ? false : true, false, typechecker);
+			Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), size, alignment, this->usage != VarbufferStorage, true, typechecker);
 		}
-		structAlignment = alignment > structAlignment ? alignment : structAlignment;
 
+		maxAlignment = std::max(alignment, maxAlignment);
+		//size = Effect::RoundToPow2(size, alignment);
+		
 		// align offset with current alignment
 		if (offset % alignment > 0)
 		{
@@ -205,15 +207,16 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 			param.padding = 0;
 		param.alignedOffset = offset;
 
-		offset += alignedSize;
+		offset += size;
 	}
 	this->alignedSize = offset;
+	this->alignment = maxAlignment;
 
 	// calculate structure alignment
-	if (this->alignedSize % structAlignment > 0)
+	if (this->alignedSize % maxAlignment > 0)
 	{
-		this->padding = structAlignment - (this->alignedSize % structAlignment);
-		this->alignedSize = this->alignedSize + structAlignment - (this->alignedSize % structAlignment);
+		this->padding = maxAlignment - (this->alignedSize % maxAlignment);
+		this->alignedSize = this->alignedSize + maxAlignment - (this->alignedSize % maxAlignment);
 	}
 	else
 		this->padding = 0;

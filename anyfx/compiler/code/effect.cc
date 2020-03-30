@@ -601,92 +601,106 @@ Effect::GenerateHeader(TextWriter& writer)
 //------------------------------------------------------------------------------
 /**
 */
-unsigned
-Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, const bool std140, const bool structMember, TypeChecker& typechecker)
+unsigned 
+Effect::RoundToPow2(unsigned number, unsigned power)
+{
+	return number = (number + power - 1) & ~(power - 1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& size, unsigned& alignment, unsigned& stride, const bool std140, const bool structMember, TypeChecker& typechecker)
 {
 	DataType::Dimensions dims = DataType::ToDimensions(type);
 	unsigned byteSize = DataType::ToByteSize(DataType::ToPrimitiveType(type));
-	unsigned vectorSize = DataType::ToVectorSize(type);
 	const unsigned vec4alignment = 16;
-	unsigned alignment = 0;
+	unsigned elementAlignment = 0;
+
+	/*
+	1.  If the member is a scalar consuming N basic machine units, the base alignment is N.
+	2.  If the member is a two- or four-component vector with components consuming N basic machine units, the base alignment is 2N or 4N, respectively.
+	3.  If the member is a three-component vector with components consuming N basic machine units, the base alignment is 4N.
+	4.  If the member is an array of scalars or vectors, the base alignment and array stride are set to match the base alignment of a single array element, 
+		according to rules (1), (2), and (3), and rounded up to the base alignment of a vec4. The array may have padding at the end; 
+		the base offset of the member following the array is rounded up to the next multiple of the base alignment.
+	5.  If the member is a column-major matrix with C columns and R rows, the matrix is stored identically to an array of C column vectors with R 
+		components each, according to rule (4).
+	6.  If the member is an array of S column-major matrices with C columns and R rows, the matrix is stored identically to a row of 
+		S×C column vectors with R components each, according to rule (4).
+	7.  If the member is a row-major matrix with C columns and R rows, the matrix is stored identically to an array of R row vectors with C components each, 
+		according to rule (4).
+	8.  If the member is an array of S row-major matrices with C columns and R rows, the matrix is stored identically to a row of S×R row vectors with C 
+		components each, according to rule (4).
+	9.  If the member is a structure, the base alignment of the structure is N, where N is the largest base alignment value of any of its members, 
+		and rounded up to the base alignment of a vec4. The individual members of this sub-structure are then assigned offsets by applying this set of 
+		rules recursively, where the base offset of the first member of the sub-structure is equal to the aligned offset of the structure. 
+		The structure may have padding at the end; the base offset of the member following the sub-structure is 
+		rounded up to the next multiple of the base alignment of the structure.
+	10. If the member is an array of S structures, the S elements of the array are laid out in order, according to rule
+
+	For std430, rounding up to vec4 in rule 4 and 9 is not relevant
+	*/
 
 	// calculate alignment per element
-	unsigned elementAlignment = 0;
 	switch (dims.x)
 	{
 	case 0:		// this happens if we have structs
 		break;
 	case 1:
 		alignment = byteSize;
-		alignedSize = byteSize;
+		size = byteSize;
 		break;
 	case 2:
 		alignment = byteSize * 2;
-		alignedSize = byteSize * 2;
+		size = byteSize * 2;
 		break;
 	case 3:
-		alignment = (!std140 && (structMember || arraySize > 1)) ? byteSize * 3 : byteSize * 4; // avoid rounding to vec4 if using std430
-		alignedSize = byteSize * 3;
-		break;
-	default:	// this holds true for both 3, and 4 element vectors
 		alignment = byteSize * 4;
-		alignedSize = byteSize * 4;
+		size = byteSize * 3;
+		break;
+	case 4:
+		alignment = byteSize * 4;
+		size = byteSize * 4;
+		break;
+	default:
+		// should never happen
+		alignment = byteSize;
+		size = byteSize;
 		break;
 	}
 
-	unsigned unusedStride;
-
-	// no array
-	if (arraySize == 1)
+	if (arraySize > 1) // if array
 	{
-		if (type.GetType() == DataType::UserType) // struct
+		Effect::GetAlignmentGLSL(type, 1, size, alignment, stride, std140, structMember, typechecker);
+		if (std140)
+			alignment = std::max(vec4alignment, alignment);
+		stride = size;
+		size *= arraySize;
+	}
+	else if (type.GetType() == DataType::UserType)  // if structure
+	{
+		Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
+		if (!structure)
 		{
-			Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-			if (!structure)
-			{
-				alignedSize = 0;
-				alignment = vec4alignment;
-			}
-			else
-			{
-				alignedSize = structure->alignedSize;
-				alignment = vec4alignment;
-			}			
+			size = 0;
+			alignment = vec4alignment;
 		}
-		else if (type.GetType() >= DataType::Matrix2x2 && type.GetType() <= DataType::Matrix4x4) // matrix types
+		else
 		{
-			switch (dims.x)
-			{
-			case 1:
-				alignment = byteSize;
-				alignedSize = byteSize;
-				break;
-			case 2:
-				alignment = byteSize * 2;
-				alignedSize = byteSize * 2;
-				break;
-			case 3:
-				alignment = byteSize * 4;
-				alignedSize = byteSize * 3;
-				break;
-			default:	// this holds true for both 3, and 4 element vectors
-				alignment = byteSize * 4;
-				alignedSize = byteSize * 4;
-				break;
-			}
-
-			// all matrices are column major
-			alignedSize = RoundUp(alignedSize, alignment);
-			alignedSize *= dims.y;
+			size = structure->alignedSize;
+			alignment = structure->alignment;
 		}
 	}
-	else // array
+	else if (dims.y > 1) // if matrix
 	{
-		// get alignment for non-array
-		alignment = Effect::GetAlignmentGLSL(type, 1, alignedSize, unusedStride, std140, structMember, typechecker);
-		alignedSize *= arraySize;
+		if (std140)
+			alignment = std::max(vec4alignment, alignment);
+		size = RoundToPow2(size, alignment);
+		stride = size;
+		size *= dims.y;
 	}
-	return alignment;
 }
 
 } // namespace AnyFX

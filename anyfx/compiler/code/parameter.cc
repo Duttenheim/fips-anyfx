@@ -185,7 +185,7 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 	}
 	else if (header.GetType() == Header::C)
 	{
-		unsigned vecSize = DataType::ToVectorSize(this->GetDataType());
+		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
 		formattedCode.append("\t");
 
 		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
@@ -203,9 +203,13 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 			}
 		}
 
-		if (vecSize > 1)
+		if (dims.x > 1 || dims.y > 1)
 		{
-			formattedCode.append(AnyFX::Format("[%d]", vecSize));
+			// change the signature if we have a Nx3 column major matrix, since vectors in this format should always be vec4
+			if (dims.x == 3 && dims.y > 1)
+				formattedCode.append(AnyFX::Format("[%d][%d]", dims.y, 4));
+			else
+				formattedCode.append(AnyFX::Format("[%d]", dims.x * dims.y));
 		}
 
 		formattedCode.append(";\n");

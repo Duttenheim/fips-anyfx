@@ -80,10 +80,10 @@ public:
 	/// set name of effect
 	void SetName(const std::string& name);
 
-	/// round up to closest multiple
-	static unsigned RoundUp(unsigned num, unsigned multiple);
+	/// round to pow 2
+	static unsigned RoundToPow2(unsigned number, unsigned power);
 	/// calculate offset of variable using shared/std140 declared in GLSL/SPIR-V
-	static unsigned GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& alignedSize, unsigned& stride, const bool std140, const bool structMember, TypeChecker& typechecker);
+	static void GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& size, unsigned& alignment, const bool std140, const bool structMember, TypeChecker& typechecker);
 
 private:
 	Header header;
@@ -142,15 +142,6 @@ inline void
 Effect::SetName(const std::string & name)
 {
 	this->name = name;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline unsigned
-Effect::RoundUp(unsigned num, unsigned multiple)
-{
-	return ((num + multiple - 1) / multiple) * multiple;
 }
 
 } // namespace AnyFX
