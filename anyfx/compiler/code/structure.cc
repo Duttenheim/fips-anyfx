@@ -188,7 +188,6 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 		// handle offset later, now we know array size
 		unsigned size = 0;
 		unsigned alignment = 0;
-		unsigned stride = 0;
 		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
 		{
 			Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), size, alignment, this->usage != VarbufferStorage, true, typechecker);

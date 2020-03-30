@@ -611,7 +611,7 @@ Effect::RoundToPow2(unsigned number, unsigned power)
 /**
 */
 void
-Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& size, unsigned& alignment, unsigned& stride, const bool std140, const bool structMember, TypeChecker& typechecker)
+Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& size, unsigned& alignment, const bool std140, const bool structMember, TypeChecker& typechecker)
 {
 	DataType::Dimensions dims = DataType::ToDimensions(type);
 	unsigned byteSize = DataType::ToByteSize(DataType::ToPrimitiveType(type));
@@ -673,10 +673,9 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& siz
 
 	if (arraySize > 1) // if array
 	{
-		Effect::GetAlignmentGLSL(type, 1, size, alignment, stride, std140, structMember, typechecker);
+		Effect::GetAlignmentGLSL(type, 1, size, alignment, std140, structMember, typechecker);
 		if (std140)
 			alignment = std::max(vec4alignment, alignment);
-		stride = size;
 		size *= arraySize;
 	}
 	else if (type.GetType() == DataType::UserType)  // if structure
@@ -698,7 +697,6 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& siz
 		if (std140)
 			alignment = std::max(vec4alignment, alignment);
 		size = RoundToPow2(size, alignment);
-		stride = size;
 		size *= dims.y;
 	}
 }
