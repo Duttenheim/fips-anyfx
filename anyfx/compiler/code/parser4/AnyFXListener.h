@@ -1,4 +1,4 @@
-	
+
 
 // include std container
 #include <vector>
@@ -41,6 +41,7 @@ extern std::vector<std::string> uncaughtPreprocessorDirectives;
 #include "../../code/expressions/intexpression.h"
 #include "../../code/expressions/boolexpression.h"
 #include "../../code/expressions/floatexpression.h"
+#include "../../code/expressions/symbolexpression.h"
 using namespace AnyFX;
 
 

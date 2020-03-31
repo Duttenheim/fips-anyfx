@@ -108,6 +108,48 @@ Constant::Format(const Header& header) const
 			result.append(");\n");
 		}
 	}
+	else if (header.GetType() == Header::C)
+	{
+		std::string valueString;
+		if (this->isArray)
+		{
+			std::string arraySize = AnyFX::Format("[%d]", this->arraySize);
+			valueString.append(arraySize);
+			valueString.append("(");
+
+			if (this->valueTable.size() != this->arraySize)
+			{
+				valueString.append(this->valueTable[0].second.GetString());
+			}
+			else
+			{
+				unsigned i;
+				for (i = 0; i < this->valueTable.size(); i++)
+				{
+					if (i > 0)
+					{
+						valueString.append(", ");
+					}
+					valueString.append(DataType::ToProfileType(this->type, header.GetType()));
+					valueString.append("(");
+					valueString.append(this->valueTable[i].second.GetString());
+					valueString.append(")");
+				}
+			}
+			valueString.append(");\n");
+		}
+		else
+		{
+			valueString.append("(");
+			valueString.append(this->valueTable[0].second.GetString());
+			valueString.append(");\n");
+		}
+
+		result = AnyFX::Format("const %s %s = %s;\n",
+			DataType::ToProfileType(this->type, header.GetType()),
+			this->name,
+			valueString);
+	}
 	return result;
 }
 
@@ -153,7 +195,8 @@ Constant::TypeCheck(TypeChecker& typechecker)
 		const ValueList& valueList = this->valueTable[i].second;
 		for (j = 0; j < valueList.GetNumValues(); j++)
 		{
-			if (valueList.GetValue(j)) delete valueList.GetValue(j);
+			if (valueList.GetValue(j)) 
+				delete valueList.GetValue(j);
 		}		
 	}
 

@@ -1,4 +1,4 @@
-	
+
 
 // include std container
 #include <vector>
@@ -41,6 +41,7 @@ extern std::vector<std::string> uncaughtPreprocessorDirectives;
 #include "../../code/expressions/intexpression.h"
 #include "../../code/expressions/boolexpression.h"
 #include "../../code/expressions/floatexpression.h"
+#include "../../code/expressions/symbolexpression.h"
 using namespace AnyFX;
 
 
@@ -1131,6 +1132,7 @@ public:
     antlr4::Token *floatliteralToken = nullptr;;
     antlr4::Token *doubleliteralToken = nullptr;;
     antlr4::Token *hexToken = nullptr;;
+    antlr4::Token *identifierToken = nullptr;;
     AnyFXParser::BooleanContext *booleanContext = nullptr;;
     AnyFXParser::ParantexpressionContext *parantexpressionContext = nullptr;;
     BinaryexpatomContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -1139,6 +1141,7 @@ public:
     antlr4::tree::TerminalNode *FLOATLITERAL();
     antlr4::tree::TerminalNode *DOUBLELITERAL();
     antlr4::tree::TerminalNode *HEX();
+    antlr4::tree::TerminalNode *IDENTIFIER();
     BooleanContext *boolean();
     ParantexpressionContext *parantexpression();
 
