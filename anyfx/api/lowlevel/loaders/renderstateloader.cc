@@ -144,8 +144,8 @@ RenderStateLoader::Load(BinReader* reader, ShaderEffect* effect)
 	unsigned stencilReadMask = reader->ReadUInt();
 	unsigned stencilWriteMask = reader->ReadUInt();
 
-	renderState->renderSettings.frontRef			= stencilFrontRef;
-	renderState->renderSettings.backRef				= stencilBackRef;
+	renderState->renderSettings.stencilFrontRef			= stencilFrontRef;
+	renderState->renderSettings.stencilBackRef				= stencilBackRef;
 	renderState->renderSettings.stencilReadMask		= stencilReadMask;
 	renderState->renderSettings.stencilWriteMask	= stencilWriteMask;
 

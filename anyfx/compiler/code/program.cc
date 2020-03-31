@@ -868,29 +868,6 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
 	bool refbuilt = program->buildReflection(EShReflectionBasicArraySuffix | EShReflectionSeparateBuffers);
 	assert(refbuilt);
 
-	// get uniform offsets and save to program
-	/*
-	int numVars = program->getNumLiveUniformVariables();
-	int numBlocks = program->getNumLiveUniformBlocks();
-	int i;
-	for (i = 0; i < numBlocks; i++)
-	{
-		std::string blockName = program->getUniformBlockName(i);
-		this->activeUniformBlocks.push_back(blockName);
-	}
-
-	for (i = 0; i < numVars; i++)
-	{
-		std::string uniformName = program->getUniformName(i);
-		this->activeUniforms.push_back(uniformName);
-		size_t indexOfArray = uniformName.find("[0]");
-		if (indexOfArray != std::string::npos) uniformName = uniformName.substr(0, indexOfArray);
-		int type = program->getUniformType(i);
-		unsigned offset = program->getUniformBufferOffset(i);
-		if (offset != -1) this->uniformBufferOffsets[uniformName] = offset;
-	}
-	*/
-
 	int numVars = program->getNumUniformVariables();
 	for (int i = 0; i < numVars; i++)
 	{
