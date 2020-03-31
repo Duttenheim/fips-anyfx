@@ -191,4 +191,13 @@ SymbolExpression::EvalBool(TypeChecker& typechecker)
 	return false;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+std::string 
+SymbolExpression::EvalString(TypeChecker& typechecker)
+{
+	return this->symbol;
+}
+
 } // namespace AnyFX

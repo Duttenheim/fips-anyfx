@@ -592,13 +592,6 @@ functionAttribute	returns [ FunctionAttribute attribute ]
 
 		$attribute.SetExpression(identifierString, $expression.tree);
 	}
-	| LL flag3 = IDENTIFIER RR EQ data = IDENTIFIER
-	{
-		std::string identifierString($flag3.text);
-		std::string dataString($data.text);
-
-		$attribute.SetString(identifierString, dataString);
-	}
 	| LL flag3 = IDENTIFIER RR
 	{
 		std::string identifierString($flag3.text);
@@ -653,12 +646,7 @@ function	returns [ Function func ]
 		;
 
 blendStateRow	returns [ BlendStateRow row ]
-	: flag1 = IDENTIFIER LL index1 = expression RR EQ blendFlag = IDENTIFIER SC
-	{
-		std::string flag($flag1.text);
-		$row.SetString($index1.tree, flag, $blendFlag.text);
-	}
-	| flag2 = IDENTIFIER LL index2 = expression RR EQ value = expression SC
+	: flag2 = IDENTIFIER LL index2 = expression RR EQ value = expression SC
 	{
 		std::string flag($flag2.text);
 		$row.SetExpression($index2.tree, flag, $value.tree);
@@ -670,11 +658,6 @@ renderStateRow	returns [ RenderStateRow row ]
 	{
 		std::string flag($flag1.text);
 		$row.SetExpression(flag, $expression.tree);
-	}
-	| flag2 = IDENTIFIER EQ renderStateSetting = IDENTIFIER SC
-	{
-		std::string flag($flag2.text);
-		$row.SetString(flag, $renderStateSetting.text);
 	}
 	;
 
@@ -775,8 +758,8 @@ expression	returns [ Expression* tree ]
 					{
 						$tree = nullptr;
 					}
-	:	binaryexp7 { $tree = $binaryexp7.tree; }
-	;
+					:	binaryexp7 { $tree = $binaryexp7.tree; }
+					;
 
 // start of with ||
 binaryexp7	returns [ Expression* tree ]

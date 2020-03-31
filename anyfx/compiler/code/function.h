@@ -92,6 +92,9 @@ private:
 	/// restores function (should only be applied if function is not bound as a shader)
 	void Restore(const Header& header, int index);
 
+	/// evaluate function attributes
+	void EvaluateAttributes(TypeChecker& typeChecker);
+
 	DataType returnType;
 	unsigned codeLine;
 	unsigned functionLine;
@@ -100,8 +103,7 @@ private:
 	bool shaderTarget;
     int fileIndex;
 
-	Expression* intExpressions[FunctionAttribute::NumIntFlags];
-	Expression* floatExpressions[FunctionAttribute::NumFloatFlags];
+	std::vector<FunctionAttribute> attributes;
 
 	bool intAttributeMask[FunctionAttribute::NumIntFlags];
 	int intAttributes[FunctionAttribute::NumIntFlags];

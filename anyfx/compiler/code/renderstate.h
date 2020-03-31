@@ -42,33 +42,28 @@ public:
 
 private:
 
+	/// go through render state and blend state rows and evaluate
+	void EvaluateEntries(TypeChecker& typechecker);
+
 	struct InvalidValueContainer
 	{
-		unsigned entry;
 		std::string flag;
 		std::string value;
 	};
 
+	std::vector<RenderStateRow> renderStateRows;
+	std::vector<BlendStateRow> blendStateRows;
+
 	std::vector<std::string> invalidExpressionFlags;
 	std::vector<std::string> invalidStringFlags;
 	std::vector<InvalidValueContainer> invalidValues;
-	unsigned numEntries;
 
-	std::vector<Expression*> blendEnumIndexExpressions;
-	std::vector<std::pair<int, BlendStateRow::EnumFlag> > blendEnumPairs;
 	int blendEnumFlags[MaxNumRenderTargets][BlendStateRow::NumEnumFlags];
-
-	std::vector<Expression*> blendBoolIndexExpressions;
-	std::vector<std::pair<Expression*, BlendStateRow::BoolFlag> > blendBoolPairs;
 	bool blendBoolFlags[MaxNumRenderTargets][BlendStateRow::NumBoolFlags];
 
-	Expression* drawIntExpressions[RenderStateRow::NumIntFlags];
 	int drawIntFlags[RenderStateRow::NumIntFlags];
-	Expression* drawUintExpressions[RenderStateRow::NumIntFlags];
 	unsigned drawUintFlags[RenderStateRow::NumUintFlags];
-	Expression* drawBoolExpressions[RenderStateRow::NumBoolFlags];
 	bool drawBoolFlags[RenderStateRow::NumBoolFlags];
-	Expression* drawFloatExpressions[RenderStateRow::NumFloatFlags];
 	float drawFloatFlags[RenderStateRow::NumFloatFlags];
 
 	int drawEnumFlags[RenderStateRow::NumEnumFlags];

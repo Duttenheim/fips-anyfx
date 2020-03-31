@@ -22,16 +22,18 @@ public:
 	virtual ~SymbolExpression();
 
 	/// evaulate type of expression
-	virtual DataType EvalType(TypeChecker& typechecker);
+	DataType EvalType(TypeChecker& typechecker) override;
 
 	/// evaluates expression as an integer
-	virtual int EvalInt(TypeChecker& typechecker);
+	int EvalInt(TypeChecker& typechecker) override;
 	/// evaluates expression as an integer
-	virtual unsigned EvalUInt(TypeChecker& typechecker);
+	unsigned EvalUInt(TypeChecker& typechecker) override;
 	/// evaulates expression as a float
-	virtual float EvalFloat(TypeChecker& typechecker);
+	float EvalFloat(TypeChecker& typechecker) override;
 	/// evaluates expression as a boolean
-	virtual bool EvalBool(TypeChecker& typechecker);
+	bool EvalBool(TypeChecker& typechecker) override;
+	/// evaluates expression as a string
+	std::string EvalString(TypeChecker& typechecker) override;
 private:
 	std::string symbol;
 }; 
