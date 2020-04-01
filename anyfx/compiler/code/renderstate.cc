@@ -56,10 +56,10 @@ RenderState::RenderState() :
 	this->drawBoolFlags[RenderStateRow::RasterizerDiscardEnabled] = false;
 	this->drawBoolFlags[RenderStateRow::LogicOpEnabled] = false;
 
-	this->drawIntFlags[RenderStateRow::StencilFrontRef] = 0;
-	this->drawIntFlags[RenderStateRow::StencilBackRef] = 0;
-	this->drawUintFlags[RenderStateRow::StencilReadMask] = 1;
-	this->drawUintFlags[RenderStateRow::StencilWriteMask] = 1;
+	this->drawIntFlags[RenderStateRow::StencilFrontRef] = 0xFF;
+	this->drawIntFlags[RenderStateRow::StencilBackRef] = 0xFF;
+	this->drawUintFlags[RenderStateRow::StencilReadMask] = 0xFF;
+	this->drawUintFlags[RenderStateRow::StencilWriteMask] = 0;
 
 	this->drawFloatFlags[RenderStateRow::PolygonOffsetFactor] = 0.0f;
 	this->drawFloatFlags[RenderStateRow::PolygonOffsetUnits] = 0.0f;
