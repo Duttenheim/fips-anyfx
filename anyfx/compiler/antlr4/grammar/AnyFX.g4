@@ -423,18 +423,18 @@ structure	returns [ Structure struc ]
 varblock	returns [ VarBlock block ]
 	:
 	(qualifier { $block.AddQualifier($qualifier.str); } | qualifierExpression { $block.AddQualifierExpression($qualifierExpression.q); })*
-	'varblock' name = IDENTIFIER { SetupFile(&$block, _input); $block.SetName($name.text); }
+	('constant') name = IDENTIFIER { SetupFile(&$block, _input); $block.SetName($name.text); }
 	(annotation { $block.SetAnnotation($annotation.annot); })?
 	LB ( variable { $block.AddVariable($variable.var); } )* RB SC
 	;
 
 // a varbuffer denotes a data type which has a dynamic size.
-// varbuffers are much like varblocks, but they support for having its members in forms of unsized arrays.
+// varbuffers are much like varblocks, but they support for having its last member as an unsized array, and can support writing to the buffer 
 // in OpenGL this is known as a shader storage block.
 varbuffer	returns [ VarBuffer buffer ]
 	:
 	(qualifier { $buffer.AddQualifier($qualifier.str); } | qualifierExpression { $buffer.AddQualifierExpression($qualifierExpression.q); })*
-	'varbuffer' name = IDENTIFIER { SetupFile(&$buffer, _input); $buffer.SetName($name.text); }
+	('rw_buffer') name = IDENTIFIER { SetupFile(&$buffer, _input); $buffer.SetName($name.text); }
 	(annotation { $buffer.SetAnnotation($annotation.annot); })?
 	LB ( variable {$buffer.AddVariable($variable.var); } )* RB SC
 	;
@@ -663,8 +663,8 @@ renderStateRow	returns [ RenderStateRow row ]
 
 // draw state, contains a series of draw flags
 renderState	returns [ RenderState state ]
-	: 	'state' IDENTIFIER  { SetupFile(&$state, _input); } SC		{ $state.SetName($IDENTIFIER.text); }
-	| 	'state' IDENTIFIER  { SetupFile(&$state, _input); } LB 		{ $state.SetName($IDENTIFIER.text); }
+	: 	('render_state') IDENTIFIER  { SetupFile(&$state, _input); } SC		{ $state.SetName($IDENTIFIER.text); }
+	| 	('render_state') IDENTIFIER  { SetupFile(&$state, _input); } LB 	{ $state.SetName($IDENTIFIER.text); }
 	(
 	  renderStateRow { $state.ConsumeRenderRow($renderStateRow.row); }
 	| blendStateRow  { $state.ConsumeBlendRow($blendStateRow.row); }
@@ -676,9 +676,9 @@ renderState	returns [ RenderState state ]
 // a sampler explains how to sample textures
 sampler		returns [ Sampler samp ]
 	:	(qualifier { $samp.AddQualifier($qualifier.str); } | qualifierExpression { $samp.AddQualifierExpression($qualifierExpression.q); } )*
-		'samplerstate' name = IDENTIFIER { SetupFile(&$samp, _input); } SC					{ $samp.SetName($name.text); }
+		('sampler_state') name = IDENTIFIER { SetupFile(&$samp, _input); } SC					{ $samp.SetName($name.text); }
 	|	(qualifier { $samp.AddQualifier($qualifier.str); } | qualifierExpression { $samp.AddQualifierExpression($qualifierExpression.q); }  )*
-		'samplerstate' name = IDENTIFIER { SetupFile(&$samp, _input); }						{ $samp.SetName($name.text); }
+		('sampler_state') name = IDENTIFIER { SetupFile(&$samp, _input); }						{ $samp.SetName($name.text); }
 		LB ( samplerRow { $samp.ConsumeRow($samplerRow.row); } )* RB SC
 	;
 
@@ -1025,7 +1025,7 @@ INTEGER: ('0'..'9');
 
 
 
-INTEGERLITERAL: INTEGER+;
+INTEGERLITERAL: INTEGER+ ('u'|'U')?;
 
 // single line comment begins with // and ends with new line
 COMMENT		: ('//' .*? '\n') -> channel(HIDDEN);
@@ -1048,7 +1048,7 @@ DOUBLELITERAL
 	;
 
 HEX
-	: '0' 'x' ('0'..'9' | 'a'..'f')*
+	: '0' 'x' ('0'..'9' | 'a'..'f')* ('u'|'U')?
 	;
 
 // Any alphabetical character, both lower and upper case

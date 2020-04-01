@@ -641,7 +641,6 @@ RenderState::EvaluateEntries(TypeChecker& typeChecker)
 		delete row.GetExpression();
 	}
 
-
 	for (int i = 0; i < this->blendStateRows.size(); i++)
 	{
 		BlendStateRow& row = this->blendStateRows[i];

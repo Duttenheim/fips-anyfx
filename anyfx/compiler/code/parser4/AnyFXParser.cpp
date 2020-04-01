@@ -1610,6 +1610,7 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
+
     setState(202);
     match(AnyFXParser::T__57);
     setState(203);
@@ -1914,6 +1915,7 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
+
     setState(233);
     match(AnyFXParser::T__58);
     setState(234);
@@ -4583,6 +4585,7 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
+
       setState(653);
       match(AnyFXParser::T__65);
       setState(654);
@@ -4728,6 +4731,7 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
+
       setState(669);
       match(AnyFXParser::T__65);
       setState(670);
@@ -6459,12 +6463,12 @@ std::vector<std::string> AnyFXParser::_literalNames = {
   "'rg16i'", "'rg8i'", "'r32i'", "'r16i'", "'r8i'", "'rgba32ui'", "'rgba16ui'", 
   "'rgba8ui'", "'rg32ui'", "'rg16ui'", "'rg8ui'", "'r32ui'", "'r16ui'", 
   "'r8ui'", "'read'", "'write'", "'readwrite'", "'group'", "'index'", "'struct'", 
-  "'varblock'", "'varbuffer'", "'prototype'", "'subroutine'", "'feedback'", 
-  "'slot'", "'shader'", "'state'", "'samplerstate'", "'RenderState'", "'CompileFlags'", 
-  "'program'", "';'", "','", "':'", "'('", "')'", "'{'", "'}'", "'['", "']'", 
-  "'.'", "'!'", "'='", "'\"'", "'?'", "'&'", "'|'", "'''", "'#'", "'\\'", 
-  "'<'", "'<='", "'>'", "'>='", "'=='", "'!='", "'&&'", "'||'", "'%'", "'_'", 
-  "'+'", "'-'", "'/'", "'*'"
+  "'constant'", "'rw_buffer'", "'prototype'", "'subroutine'", "'feedback'", 
+  "'slot'", "'shader'", "'render_state'", "'sampler_state'", "'RenderState'", 
+  "'CompileFlags'", "'program'", "';'", "','", "':'", "'('", "')'", "'{'", 
+  "'}'", "'['", "']'", "'.'", "'!'", "'='", "'\"'", "'?'", "'&'", "'|'", 
+  "'''", "'#'", "'\\'", "'<'", "'<='", "'>'", "'>='", "'=='", "'!='", "'&&'", 
+  "'||'", "'%'", "'_'", "'+'", "'-'", "'/'", "'*'"
 };
 
 std::vector<std::string> AnyFXParser::_symbolicNames = {
