@@ -865,9 +865,11 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
 	}
 
 	// build reflection to get uniform stuff
-	bool refbuilt = program->buildReflection(EShReflectionBasicArraySuffix | EShReflectionSeparateBuffers);
+	//bool refbuilt = program->buildReflection(EShReflectionBasicArraySuffix | EShReflectionSeparateBuffers);
+	bool refbuilt = program->buildReflection();
 	assert(refbuilt);
 
+	/*
 	int numVars = program->getNumUniformVariables();
 	for (int i = 0; i < numVars; i++)
 	{
@@ -885,6 +887,7 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
 		unsigned offset = bufferVar.offset;
 		storageBufferOffsets[varName] = offset;
 	}
+	*/
 
 	glslang::TShader* shaders[] = { gvs, ghs, gds, ggs, gps, gcs };
 	for (int i = 0; i < EShLangCount; i++)
