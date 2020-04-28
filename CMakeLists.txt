@@ -134,10 +134,7 @@ endif()
 	#FILE(GLOB SRC anyfx/compiler/code/parser/AnyFXParser.c anyfx/compiler/code/parser/AnyFXLexer.c)
 	FILE(GLOB SRC anyfx/compiler/code/parser4/AnyFXParser.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXBaseListener.cpp anyfx/compiler/code/parser4/AnyFXListener.cpp)
 	SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
-	
-	FIND_PACKAGE(Vulkan)
-	TARGET_INCLUDE_DIRECTORIES(anyfx PUBLIC ${Vulkan_INCLUDE_DIR})
-	
+
     IF(BUILD_COMPILER)
         fips_add_subdirectory(anyfxcompiler)
     ENDIF()
