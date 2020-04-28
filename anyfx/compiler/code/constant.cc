@@ -108,6 +108,59 @@ Constant::Format(const Header& header) const
 			result.append(");\n");
 		}
 	}
+	else if (header.GetType() == Header::C)
+	{
+		std::string valueString;
+		std::string name = this->name;
+		DataType::Dimensions dims = DataType::ToDimensions(this->type);
+		if (this->isArray)
+		{
+			std::string arraySize = AnyFX::Format("[%d]", this->arraySize);
+			name.append(arraySize);
+
+			if (dims.x > 1)
+				name.append(AnyFX::Format("[%d]", dims.x));
+			if (dims.y > 1)
+				name.append(AnyFX::Format("[%d]", dims.y));
+
+			valueString.append("{");
+			if (this->valueTable.size() != this->arraySize)
+			{
+				valueString.append(this->valueTable[0].second.GetString());
+			}
+			else
+			{
+				unsigned i;
+				for (i = 0; i < this->valueTable.size(); i++)
+				{
+					if (i > 0)
+					{
+						valueString.append(", ");
+					}
+					valueString.append(AnyFX::Format("{%s}", this->valueTable[i].second.GetString().c_str()));
+				}
+			}
+			valueString.append("}");
+		}
+		else if (dims.x > 1 || dims.y > 1)
+		{
+			if (dims.x > 1)
+				name.append(AnyFX::Format("[%d]", dims.x));
+			if (dims.y > 1)
+				name.append(AnyFX::Format("[%d]", dims.y));
+
+			valueString.append(AnyFX::Format("{%s}", this->valueTable[0].second.GetString().c_str()));
+		}
+		else
+		{
+			valueString.append(AnyFX::Format("%s", this->valueTable[0].second.GetString().c_str()));
+		}
+
+		result = AnyFX::Format("const %s %s = %s;\n",
+			DataType::ToProfileType(this->type, header.GetType()).c_str(),
+			name.c_str(),
+			valueString.c_str());
+	}
 	return result;
 }
 
@@ -153,7 +206,8 @@ Constant::TypeCheck(TypeChecker& typechecker)
 		const ValueList& valueList = this->valueTable[i].second;
 		for (j = 0; j < valueList.GetNumValues(); j++)
 		{
-			if (valueList.GetValue(j)) delete valueList.GetValue(j);
+			if (valueList.GetValue(j)) 
+				delete valueList.GetValue(j);
 		}		
 	}
 

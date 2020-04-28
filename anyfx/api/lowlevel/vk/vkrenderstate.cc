@@ -184,7 +184,7 @@ VkRenderState::SetupDepthStencil(VkPipelineDepthStencilStateCreateInfo* info)
 	frontFace.compareOp = vkComparisonTable[this->renderSettings.frontFaceFunc];
 	frontFace.compareMask = this->renderSettings.stencilReadMask;
 	frontFace.writeMask = this->renderSettings.stencilWriteMask;
-	frontFace.reference = this->renderSettings.frontRef;
+	frontFace.reference = this->renderSettings.stencilFrontRef;
 
 	backFace.failOp = vkStencilOpTable[this->renderSettings.backFailOp];
 	backFace.passOp = vkStencilOpTable[this->renderSettings.backPassOp];
@@ -192,7 +192,7 @@ VkRenderState::SetupDepthStencil(VkPipelineDepthStencilStateCreateInfo* info)
 	backFace.compareOp = vkComparisonTable[this->renderSettings.backFaceFunc];
 	backFace.compareMask = this->renderSettings.stencilReadMask;
 	backFace.writeMask = this->renderSettings.stencilWriteMask;
-	backFace.reference = this->renderSettings.backRef;
+	backFace.reference = this->renderSettings.stencilBackRef;
 
 	info->front = frontFace;
 	info->back = backFace;

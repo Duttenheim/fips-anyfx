@@ -33,6 +33,8 @@ public:
 	virtual float EvalFloat(TypeChecker& typechecker);
 	/// evaluates expression as a boolean
 	virtual bool EvalBool(TypeChecker& typechecker);
+	/// evaluates expression as a string
+	virtual std::string EvalString(TypeChecker& typechecker);
 }; 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

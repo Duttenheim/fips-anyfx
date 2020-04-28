@@ -38,11 +38,12 @@ public:
 		StencilOperation backDepthFailOp;
 		ComparisonFunc frontFaceFunc;
 		ComparisonFunc backFaceFunc;
-		int frontRef;
-		int backRef;
 
+		int stencilFrontRef;
+		int stencilBackRef;
 		unsigned stencilReadMask;
 		unsigned stencilWriteMask;
+
 		ComparisonFunc depthFunction;
 		DrawCullMode cullMode;
 		DrawFillMode fillMode;

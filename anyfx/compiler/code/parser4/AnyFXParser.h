@@ -1,4 +1,4 @@
-	
+
 
 // include std container
 #include <vector>
@@ -41,6 +41,7 @@ extern std::vector<std::string> uncaughtPreprocessorDirectives;
 #include "../../code/expressions/intexpression.h"
 #include "../../code/expressions/boolexpression.h"
 #include "../../code/expressions/floatexpression.h"
+#include "../../code/expressions/symbolexpression.h"
 using namespace AnyFX;
 
 
@@ -672,15 +673,13 @@ public:
     antlr4::Token *flag1 = nullptr;;
     AnyFXParser::ExpressionContext *expressionContext = nullptr;;
     antlr4::Token *flag3 = nullptr;;
-    antlr4::Token *data = nullptr;;
     FunctionAttributeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *LL();
     antlr4::tree::TerminalNode *RR();
     antlr4::tree::TerminalNode *EQ();
     ExpressionContext *expression();
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *IDENTIFIER();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -733,9 +732,6 @@ public:
   class  BlendStateRowContext : public antlr4::ParserRuleContext {
   public:
     BlendStateRow row;
-    antlr4::Token *flag1 = nullptr;;
-    AnyFXParser::ExpressionContext *index1 = nullptr;;
-    antlr4::Token *blendFlag = nullptr;;
     antlr4::Token *flag2 = nullptr;;
     AnyFXParser::ExpressionContext *index2 = nullptr;;
     AnyFXParser::ExpressionContext *value = nullptr;;
@@ -745,8 +741,7 @@ public:
     antlr4::tree::TerminalNode *RR();
     antlr4::tree::TerminalNode *EQ();
     antlr4::tree::TerminalNode *SC();
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *IDENTIFIER();
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
 
@@ -762,15 +757,12 @@ public:
     RenderStateRow row;
     antlr4::Token *flag1 = nullptr;;
     AnyFXParser::ExpressionContext *expressionContext = nullptr;;
-    antlr4::Token *flag2 = nullptr;;
-    antlr4::Token *renderStateSetting = nullptr;;
     RenderStateRowContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *EQ();
     ExpressionContext *expression();
     antlr4::tree::TerminalNode *SC();
-    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
-    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    antlr4::tree::TerminalNode *IDENTIFIER();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1131,6 +1123,7 @@ public:
     antlr4::Token *floatliteralToken = nullptr;;
     antlr4::Token *doubleliteralToken = nullptr;;
     antlr4::Token *hexToken = nullptr;;
+    antlr4::Token *identifierToken = nullptr;;
     AnyFXParser::BooleanContext *booleanContext = nullptr;;
     AnyFXParser::ParantexpressionContext *parantexpressionContext = nullptr;;
     BinaryexpatomContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -1139,6 +1132,7 @@ public:
     antlr4::tree::TerminalNode *FLOATLITERAL();
     antlr4::tree::TerminalNode *DOUBLELITERAL();
     antlr4::tree::TerminalNode *HEX();
+    antlr4::tree::TerminalNode *IDENTIFIER();
     BooleanContext *boolean();
     ParantexpressionContext *parantexpression();
 

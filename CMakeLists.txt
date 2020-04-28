@@ -57,13 +57,13 @@ endif()
 		ELSEIF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 			ADD_DEFINITIONS(-D__GNUCXX__)
 		ENDIF()
-		
+
 		OPTION(ANYFX_BUILD_DEMO "Build AnyFX Demo" OFF)
 		OPTION(ANYFX_BUILD_COMPILER_LIBRARY "Build AnyFX Compiler as a library" ON)
 		OPTION(ANYFX_TRANSPOSE_MATRICES "Builds AnyFX with automatic matrix transposing for variables")
 
 		ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
-		
+
 		fips_src(anyfx/api/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/internal/ NO_RECURSE)
@@ -84,14 +84,14 @@ endif()
 		fips_src(anyfx/api/lowlevel/loaders/ NO_RECURSE)
 		fips_src(anyfx/api/lowlevel/mtl/ NO_RECURSE)
 		fips_src(anyfx/api/lowlevel/vk/ NO_RECURSE)
-		
+
 		fips_src(anyfx/compiler/code/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/expressions/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/generators/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/parser4/ NO_RECURSE)
-		
-		fips_src(anyfx/util/code/ NO_RECURSE)			
-		
+
+		fips_src(anyfx/util/code/ NO_RECURSE)
+
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/api)
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler)
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/util)
@@ -99,7 +99,7 @@ endif()
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/exts/glslang)
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
 		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr)
-		
+
 		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
 		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
 	#	fips_dir(${ANYFX_SOURCE_DIR}/exts/eastl)
@@ -117,9 +117,13 @@ endif()
 		SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
 		SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
 
-		ADD_LIBRARY(libglslang INTERFACE)
-		TARGET_LINK_LIBRARIES(libglslang INTERFACE glslang)
-		
+
+#		ADD_LIBRARY(libglslang INTERFACE)
+#		TARGET_LINK_LIBRARIES(libglslang INTERFACE glslang)
+
+#		ADD_LIBRARY(libspirv-tools INTERFACE)
+#		TARGET_LINK_LIBRARIES(libspirv-tools INTERFACE spirv-tools)
+
 		IF(ANYFX_TRANSPOSE_MATRICES)
 			ADD_DEFINITIONS(-D__ANYFX_TRANSPOSE_MATRIX__)
 		ENDIF()
@@ -128,9 +132,9 @@ endif()
 			ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/demo)
 			SET_TARGET_PROPERTIES(demo PROPERTIES FOLDER ${ANYFX_FOLDER})
 		ENDIF()
-		
+
 	fips_end_lib()
-	
+
 	#FILE(GLOB SRC anyfx/compiler/code/parser/AnyFXParser.c anyfx/compiler/code/parser/AnyFXLexer.c)
 	FILE(GLOB SRC anyfx/compiler/code/parser4/AnyFXParser.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXBaseListener.cpp anyfx/compiler/code/parser4/AnyFXListener.cpp)
 	SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
@@ -138,7 +142,6 @@ endif()
     IF(BUILD_COMPILER)
         fips_add_subdirectory(anyfxcompiler)
     ENDIF()
-if(NOT FIPS_IMPORT)    
+if(NOT FIPS_IMPORT)
     fips_finish()
-endif()    
-
+endif()

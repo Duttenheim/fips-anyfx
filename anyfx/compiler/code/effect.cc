@@ -323,6 +323,11 @@ Effect::TypeCheck(TypeChecker& typechecker)
 	unsigned i;
     unsigned j = 0;
 
+	for (i = 0; i < this->constants.size(); i++)
+	{
+		this->constants[i].TypeCheck(typechecker);
+	}
+
 	for (i = 0; i < this->structures.size(); i++)
 	{
 		this->structures[i].TypeCheck(typechecker);
@@ -359,11 +364,6 @@ Effect::TypeCheck(TypeChecker& typechecker)
 	{
 		this->functions[i].TypeCheck(typechecker);
 		this->functions[i].Restore(this->header, j++);
-	}
-
-	for (i = 0; i < this->constants.size(); i++)
-	{
-		this->constants[i].TypeCheck(typechecker);
 	}
 
 	for (i = 0; i < this->varBlocks.size(); i++)
@@ -576,20 +576,27 @@ Effect::GenerateHeader(TextWriter& writer)
 		this->file.c_str(), this->name.c_str());
 	writer.WriteString(output);
 
-	// compile structs for runtime
 	unsigned i;
+
+	// compile constants for include header
+	for (i = 0; i < this->constants.size(); i++)
+	{
+		writer.WriteString(this->constants[i].Format(this->header));
+	}
+
+	// compile structs for include header
 	for (i = 0; i < this->structures.size(); i++)
 	{
 		writer.WriteString(this->structures[i].Format(this->header));
 	}
 
-	// compile varblocks for runtime
+	// compile varblocks for include header
 	for (i = 0; i < this->varBlocks.size(); i++)
 	{
 		writer.WriteString(this->varBlocks[i].Format(this->header));
 	}
 
-	// compile varbuffers for runtime
+	// compile varbuffers for include header
     for (i = 0; i < this->varBuffers.size(); i++)
     {
 		writer.WriteString(this->varBuffers[i].Format(this->header));

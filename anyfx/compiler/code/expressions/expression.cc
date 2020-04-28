@@ -76,4 +76,13 @@ Expression::EvalBool(TypeChecker& typechecker)
 	return false;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+std::string Expression::EvalString(TypeChecker& typechecker)
+{
+	Error("Expression::EvalString() called!\n");
+	return "";
+}
+
 } // namespace AnyFX
