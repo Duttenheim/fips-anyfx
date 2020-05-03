@@ -23,6 +23,8 @@ endif()
 
 	get_filename_component(ANYFX_SOURCE_DIR "anyfx" ABSOLUTE)
 
+	ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
+
 	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
 	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
 	# set target subdirs
@@ -71,7 +73,7 @@ endif()
 		OPTION(ANYFX_BUILD_COMPILER_LIBRARY "Build AnyFX Compiler as a library" ON)
 		OPTION(ANYFX_TRANSPOSE_MATRICES "Builds AnyFX with automatic matrix transposing for variables")
 
-		ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
+
 
         # explicitly only enable implemented generators
         fips_files(anyfx/compiler/code/generators/glslgenerator.cc)

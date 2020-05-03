@@ -48,3 +48,4 @@ SOURCE_GROUP("antlr4\\misc" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
 ADD_LIBRARY(antlr4 STATIC ${CODE})
+target_include_directories(antlr4 PUBLIC ${CMAKE_CURRENT_BINARY_DIR} include)
