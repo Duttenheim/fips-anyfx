@@ -25,11 +25,7 @@ endif()
 
 	ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
 
-	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
-	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
-	# set target subdirs
-	SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
-	SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
+	
 
     fips_begin_lib(anyfx)
 
@@ -128,7 +124,7 @@ endif()
 	fips_end_lib()
 
 
-	if(NOT BUILD_COMPILER AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
 			set_target_properties(anyfx PROPERTIES UNITY_BUILD ON)
 			set_target_properties(anyfx PROPERTIES UNITY_BUILD_BATCH_SIZE 20)
 			set_property(SOURCE anyfx/api/lowlevel/vk/vksampler.cc PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
@@ -140,6 +136,11 @@ endif()
 	FILE(GLOB SRC anyfx/compiler/code/parser4/AnyFXParser.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXBaseListener.cpp anyfx/compiler/code/parser4/AnyFXListener.cpp)
 	SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
 
+	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
+	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
+	# set target subdirs
+	SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
+	SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
     IF(BUILD_COMPILER)
         fips_add_subdirectory(anyfxcompiler)
     ENDIF()
