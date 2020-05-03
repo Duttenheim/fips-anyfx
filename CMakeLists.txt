@@ -17,12 +17,21 @@ MACRO(SET_DEFAULT_OUTPUT TargetName)
 ENDMACRO(SET_DEFAULT_OUTPUT)
 
 if(NOT FIPS_IMPORT)
-fips_setup()
-fips_project(fips-anyfx)
+	fips_setup()
+	fips_project(fips-anyfx)
 endif()
+
+	get_filename_component(ANYFX_SOURCE_DIR "anyfx" ABSOLUTE)
+
+	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
+	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
+	# set target subdirs
+	SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
+	SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
+
     fips_begin_lib(anyfx)
 
-		get_filename_component(ANYFX_SOURCE_DIR "anyfx" ABSOLUTE)
+		
 		#SET(ANYFX_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/anyfx)
 
 		IF(NOT DEFINED ANYFX_FOLDER)
@@ -64,6 +73,9 @@ endif()
 
 		ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
 
+        # explicitly only enable implemented generators
+        fips_files(anyfx/compiler/code/generators/glslgenerator.cc)
+        
 		fips_src(anyfx/api/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/internal/ NO_RECURSE)
@@ -77,6 +89,8 @@ endif()
 		fips_include_directories(anyfx/compiler/antlr4/src)
 		fips_include_directories(anyfx/compiler/mcpp)
 		fips_include_directories(anyfx/util/code)
+
+
 		fips_src(anyfx/api/lowlevel/ NO_RECURSE)
 		fips_src(anyfx/api/lowlevel/base/ NO_RECURSE)
 		fips_src(anyfx/api/lowlevel/dx12/ NO_RECURSE)
@@ -87,41 +101,16 @@ endif()
 
 		fips_src(anyfx/compiler/code/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/expressions/ NO_RECURSE)
-		fips_src(anyfx/compiler/code/generators/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/parser4/ NO_RECURSE)
-
 		fips_src(anyfx/util/code/ NO_RECURSE)
-
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/api)
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler)
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/util)
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/exts/eastl)
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/exts/glslang)
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
-		#ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr)
-
-		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
-		ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
-	#	fips_dir(${ANYFX_SOURCE_DIR}/exts/eastl)
-	#	fips_files(*.*)
-	#	fips_dir(${ANYFX_SOURCE_DIR}/exts/glslang)
-	#	fips_files(*.*)
-
-	IF (MSVC)
+        
+		IF (MSVC)
 			IF(CMAKE_CL_64)
 				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")
 			ENDIF()
 		ENDIF()
 
-		# set target subdirs
-		SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
-		SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
-
-#		ADD_LIBRARY(libglslang INTERFACE)
-#		TARGET_LINK_LIBRARIES(libglslang INTERFACE glslang)
-
-#		ADD_LIBRARY(libspirv-tools INTERFACE)
-#		TARGET_LINK_LIBRARIES(libspirv-tools INTERFACE spirv-tools)
+		
 
 		IF(ANYFX_TRANSPOSE_MATRICES)
 			ADD_DEFINITIONS(-D__ANYFX_TRANSPOSE_MATRIX__)
@@ -132,7 +121,10 @@ endif()
 			SET_TARGET_PROPERTIES(demo PROPERTIES FOLDER ${ANYFX_FOLDER})
 		ENDIF()
 
+	fips_deps(antlr4 mcpp glslang)
+
 	fips_end_lib()
+
 
 	if(NOT BUILD_COMPILER AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
 			set_target_properties(anyfx PROPERTIES UNITY_BUILD ON)
@@ -143,8 +135,6 @@ endif()
 			set_property(SOURCE anyfx/compiler/code/effect.cc PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 	endif()
 
-
-	#FILE(GLOB SRC anyfx/compiler/code/parser/AnyFXParser.c anyfx/compiler/code/parser/AnyFXLexer.c)
 	FILE(GLOB SRC anyfx/compiler/code/parser4/AnyFXParser.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXBaseListener.cpp anyfx/compiler/code/parser4/AnyFXListener.cpp)
 	SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
 
