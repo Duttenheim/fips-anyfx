@@ -429,7 +429,7 @@ varblock	returns [ VarBlock block ]
 	;
 
 // a varbuffer denotes a data type which has a dynamic size.
-// varbuffers are much like varblocks, but they support for having its last member as an unsized array, and can support writing to the buffer 
+// varbuffers are much like varblocks, but they support for having its last member as an unsized array, and can support writing to the buffer
 // in OpenGL this is known as a shader storage block.
 varbuffer	returns [ VarBuffer buffer ]
 	:
@@ -1000,7 +1000,11 @@ EQ: 			'=';
 QO: 			'"';
 QU:				'?';
 AND:			'&';
+ANDSET:			'&=';
 OR:				'|';
+ORSET:			'|=';
+XOR:			'^';
+XORSET:			'^=';
 Q: 				'\'';
 NU:				'#';
 FORWARDSLASH: 	'\\';
@@ -1034,17 +1038,17 @@ COMMENT		: ('//' .*? '\n') -> channel(HIDDEN);
 ML_COMMENT	: '/*' .*? '*/' -> channel(HIDDEN);
 
 FLOATLITERAL
-	:	INTEGERLITERAL DOT INTEGER* EXPONENT? 'f'
+	:	INTEGER+ DOT INTEGER* EXPONENT? 'f'
 	|	DOT INTEGER* EXPONENT? 'f'
-	|	INTEGERLITERAL EXPONENT? 'f'
+	|	INTEGER+ EXPONENT? 'f'
 	;
 
-EXPONENT: ('e'|'E') ('+'|'-')? INTEGERLITERAL;
+EXPONENT: ('e'|'E') ('+'|'-')? INTEGER+;
 
 DOUBLELITERAL
-	: 	INTEGERLITERAL DOT INTEGER* EXPONENT?
-	|	DOT INTEGERLITERAL* EXPONENT?
-	|	INTEGERLITERAL EXPONENT
+	: 	INTEGER+ DOT INTEGER* EXPONENT?
+	|	DOT INTEGER EXPONENT?
+	|	INTEGER+ EXPONENT
 	;
 
 HEX

@@ -91,7 +91,7 @@ ValueList::ConvertToString(const DataType& type, TypeChecker& typechecker)
 
 		if (code == FLOAT)
 		{
-			fragment = Format("%f", this->values[i]->EvalFloat(typechecker));
+			fragment = Format("%.9g", this->values[i]->EvalFloat(typechecker));
 			this->formattedString.append(fragment);
 		}
 		else if (code == INTEGER ||

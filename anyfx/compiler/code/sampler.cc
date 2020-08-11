@@ -49,7 +49,7 @@ Sampler::Sampler() :
 
 	floatFlags[SamplerRow::LodBias] = 0.0f;
 	floatFlags[SamplerRow::MinLod] = 0;
-	floatFlags[SamplerRow::MaxLod] = FLT_MAX;
+	floatFlags[SamplerRow::MaxLod] = 1000.0f;
 	floatFlags[SamplerRow::MaxAnisotropic] = 16.0f;
 
 	hasTextures = false;

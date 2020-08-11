@@ -681,9 +681,11 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& siz
 	if (arraySize > 1) // if array
 	{
 		Effect::GetAlignmentGLSL(type, 1, size, alignment, std140, structMember, typechecker);
+		unsigned int baseAlignment = alignment;
 		if (std140)
 			alignment = std::max(vec4alignment, alignment);
 		size *= arraySize;
+		size = RoundToPow2(size, baseAlignment);
 	}
 	else if (type.GetType() == DataType::UserType)  // if structure
 	{
@@ -695,6 +697,7 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& siz
 		}
 		else
 		{
+			structure->UpdateAlignmentAndSize(typechecker);
 			size = structure->alignedSize;
 			alignment = structure->alignment;
 		}
