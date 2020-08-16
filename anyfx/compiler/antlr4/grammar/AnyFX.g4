@@ -1005,6 +1005,7 @@ OR:				'|';
 ORSET:			'|=';
 XOR:			'^';
 XORSET:			'^=';
+CONJUGATE:		'~';
 Q: 				'\'';
 NU:				'#';
 FORWARDSLASH: 	'\\';
