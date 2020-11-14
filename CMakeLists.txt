@@ -125,7 +125,7 @@ endif()
 
 
 	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
-			set_target_properties(anyfx PROPERTIES UNITY_BUILD ON)
+			set_target_properties(anyfx PROPERTIES UNITY_BUILD OFF)
 			set_target_properties(anyfx PROPERTIES UNITY_BUILD_BATCH_SIZE 20)
 			set_property(SOURCE anyfx/api/lowlevel/vk/vksampler.cc PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 			set_property(SOURCE anyfx/util/code/binreader.cc PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
