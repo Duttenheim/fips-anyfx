@@ -33,18 +33,6 @@ SingleShaderCompiler::~SingleShaderCompiler()
 bool 
 SingleShaderCompiler::CompileShader(const std::string& src)
 {
-	if (this->dstDir.empty())
-	{
-		fprintf(stderr, "[anyfxcompiler] error: No destination for shader compile");
-		return false;
-	}
-
-	if (this->headerDir.empty())
-	{
-		fprintf(stderr, "[anyfxcompiler] error: No header output folder for shader compile");
-		return false;
-	}
-	
 	// check if source
 	if (!std::filesystem::exists(src))
 	{
@@ -53,9 +41,10 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 	}
 
 	// make sure the target directory exists
-	std::filesystem::create_directories(this->dstDir + "/shaders");
-	std::filesystem::create_directories(this->headerDir);
-
+	if (!this->dstDir.empty())
+		std::filesystem::create_directories(this->dstDir + "/shaders");
+	if (!this->headerDir.empty())
+		std::filesystem::create_directories(this->headerDir);
 	
 	return this->CompileSPIRV(src);	
     
@@ -68,7 +57,6 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 bool
 SingleShaderCompiler::CompileSPIRV(const std::string& src)
 {
-
 	// start AnyFX compilation
 	AnyFXBeginCompile();
 
@@ -82,9 +70,11 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	std::filesystem::path dest(destFile);
 
     // compile
-	fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
-	fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
-
+	if (!this->quiet)
+	{
+		fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
+		fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
+	}
     
     std::vector<std::string> defines;
     std::vector<std::string> flags;
@@ -165,8 +155,10 @@ SingleShaderCompiler::CreateDependencies(const std::string& src)
 	std::string destFile = this->dstDir + "/shaders/" + file + ".dep";
 
 	// compile
-	fprintf(stderr, "[anyfxcompiler] \n Analyzing:\n   %s -> %s\n", src.c_str(), destFile.c_str());	
-
+	if (!this->quiet)
+	{
+		fprintf(stderr, "[anyfxcompiler] \n Analyzing:\n   %s -> %s\n", src.c_str(), destFile.c_str());	
+	}
 
 	std::vector<std::string> defines;
 	std::vector<std::string> flags;
