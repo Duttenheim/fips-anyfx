@@ -20,6 +20,8 @@ public:
     /// parse command line arguments
     bool ParseCmdLineArgs(const char ** argv);    
 
+    void PrintHelp();
+
     SingleShaderCompiler shaderCompiler;
     std::string src;
 	bool mode;

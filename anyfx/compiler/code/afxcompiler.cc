@@ -257,6 +257,13 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
         // stop the process if lexing or parsing fails
         if (!lexerErrorHandler.hasError && !parserErrorHandler.hasError)
         {
+            // no output path provided
+            if (output.empty())
+            {
+                mcpp_use_mem_buffers(1);
+                return true;
+            }
+
             // create header
             Header header;
             header.SetProfile(target);
