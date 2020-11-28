@@ -63,17 +63,30 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	std::filesystem::path sp(src);
 	std::string file = sp.stem().string();
     std::string folder = sp.parent_path().string();
-
-    // format destination
-    std::string destFile = this->dstDir + "/shaders/" + file + ".fxb";
-	std::string destHeader = this->headerDir + "/" + file + ".h";
-	std::filesystem::path dest(destFile);
-
-    // compile
-	if (!this->quiet)
+	std::string destFile;
+	std::string destHeader;
+	
+	if (this->dstDir.empty())
 	{
-		fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
-		fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
+		if (!this->quiet)
+		{
+			fprintf(stderr, "[anyfxcompiler] \n Checking for problems:\n   %s\n", src.c_str());
+		}
+	}
+	else
+	{
+		// format destination
+		destFile = this->dstDir + "/shaders/" + file + ".fxb";
+		destHeader = this->headerDir + "/" + file + ".h";
+		std::filesystem::path dest(destFile);
+
+		// compile
+		if (!this->quiet)
+		{
+			fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
+			fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
+		}
+
 	}
     
     std::vector<std::string> defines;
