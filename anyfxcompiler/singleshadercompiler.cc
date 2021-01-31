@@ -33,18 +33,6 @@ SingleShaderCompiler::~SingleShaderCompiler()
 bool 
 SingleShaderCompiler::CompileShader(const std::string& src)
 {
-	if (this->dstDir.empty())
-	{
-		fprintf(stderr, "[anyfxcompiler] error: No destination for shader compile");
-		return false;
-	}
-
-	if (this->headerDir.empty())
-	{
-		fprintf(stderr, "[anyfxcompiler] error: No header output folder for shader compile");
-		return false;
-	}
-	
 	// check if source
 	if (!std::filesystem::exists(src))
 	{
@@ -53,9 +41,10 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 	}
 
 	// make sure the target directory exists
-	std::filesystem::create_directories(this->dstDir + "/shaders");
-	std::filesystem::create_directories(this->headerDir);
-
+	if (!this->dstDir.empty())
+		std::filesystem::create_directories(this->dstDir + "/shaders");
+	if (!this->headerDir.empty())
+		std::filesystem::create_directories(this->headerDir);
 	
 	return this->CompileSPIRV(src);	
     
@@ -68,23 +57,37 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 bool
 SingleShaderCompiler::CompileSPIRV(const std::string& src)
 {
-
 	// start AnyFX compilation
 	AnyFXBeginCompile();
 
 	std::filesystem::path sp(src);
 	std::string file = sp.stem().string();
     std::string folder = sp.parent_path().string();
+	std::string destFile;
+	std::string destHeader;
+	
+	if (this->dstDir.empty())
+	{
+		if (!this->quiet)
+		{
+			fprintf(stderr, "[anyfxcompiler] \n Checking for problems:\n   %s\n", src.c_str());
+		}
+	}
+	else
+	{
+		// format destination
+		destFile = this->dstDir + "/shaders/" + file + ".fxb";
+		destHeader = this->headerDir + "/" + file + ".h";
+		std::filesystem::path dest(destFile);
 
-    // format destination
-    std::string destFile = this->dstDir + "/shaders/" + file + ".fxb";
-	std::string destHeader = this->headerDir + "/" + file + ".h";
-	std::filesystem::path dest(destFile);
+		// compile
+		if (!this->quiet)
+		{
+			fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
+			fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
+		}
 
-    // compile
-	fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
-	fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
-
+	}
     
     std::vector<std::string> defines;
     std::vector<std::string> flags;
@@ -165,8 +168,10 @@ SingleShaderCompiler::CreateDependencies(const std::string& src)
 	std::string destFile = this->dstDir + "/shaders/" + file + ".dep";
 
 	// compile
-	fprintf(stderr, "[anyfxcompiler] \n Analyzing:\n   %s -> %s\n", src.c_str(), destFile.c_str());	
-
+	if (!this->quiet)
+	{
+		fprintf(stderr, "[anyfxcompiler] \n Analyzing:\n   %s -> %s\n", src.c_str(), destFile.c_str());	
+	}
 
 	std::vector<std::string> defines;
 	std::vector<std::string> flags;

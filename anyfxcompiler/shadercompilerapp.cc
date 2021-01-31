@@ -18,21 +18,36 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 	args.add_params({ "-i", "-o", "-h" });
 	args.parse(argv);
 
-	this->shaderCompiler.SetDebugFlag(args["debug"]);
-	std::string buffer;	
-	if (!(args("o") >> buffer))
+	if (args["--help"])
 	{
-		fprintf(stderr, "anyfxcompiler error: no output specified\n");
+		this->PrintHelp();
 		return false;
 	}
 
-    this->shaderCompiler.SetDstDir(buffer);
+	this->mode = args["M"];
+
+	this->shaderCompiler.SetDebugFlag(args["debug"]);
+	this->shaderCompiler.SetQuietFlag(args["q"]);
+	std::string buffer;
+	if ((args("o") >> buffer))
+	{
+		this->shaderCompiler.SetDstDir(buffer);
+	}
+	else if (this->mode)
+	{
+		fprintf(stderr, "anyfxcompiler error: no output file specified while trying to create dependecies\n");
+		this->PrintHelp();
+		return false;
+	}
+	
 
 	if (!(args("i") >> buffer))
 	{
 		fprintf(stderr, "anyfxcompiler error: no input file specified\n");
+		this->PrintHelp();
 		return false;
 	}
+
 	this->src = buffer;
 	if (args("h") >> buffer)
 	{
@@ -40,7 +55,6 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 	}
 
     // find include dir args
-	
 	const std::vector<std::string> &allargs = args.args();
 
     for (int i = 0; i < allargs.size(); i++)
@@ -50,13 +64,9 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 			 this->shaderCompiler.AddIncludeDir(allargs[++i]);
          }
     }
-        
-	this->mode = args["M"];
             
     return true;
 }
-
-
 
 //------------------------------------------------------------------------------
 /**
@@ -76,6 +86,30 @@ ShaderCompilerApp::Run()
     }       
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderCompilerApp::PrintHelp()
+{
+	const char* help = "\
+usage: anyfxcompiler [-M] [--help] [-i <file>] [-I <path>]\n\
+                     [-o <path>] [-h <path>] [-q] [-debug]\n\
+\n\
+-M       Create dependencies\n\
+--help   Print this message\n\
+-i       Path to input file\n\
+-I       Where to search for include headers. This can be repeated multiple times.\n\
+-o       Where to output the binaries\n\
+-h       Where to place generated C headers\n\
+-q     	 Suppress standard output\n\
+-debug   Generate debugging information\n\
+";
+
+	fprintf(stdout, help);
+}
+
+
 
 //------------------------------------------------------------------------------
 /**
@@ -85,7 +119,8 @@ main(int argc, const char** argv)
 {
 	ShaderCompilerApp app;
 	
-	app.ParseCmdLineArgs(argv);
-	app.Run();
-
+	if (app.ParseCmdLineArgs(argv))
+	{
+		app.Run();
+	}
 }
