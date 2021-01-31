@@ -3889,8 +3889,6 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
 
               Token* startToken = nullptr;
               Token* endToken = nullptr;
-              UpdateLine(_input, -1);
-              int startOffset = this->lineOffset;
           
   size_t _la = 0;
 
@@ -3923,7 +3921,7 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
     dynamic_cast<FunctionContext *>(_localctx)->typeContext = type();
     setState(596);
     dynamic_cast<FunctionContext *>(_localctx)->identifierToken = match(AnyFXParser::IDENTIFIER);
-     SetupFile(&_localctx->func, _input); 
+     UpdateLine(_input, -2); _localctx->func.SetFunctionLine(this->lineOffset); SetupFile(&_localctx->func, _input, false);  
     setState(598);
     match(AnyFXParser::LP);
     setState(599);
@@ -3934,7 +3932,6 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
                 // the code block will be after the next right bracket
                 startToken = _input->LT(2);
 
-                _localctx->func.SetFunctionLine(startOffset);
                 UpdateLine(_input, 2);
                 _localctx->func.SetCodeLine(this->lineOffset);
             

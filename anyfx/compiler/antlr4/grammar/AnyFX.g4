@@ -31,11 +31,12 @@ int currentLine = 0;
 
 @parser::members {
 // setup function which binds the compiler state to the current AST node
-void SetupFile(AnyFX::Compileable* comp, antlr4::TokenStream* stream)
+void SetupFile(AnyFX::Compileable* comp, antlr4::TokenStream* stream, bool updateLine = true)
 {
     ::AnyFXToken* token = (::AnyFXToken*)stream->LT(-1);
 
-    UpdateLine(stream, -1);
+    if (updateLine)
+        UpdateLine(stream, -1);
 
     // assume the previous token is the latest file
     auto tu2 = this->lines[this->currentLine];
@@ -49,22 +50,25 @@ void UpdateLine(antlr4::TokenStream* stream, int index = -1)
 {
     ::AnyFXToken* token = (::AnyFXToken*)stream->LT(index);
 
-    // find the next parsed row which comes after the token
-    int loop = this->currentLine;
-    int tokenLine = token->getLine();
-    auto line = this->lines[loop];
-    while (loop < this->lines.size() - 1)
-    {
-        if (std::get<1>(line) > tokenLine)
-        {
-            break;
-        }
-        line = this->lines[++loop];
-    }
+      // find the next parsed row which comes after the token
+      int loop = this->currentLine;
+      int tokenLine = token->getLine();
+      while (loop < this->lines.size() - 1)
+      {
+          // look ahead, if the next line is beyond the token, abort
+          if (std::get<1>(this->lines[loop + 1]) > tokenLine)
+              break;
+          else
+              loop++;
+      }
 
-    this->currentLine = loop;
-    int padding = std::get<1>(line) - (tokenLine - 1);
-    this->lineOffset = std::get<0>(line) + padding;
+      auto line = this->lines[loop];
+      this->currentLine = loop;
+
+      // where the target compiler expects the output token to be and where we put it may differ
+      // so we calculate a padding between the token and the #line directive output by the preprocessing stage (which includes the #line token line)
+      int padding = (tokenLine - 1) - std::get<1>(line);
+      this->lineOffset = std::get<0>(line) + padding;
 }
 
 int currentLine = 0;
@@ -612,16 +616,13 @@ function
     @init {
             Token* startToken = nullptr;
             Token* endToken = nullptr;
-            UpdateLine(_input, -1);
-            int startOffset = this->lineOffset;
         }: (
         functionAttribute { $func.ConsumeAttribute($functionAttribute.attribute); }
-    )* ('shader' { $func.SetShader(true); })? type IDENTIFIER { SetupFile(&$func, _input); } '('
+    )* ('shader' { $func.SetShader(true); })? type IDENTIFIER { UpdateLine(_input, -2); $func.SetFunctionLine(this->lineOffset); SetupFile(&$func, _input, false);  } '('
         parameterList ')' {
             // the code block will be after the next right bracket
             startToken = _input->LT(2);
 
-            $func.SetFunctionLine(startOffset);
             UpdateLine(_input, 2);
             $func.SetCodeLine(this->lineOffset);
         } codeBlock {
