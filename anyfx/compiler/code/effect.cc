@@ -192,15 +192,6 @@ Effect::AddSampler(const Sampler& sampler)
 //------------------------------------------------------------------------------
 /**
 */
-void
-Effect::SetPreprocessorPassthrough(const std::vector<std::string>& pps)
-{
-	this->passthroughPPs = pps;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void 
 Effect::Setup()
 {
@@ -407,7 +398,7 @@ Effect::Generate(Generator& generator)
 		Shader* shader = it->second;
 
 		// generate code for shaders
-		shader->Generate(generator, this->variables, this->structures, this->constants, this->varBlocks, this->varBuffers, this->samplers, this->subroutines, this->functions, this->passthroughPPs);
+		shader->Generate(generator, this->variables, this->structures, this->constants, this->varBlocks, this->varBuffers, this->samplers, this->subroutines, this->functions);
 
 		// output generated code if we flag it
 		if (this->header.GetFlags() & Header::OutputGeneratedShaders)

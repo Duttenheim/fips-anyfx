@@ -84,22 +84,22 @@ bool
 AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines, const std::string& vendor, std::string& output)
 {
     std::string fileName = file.substr(file.rfind("/")+1, file.length()-1);
-	std::string vend = "-DVENDOR=" + vendor;
+    std::string vend = "-DVENDOR=" + vendor;
 
-	std::string folder = file.substr(0, file.rfind("/")+1);
+    std::string folder = file.substr(0, file.rfind("/")+1);
 
-	const char* constArgs[] =
-	{
-		"",			// first argument is supposed to be application system path, but is omitted since we run mcpp directly
-		"-W 0",
-		"-a",
-		"-v",
-		vend.c_str()
-	};
-	const unsigned numConstArgs = sizeof(constArgs) / sizeof(char*);
-	const unsigned numTotalArgs = numConstArgs + defines.size() + 1;
-	const char** args = new const char*[numConstArgs + defines.size() + 1];
-	memcpy(args, constArgs, sizeof(constArgs));
+    const char* constArgs[] =
+    {
+        "",			// first argument is supposed to be application system path, but is omitted since we run mcpp directly
+        "-W 0",
+        "-a",
+        "-v",
+        vend.c_str()
+    };
+    const unsigned numConstArgs = sizeof(constArgs) / sizeof(char*);
+    const unsigned numTotalArgs = numConstArgs + defines.size() + 1;
+    const char** args = new const char*[numConstArgs + defines.size() + 1];
+    memcpy(args, constArgs, sizeof(constArgs));
 
     unsigned i;
     for (i = 0; i < defines.size(); i++)
@@ -108,7 +108,7 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     }
     args[numTotalArgs-1] = file.c_str();
 
-	// run preprocessing
+    // run preprocessing
     mcpp_use_mem_buffers(1);
     int result = mcpp_lib_main(numTotalArgs, (char**)args);
     if (result != 0)
@@ -120,7 +120,7 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     {
         char* preprocessed = mcpp_get_mem_buffer((OUTDEST)0);
         output.append(preprocessed);
-		delete[] args;
+        delete[] args;
         return true;
     }
 }
@@ -131,54 +131,54 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
 std::vector<std::string>
 AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string>& defines)
 {
-	std::vector<std::string> res;
+    std::vector<std::string> res;
 
-	const char* constArgs[] =
-	{
-		"",			// first argument is supposed to be application system path, but is omitted since we run mcpp directly
-		"-M"
-	};
-	const unsigned numConstArgs = sizeof(constArgs) / sizeof(char*);
-	const unsigned numTotalArgs = numConstArgs + defines.size() + 1;
-	const char** args = new const char*[numConstArgs + defines.size() + 1];
-	memcpy(args, constArgs, sizeof(constArgs));
+    const char* constArgs[] =
+    {
+        "",			// first argument is supposed to be application system path, but is omitted since we run mcpp directly
+        "-M"
+    };
+    const unsigned numConstArgs = sizeof(constArgs) / sizeof(char*);
+    const unsigned numTotalArgs = numConstArgs + defines.size() + 1;
+    const char** args = new const char*[numConstArgs + defines.size() + 1];
+    memcpy(args, constArgs, sizeof(constArgs));
 
-	unsigned i;
-	for (i = 0; i < defines.size(); i++)
-	{
-		args[numConstArgs + i] = defines[i].c_str();
-	}
-	args[numTotalArgs - 1] = file.c_str();
+    unsigned i;
+    for (i = 0; i < defines.size(); i++)
+    {
+        args[numConstArgs + i] = defines[i].c_str();
+    }
+    args[numTotalArgs - 1] = file.c_str();
 
-	// run preprocessing
-	mcpp_use_mem_buffers(1);
-	int result = mcpp_lib_main(numTotalArgs, (char**)args);
-	if (result == 0)
-	{
-		std::string output = mcpp_get_mem_buffer((OUTDEST)0);
+    // run preprocessing
+    mcpp_use_mem_buffers(1);
+    int result = mcpp_lib_main(numTotalArgs, (char**)args);
+    if (result == 0)
+    {
+        std::string output = mcpp_get_mem_buffer((OUTDEST)0);
 
-		// grah, remove the padding and the Makefile stuff, using std::string...
-		size_t colon = output.find_first_of(':')+1;
-		output = output.substr(colon);
-		size_t newline = output.find_first_of('\n');
-		while (newline != output.npos)
-		{
-			std::string line = output.substr(0, newline);
-			if (!line.empty())
-			{
-				while (!line.empty() && (line.front() == ' '))								line = line.substr(1);
-				while (!line.empty() && (line.back() == ' ' || line.back() == '\\'))		line = line.substr(0, line.size() - 1);
-				res.push_back(line);
-				output = output.substr(newline + 1);
-				newline = output.find_first_of('\n');
-			}
-			else
-				break;
-		}
-	}
-	delete[] args;
+        // grah, remove the padding and the Makefile stuff, using std::string...
+        size_t colon = output.find_first_of(':')+1;
+        output = output.substr(colon);
+        size_t newline = output.find_first_of('\n');
+        while (newline != output.npos)
+        {
+            std::string line = output.substr(0, newline);
+            if (!line.empty())
+            {
+                while (!line.empty() && (line.front() == ' '))								line = line.substr(1);
+                while (!line.empty() && (line.back() == ' ' || line.back() == '\\'))		line = line.substr(0, line.size() - 1);
+                res.push_back(line);
+                output = output.substr(newline + 1);
+                newline = output.find_first_of('\n');
+            }
+            else
+                break;
+        }
+    }
+    delete[] args;
 
-	return res;
+    return res;
 }
 
 //------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string
     @param file			Input file to compile
     @param output		Output destination file
     @param target		Target language
-	@param vendor		GPU vendor name
+    @param vendor		GPU vendor name
     @param defines		List of preprocessor definitions
     @param errorBuffer	Buffer containing errors, created in function but must be deleted manually
 */
@@ -199,57 +199,57 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
     (*errorBuffer) = NULL;
 
     // if preprocessor is successful, continue parsing the actual code
-	if (AnyFXPreprocess(file, defines, vendor, preprocessed))
+    if (AnyFXPreprocess(file, defines, vendor, preprocessed))
     {
-		ANTLRInputStream input;
-		input.load(preprocessed);
+        ANTLRInputStream input;
+        input.load(preprocessed);
 
-		AnyFXLexer lexer(&input);
-		lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
-		CommonTokenStream tokens(&lexer);
-		AnyFXParser parser(&tokens);
+        AnyFXLexer lexer(&input);
+        lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
+        CommonTokenStream tokens(&lexer);
+        AnyFXParser parser(&tokens);
 
-		// get the name of the shader
-		std::locale loc;
-		size_t extension = file.rfind('.');
-		size_t lastFolder = file.rfind('/') + 1;
-		std::string effectName = file.substr(lastFolder, (file.length() - lastFolder) - (file.length() - extension));
-		effectName[0] = std::toupper(effectName[0], loc);
-		size_t undersc = effectName.find('_');
-		while (undersc != std::string::npos)
-		{
-			effectName[undersc + 1] = std::toupper(effectName[undersc + 1], loc);
-			effectName = effectName.erase(undersc, 1);
-			undersc = effectName.find('_');
-		}
+        // get the name of the shader
+        std::locale loc;
+        size_t extension = file.rfind('.');
+        size_t lastFolder = file.rfind('/') + 1;
+        std::string effectName = file.substr(lastFolder, (file.length() - lastFolder) - (file.length() - extension));
+        effectName[0] = std::toupper(effectName[0], loc);
+        size_t undersc = effectName.find('_');
+        while (undersc != std::string::npos)
+        {
+            effectName[undersc + 1] = std::toupper(effectName[undersc + 1], loc);
+            effectName = effectName.erase(undersc, 1);
+            undersc = effectName.find('_');
+        }
 
-		// setup preprocessor
-		parser.preprocess();
+        // setup preprocessor
+        parser.preprocess();
 
-		// remove all preprocessor crap left by mcpp
-		size_t i;
-		for (i = 0; i < parser.lines.size(); i++)
-		{
-			size_t start = std::get<2>(parser.lines[i]);
-			size_t stop = preprocessed.find('\n', start);
-			std::string fill(stop - start, ' ');
-			preprocessed.replace(start, stop - start, fill);
-		}
+        // remove all preprocessor crap left by mcpp
+        size_t i;
+        for (i = 0; i < parser.lines.size(); i++)
+        {
+            size_t start = std::get<2>(parser.lines[i]);
+            size_t stop = preprocessed.find('\n', start);
+            std::string fill(stop - start, ' ');
+            preprocessed.replace(start, stop - start, fill);
+        }
 
-		AnyFXLexerHandler lexerErrorHandler;
-		lexerErrorHandler.lines = parser.lines;
-		AnyFXParserHandler parserErrorHandler;
-		parserErrorHandler.lines = parser.lines;
+        AnyFXLexerHandler lexerErrorHandler;
+        lexerErrorHandler.lines = parser.lines;
+        AnyFXParserHandler parserErrorHandler;
+        parserErrorHandler.lines = parser.lines;
 
-		// reload the preprocessed data
-		input.reset();
-		input.load(preprocessed);
-		lexer.setInputStream(&input);
-		lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
-		lexer.addErrorListener(&lexerErrorHandler);
-		tokens.setTokenSource(&lexer);
-		parser.setTokenStream(&tokens);
-		parser.addErrorListener(&parserErrorHandler);
+        // reload the preprocessed data
+        input.reset();
+        input.load(preprocessed);
+        lexer.setInputStream(&input);
+        lexer.setTokenFactory(AnyFXTokenFactory::DEFAULT);
+        lexer.addErrorListener(&lexerErrorHandler);
+        tokens.setTokenSource(&lexer);
+        parser.setTokenStream(&tokens);
+        parser.addErrorListener(&parserErrorHandler);
 
         // create new effect
         Effect effect = parser.entry()->returnEffect;
@@ -261,20 +261,20 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             Header header;
             header.SetProfile(target);
 
-			// handle shader-file level compile flags
-			header.SetFlags(flags);
+            // handle shader-file level compile flags
+            header.SetFlags(flags);
 
             // set effect header and setup effect
             effect.SetHeader(header);
-			effect.SetName(effectName);
-			effect.SetFile(file);
+            effect.SetName(effectName);
+            effect.SetFile(file);
             effect.Setup();
 
-			// set debug output dump if flag is supplied
-			if (header.GetFlags() & Header::OutputGeneratedShaders)
-			{
-				effect.SetDebugOutputPath(output);
-			}
+            // set debug output dump if flag is supplied
+            if (header.GetFlags() & Header::OutputGeneratedShaders)
+            {
+                effect.SetDebugOutputPath(output);
+            }
 
             // create type checker
             TypeChecker typeChecker;
@@ -322,23 +322,23 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                         // close writer and finish file
                         writer.Close();
 
-						// output header file
-						{
-							TextWriter headerWriter;
+                        // output header file
+                        {
+                            TextWriter headerWriter;
 
-							// the path is going to be .fxb.h, but that's okay, it makes it super clear its generated from a shader
-							headerWriter.SetPath(header_output);
-							if (headerWriter.Open())
-							{
-								// call the effect to generate a header
-								header.SetProfile("c");
-								effect.SetHeader(header);
-								effect.GenerateHeader(headerWriter);
-								headerWriter.Close();
-							}
-						}
+                            // the path is going to be .fxb.h, but that's okay, it makes it super clear its generated from a shader
+                            headerWriter.SetPath(header_output);
+                            if (headerWriter.Open())
+                            {
+                                // call the effect to generate a header
+                                header.SetProfile("c");
+                                effect.SetHeader(header);
+                                effect.GenerateHeader(headerWriter);
+                                headerWriter.Close();
+                            }
+                        }
 
-						mcpp_use_mem_buffers(1);	// clear mcpp
+                        mcpp_use_mem_buffers(1);	// clear mcpp
                         return true;
                     }
                     else
@@ -350,8 +350,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                         errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
                         (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
-						// destroy compiler state and return
-						mcpp_use_mem_buffers(1);	// clear mcpp
+                        // destroy compiler state and return
+                        mcpp_use_mem_buffers(1);	// clear mcpp
                         return false;
                     }
                 }
@@ -369,8 +369,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                     errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
                     (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
-					// destroy compiler state and return
-					mcpp_use_mem_buffers(1);	// clear mcpp
+                    // destroy compiler state and return
+                    mcpp_use_mem_buffers(1);	// clear mcpp
                     return false;
                 }
             }
@@ -388,8 +388,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                 errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
                 (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
-				// destroy compiler state and return
-				mcpp_use_mem_buffers(1);	// clear mcpp
+                // destroy compiler state and return
+                mcpp_use_mem_buffers(1);	// clear mcpp
                 return false;
             }
         }
@@ -405,8 +405,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
             (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
 
-			// destroy compiler state and return
-			mcpp_use_mem_buffers(1);	// clear mcpp
+            // destroy compiler state and return
+            mcpp_use_mem_buffers(1);	// clear mcpp
             return false;
         }
     }
@@ -421,9 +421,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             (*errorBuffer)->size = size;
             memcpy((void*)(*errorBuffer)->buffer, (void*)err, size);
             (*errorBuffer)->buffer[size-1] = '\0';
-			mcpp_use_mem_buffers(1);	// clear mcpp
+            mcpp_use_mem_buffers(1);	// clear mcpp
         }
-
         return false;
     }	
 }
@@ -435,9 +434,9 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
 void
 AnyFXBeginCompile()
 {
-	//ShInitialize();
-	glslang::InitializeProcess();
-	/*
+    //ShInitialize();
+    glslang::InitializeProcess();
+    /*
 #if WIN32
     HDC hDc;
     HGLRC hRc;      
@@ -550,13 +549,13 @@ AnyFXBeginCompile()
     CGLSetCurrentContext(ctx);
 #endif
 
-	if (glewInitialized != GLEW_OK)
-	{
-		glewInitialized = glewInit();
-	}
+    if (glewInitialized != GLEW_OK)
+    {
+        glewInitialized = glewInit();
+    }
 
 #ifndef __ANYFX_COMPILER_LIBRARY__
-	if (glewInitialized != GLEW_OK)
+    if (glewInitialized != GLEW_OK)
     {
         Emit("Glew failed to initialize!\n");
     }
@@ -567,7 +566,7 @@ AnyFXBeginCompile()
     printf("Version:  %s\n", glGetString(GL_VERSION)); 
     printf("GLSL:     %s\n\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 #endif
-	*/
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -577,9 +576,9 @@ AnyFXBeginCompile()
 void
 AnyFXEndCompile()
 {
-	glslang::FinalizeProcess();
-	//ShFinalize();
-	/*
+    glslang::FinalizeProcess();
+    //ShFinalize();
+    /*
 #if (WIN32)
     DestroyWindow(hWnd);
     wglMakeCurrent(NULL, NULL);
@@ -591,5 +590,5 @@ AnyFXEndCompile()
     XCloseDisplay(dsp);
 #elif (APPLE)
 #endif
-	*/
+    */
 }

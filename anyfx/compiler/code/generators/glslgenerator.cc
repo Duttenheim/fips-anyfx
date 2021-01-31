@@ -297,8 +297,6 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	code.append(line);
 	code.append(returnType);
 	code.append("\nmain()\n{\n");
-	line = Format("#line %d %s\n", this->func.GetCodeLine(), this->func.GetFile().c_str());
-	code.append(line);
 	code.append(func.GetCode());
 	code.append("\n}\n");
 

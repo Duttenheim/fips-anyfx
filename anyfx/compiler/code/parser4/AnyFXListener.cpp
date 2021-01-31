@@ -7,7 +7,6 @@
 #include <string>
 #include <stack>
 #include <tuple>
-extern std::vector<std::string> uncaughtPreprocessorDirectives;
 
 #include "anyfxtoken.h"
 #include "../../code/qualifierexpression.h"

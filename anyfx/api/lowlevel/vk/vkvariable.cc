@@ -43,7 +43,7 @@ VkVariable::OnLoaded()
 	{
 		this->bindingLayout.binding = this->binding;
 		this->bindingLayout.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		this->bindingLayout.descriptorCount = this->arraySize;
+		this->bindingLayout.descriptorCount = this->arraySizes[0];
 		this->bindingLayout.stageFlags = VK_SHADER_STAGE_ALL;
 		this->bindingLayout.pImmutableSamplers = NULL;
 	}
@@ -51,7 +51,7 @@ VkVariable::OnLoaded()
 	{
 		this->bindingLayout.binding = this->binding;
 		this->bindingLayout.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-		this->bindingLayout.descriptorCount = this->arraySize;
+		this->bindingLayout.descriptorCount = this->arraySizes[0];
 		this->bindingLayout.stageFlags = VK_SHADER_STAGE_ALL;
 		this->bindingLayout.pImmutableSamplers = NULL;
 	}
@@ -59,7 +59,7 @@ VkVariable::OnLoaded()
 	{
 		this->bindingLayout.binding = this->binding;
 		this->bindingLayout.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-		this->bindingLayout.descriptorCount = this->arraySize;
+		this->bindingLayout.descriptorCount = this->arraySizes[0];
 		this->bindingLayout.stageFlags = VK_SHADER_STAGE_ALL;
 		this->bindingLayout.pImmutableSamplers = NULL;
 	}
@@ -67,7 +67,7 @@ VkVariable::OnLoaded()
 	{
 		this->bindingLayout.binding = this->binding;
 		this->bindingLayout.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		this->bindingLayout.descriptorCount = this->arraySize;
+		this->bindingLayout.descriptorCount = this->arraySizes[0];
 		this->bindingLayout.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		this->bindingLayout.pImmutableSamplers = NULL;
 	}

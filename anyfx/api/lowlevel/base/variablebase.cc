@@ -45,7 +45,7 @@ VariableBase::OnLoaded()
 	std::string typeString = TypeToString(this->type);
 	this->signature = typeString + ":" + this->name;
 
-	this->byteSize = TypeToByteSize(this->type) * this->arraySize;
+	this->byteSize = TypeToByteSize(this->type) * this->arraySizes[0];
 	this->currentValue = new char[this->byteSize];
 	if (this->hasDefaultValue)
 	{

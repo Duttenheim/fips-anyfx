@@ -1,8 +1,7 @@
 
-	#include <string>
-	#include <vector>
-	extern std::vector<std::string> uncaughtPreprocessorDirectives;
-	#include "anyfxtoken.h"
+    #include <string>
+    #include <vector>
+    #include "anyfxtoken.h"
 
 
 // Generated from antlr4/grammar/AnyFX.g4 by ANTLR 4.7.1
@@ -29,30 +28,26 @@ public:
     T__50 = 51, T__51 = 52, T__52 = 53, T__53 = 54, T__54 = 55, T__55 = 56, 
     T__56 = 57, T__57 = 58, T__58 = 59, T__59 = 60, T__60 = 61, T__61 = 62, 
     T__62 = 63, T__63 = 64, T__64 = 65, T__65 = 66, T__66 = 67, T__67 = 68, 
-    T__68 = 69, SC = 70, CO = 71, COL = 72, LP = 73, RP = 74, LB = 75, RB = 76, 
-    LL = 77, RR = 78, DOT = 79, NOT = 80, EQ = 81, QO = 82, QU = 83, AND = 84, 
-    ANDSET = 85, OR = 86, ORSET = 87, XOR = 88, XORSET = 89, CONJUGATE = 90, 
-    Q = 91, NU = 92, FORWARDSLASH = 93, LESS = 94, LESSEQ = 95, GREATER = 96, 
-    GREATEREQ = 97, LOGICEQ = 98, NOTEQ = 99, LOGICAND = 100, LOGICOR = 101, 
-    MOD = 102, UNDERSC = 103, ADD_OP = 104, SUB_OP = 105, DIV_OP = 106, 
-    MUL_OP = 107, INTEGERLITERAL = 108, COMMENT = 109, ML_COMMENT = 110, 
-    FLOATLITERAL = 111, EXPONENT = 112, DOUBLELITERAL = 113, HEX = 114, 
-    IDENTIFIER = 115, WS = 116
+    T__68 = 69, T__69 = 70, T__70 = 71, T__71 = 72, T__72 = 73, SC = 74, 
+    CO = 75, COL = 76, LP = 77, RP = 78, LB = 79, RB = 80, LL = 81, RR = 82, 
+    DOT = 83, NOT = 84, EQ = 85, QO = 86, QU = 87, AND = 88, ANDSET = 89, 
+    OR = 90, ORSET = 91, XOR = 92, XORSET = 93, CONNJUGATE = 94, Q = 95, 
+    NU = 96, FORWARDSLASH = 97, LESS = 98, LESSEQ = 99, GREATER = 100, GREATEREQ = 101, 
+    LOGICEQ = 102, NOTEQ = 103, LOGICAND = 104, LOGICOR = 105, MOD = 106, 
+    UNDERSC = 107, ADD_OP = 108, SUB_OP = 109, DIV_OP = 110, MUL_OP = 111, 
+    INTEGERLITERAL = 112, COMMENT = 113, ML_COMMENT = 114, FLOATLITERAL = 115, 
+    EXPONENT = 116, DOUBLELITERAL = 117, HEX = 118, IDENTIFIER = 119, WS = 120
   };
 
   AnyFXLexer(antlr4::CharStream *input);
   ~AnyFXLexer();
 
 
-  	#include <iostream>
+  #include <iostream>
 
-  	void ParseLineDirective(const std::string& str)
-  	{
-
-  	}
-  	misc::Interval interval;
-  	std::string currentFile;
-  	int currentLine = 0;
+  misc::Interval interval;
+  std::string currentFile;
+  int currentLine = 0;
 
   virtual std::string getGrammarFileName() const override;
   virtual const std::vector<std::string>& getRuleNames() const override;

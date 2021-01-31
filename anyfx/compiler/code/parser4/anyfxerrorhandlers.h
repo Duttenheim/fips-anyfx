@@ -12,7 +12,7 @@ public:
 	bool hasError = false;
 	std::string errorBuffer;
 	std::string warningBuffer;
-	std::vector<std::tuple<int, size_t, size_t, size_t, std::string>> lines;
+	std::vector<std::tuple<int,int,int,int, std::string>> lines;
 };
 
 class AnyFXParserHandler : public antlr4::BaseErrorListener
@@ -24,5 +24,5 @@ public:
 	bool hasError = false;
 	std::string errorBuffer;
 	std::string warningBuffer;
-	std::vector<std::tuple<int, size_t, size_t, size_t, std::string>> lines;
+	std::vector<std::tuple<int,int,int,int, std::string>> lines;
 };

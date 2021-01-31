@@ -23,73 +23,73 @@ class Variable : public Symbol
 {
 public:
 
-	enum ImageFormat
-	{
-		RGBA32F,
-		RGBA16F,
-		RG32F,
-		RG16F,
-		R11G11B10F,
-		R32F,
-		R16F,
-		RGBA16,
-		RGB10A2,
-		RGBA8,
-		RG16,
-		RG8,
-		R16,
-		R8,
-		RGBA16SNORM,
-		RGBA8SNORM,
-		RG16SNORM,
-		RG8SNORM,
-		R16SNORM,
-		R8SNORM,
-		RGBA32I,
-		RGBA16I,
-		RGBA8I,
-		RG32I,
-		RG16I,
-		RG8I,
-		R32I,
-		R16I,
-		R8I,
-		RGBA32UI,
-		RGBA16UI,
-		RGB10A2UI,
-		RGBA8UI,
-		RG32UI,
-		RG16UI,
-		RG8UI,
-		R32UI,
-		R16UI,
-		R8UI,
-		NoFormat,
+    enum ImageFormat
+    {
+        RGBA32F,
+        RGBA16F,
+        RG32F,
+        RG16F,
+        R11G11B10F,
+        R32F,
+        R16F,
+        RGBA16,
+        RGB10A2,
+        RGBA8,
+        RG16,
+        RG8,
+        R16,
+        R8,
+        RGBA16SNORM,
+        RGBA8SNORM,
+        RG16SNORM,
+        RG8SNORM,
+        R16SNORM,
+        R8SNORM,
+        RGBA32I,
+        RGBA16I,
+        RGBA8I,
+        RG32I,
+        RG16I,
+        RG8I,
+        R32I,
+        R16I,
+        R8I,
+        RGBA32UI,
+        RGBA16UI,
+        RGB10A2UI,
+        RGBA8UI,
+        RG32UI,
+        RG16UI,
+        RG8UI,
+        R32UI,
+        R16UI,
+        R8UI,
+        NoFormat,
 
-		NumImageFormats,
+        NumImageFormats,
 
-		InvalidImageFormat
-	};
+        InvalidImageFormat
+    };
 
-	enum AccessMode
-	{
-		Read,
-		Write,
-		ReadWrite,
-		NoAccess,
+    enum AccessMode
+    {
+        Read,
+        Write,
+        ReadWrite,
+        NoAccess,
 
-		NumImageAccessModes,
+        NumImageAccessModes,
 
-		InvalidAccess
-	};
+        InvalidAccess
+    };
 
-	enum ArrayType
-	{
-		SimpleArray,		// evaluate array size by using value table single entry number of values
-		TypedArray,			// evaluate array size by using value table size
-		ExplicitArray,		// evaluate array size by expression
+    enum ArrayType
+    {
+        SimpleArray,		// evaluate array size by using value table single entry number of values
+        TypedArray,			// evaluate array size by using value table size
+        ExplicitArray,		// evaluate array size by expression
         UnsizedArray
-	};
+    };
 
     enum QualifierFlags
     {
@@ -100,105 +100,104 @@ public:
 
     };
 
-	/// constructor
-	Variable();
-	/// destructor
-	virtual ~Variable();
+    /// constructor
+    Variable();
+    /// destructor
+    virtual ~Variable();
 
     /// set annotation
     void SetAnnotation(const Annotation& annotation);
 
-	/// sets array size expression
-	void SetSizeExpression(Expression* expr);
-	/// gets array size expression
-	Expression* GetSizeExpression() const;
+    /// add array size expression
+    void AddSizeExpression(Expression* expr);
 
-	/// sets array type
-	void SetArrayType(const ArrayType& type);
-	/// gets array type
-	const ArrayType& GetArrayType() const;
+    /// sets array type
+    void SetArrayType(const ArrayType& type);
+    /// gets array type
+    const ArrayType& GetArrayType() const;
 
-	/// gets array sizes
-	const int GetArraySize() const;
-	/// gets variable byte size
-	const unsigned GetByteSize() const;
+    /// gets array sizes
+    const int GetArraySize() const;
+    /// gets variable byte size
+    const unsigned GetByteSize() const;
 
-	/// adds a value-type pair
-	void AddValue(const DataType& type, const ValueList& value);
-	/// adds a value-type for basic types
-	void AddValue(const ValueList& value);
+    /// adds a value-type pair
+    void AddValue(const DataType& type, const ValueList& value);
+    /// adds a value-type for basic types
+    void AddValue(const ValueList& value);
 
-	/// returns true if default value exists
-	bool HasDefaultValue() const;
+    /// returns true if default value exists
+    bool HasDefaultValue() const;
 
     /// returns true if variable is a subroutine method pointer
     bool IsSubroutine() const;
-	/// returns true if variable is a uniform (it is not shader local)
-	bool IsUniform() const;
+    /// returns true if variable is a uniform (it is not shader local)
+    bool IsUniform() const;
 
-	/// sets the type of a variable
-	void SetDataType(const DataType& type);
-	/// get variable type
-	const DataType& GetDataType() const;
+    /// sets the type of a variable
+    void SetDataType(const DataType& type);
+    /// get variable type
+    const DataType& GetDataType() const;
 
-	/// set variable access mode
-	void SetAccess(const AccessMode& mode);
-	/// set variable format
-	void SetFormat(const ImageFormat& format);
+    /// set variable access mode
+    void SetAccess(const AccessMode& mode);
+    /// set variable format
+    void SetFormat(const ImageFormat& format);
 
-	/// preprocess variable
-	void Preprocess();
-	/// type checks variables
-	void TypeCheck(TypeChecker& typechecker);
-	/// compiles variable
-	void Compile(BinWriter& writer);
+    /// preprocess variable
+    void Preprocess();
+    /// type checks variables
+    void TypeCheck(TypeChecker& typechecker);
+    /// compiles variable
+    void Compile(BinWriter& writer);
 
-	/// format variable to fit target language
-	std::string Format(const Header& header, bool inVarblock = false) const;
+    /// format variable to fit target language
+    std::string Format(const Header& header, bool inVarblock = false) const;
 
 private:
     friend class VarBlock;
-	friend class VarBuffer;
-	friend class Effect;
-	friend class Structure;
+    friend class VarBuffer;
+    friend class Effect;
+    friend class Structure;
 
     /// evaluates array size
     void EvaluateArraySize(TypeChecker& typechecker);
 
-	/// converts image format to string based on header
-	std::string FormatImageFormat(const Header& header) const;
-	/// converts access pattern to string based on header
-	std::string FormatImageAccess(const Header& header) const;
+    /// converts image format to string based on header
+    std::string FormatImageFormat(const Header& header) const;
+    /// converts access pattern to string based on header
+    std::string FormatImageAccess(const Header& header) const;
 
-	
-	std::string defaultValue;
-	std::vector<std::pair<DataType, ValueList> > valueTable;
-	DataType type;
-	ImageFormat format;
-	AccessMode accessMode;
+    
+    std::string defaultValue;
+    std::vector<std::pair<DataType, ValueList> > valueTable;
+    DataType type;
+    ImageFormat format;
+    AccessMode accessMode;
     int qualifierFlags;
-	bool isUniform;
+    bool isUniform;
 
-	ArrayType arrayType;
-	bool isArray;
+    ArrayType arrayType;
+    bool isArray;
     bool isSubroutine;
-	int arraySize;
-	Expression* sizeExpression;
+    int arraySize;
+    std::vector<int> arraySizes;
+    std::vector<Expression*> sizeExpressions;
 
-	bool hasDefaultValue;
-	bool hasAnnotation;
-	Annotation annotation;
+    bool hasDefaultValue;
+    bool hasAnnotation;
+    Annotation annotation;
 
-	// the binding unit for this variable
-	unsigned group;
-	unsigned binding;
+    // the binding unit for this variable
+    unsigned group;
+    unsigned binding;
 
-	// index used if variable is an input attachment
-	unsigned index;
+    // index used if variable is an input attachment
+    unsigned index;
 
-	// aligned offset
-	unsigned alignedOffset;
-	unsigned padding;
+    // aligned offset
+    unsigned alignedOffset;
+    unsigned padding;
 }; 
 
 //------------------------------------------------------------------------------
@@ -214,20 +213,11 @@ Variable::SetAnnotation(const Annotation& annotation)
 //------------------------------------------------------------------------------
 /**
 */
-inline void
-Variable::SetSizeExpression(Expression* expr)
+inline void 
+Variable::AddSizeExpression(Expression* expr)
 {
-	this->sizeExpression = expr;
-	this->isArray = true;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline Expression* 
-Variable::GetSizeExpression() const
-{
-	return this->sizeExpression;
+    this->isArray = true;
+    this->sizeExpressions.push_back(expr);
 }
 
 //------------------------------------------------------------------------------
@@ -236,8 +226,8 @@ Variable::GetSizeExpression() const
 inline void
 Variable::SetArrayType(const ArrayType& type)
 {
-	this->isArray = true;
-	this->arrayType = type;
+    this->isArray = true;
+    this->arrayType = type;
 }
 
 //------------------------------------------------------------------------------
@@ -246,7 +236,7 @@ Variable::SetArrayType(const ArrayType& type)
 inline const Variable::ArrayType& 
 Variable::GetArrayType() const
 {
-	return this->arrayType;
+    return this->arrayType;
 }
 
 //------------------------------------------------------------------------------
@@ -255,7 +245,7 @@ Variable::GetArrayType() const
 inline const int 
 Variable::GetArraySize() const
 {
-	return this->arraySize;
+    return this->arraySize;
 }
 
 //------------------------------------------------------------------------------
@@ -264,7 +254,7 @@ Variable::GetArraySize() const
 inline bool 
 Variable::HasDefaultValue() const
 {
-	return this->hasDefaultValue;
+    return this->hasDefaultValue;
 }
 
 //------------------------------------------------------------------------------
@@ -282,7 +272,7 @@ Variable::IsSubroutine() const
 inline bool
 Variable::IsUniform() const
 {
-	return this->isUniform;
+    return this->isUniform;
 }
 
 //------------------------------------------------------------------------------
@@ -291,7 +281,7 @@ Variable::IsUniform() const
 inline void
 Variable::SetDataType(const DataType& type)
 {
-	this->type = type;
+    this->type = type;
 }
 
 //------------------------------------------------------------------------------
@@ -300,7 +290,7 @@ Variable::SetDataType(const DataType& type)
 inline const DataType& 
 Variable::GetDataType() const
 {
-	return this->type;
+    return this->type;
 }
 
 //------------------------------------------------------------------------------
@@ -309,7 +299,7 @@ Variable::GetDataType() const
 inline void
 Variable::SetAccess(const AccessMode& mode)
 {
-	this->accessMode = mode;
+    this->accessMode = mode;
 }
 
 //------------------------------------------------------------------------------
@@ -318,7 +308,7 @@ Variable::SetAccess(const AccessMode& mode)
 inline void
 Variable::SetFormat(const ImageFormat& format)
 {
-	this->format = format;
+    this->format = format;
 }
 
 } // namespace AnyFX
