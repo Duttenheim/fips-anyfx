@@ -389,9 +389,12 @@ public:
     antlr4::Token *name = nullptr;;
     AnyFXParser::AnnotationContext *annotationContext = nullptr;;
     AnyFXParser::VariableContext *variableContext = nullptr;;
+    antlr4::Token *varName = nullptr;;
+    AnyFXParser::ExpressionContext *arraySize = nullptr;;
     VarblockContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENTIFIER();
+    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
+    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
     std::vector<QualifierContext *> qualifier();
     QualifierContext* qualifier(size_t i);
     std::vector<QualifierExpressionContext *> qualifierExpression();
@@ -399,6 +402,7 @@ public:
     AnnotationContext *annotation();
     std::vector<VariableContext *> variable();
     VariableContext* variable(size_t i);
+    ExpressionContext *expression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -415,9 +419,12 @@ public:
     antlr4::Token *name = nullptr;;
     AnyFXParser::AnnotationContext *annotationContext = nullptr;;
     AnyFXParser::VariableContext *variableContext = nullptr;;
+    antlr4::Token *varName = nullptr;;
+    AnyFXParser::ExpressionContext *arraySize = nullptr;;
     VarbufferContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENTIFIER();
+    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
+    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
     std::vector<QualifierContext *> qualifier();
     QualifierContext* qualifier(size_t i);
     std::vector<QualifierExpressionContext *> qualifierExpression();
@@ -425,6 +432,7 @@ public:
     AnnotationContext *annotation();
     std::vector<VariableContext *> variable();
     VariableContext* variable(size_t i);
+    ExpressionContext *expression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

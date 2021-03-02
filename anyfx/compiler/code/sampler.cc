@@ -274,24 +274,16 @@ Sampler::TypeCheck(TypeChecker& typechecker)
             if (this->binding == -1)
             {
                 if (header.GetType() == Header::SPIRV)
-                {
                     this->binding = Shader::bindingIndices[this->group]++;
-                }
                 else
-                {
                     this->binding = Shader::bindingIndices[4]++;
-                }
             }
             else
             {
                 if (header.GetType() == Header::SPIRV)
-                {
                     Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
-                }
                 else
-                {
                     Shader::bindingIndices[4] = std::max(this->binding + 1, Shader::bindingIndices[4]);
-                }
             }
         }
     }

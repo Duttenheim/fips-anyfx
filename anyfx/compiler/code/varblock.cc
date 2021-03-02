@@ -19,7 +19,10 @@ namespace AnyFX
 VarBlock::VarBlock() :
     hasAnnotation(false),
     group(0),
-    binding(-1)
+    binding(-1),
+    arraySizeExpression(nullptr),
+    arraySize(1),
+    arrayType(Variable::ArrayType::NoArray)
 {
     this->symbolType = Symbol::VarblockType;
 }
@@ -111,11 +114,20 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
         }
     }
 
+    if (this->arraySizeExpression != nullptr)
+    {
+        this->arraySize = this->arraySizeExpression->EvalUInt(typechecker);
+        delete this->arraySizeExpression;
+    }
+
     unsigned offset = 0;
     unsigned i;
     for (i = 0; i < this->variables.size(); i++)
     {
         Variable& var = this->variables[i];
+        if (!this->structName.empty())
+            var.name = AnyFX::Format("%s.%s", this->structName.c_str(), var.name.c_str());
+
         var.group = this->group;
         if (var.GetArrayType() == Variable::UnsizedArray)
         {
@@ -319,7 +331,17 @@ VarBlock::Format(const Header& header) const
         }
     
         // finalize and return
-        formattedCode.append("};\n\n");
+        if (this->structName.empty())
+            formattedCode.append("};\n\n");
+        else
+        {
+            std::string fullStructName = this->structName;
+            if (this->arrayType == Variable::ArrayType::UnsizedArray)
+                fullStructName.append("[]");
+            else if (this->arrayType == Variable::ArrayType::SimpleArray)
+                fullStructName.append(AnyFX::Format("[%d]", this->arraySize));
+            formattedCode.append(AnyFX::Format("} %s;\n\n", fullStructName.c_str()));
+        }
     }
     return formattedCode;
 }

@@ -19,7 +19,10 @@ VarBuffer::VarBuffer() :
     alignedSize(0),
     hasAnnotation(false),
     group(0),
-    binding(-1)
+    binding(-1),
+    arraySizeExpression(nullptr),
+    arrayType(Variable::ArrayType::NoArray),
+    arraySize(1)
 {
     this->symbolType = Symbol::VarbufferType;
 }
@@ -106,6 +109,13 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         }
     }
 
+    if (this->arraySizeExpression != nullptr)
+    {
+        this->arraySize = this->arraySizeExpression->EvalUInt(typechecker);
+        delete this->arraySizeExpression;
+    }
+
+
     const Header& header = typechecker.GetHeader();
     if (header.GetType() != Header::GLSL && header.GetType() != Header::SPIRV)
     {
@@ -126,6 +136,11 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
     for (i = 0; i < this->variables.size(); i++)
     {
         Variable& var = this->variables[i];
+
+        std::string internalName = var.name;
+        if (!this->structName.empty())
+            var.name = AnyFX::Format("%s.%s", this->structName.c_str(), var.name.c_str());
+
         if (var.GetArrayType() == Variable::UnsizedArray && i < this->variables.size() - 1)
         {
             std::string message = AnyFX::Format("Varbuffers can only have its last member as an unsized array, %s\n", var.GetName().c_str(), this->ErrorSuffix().c_str());
@@ -238,7 +253,17 @@ VarBuffer::Format(const Header& header) const
     }
     
     // finalize and return
-    formattedCode.append("};\n\n");
+    if (this->structName.empty())
+        formattedCode.append("};\n\n");
+    else
+    {
+        std::string fullStructName = this->structName;
+        if (this->arrayType == Variable::ArrayType::UnsizedArray)
+            fullStructName.append("[]");
+        else if (this->arrayType == Variable::ArrayType::SimpleArray)
+            fullStructName.append(AnyFX::Format("[%d]", this->arraySize));
+        formattedCode.append(AnyFX::Format("} %s;\n\n", fullStructName.c_str()));
+    }
     return formattedCode;
 }
 

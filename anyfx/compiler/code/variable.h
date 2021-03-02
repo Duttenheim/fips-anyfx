@@ -85,6 +85,7 @@ public:
 
     enum ArrayType
     {
+        NoArray,            // not an array
         SimpleArray,		// evaluate array size by using value table single entry number of values
         TypedArray,			// evaluate array size by using value table size
         ExplicitArray,		// evaluate array size by expression
@@ -178,11 +179,12 @@ private:
     bool isUniform;
 
     ArrayType arrayType;
-    bool isArray;
     bool isSubroutine;
     int arraySize;
     std::vector<int> arraySizes;
     std::vector<Expression*> sizeExpressions;
+
+    std::string fullName; // name of path (parentStruct1.parentStruct2.name)
 
     bool hasDefaultValue;
     bool hasAnnotation;
@@ -216,7 +218,6 @@ Variable::SetAnnotation(const Annotation& annotation)
 inline void 
 Variable::AddSizeExpression(Expression* expr)
 {
-    this->isArray = true;
     this->sizeExpressions.push_back(expr);
 }
 
@@ -226,7 +227,6 @@ Variable::AddSizeExpression(Expression* expr)
 inline void
 Variable::SetArrayType(const ArrayType& type)
 {
-    this->isArray = true;
     this->arrayType = type;
 }
 

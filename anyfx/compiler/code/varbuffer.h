@@ -19,44 +19,56 @@ namespace AnyFX
 class VarBuffer : public Symbol
 {
 public:
-	/// constructor
-	VarBuffer();
-	/// destructor
-	virtual ~VarBuffer();
+    /// constructor
+    VarBuffer();
+    /// destructor
+    virtual ~VarBuffer();
 
-	/// set annotation
-	void SetAnnotation(const Annotation& annotation);
+    /// set annotation
+    void SetAnnotation(const Annotation& annotation);
 
-	/// add variable
-	void AddVariable(const Variable& var);
-	/// get variables
-	const std::vector<Variable>& GetVariables() const;
+    /// add variable
+    void AddVariable(const Variable& var);
+    /// get variables
+    const std::vector<Variable>& GetVariables() const;
 
-	/// get if varblock is shared
-	bool IsShared() const;
+    /// set the array size expression
+    void SetArrayExpression(Expression* expression);
 
-	/// sorts variables in varblock
-	void SortVariables();
+    /// set the name of the struct variable
+    void SetStructName(const std::string& name);
 
-	/// type checks var block
-	void TypeCheck(TypeChecker& typechecker);
-	/// compiles var block
-	void Compile(BinWriter& writer);
+    /// get if varblock is shared
+    bool IsShared() const;
 
-	/// format variable to fit target language
-	std::string Format(const Header& header) const;
+    /// sorts variables in varblock
+    void SortVariables();
+
+    /// type checks var block
+    void TypeCheck(TypeChecker& typechecker);
+    /// compiles var block
+    void Compile(BinWriter& writer);
+
+    /// format variable to fit target language
+    std::string Format(const Header& header) const;
 
 private:
-	friend class Effect;
-	std::vector<Variable> variables;
-	std::map<std::string, unsigned> offsetsByName;
-	unsigned alignedSize;
+    friend class Effect;
+    std::vector<Variable> variables;
+    std::map<std::string, unsigned> offsetsByName;
 
-	unsigned group;
-	unsigned binding;
-	
-	bool hasAnnotation;
-	Annotation annotation;
+    Variable::ArrayType arrayType;
+    Expression* arraySizeExpression;
+    unsigned arraySize;
+    std::string structName;
+
+    unsigned alignedSize;
+
+    unsigned group;
+    unsigned binding;
+    
+    bool hasAnnotation;
+    Annotation annotation;
 }; 
 
 //------------------------------------------------------------------------------
@@ -75,7 +87,7 @@ VarBuffer::SetAnnotation(const Annotation& annotation)
 inline bool 
 VarBuffer::IsShared() const
 {
-	return HasFlags(this->qualifierFlags, Qualifiers::Shared);
+    return HasFlags(this->qualifierFlags, Qualifiers::Shared);
 }
 
 //------------------------------------------------------------------------------
@@ -84,7 +96,30 @@ VarBuffer::IsShared() const
 inline const std::vector<Variable>& 
 VarBuffer::GetVariables() const
 {
-	return this->variables;
+    return this->variables;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+VarBuffer::SetArrayExpression(Expression* expression)
+{
+    // if the expression is null but the SetArrayExpression is triggered, treat it as an unsized array
+    if (expression == nullptr)
+        this->arrayType = Variable::ArrayType::UnsizedArray;
+    else
+        this->arrayType = Variable::ArrayType::SimpleArray;
+    this->arraySizeExpression = expression;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+VarBuffer::SetStructName(const std::string& name)
+{
+    this->structName = name;
 }
 
 } // namespace AnyFX

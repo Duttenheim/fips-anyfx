@@ -11,7 +11,8 @@ namespace AnyFX
 /**
 */
 Symbol::Symbol() :
-    reserved(false)
+    reserved(false),
+    qualifierFlags(Qualifiers::None)
 {
 	// empty
 }

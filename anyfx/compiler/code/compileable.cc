@@ -15,8 +15,7 @@ Compileable::Compileable() :
 	line(-1),
 	row(-1),
 	hasWarnings(false),
-	hasErrors(false),
-	qualifierFlags(Qualifiers::None)
+	hasErrors(false)
 {
 	// empty
 }

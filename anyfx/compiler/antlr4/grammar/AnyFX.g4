@@ -402,7 +402,12 @@ varblock
         | qualifierExpression { $block.AddQualifierExpression($qualifierExpression.q); }
     )* ('constant') name = IDENTIFIER { SetupFile(&$block, _input); $block.SetName($name.text); } (
         annotation { $block.SetAnnotation($annotation.annot); }
-    )? '{' (variable { $block.AddVariable($variable.var); })* '}' ';';
+    )? '{' (variable { $block.AddVariable($variable.var); })* '}' 
+    (varName = IDENTIFIER { $block.SetStructName($varName.text); } 
+        ('['']' { $block.SetArrayExpression(nullptr); } | 
+        '[' arraySize = expression ']' { $block.SetArrayExpression($arraySize.tree); })?
+    )? 
+     ';';
 
 // a varbuffer denotes a data type which has a dynamic size. varbuffers are much like varblocks, but
 // they support for having its last member as an unsized array, and can support writing to the
@@ -412,10 +417,17 @@ varbuffer
     (
         qualifier { $buffer.AddQualifier($qualifier.str); }
         | qualifierExpression { $buffer.AddQualifierExpression($qualifierExpression.q); }
-    )* ('rw_buffer') name = IDENTIFIER { SetupFile(&$buffer, _input); $buffer.SetName($name.text); }
-        (
+    )* 
+    ('rw_buffer') name = IDENTIFIER { SetupFile(&$buffer, _input); $buffer.SetName($name.text); }
+    (
         annotation { $buffer.SetAnnotation($annotation.annot); }
-    )? '{' (variable {$buffer.AddVariable($variable.var); })* '}' ';';
+    )? 
+    '{' (variable {$buffer.AddVariable($variable.var); })* '}' 
+    (varName = IDENTIFIER { $buffer.SetStructName($varName.text); } 
+        ('['']' { $buffer.SetArrayExpression(nullptr); } | 
+        '[' arraySize = expression ']' { $buffer.SetArrayExpression($arraySize.tree); })?
+    )? 
+    ';';
 
 // a subroutine denotes a function which can be dynamically switched without switching shader
 // states. there are two implementations of a subroutine, the first being the subroutine variable
@@ -467,7 +479,7 @@ variable
             }
         // array variable
         | (
-            '[' asize0 = expression ']' { $var.AddSizeExpression($asize0.tree); }
+            '[' asize0 = expression ']' { $var.AddSizeExpression($asize0.tree); $var.SetArrayType(Variable::SimpleArray); }
         )+
         // array initializer for vector types
         | '[' asize1 = expression ']' { $var.AddSizeExpression($asize1.tree); $var.SetArrayType(Variable::TypedArray); 
@@ -477,7 +489,7 @@ variable
                 }
         )* '}'
         | '[' asize2 = expression ']' { $var.AddSizeExpression($asize2.tree); $var.SetArrayType(Variable::SimpleArray); 
-            } '[' '{' valList = valueList '}' { $var.AddValue($valList.valList); }
+            } '=' '{' valList = valueList '}' { $var.AddValue($valList.valList); }
         // unsized array type, only usable for varbuffers
         | '[' ']' { $var.SetArrayType(Variable::UnsizedArray); }
         // explicit variable initialization

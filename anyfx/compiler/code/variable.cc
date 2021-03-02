@@ -15,9 +15,8 @@ namespace AnyFX
 */
 Variable::Variable() :
     hasDefaultValue(false),
-    isArray(false),
     isSubroutine(false),
-    arrayType(ExplicitArray),
+    arrayType(NoArray),
     arraySize(1),
     format(NoFormat),
     accessMode(NoAccess),
@@ -246,14 +245,14 @@ Variable::TypeCheck(TypeChecker& typechecker)
         }
     }
 
-    if (this->isSubroutine && this->isArray)
+    if (this->isSubroutine && this->arrayType != ArrayType::NoArray)
     {
         std::string msg = AnyFX::Format("Variable cannot be both a subroutine method pointer and an array, %s\n", this->ErrorSuffix().c_str());
         typechecker.Error(msg, this->GetFile(), this->GetLine());
     }
 
     // evaluate array size
-    if (this->isArray)
+    if (this->arrayType != ArrayType::NoArray)
     {
         this->EvaluateArraySize(typechecker);
     }
@@ -287,7 +286,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
     }
 
     // evaluate type correctness of array initializers
-    if (this->isArray)
+    if (this->arrayType != ArrayType::NoArray)
     {
         if (this->valueTable.size() != 0)
         {
@@ -435,7 +434,7 @@ Variable::Compile(BinWriter& writer)
     }	
 
     // write if this variable is an array
-    writer.WriteBool(this->isArray);
+    writer.WriteBool(this->arrayType != ArrayType::NoArray);
 
     if (this->arraySizes.empty())
     {
@@ -563,6 +562,10 @@ Variable::Format(const Header& header, bool inVarblock) const
         if (this->qualifierFlags & GroupShared) formattedCode.append("shared ");
         else                                    formattedCode.append("uniform ");
     }
+
+    // get name without parents
+    size_t offset = this->name.rfind('.');
+    std::string leafName = offset != std::string::npos ? this->name.substr(offset + 1) : this->name;
     
     // if c, an unsized struct is just a pointer to it...
     if (header.GetType() == Header::C)
@@ -571,31 +574,28 @@ Variable::Format(const Header& header, bool inVarblock) const
         formattedCode.append("\t");
         formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 
-        if (this->isArray)
+        if (this->arrayType != ArrayType::NoArray)
         {
             if (this->arrayType != UnsizedArray)
             {
+                std::string arrayDimensions;
                 for (size_t i = 0; i < this->arraySizes.size(); i++)
                 {
-                    std::string number = AnyFX::Format("%d", this->arraySizes[i]);
-                    formattedCode.append(" ");
-                    formattedCode.append(this->GetName());
-                    formattedCode.append("[");
-                    formattedCode.append(number);
-                    formattedCode.append("]");
+                    arrayDimensions.append(AnyFX::Format("[%d]", this->arraySizes[i]));
                 }
+                formattedCode.append(AnyFX::Format(" %s%s", leafName.c_str(), arrayDimensions.c_str()));
             }
             else
             {
                 formattedCode.append("*");
                 formattedCode.append(" ");
-                formattedCode.append(this->GetName());
+                formattedCode.append(leafName);
             }
         }
         else
         {
             formattedCode.append(" ");
-            formattedCode.append(this->GetName());
+            formattedCode.append(leafName);
         }
 
         if (dims.x > 1 || dims.y > 1)
@@ -612,15 +612,15 @@ Variable::Format(const Header& header, bool inVarblock) const
         formattedCode.append("\t");
         formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
         formattedCode.append(" ");
-        formattedCode.append(this->GetName());
-        if (this->isArray)
+        formattedCode.append(leafName);
+        if (this->arrayType != ArrayType::NoArray)
         {
             for (size_t i = 0; i < this->arraySizes.size(); i++)
             {
-                std::string number = AnyFX::Format("%d", this->arraySizes[i]);
-                formattedCode.append("[");
-                if (this->arrayType != UnsizedArray) formattedCode.append(number);
-                formattedCode.append("]");
+                if (this->arrayType == UnsizedArray)
+                    formattedCode.append("[]");
+                else
+                    formattedCode.append(AnyFX::Format("[%d]", this->arraySizes[i]));
             }
         }
     }
@@ -782,7 +782,7 @@ Variable::EvaluateArraySize(TypeChecker& typechecker)
     }
     this->sizeExpressions.clear();
 
-    if (this->arrayType == SimpleArray)
+    if (this->arrayType == SimpleArray && this->valueTable.size() > 0)
     {
         this->arraySizes.push_back(this->valueTable[0].second.GetNumValues());
         this->arraySize = this->valueTable[0].second.GetNumValues();

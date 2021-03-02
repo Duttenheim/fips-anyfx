@@ -10,12 +10,12 @@
 //------------------------------------------------------------------------------
 #include <vector>
 #include "datatype.h"
-#include "compileable.h"
+#include "symbol.h"
 #include "expressions/expression.h"
 namespace AnyFX
 {
 class Shader;
-class Parameter : public Compileable
+class Parameter : public Symbol
 {
 public:
 
