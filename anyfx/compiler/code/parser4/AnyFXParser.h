@@ -108,6 +108,8 @@ public:
   // setup function which binds the compiler state to the current AST node
   void SetupFile(AnyFX::Compileable* comp, antlr4::TokenStream* stream, bool updateLine = true)
   {
+      if (this->lines.empty())
+          return;
       ::AnyFXToken* token = (::AnyFXToken*)stream->LT(-1);
 
       if (updateLine)
@@ -125,25 +127,25 @@ public:
   {
       ::AnyFXToken* token = (::AnyFXToken*)stream->LT(index);
 
-      // find the next parsed row which comes after the token
-      int loop = this->currentLine;
-      int tokenLine = token->getLine();
-      while (loop < this->lines.size() - 1)
-      {
-          // look ahead, if the next line is beyond the token, abort
-          if (std::get<1>(this->lines[loop + 1]) > tokenLine)
-              break;
-          else
-              loop++;
-      }
+        // find the next parsed row which comes after the token
+        int loop = this->currentLine;
+        int tokenLine = token->getLine();
+        while (loop < this->lines.size() - 1)
+        {
+            // look ahead, if the next line is beyond the token, abort
+            if (std::get<1>(this->lines[loop + 1]) > tokenLine)
+                break;
+            else
+                loop++;
+        }
 
-      auto line = this->lines[loop];
-      this->currentLine = loop;
+        auto line = this->lines[loop];
+        this->currentLine = loop;
 
-      // where the target compiler expects the output token to be and where we put it may differ
-      // so we calculate a padding between the token and the #line directive output by the preprocessing stage (which includes the #line token line)
-      int padding = (tokenLine - 1) - std::get<1>(line);
-      this->lineOffset = std::get<0>(line) + padding;
+        // where the target compiler expects the output token to be and where we put it may differ
+        // so we calculate a padding between the token and the #line directive output by the preprocessing stage (which includes the #line token line)
+        int padding = (tokenLine - 1) - std::get<1>(line);
+        this->lineOffset = std::get<0>(line) + padding;
   }
 
   int currentLine = 0;
@@ -805,12 +807,10 @@ public:
     antlr4::Token *var2 = nullptr;;
     antlr4::Token *implementation2 = nullptr;;
     antlr4::Token *identifierToken = nullptr;;
-    AnyFXParser::StringContext *stringContext = nullptr;;
     ProgramRowContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
-    StringContext *string();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

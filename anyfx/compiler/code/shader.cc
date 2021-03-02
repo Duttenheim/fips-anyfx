@@ -222,31 +222,14 @@ Shader::Generate(
     // this list holds a couple of defines which are inserted into the preamble of the code in order to be able to separate functions depending on shader type
     const std::string shaderDefines[] =
     {
-        "#define VERTEX_SHADER\n\n",
-        "#define GEOMETRY_SHADER\n\n",
-        "#define HULL_SHADER\n\n",
-        "#define DOMAIN_SHADER\n\n",
-        "#define FRAGMENT_SHADER\n\n",
-        "#define COMPUTE_SHADER\n\n"
+        "#define VERTEX_SHADER 1\n\n",
+        "#define GEOMETRY_SHADER 1\n\n",
+        "#define HULL_SHADER 1\n\n",
+        "#define DOMAIN_SHADER 1\n\n",
+        "#define FRAGMENT_SHADER 1\n\n",
+        "#define COMPUTE_SHADER 1\n\n"
     };
     this->preamble.append(shaderDefines[this->shaderType]);
-
-    // add compile flags
-    std::string tempFlags = this->compileFlags;
-    if (tempFlags.length() > 0)
-    {
-        std::string token;
-        size_t index = 0;
-        while ((index = tempFlags.find("|")) != std::string::npos)
-        {
-            token = tempFlags.substr(0, index);
-            tempFlags.erase(0, index + 1);
-            this->preamble.append("#define " + token + "\n");
-        }
-
-        // fugly solution, but adds the last define
-        this->preamble.append("#define " + tempFlags + "\n");
-    }
 
     // undefine functions which GL will complain about when compiling for certain shader targets (likely they won't be used at all)
     if (this->shaderType != ProgramRow::PixelShader)
@@ -379,6 +362,14 @@ Shader::CompileGLSL(const std::string& code, Generator* generator)
     lengths[1] = code.length();
 
     EShMessages messages = EShMsgSuppressWarnings;
+
+        // add platform specific message output
+#if defined(_MSC_VER)
+    messages = (EShMessages)(messages | EShMsgMSVCFormat);
+#elif defined(__GNUC__) || defined(__clang__)
+    messages = (EShMessages)(messages | EShMsgClangGCCFormat);
+#endif
+
     glslang::TShader* shaderObject = new glslang::TShader(shaderTable[this->shaderType]);
     shaderObject->setStringsWithLengths(sources, lengths, 2);
 
@@ -388,7 +379,6 @@ Shader::CompileGLSL(const std::string& code, Generator* generator)
     if (!shaderObject->parse(&DefaultResources, versionNumber, false, messages))
     {
         std::string res(shaderObject->getInfoLog());
-        res = "*** glslang output ***\n" + res;
         generator->Error(res);
     }
     
@@ -435,6 +425,14 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
     lengths[1] = code.length();
 
     EShMessages messages = (EShMessages)(EShMsgDefault | EShMsgRelaxedErrors | EShMsgSpvRules | EShMsgVulkanRules);
+
+    // add platform specific message output
+#if defined(_MSC_VER)
+    messages = (EShMessages)(messages | EShMsgMSVCFormat);
+#elif defined(__GNUC__) || defined(__clang__)
+    messages = (EShMessages)(messages | EShMsgClangGCCFormat);
+#endif
+
     glslang::TShader* shaderObject = new glslang::TShader(shaderTable[this->shaderType]);
     shaderObject->setStringsWithLengths(sources, lengths, 2);
 
@@ -444,7 +442,6 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
     if (!shaderObject->parse(&DefaultResources, 460, EProfile::ENoProfile, false, true, messages))
     {
         std::string res(shaderObject->getInfoLog());
-        res = "*** glslang output ***\n" + res;
         generator->Error(res);
     }
 

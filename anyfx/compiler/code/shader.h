@@ -55,9 +55,6 @@ public:
     /// returns formatted code, is only viable after compilation is done
     const std::string& GetCompiledCode() const;
 
-    /// set compile flags for this shader
-    void SetCompileFlags(const std::string& flags);
-
     /// set subroutine mappings
     void SetSubroutineMappings(const std::map<std::string, std::string>& subroutineMappings);
 
@@ -138,7 +135,6 @@ private:
     unsigned shaderType;
     std::string name;
     std::string formattedCode;
-    std::string compileFlags;
     unsigned codeOffset;
 
     glslang::TShader* glslShader;
@@ -215,14 +211,6 @@ inline unsigned
 Shader::GetType() const
 {
     return this->shaderType;
-}
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-Shader::SetCompileFlags(const std::string& flags)
-{
-    this->compileFlags = flags;
 }
 
 //------------------------------------------------------------------------------

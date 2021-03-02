@@ -7,7 +7,11 @@
 #include "subroutine.h"
 #include <sstream>
 #include "generator.h"
+#define ENABLE_OPT 1
 #include "SPIRV/GlslangToSpv.h"
+#include "SPIRV/SpvTools.h"
+#include "spirv-tools/optimizer.hpp"
+
 namespace AnyFX
 {
 
@@ -66,7 +70,6 @@ Program::ConsumeRow( const ProgramRow& row )
     else if (row.GetFlag() == "DomainShader")	{ this->slotNames[ProgramRow::DomainShader] = row.GetString();      this->slotMask[ProgramRow::DomainShader] = true;    this->slotSubroutineMappings[ProgramRow::DomainShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "ComputeShader")	{ this->slotNames[ProgramRow::ComputeShader] = row.GetString();     this->slotMask[ProgramRow::ComputeShader] = true;   this->slotSubroutineMappings[ProgramRow::ComputeShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RenderState")	{ this->slotNames[ProgramRow::RenderState] = row.GetString();       this->slotMask[ProgramRow::RenderState] = true; }
-    else if (row.GetFlag() == "CompileFlags")   { this->compileFlags = row.GetString(); }
     else this->invalidFlags.push_back(row.GetFlag());
 }
 
@@ -151,13 +154,7 @@ Program::TypeCheck(TypeChecker& typechecker)
                 }
             }
         }
-    }
-
-    // update shader names with compile flags
-    for (int i = 0; i < ProgramRow::NumProgramRows - 1; i++)
-    {
-        //this->slotNames[i] += "_" + this->compileFlags;
-    }
+    }    
     
     // get shaders
     Function* vs = typechecker.HasSymbol(this->slotNames[ProgramRow::VertexShader])		? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::VertexShader]))		: NULL;
@@ -683,7 +680,7 @@ Program::BuildShaders(const Header& header, const std::vector<Function>& functio
                 if (func.GetName() == functionName && func.IsShader())
                 {
                     // create string which is the function name merged with its compile flags
-                    std::string functionNameWithDefines = functionName;// +"_" + this->compileFlags;
+                    std::string functionNameWithDefines = functionName;
 
                     std::map<std::string, std::string> subroutineMappings;
                     if (header.GetFlags() & Header::NoSubroutines)
@@ -714,7 +711,6 @@ Program::BuildShaders(const Header& header, const std::vector<Function>& functio
                         shader->SetFunction(func);
                         shader->SetType(i);
                         shader->SetName(functionNameWithDefines);
-                        shader->SetCompileFlags(this->compileFlags);
                         shader->SetSubroutineMappings(subroutineMappings);
                         shaders[functionNameWithDefines] = shader;
                         this->shaders[i] = shader;
@@ -889,13 +885,22 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
     }
     */
 
+    spvtools::Optimizer optimizer(SPV_ENV_VULKAN_1_2);
+    optimizer.RegisterPerformancePasses();
+
     glslang::TShader* shaders[] = { gvs, ghs, gds, ggs, gps, gcs };
     for (int i = 0; i < EShLangCount; i++)
     {
         glslang::TIntermediate* intermediate = program->getIntermediate((EShLanguage)i);
         if (intermediate != NULL)
         {
+            glslang::SpvOptions options;
+            options.disableOptimizer = false;
+            options.optimizeSize = true;
             glslang::GlslangToSpv(*intermediate, this->binary[i]);
+
+            std::vector<unsigned int> optimized;
+            optimizer.Run(this->binary[i].data(), this->binary[i].size(), &optimized);
         }		
     }
     

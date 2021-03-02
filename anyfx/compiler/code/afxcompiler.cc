@@ -195,10 +195,33 @@ AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string
 bool
 AnyFXCompile(const std::string& file, const std::string& output, const std::string& header_output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, const std::vector<std::string>& flags, AnyFXErrorBlob** errorBuffer)
 {
+
+    bool ret = true;
+#define WARN()\
+    *errorBuffer = new AnyFXErrorBlob;\
+    (*errorBuffer)->buffer = new char[errorMessage.size()];\
+    (*errorBuffer)->size = errorMessage.size();\
+    errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);\
+    (*errorBuffer)->buffer[(*errorBuffer)->size - 1] = '\0';
+
+#define FAIL()\
+    *errorBuffer = new AnyFXErrorBlob;\
+    (*errorBuffer)->buffer = new char[errorMessage.size()];\
+    (*errorBuffer)->size = errorMessage.size();\
+    errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);\
+    (*errorBuffer)->buffer[(*errorBuffer)->size - 1] = '\0';\
+    mcpp_use_mem_buffers(1);\
+    ret = false;\
+    goto exit;
+
+#define SUCCESS()\
+    ret = true;\
+    mcpp_use_mem_buffers(1);\
+    goto exit;
+
     std::string preprocessed;
     (*errorBuffer) = NULL;
 
-    // if preprocessor is successful, continue parsing the actual code
     if (AnyFXPreprocess(file, defines, vendor, preprocessed))
     {
         ANTLRInputStream input;
@@ -260,8 +283,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             // no output path provided
             if (output.empty())
             {
-                mcpp_use_mem_buffers(1);
-                return true;
+                SUCCESS()
             }
 
             // create header
@@ -308,12 +330,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                     std::string errorMessage;
                     errorMessage = typeChecker.GetErrorBuffer();
                     errorMessage = errorMessage + Format("Type checking returned with %d warnings\n", warnings);
-
-                    *errorBuffer = new AnyFXErrorBlob;
-                    (*errorBuffer)->buffer = new char[errorMessage.size()];
-                    (*errorBuffer)->size = errorMessage.size();
-                    errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
-                    (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
+                    WARN()
                 }
 
                 if (generator.GetStatus() == Generator::Success)
@@ -345,21 +362,12 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                             }
                         }
 
-                        mcpp_use_mem_buffers(1);	// clear mcpp
-                        return true;
+                        SUCCESS()
                     }
                     else
                     {
                         std::string errorMessage = Format("File '%s' could not be opened for writing\n", output.c_str());
-                        *errorBuffer = new AnyFXErrorBlob;
-                        (*errorBuffer)->buffer = new char[errorMessage.size()];
-                        (*errorBuffer)->size = errorMessage.size();
-                        errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
-                        (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
-
-                        // destroy compiler state and return
-                        mcpp_use_mem_buffers(1);	// clear mcpp
-                        return false;
+                        FAIL()
                     }
                 }
                 else
@@ -370,15 +378,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                     errorMessage = generator.GetErrorBuffer();
                     errorMessage = errorMessage + Format("Code generation failed with %d errors and %d warnings\n", errors, warnings);
 
-                    *errorBuffer = new AnyFXErrorBlob;
-                    (*errorBuffer)->buffer = new char[errorMessage.size()];
-                    (*errorBuffer)->size = errorMessage.size();
-                    errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
-                    (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
-
-                    // destroy compiler state and return
-                    mcpp_use_mem_buffers(1);	// clear mcpp
-                    return false;
+                    FAIL()
                 }
             }
             else
@@ -389,15 +389,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                 errorMessage = typeChecker.GetErrorBuffer();
                 errorMessage = errorMessage + Format("Type checking failed with %d errors and %d warnings\n", errors, warnings);
 
-                *errorBuffer = new AnyFXErrorBlob;
-                (*errorBuffer)->buffer = new char[errorMessage.size()];
-                (*errorBuffer)->size = errorMessage.size();
-                errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
-                (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
-
-                // destroy compiler state and return
-                mcpp_use_mem_buffers(1);	// clear mcpp
-                return false;
+                FAIL()
             }
         }
         else
@@ -406,15 +398,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             errorMessage.append(lexerErrorHandler.errorBuffer);
             errorMessage.append(parserErrorHandler.errorBuffer);
 
-            *errorBuffer = new AnyFXErrorBlob;
-            (*errorBuffer)->buffer = new char[errorMessage.size()];
-            (*errorBuffer)->size = errorMessage.size();
-            errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
-            (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
-
-            // destroy compiler state and return
-            mcpp_use_mem_buffers(1);	// clear mcpp
-            return false;
+            FAIL()
         }
     }
     else
@@ -422,16 +406,14 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
         char* err = mcpp_get_mem_buffer(ERR);
         if (err)
         {
-            size_t size = strlen(err);
-            *errorBuffer = new AnyFXErrorBlob;
-            (*errorBuffer)->buffer = new char[size];
-            (*errorBuffer)->size = size;
-            memcpy((void*)(*errorBuffer)->buffer, (void*)err, size);
-            (*errorBuffer)->buffer[size-1] = '\0';
-            mcpp_use_mem_buffers(1);	// clear mcpp
+            std::string errorMessage(err);
+            FAIL()
         }
-        return false;
-    }	
+        ret = false;
+    }
+
+exit:
+    return ret;
 }
 
 //------------------------------------------------------------------------------

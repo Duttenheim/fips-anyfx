@@ -33,6 +33,8 @@ int currentLine = 0;
 // setup function which binds the compiler state to the current AST node
 void SetupFile(AnyFX::Compileable* comp, antlr4::TokenStream* stream, bool updateLine = true)
 {
+    if (this->lines.empty())
+        return;
     ::AnyFXToken* token = (::AnyFXToken*)stream->LT(-1);
 
     if (updateLine)
@@ -141,8 +143,7 @@ preprocess
         Token* start = nullptr;
     }:
     (
-        { start = _input->LT(1); } '#line' line = INTEGERLITERAL path = string { lines.push_back(std::make_tuple(atoi($line.text.c_str()), _input->LT(-1)->getLine(), start->getStartIndex(), _input->LT(1)->getStartIndex(), $path.text)); 
-            }
+        { start = _input->LT(1); } '#line' line = INTEGERLITERAL path = string { lines.push_back(std::make_tuple(atoi($line.text.c_str()), _input->LT(-1)->getLine(), start->getStartIndex(), _input->LT(1)->getStartIndex(), $path.text)); }
         | .
     )*? EOF;
 
@@ -249,7 +250,7 @@ qualifierValued
 }
     @after {
     $str = startToken->getText();
-}: 'group' | 'index';
+}: 'group' | 'index' | 'binding';
 
 // all types are declared in this expression here, we define all variable types from both HLSL and
 // GLSL up to the latest release
@@ -717,9 +718,6 @@ programRow
     }
     | 'RenderState' '=' IDENTIFIER ';' {
         $row.SetString("RenderState", $IDENTIFIER.text);
-    }
-    | 'CompileFlags' '=' string ';' {
-        $row.SetString("CompileFlags", $string.val.c_str());
     };
 
 // annotations can be any user-specific data which can be read

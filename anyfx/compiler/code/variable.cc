@@ -25,7 +25,7 @@ Variable::Variable() :
     isUniform(true),
     hasAnnotation(false),
     group(0),
-    binding(0),
+    binding(-1),
     index(0)
 {
     this->symbolType = Symbol::VariableType;
@@ -166,6 +166,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
         Expression* expr = this->qualifierExpressions[i].expr;
         if (qualifier == "group") this->group = expr->EvalUInt(typechecker);
         else if (qualifier == "index") this->index = expr->EvalUInt(typechecker);
+        else if (qualifier == "binding") this->binding = expr->EvalUInt(typechecker);
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -174,28 +175,49 @@ Variable::TypeCheck(TypeChecker& typechecker)
         delete expr;
     }
 
-    // get the binding location and increment the global counter
-    if (typechecker.GetHeader().GetType() == Header::GLSL)
+    // if binding is invalid, automatically resolve binding
+    if (this->binding == -1)
     {
-        if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+        // get the binding location and increment the global counter
+        if (typechecker.GetHeader().GetType() == Header::GLSL)
         {
-            this->binding = Shader::bindingIndices[2]++;
+            if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+            {
+                this->binding = Shader::bindingIndices[2]++;
+            }
+            else if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
+            {
+                this->binding = Shader::bindingIndices[3]++;
+            }
+
         }
-        else if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
+        else if (typechecker.GetHeader().GetType() == Header::SPIRV)
         {
-            this->binding = Shader::bindingIndices[3]++;
+            if ((this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::TextureCubeArray) ||
+                (this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS))
+            {
+                this->binding = Shader::bindingIndices[this->group]++;
+            }
         }
-        
     }
-    else if (typechecker.GetHeader().GetType() == Header::SPIRV)
+    else
     {
-        if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::TextureCubeArray)
+        // if we already have a binding from an expression, change the binding index to be that value + 1
+        if (typechecker.GetHeader().GetType() == Header::GLSL)
         {
-            this->binding = Shader::bindingIndices[this->group]++;
+            if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+                Shader::bindingIndices[2] = std::max(this->binding + 1, Shader::bindingIndices[2]);
+            else if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
+                Shader::bindingIndices[3] = std::max(this->binding + 1, Shader::bindingIndices[3]);
+
         }
-        else if (this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS)
+        else if (typechecker.GetHeader().GetType() == Header::SPIRV)
         {
-            this->binding = Shader::bindingIndices[this->group]++;
+            if ((this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::TextureCubeArray) || 
+                (this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS))
+            {
+                Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
+            }
         }
     }
 
@@ -414,10 +436,21 @@ Variable::Compile(BinWriter& writer)
 
     // write if this variable is an array
     writer.WriteBool(this->isArray);
-    writer.WriteInt(this->arraySizes.size());
-    for (size_t i = 0; i < this->arraySizes.size(); i++)
+
+    if (this->arraySizes.empty())
     {
-        writer.WriteInt(this->arraySizes[i]);
+        // one fake array size, and with the dimension of 1
+        writer.WriteInt(1);
+        writer.WriteInt(1);
+    }
+    else
+    {
+        // write count of sizes, then each size
+        writer.WriteInt(this->arraySizes.size());
+        for (size_t i = 0; i < this->arraySizes.size(); i++)
+        {
+            writer.WriteInt(this->arraySizes[i]);
+        }
     }
 
     // write if variable is a subroutine method pointer

@@ -17,42 +17,42 @@ namespace AnyFX
 /**
 */
 Sampler::Sampler() :
-	numEntries(0),
-	group(0),
-	binding(0)
+    numEntries(0),
+    group(0),
+    binding(-1)
 {	
-	this->symbolType = Symbol::SamplerType;
+    this->symbolType = Symbol::SamplerType;
 
-	// reset all masks to false
-	unsigned i;
+    // reset all masks to false
+    unsigned i;
 
-	for (i = 0; i < SamplerRow::NumFloatFlags; i++)
-	{
-		this->floatExpressions[i] = NULL;
-	}
+    for (i = 0; i < SamplerRow::NumFloatFlags; i++)
+    {
+        this->floatExpressions[i] = NULL;
+    }
 
-	for (i = 0; i < SamplerRow::NumBoolFlags; i++)
-	{
-		this->boolExpressions[i] = NULL;
-	}
+    for (i = 0; i < SamplerRow::NumBoolFlags; i++)
+    {
+        this->boolExpressions[i] = NULL;
+    }
 
-	// set all values to default
-	intFlags[SamplerRow::Filter] = SamplerRow::Linear;
-	intFlags[SamplerRow::AddressU] = SamplerRow::Wrap;
-	intFlags[SamplerRow::AddressV] = SamplerRow::Wrap;
-	intFlags[SamplerRow::AddressW] = SamplerRow::Wrap;
-	intFlags[SamplerRow::ComparisonFunc] = SamplerRow::LEqual;
-	intFlags[SamplerRow::BorderColor] = SamplerRow::Black;
+    // set all values to default
+    intFlags[SamplerRow::Filter] = SamplerRow::Linear;
+    intFlags[SamplerRow::AddressU] = SamplerRow::Wrap;
+    intFlags[SamplerRow::AddressV] = SamplerRow::Wrap;
+    intFlags[SamplerRow::AddressW] = SamplerRow::Wrap;
+    intFlags[SamplerRow::ComparisonFunc] = SamplerRow::LEqual;
+    intFlags[SamplerRow::BorderColor] = SamplerRow::Black;
 
-	boolFlags[SamplerRow::Comparison] = false;
-	boolFlags[SamplerRow::Unnormalized] = false;
+    boolFlags[SamplerRow::Comparison] = false;
+    boolFlags[SamplerRow::Unnormalized] = false;
 
-	floatFlags[SamplerRow::LodBias] = 0.0f;
-	floatFlags[SamplerRow::MinLod] = 0;
-	floatFlags[SamplerRow::MaxLod] = 1000.0f;
-	floatFlags[SamplerRow::MaxAnisotropic] = 16.0f;
+    floatFlags[SamplerRow::LodBias] = 0.0f;
+    floatFlags[SamplerRow::MinLod] = 0;
+    floatFlags[SamplerRow::MaxLod] = 1000.0f;
+    floatFlags[SamplerRow::MaxAnisotropic] = 16.0f;
 
-	hasTextures = false;
+    hasTextures = false;
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ Sampler::Sampler() :
 */
 Sampler::~Sampler()
 {
-	// empty
+    // empty
 }
 
 //------------------------------------------------------------------------------
@@ -69,139 +69,139 @@ Sampler::~Sampler()
 void
 Sampler::ConsumeRow(const SamplerRow& row)
 {
-	switch (row.GetFlagType())
-	{
-	case SamplerRow::StringFlagType:
-		if (row.GetFlag() == "Filter")
-		{
-			const std::string& value = row.GetString();
-			unsigned flagVal = -1;
-			if (value == "MinMagMipPoint")				flagVal = SamplerRow::MinMagMipPoint;
-			else if (value == "MinMagMipLinear")		flagVal = SamplerRow::MinMagMipLinear;
-			else if (value == "MinMagPointMipLinear")	flagVal = SamplerRow::MinMagPointMipLinear;
-			else if (value == "MinMipPointMagLinear")	flagVal = SamplerRow::MinMipPointMagLinear;
-			else if (value == "MinPointMipMagLinear")	flagVal = SamplerRow::MinPointMipMagLinear;
-			else if (value == "MinLinearMipMagPoint")	flagVal = SamplerRow::MinLinearMipMagPoint;
-			else if (value == "MinMipLinearMagPoint")	flagVal = SamplerRow::MinMipLinearMagPoint;
-			else if (value == "MinMagLinearMipPoint")	flagVal = SamplerRow::MinMagLinearMipPoint;
-			else if (value == "Anisotropic")			flagVal = SamplerRow::Anisotropic;
-			else if (value == "Point")					flagVal = SamplerRow::Point;
-			else if (value == "Linear")					flagVal = SamplerRow::Linear;
-			else
-			{
-				InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
-				this->invalidValues.push_back(foo);
-				return;
-			}
+    switch (row.GetFlagType())
+    {
+    case SamplerRow::StringFlagType:
+        if (row.GetFlag() == "Filter")
+        {
+            const std::string& value = row.GetString();
+            unsigned flagVal = -1;
+            if (value == "MinMagMipPoint")				flagVal = SamplerRow::MinMagMipPoint;
+            else if (value == "MinMagMipLinear")		flagVal = SamplerRow::MinMagMipLinear;
+            else if (value == "MinMagPointMipLinear")	flagVal = SamplerRow::MinMagPointMipLinear;
+            else if (value == "MinMipPointMagLinear")	flagVal = SamplerRow::MinMipPointMagLinear;
+            else if (value == "MinPointMipMagLinear")	flagVal = SamplerRow::MinPointMipMagLinear;
+            else if (value == "MinLinearMipMagPoint")	flagVal = SamplerRow::MinLinearMipMagPoint;
+            else if (value == "MinMipLinearMagPoint")	flagVal = SamplerRow::MinMipLinearMagPoint;
+            else if (value == "MinMagLinearMipPoint")	flagVal = SamplerRow::MinMagLinearMipPoint;
+            else if (value == "Anisotropic")			flagVal = SamplerRow::Anisotropic;
+            else if (value == "Point")					flagVal = SamplerRow::Point;
+            else if (value == "Linear")					flagVal = SamplerRow::Linear;
+            else
+            {
+                InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
+                this->invalidValues.push_back(foo);
+                return;
+            }
 
-			this->intFlags[SamplerRow::Filter] = flagVal;
-		}
-	
-		else if (row.GetFlag() == "AddressU")
-		{
-			const std::string& value = row.GetString();
-			unsigned flagVal = -1;
-			if (value == "Wrap")				flagVal = SamplerRow::Wrap;
-			else if (value == "Mirror")			flagVal = SamplerRow::Mirror;
-			else if (value == "Clamp")			flagVal = SamplerRow::Clamp;
-			else if (value == "Border")			flagVal = SamplerRow::Border;
-			else if (value == "MirrorOnce")		flagVal = SamplerRow::MirrorOnce;
-			else
-			{
-				InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
-				this->invalidValues.push_back(foo);
-				return;
-			}
+            this->intFlags[SamplerRow::Filter] = flagVal;
+        }
+    
+        else if (row.GetFlag() == "AddressU")
+        {
+            const std::string& value = row.GetString();
+            unsigned flagVal = -1;
+            if (value == "Wrap")				flagVal = SamplerRow::Wrap;
+            else if (value == "Mirror")			flagVal = SamplerRow::Mirror;
+            else if (value == "Clamp")			flagVal = SamplerRow::Clamp;
+            else if (value == "Border")			flagVal = SamplerRow::Border;
+            else if (value == "MirrorOnce")		flagVal = SamplerRow::MirrorOnce;
+            else
+            {
+                InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
+                this->invalidValues.push_back(foo);
+                return;
+            }
 
-			this->intFlags[SamplerRow::AddressU] = flagVal;
-		}
-		else if (row.GetFlag() == "AddressV")
-		{
-			const std::string& value = row.GetString();
-			unsigned flagVal = -1;
-			if (value == "Wrap")				flagVal = SamplerRow::Wrap;
-			else if (value == "Mirror")			flagVal = SamplerRow::Mirror;
-			else if (value == "Clamp")			flagVal = SamplerRow::Clamp;
-			else if (value == "Border")			flagVal = SamplerRow::Border;
-			else if (value == "MirrorOnce")		flagVal = SamplerRow::MirrorOnce;
-			else
-			{
-				InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
-				this->invalidValues.push_back(foo);
-				return;
-			}
+            this->intFlags[SamplerRow::AddressU] = flagVal;
+        }
+        else if (row.GetFlag() == "AddressV")
+        {
+            const std::string& value = row.GetString();
+            unsigned flagVal = -1;
+            if (value == "Wrap")				flagVal = SamplerRow::Wrap;
+            else if (value == "Mirror")			flagVal = SamplerRow::Mirror;
+            else if (value == "Clamp")			flagVal = SamplerRow::Clamp;
+            else if (value == "Border")			flagVal = SamplerRow::Border;
+            else if (value == "MirrorOnce")		flagVal = SamplerRow::MirrorOnce;
+            else
+            {
+                InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
+                this->invalidValues.push_back(foo);
+                return;
+            }
 
-			this->intFlags[SamplerRow::AddressV] = flagVal;
-		}
-		else if (row.GetFlag() == "AddressW")
-		{
-			const std::string& value = row.GetString();
-			unsigned flagVal = -1;
-			if (value == "Wrap")				flagVal = SamplerRow::Wrap;
-			else if (value == "Mirror")			flagVal = SamplerRow::Mirror;
-			else if (value == "Clamp")			flagVal = SamplerRow::Clamp;
-			else if (value == "Border")			flagVal = SamplerRow::Border;
-			else if (value == "MirrorOnce")		flagVal = SamplerRow::MirrorOnce;
-			else
-			{
-				InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
-				this->invalidValues.push_back(foo);
-				return;
-			}
+            this->intFlags[SamplerRow::AddressV] = flagVal;
+        }
+        else if (row.GetFlag() == "AddressW")
+        {
+            const std::string& value = row.GetString();
+            unsigned flagVal = -1;
+            if (value == "Wrap")				flagVal = SamplerRow::Wrap;
+            else if (value == "Mirror")			flagVal = SamplerRow::Mirror;
+            else if (value == "Clamp")			flagVal = SamplerRow::Clamp;
+            else if (value == "Border")			flagVal = SamplerRow::Border;
+            else if (value == "MirrorOnce")		flagVal = SamplerRow::MirrorOnce;
+            else
+            {
+                InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
+                this->invalidValues.push_back(foo);
+                return;
+            }
 
-			this->intFlags[SamplerRow::AddressW] = flagVal;
-		}
-		else if (row.GetFlag() == "ComparisonFunc")
-		{
-			const std::string& value = row.GetString();
-			unsigned flagVal = -1;
-			if (value == "Never")					flagVal = SamplerRow::Never;
-			else if (value == "Less")				flagVal = SamplerRow::Less;
-			else if (value == "Lequal")				flagVal = SamplerRow::LEqual;
-			else if (value == "Greater")			flagVal = SamplerRow::Greater;
-			else if (value == "Gequal")				flagVal = SamplerRow::GEqual;
-			else if (value == "Equal")				flagVal = SamplerRow::Equal;
-			else if (value == "NotEqual")			flagVal = SamplerRow::NEqual;
-			else if (value == "Always")				flagVal = SamplerRow::Always;
-			else
-			{
-				InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
-				this->invalidValues.push_back(foo);
-				return;
-			}
+            this->intFlags[SamplerRow::AddressW] = flagVal;
+        }
+        else if (row.GetFlag() == "ComparisonFunc")
+        {
+            const std::string& value = row.GetString();
+            unsigned flagVal = -1;
+            if (value == "Never")					flagVal = SamplerRow::Never;
+            else if (value == "Less")				flagVal = SamplerRow::Less;
+            else if (value == "Lequal")				flagVal = SamplerRow::LEqual;
+            else if (value == "Greater")			flagVal = SamplerRow::Greater;
+            else if (value == "Gequal")				flagVal = SamplerRow::GEqual;
+            else if (value == "Equal")				flagVal = SamplerRow::Equal;
+            else if (value == "NotEqual")			flagVal = SamplerRow::NEqual;
+            else if (value == "Always")				flagVal = SamplerRow::Always;
+            else
+            {
+                InvalidValueContainer foo = { this->numEntries, row.GetFlag(), value };
+                this->invalidValues.push_back(foo);
+                return;
+            }
 
-			this->intFlags[SamplerRow::ComparisonFunc] = flagVal;
-		}
-		else if (row.GetFlag() == "BorderColor")
-		{
-			const std::string& value = row.GetString();
-			unsigned flagVal = -1;
-			if (value == "Transparent")			flagVal = SamplerRow::Transparent;
-			else if (value == "Black")			flagVal = SamplerRow::Black;
-			else if (value == "White")			flagVal = SamplerRow::White;
+            this->intFlags[SamplerRow::ComparisonFunc] = flagVal;
+        }
+        else if (row.GetFlag() == "BorderColor")
+        {
+            const std::string& value = row.GetString();
+            unsigned flagVal = -1;
+            if (value == "Transparent")			flagVal = SamplerRow::Transparent;
+            else if (value == "Black")			flagVal = SamplerRow::Black;
+            else if (value == "White")			flagVal = SamplerRow::White;
 
-			this->intFlags[SamplerRow::BorderColor] = flagVal;
-		}
-		else this->invalidFlags.push_back(row.GetFlag());
-		break;
-	case SamplerRow::ExpressionFlagType:
-		if (row.GetFlag() == "LodBias")				this->floatExpressions[SamplerRow::LodBias] = row.GetExpression();
-		else if (row.GetFlag() == "MinLod")			this->floatExpressions[SamplerRow::MinLod] = row.GetExpression();
-		else if (row.GetFlag() == "MaxLod")			this->floatExpressions[SamplerRow::MaxLod] = row.GetExpression();
-		else if (row.GetFlag() == "MaxAnisotropic")	this->floatExpressions[SamplerRow::MaxAnisotropic] = row.GetExpression();
-		else if (row.GetFlag() == "Comparison")		this->boolExpressions[SamplerRow::Comparison] = row.GetExpression();
-		else if (row.GetFlag() == "Unnormalized")	this->boolExpressions[SamplerRow::Unnormalized] = row.GetExpression();
-		else this->invalidFlags.push_back(row.GetFlag());
-		break;
-	case SamplerRow::TextureListFlagType:
-		this->textureList = row.GetTextures();
-		this->hasTextures = true;
-		break;
-	default:
-		this->invalidFlags.push_back(row.GetFlag());
-		break;
-	}
-	numEntries++;
+            this->intFlags[SamplerRow::BorderColor] = flagVal;
+        }
+        else this->invalidFlags.push_back(row.GetFlag());
+        break;
+    case SamplerRow::ExpressionFlagType:
+        if (row.GetFlag() == "LodBias")				this->floatExpressions[SamplerRow::LodBias] = row.GetExpression();
+        else if (row.GetFlag() == "MinLod")			this->floatExpressions[SamplerRow::MinLod] = row.GetExpression();
+        else if (row.GetFlag() == "MaxLod")			this->floatExpressions[SamplerRow::MaxLod] = row.GetExpression();
+        else if (row.GetFlag() == "MaxAnisotropic")	this->floatExpressions[SamplerRow::MaxAnisotropic] = row.GetExpression();
+        else if (row.GetFlag() == "Comparison")		this->boolExpressions[SamplerRow::Comparison] = row.GetExpression();
+        else if (row.GetFlag() == "Unnormalized")	this->boolExpressions[SamplerRow::Unnormalized] = row.GetExpression();
+        else this->invalidFlags.push_back(row.GetFlag());
+        break;
+    case SamplerRow::TextureListFlagType:
+        this->textureList = row.GetTextures();
+        this->hasTextures = true;
+        break;
+    default:
+        this->invalidFlags.push_back(row.GetFlag());
+        break;
+    }
+    numEntries++;
 }
 
 //------------------------------------------------------------------------------
@@ -210,114 +210,129 @@ Sampler::ConsumeRow(const SamplerRow& row)
 void
 Sampler::TypeCheck(TypeChecker& typechecker)
 {
-	// add render state, if failed we must have a redefinition
-	if (!typechecker.AddSymbol(this)) return;
-	const Header& header = typechecker.GetHeader();
+    // add render state, if failed we must have a redefinition
+    if (!typechecker.AddSymbol(this)) return;
+    const Header& header = typechecker.GetHeader();
 
-	unsigned i;
-	for (i = 0; i < this->invalidFlags.size(); i++)
-	{
-		std::string msg = AnyFX::Format("Invalid sampler flag '%s', %s\n", this->invalidFlags[i].c_str(), this->ErrorSuffix().c_str());
-		typechecker.Error(msg, this->GetFile(), this->GetLine());
-	}
+    unsigned i;
+    for (i = 0; i < this->invalidFlags.size(); i++)
+    {
+        std::string msg = AnyFX::Format("Invalid sampler flag '%s', %s\n", this->invalidFlags[i].c_str(), this->ErrorSuffix().c_str());
+        typechecker.Error(msg, this->GetFile(), this->GetLine());
+    }
 
-	for (i = 0; i < this->invalidValues.size(); i++)
-	{
-		std::string msg = AnyFX::Format("Invalid value '%s' for flag '%s' at entry %d, %s\n", this->invalidValues[i].value.c_str(), this->invalidValues[i].flag.c_str(), this->invalidValues[i].entry, this->ErrorSuffix().c_str());
-		typechecker.Error(msg, this->GetFile(), this->GetLine());
-	}
+    for (i = 0; i < this->invalidValues.size(); i++)
+    {
+        std::string msg = AnyFX::Format("Invalid value '%s' for flag '%s' at entry %d, %s\n", this->invalidValues[i].value.c_str(), this->invalidValues[i].flag.c_str(), this->invalidValues[i].entry, this->ErrorSuffix().c_str());
+        typechecker.Error(msg, this->GetFile(), this->GetLine());
+    }
 
-	// evaluate float expressions
-	for (i = 0; i < SamplerRow::NumFloatFlags; i++)
-	{
-		if (this->floatExpressions[i])
-		{
-			this->floatFlags[i] = this->floatExpressions[i]->EvalFloat(typechecker);
-			delete this->floatExpressions[i];
-		}
-	}
+    // evaluate float expressions
+    for (i = 0; i < SamplerRow::NumFloatFlags; i++)
+    {
+        if (this->floatExpressions[i])
+        {
+            this->floatFlags[i] = this->floatExpressions[i]->EvalFloat(typechecker);
+            delete this->floatExpressions[i];
+        }
+    }
 
-	for (i = 0; i < SamplerRow::NumBoolFlags; i++)
-	{
-		if (this->boolExpressions[i])
-		{
-			this->boolFlags[i] = this->boolExpressions[i]->EvalBool(typechecker);
-			delete this->boolExpressions[i];
-		}
-	}
+    for (i = 0; i < SamplerRow::NumBoolFlags; i++)
+    {
+        if (this->boolExpressions[i])
+        {
+            this->boolFlags[i] = this->boolExpressions[i]->EvalBool(typechecker);
+            delete this->boolExpressions[i];
+        }
+    }
 
-	for (unsigned i = 0; i < this->qualifierExpressions.size(); i++)
-	{
-		const std::string& qualifier = this->qualifierExpressions[i].name;
-		Expression* expr = this->qualifierExpressions[i].expr;
-		if (qualifier == "group") this->group = expr->EvalUInt(typechecker);
-		else
-		{
-			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			AnyFX::Emit(message.c_str());
-		}
-		delete expr;
-	}
+    for (unsigned i = 0; i < this->qualifierExpressions.size(); i++)
+    {
+        const std::string& qualifier = this->qualifierExpressions[i].name;
+        Expression* expr = this->qualifierExpressions[i].expr;
+        if (qualifier == "group") this->group = expr->EvalUInt(typechecker);
+        else if (qualifier == "binding") this->binding = expr->EvalUInt(typechecker);
+        else
+        {
+            std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
+            AnyFX::Emit(message.c_str());
+        }
+        delete expr;
+    }
 
-	unsigned numTextures = this->textureList.GetNumTextures();
-	if (numTextures == 0)
-	{
-		// OpenGL doesn't use samplers as objects, so we must provide a binding here
-		if (header.GetType() == Header::GLSL)
-		{
-			std::string err = AnyFX::Format("Sampler state must be supplied with at least one texture/sampler identifier, %s\n", this->ErrorSuffix().c_str());
-			typechecker.Error(err, this->GetFile(), this->GetLine());
-		}
-		else
-		{
-			if (header.GetType() == Header::SPIRV)
-			{
-				this->binding = Shader::bindingIndices[this->group]++;
-			}
-			else
-			{
-				this->binding = Shader::bindingIndices[4]++;
-			}
-		}
-	}
-	else
-	{
-		unsigned numTextures = this->textureList.GetNumTextures();
+    unsigned numTextures = this->textureList.GetNumTextures();
+    if (numTextures == 0)
+    {
+        // OpenGL doesn't use samplers as objects, so we must provide a binding here
+        if (header.GetType() == Header::GLSL)
+        {
+            std::string err = AnyFX::Format("Sampler state must be supplied with at least one texture/sampler identifier, %s\n", this->ErrorSuffix().c_str());
+            typechecker.Error(err, this->GetFile(), this->GetLine());
+        }
+        else
+        {
+            if (this->binding == -1)
+            {
+                if (header.GetType() == Header::SPIRV)
+                {
+                    this->binding = Shader::bindingIndices[this->group]++;
+                }
+                else
+                {
+                    this->binding = Shader::bindingIndices[4]++;
+                }
+            }
+            else
+            {
+                if (header.GetType() == Header::SPIRV)
+                {
+                    Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
+                }
+                else
+                {
+                    Shader::bindingIndices[4] = std::max(this->binding + 1, Shader::bindingIndices[4]);
+                }
+            }
+        }
+    }
+    else
+    {
+        unsigned numTextures = this->textureList.GetNumTextures();
 
-		// throw a warning if the number of textures in a sampler exceeds 1, since it will result in multiple 
-		// sampler_state declarations and the names may collide with previously defined samplers
-		if (header.GetType() == Header::HLSL && header.GetMajor() <= 3)
-		{
-			std::string warn = AnyFX::Format("Sampler '%s' uses multiple texture definitions, compiler will generate multiple samplers, one for each texture with a number succeeding the name. This object will generate samplers %s%d-%s%d, %s\n", this->name.c_str(), this->name.c_str(), 0, this->name.c_str(), numTextures, this->ErrorSuffix().c_str());
-			typechecker.Warning(warn, this->GetFile(), this->GetLine());
-		}
+        // throw a warning if the number of textures in a sampler exceeds 1, since it will result in multiple 
+        // sampler_state declarations and the names may collide with previously defined samplers
+        if (header.GetType() == Header::HLSL && header.GetMajor() <= 3)
+        {
+            std::string warn = AnyFX::Format("Sampler '%s' uses multiple texture definitions, compiler will generate multiple samplers, one for each texture with a number succeeding the name. This object will generate samplers %s%d-%s%d, %s\n", this->name.c_str(), this->name.c_str(), 0, this->name.c_str(), numTextures, this->ErrorSuffix().c_str());
+            typechecker.Warning(warn, this->GetFile(), this->GetLine());
+        }
 
-		unsigned i;
-		for (i = 0; i < numTextures; i++)
-		{
-			// get texture object
-			Symbol* textureObject = typechecker.GetSymbol(this->textureList.GetTexture(i));
+        unsigned i;
+        for (i = 0; i < numTextures; i++)
+        {
+            // get texture object
+            Symbol* textureObject = typechecker.GetSymbol(this->textureList.GetTexture(i));
 
-			if (textureObject)
-			{
-				// make sure it is a texture variable
-				if (textureObject->GetType() >= Symbol::VariableType)
-				{
-					Variable* var = (Variable*)textureObject;
-					if (!(var->GetDataType().GetType() >= DataType::Sampler1D && var->GetDataType().GetType() <= DataType::SamplerCubeArray))
-					{
-						std::string err = AnyFX::Format("Variable '%s' is not a texture variable, %s\n", textureObject->GetName().c_str(), this->ErrorSuffix().c_str());
-						typechecker.Error(err, this->GetFile(), this->GetLine());
-					}
-				}
-				else
-				{
-					std::string err = AnyFX::Format("Sampler must be provided with a texture variable, '%s' is not a variable, %s\n", textureObject->GetName().c_str(), this->ErrorSuffix().c_str());
-					typechecker.Error(err, this->GetFile(), this->GetLine());
-				}
-			}
-		}
-	}
+            if (textureObject)
+            {
+                // make sure it is a texture variable
+                if (textureObject->GetType() >= Symbol::VariableType)
+                {
+                    Variable* var = (Variable*)textureObject;
+                    if (!(var->GetDataType().GetType() >= DataType::Sampler1D && var->GetDataType().GetType() <= DataType::SamplerCubeArray))
+                    {
+                        std::string err = AnyFX::Format("Variable '%s' is not a texture variable, %s\n", textureObject->GetName().c_str(), this->ErrorSuffix().c_str());
+                        typechecker.Error(err, this->GetFile(), this->GetLine());
+                    }
+                }
+                else
+                {
+                    std::string err = AnyFX::Format("Sampler must be provided with a texture variable, '%s' is not a variable, %s\n", textureObject->GetName().c_str(), this->ErrorSuffix().c_str());
+                    typechecker.Error(err, this->GetFile(), this->GetLine());
+                }
+            }
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -326,33 +341,33 @@ Sampler::TypeCheck(TypeChecker& typechecker)
 void
 Sampler::Compile(BinWriter& writer)
 {
-	writer.WriteString(this->name);
-	writer.WriteUInt(this->binding);
-	writer.WriteUInt(this->group);
+    writer.WriteString(this->name);
+    writer.WriteUInt(this->binding);
+    writer.WriteUInt(this->group);
 
-	unsigned i;
-	for (i = 0; i < SamplerRow::NumEnumFlags; i++)
-	{
-		writer.WriteInt(this->intFlags[i]);
-	}
+    unsigned i;
+    for (i = 0; i < SamplerRow::NumEnumFlags; i++)
+    {
+        writer.WriteInt(this->intFlags[i]);
+    }
 
-	for (i = 0; i < SamplerRow::NumFloatFlags; i++)
-	{
-		writer.WriteFloat(this->floatFlags[i]);
-	}
-	
-	for (i = 0; i < SamplerRow::NumBoolFlags; i++)
-	{
-		writer.WriteBool(this->boolFlags[i]);
-	}
+    for (i = 0; i < SamplerRow::NumFloatFlags; i++)
+    {
+        writer.WriteFloat(this->floatFlags[i]);
+    }
+    
+    for (i = 0; i < SamplerRow::NumBoolFlags; i++)
+    {
+        writer.WriteBool(this->boolFlags[i]);
+    }
 
-	// write texture list
-	unsigned numTextures = this->textureList.GetNumTextures();
-	writer.WriteInt(numTextures);
-	for (i = 0; i < numTextures; i++)
-	{
-		writer.WriteString(this->textureList.GetTexture(i));
-	}		
+    // write texture list
+    unsigned numTextures = this->textureList.GetNumTextures();
+    writer.WriteInt(numTextures);
+    for (i = 0; i < numTextures; i++)
+    {
+        writer.WriteString(this->textureList.GetTexture(i));
+    }		
 }
 
 //------------------------------------------------------------------------------
@@ -361,79 +376,79 @@ Sampler::Compile(BinWriter& writer)
 std::string
 Sampler::Format(const Header& header) const
 {
-	// TODO: fix filter-writing seeing as it is component based on min/mag/mip instead of a single integer
-	std::string res;
-	if (header.GetType() == Header::HLSL)
-	{
-		if (header.GetMajor() > 4)
-		{
-			std::string contents;
-			contents.append(AnyFX::Format("Filter = %d;\n", intFlags[SamplerRow::Filter]));
-			contents.append(AnyFX::Format("AddressU = %d;\n", intFlags[SamplerRow::AddressU]));
-			contents.append(AnyFX::Format("AddressV = %d;\n", intFlags[SamplerRow::AddressV]));
-			contents.append(AnyFX::Format("AddressW = %d;\n", intFlags[SamplerRow::AddressW]));
-			switch (intFlags[SamplerRow::BorderColor])
-			{
-			case SamplerRow::Transparent:
-				contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 0);\n"));
-				break;
-			case SamplerRow::Black:
-				contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 1);\n"));
-				break;
-			case SamplerRow::White:
-				contents.append(AnyFX::Format("BorderColor = float4(1, 1, 1, 1);\n"));
-			}
-			contents.append(AnyFX::Format("MaxLOD = %f;\n", floatFlags[SamplerRow::MaxLod]));
-			contents.append(AnyFX::Format("MinLOD = %f;\n", floatFlags[SamplerRow::MinLod]));
-			contents.append(AnyFX::Format("MipLODBias = %f;\n", floatFlags[SamplerRow::LodBias]));
-			contents.append(AnyFX::Format("MaxAnisotropy = %f;\n", floatFlags[SamplerRow::MaxAnisotropic]));
-			if (this->boolFlags[SamplerRow::Comparison])
-			{
-				contents.append(AnyFX::Format("ComparisonFunc = %d;\n", intFlags[SamplerRow::ComparisonFunc]));
-				res = AnyFX::Format("SamplerComparisonState %s\n{\n%s\n};\n", this->GetName().c_str(), contents.c_str());
-			}
-			else
-			{			
-				res = AnyFX::Format("SamplerState %s\n{\n%s\n};\n", this->GetName().c_str(), contents.c_str());
-			}
-		}
-		else
-		{
-			// write a sampler state per each attached texture
-			unsigned numTextures = this->textureList.GetNumTextures();
-			unsigned i;
-			for (i = 0; i < numTextures; i++)
-			{
-				std::string contents;
-				contents.append(AnyFX::Format("Texture = <%s>;\n", this->textureList.GetTexture(i).c_str()));
-				contents.append(AnyFX::Format("AddressU = %d;\n", intFlags[SamplerRow::AddressU]));
-				contents.append(AnyFX::Format("AddressV = %d;\n", intFlags[SamplerRow::AddressV]));
-				contents.append(AnyFX::Format("AddressW = %d;\n", intFlags[SamplerRow::AddressW]));
-				switch (intFlags[SamplerRow::BorderColor])
-				{
-				case SamplerRow::Transparent:
-					contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 0);\n"));
-					break;
-				case SamplerRow::Black:
-					contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 1);\n"));
-					break;
-				case SamplerRow::White:
-					contents.append(AnyFX::Format("BorderColor = float4(1, 1, 1, 1);\n"));
-				}
-				contents.append(AnyFX::Format("MaxLOD = %f;\n", floatFlags[SamplerRow::MaxLod]));
-				contents.append(AnyFX::Format("MinLOD = %f;\n", floatFlags[SamplerRow::MinLod]));
-				contents.append(AnyFX::Format("MipLODBias = %f;\n", floatFlags[SamplerRow::LodBias]));
-				res = AnyFX::Format("sampler_state %s%d\n{\n%s\n};\n", this->GetName().c_str(), i, contents.c_str());
-			}
-		}
-	}
-	else if (header.GetType() == Header::SPIRV && this->textureList.GetNumTextures() == 0 && !this->reserved)
-	{
-		std::string contents;
-		contents.append(AnyFX::Format("layout(set=%d, binding=%d) uniform sampler %s;\n", this->group, this->binding, this->name.c_str()));
-		res = contents;
-	}
-	return res;
+    // TODO: fix filter-writing seeing as it is component based on min/mag/mip instead of a single integer
+    std::string res;
+    if (header.GetType() == Header::HLSL)
+    {
+        if (header.GetMajor() > 4)
+        {
+            std::string contents;
+            contents.append(AnyFX::Format("Filter = %d;\n", intFlags[SamplerRow::Filter]));
+            contents.append(AnyFX::Format("AddressU = %d;\n", intFlags[SamplerRow::AddressU]));
+            contents.append(AnyFX::Format("AddressV = %d;\n", intFlags[SamplerRow::AddressV]));
+            contents.append(AnyFX::Format("AddressW = %d;\n", intFlags[SamplerRow::AddressW]));
+            switch (intFlags[SamplerRow::BorderColor])
+            {
+            case SamplerRow::Transparent:
+                contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 0);\n"));
+                break;
+            case SamplerRow::Black:
+                contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 1);\n"));
+                break;
+            case SamplerRow::White:
+                contents.append(AnyFX::Format("BorderColor = float4(1, 1, 1, 1);\n"));
+            }
+            contents.append(AnyFX::Format("MaxLOD = %f;\n", floatFlags[SamplerRow::MaxLod]));
+            contents.append(AnyFX::Format("MinLOD = %f;\n", floatFlags[SamplerRow::MinLod]));
+            contents.append(AnyFX::Format("MipLODBias = %f;\n", floatFlags[SamplerRow::LodBias]));
+            contents.append(AnyFX::Format("MaxAnisotropy = %f;\n", floatFlags[SamplerRow::MaxAnisotropic]));
+            if (this->boolFlags[SamplerRow::Comparison])
+            {
+                contents.append(AnyFX::Format("ComparisonFunc = %d;\n", intFlags[SamplerRow::ComparisonFunc]));
+                res = AnyFX::Format("SamplerComparisonState %s\n{\n%s\n};\n", this->GetName().c_str(), contents.c_str());
+            }
+            else
+            {			
+                res = AnyFX::Format("SamplerState %s\n{\n%s\n};\n", this->GetName().c_str(), contents.c_str());
+            }
+        }
+        else
+        {
+            // write a sampler state per each attached texture
+            unsigned numTextures = this->textureList.GetNumTextures();
+            unsigned i;
+            for (i = 0; i < numTextures; i++)
+            {
+                std::string contents;
+                contents.append(AnyFX::Format("Texture = <%s>;\n", this->textureList.GetTexture(i).c_str()));
+                contents.append(AnyFX::Format("AddressU = %d;\n", intFlags[SamplerRow::AddressU]));
+                contents.append(AnyFX::Format("AddressV = %d;\n", intFlags[SamplerRow::AddressV]));
+                contents.append(AnyFX::Format("AddressW = %d;\n", intFlags[SamplerRow::AddressW]));
+                switch (intFlags[SamplerRow::BorderColor])
+                {
+                case SamplerRow::Transparent:
+                    contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 0);\n"));
+                    break;
+                case SamplerRow::Black:
+                    contents.append(AnyFX::Format("BorderColor = float4(0, 0, 0, 1);\n"));
+                    break;
+                case SamplerRow::White:
+                    contents.append(AnyFX::Format("BorderColor = float4(1, 1, 1, 1);\n"));
+                }
+                contents.append(AnyFX::Format("MaxLOD = %f;\n", floatFlags[SamplerRow::MaxLod]));
+                contents.append(AnyFX::Format("MinLOD = %f;\n", floatFlags[SamplerRow::MinLod]));
+                contents.append(AnyFX::Format("MipLODBias = %f;\n", floatFlags[SamplerRow::LodBias]));
+                res = AnyFX::Format("sampler_state %s%d\n{\n%s\n};\n", this->GetName().c_str(), i, contents.c_str());
+            }
+        }
+    }
+    else if (header.GetType() == Header::SPIRV && this->textureList.GetNumTextures() == 0 && !this->reserved)
+    {
+        std::string contents;
+        contents.append(AnyFX::Format("layout(set=%d, binding=%d) uniform sampler %s;\n", this->group, this->binding, this->name.c_str()));
+        res = contents;
+    }
+    return res;
 }
 
 } // namespace AnyFX
