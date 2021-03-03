@@ -90,8 +90,19 @@ std::vector<std::tuple<int, int, int, int, std::string>> lines;
 #include <tuple>
 
 #include "anyfxtoken.h"
-#include "../../code/compileable.h"
-#include "../../code/effect.h"
+#include "../../code/v3/compileable.h"
+#include "../../code/v3/effect.h"
+#include "../../code/v3/function.h"
+#include "../../code/v3/variable.h"
+#include "../../code/v3/resource.h"
+#include "../../code/v3/state.h"
+#include "../../code/v3/program.h"
+#include "../../code/v3/compoundresource.h"
+#include "../../code/v3/typedresource.h"
+#include "../../code/v3/attribute.h"
+#include "../../code/v3/annotations.h"
+#include "../../code/v3/blendstate.h"
+#include "../../code/v3/renderstate.h"
 using namespace AnyFX;
 
 }
@@ -136,11 +147,16 @@ effect
         | program { eff.AddSymbol($program.sym); }
     )*?;
 
+annotations
+    returns[ Annotations annot ]:
+        '[' (name = IDENTIFIER '=' value = IDENTIFIER { $annot.entries.push_back(std::make_pair($name.text, $value.text)); }) (',' name2 = IDENTIFIER '=' value2 = IDENTIFIER { $annot.entries.push_back(std::make_pair($name2.text, $value2.text)); })* ']'
+    ;
+
 compound_resource
     returns[ Symbol* sym ]
     @init
     {
-        $sym = new CompundResource();
+        $sym = new CompoundResource();
     }:
     (qualifier = IDENTIFIER { $sym->qualifiers.push_back($qualifier.text); })*
     type = ('buffer'|'constants') name = IDENTIFIER

@@ -25,11 +25,11 @@ endif()
 
 	ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
 
-	
+
 
     fips_begin_lib(anyfx)
 
-		
+
 		#SET(ANYFX_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/anyfx)
 
 		IF(NOT DEFINED ANYFX_FOLDER)
@@ -73,7 +73,7 @@ endif()
 
         # explicitly only enable implemented generators
         fips_files(anyfx/compiler/code/generators/glslgenerator.cc)
-        
+
 		fips_src(anyfx/api/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/internal/ NO_RECURSE)
@@ -84,6 +84,7 @@ endif()
 		fips_include_directories(anyfx/api/lowlevel)
 		fips_include_directories(anyfx/api/highlevel)
 		fips_include_directories(anyfx/compiler/code)
+		fips_include_directories(anyfx/compiler/code/v3)
 		fips_include_directories(anyfx/compiler/antlr4/src)
 		fips_include_directories(anyfx/compiler/mcpp)
 		fips_include_directories(anyfx/util/code)
@@ -101,14 +102,15 @@ endif()
 		fips_src(anyfx/compiler/code/expressions/ NO_RECURSE)
 		fips_src(anyfx/compiler/code/parser4/ NO_RECURSE)
 		fips_src(anyfx/util/code/ NO_RECURSE)
-        
+		fips_src(anyfx/compiler/code/v3/ GROUP_FOLDERS)
+
 		IF (MSVC)
 			IF(CMAKE_CL_64)
 				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")
 			ENDIF()
 		ENDIF()
 
-		
+
 
 		IF(ANYFX_TRANSPOSE_MATRICES)
 			ADD_DEFINITIONS(-D__ANYFX_TRANSPOSE_MATRIX__)
