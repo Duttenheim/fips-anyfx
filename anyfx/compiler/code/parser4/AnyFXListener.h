@@ -9,38 +9,29 @@
 #include <tuple>
 
 #include "anyfxtoken.h"
-#include "../../code/qualifierexpression.h"
-#include "../../code/compileable.h"
-#include "../../code/effect.h"
-#include "../../code/header.h"
-#include "../../code/datatype.h"
-#include "../../code/parameter.h"
-#include "../../code/annotation.h"
-#include "../../code/programrow.h"
-#include "../../code/program.h"
-#include "../../code/samplertexturelist.h"
-#include "../../code/samplerrow.h"
-#include "../../code/sampler.h"
-#include "../../code/structure.h"
-#include "../../code/constant.h"
-#include "../../code/blendstaterow.h"
-#include "../../code/renderstaterow.h"
-#include "../../code/renderstate.h"
-#include "../../code/function.h"
-#include "../../code/valuelist.h"
-#include "../../code/functionattribute.h"
-#include "../../code/variable.h"
-#include "../../code/varblock.h"
-#include "../../code/varbuffer.h"
-#include "../../code/subroutine.h"
-#include "../../code/preprocessor.h"
-#include "../../code/expressions/expression.h"
-#include "../../code/expressions/binaryexpression.h"
-#include "../../code/expressions/unaryexpression.h"
-#include "../../code/expressions/intexpression.h"
-#include "../../code/expressions/boolexpression.h"
-#include "../../code/expressions/floatexpression.h"
-#include "../../code/expressions/symbolexpression.h"
+#include "v3/ast/annotations.h"
+#include "v3/ast/attributable.h"
+#include "v3/ast/blendstate.h"
+#include "v3/ast/compoundresource.h"
+#include "v3/ast/effect.h"
+#include "v3/ast/function.h"
+#include "v3/ast/program.h"
+#include "v3/ast/renderstate.h"
+#include "v3/ast/state.h"
+#include "v3/ast/structure.h"
+#include "v3/ast/resource.h"
+#include "v3/ast/symbol.h"
+#include "v3/ast/typedresource.h"
+#include "v3/ast/variable.h"
+#include "expressions/expression.h"
+#include "expressions/binaryexpression.h"
+#include "expressions/unaryexpression.h"
+#include "expressions/intexpression.h"
+#include "expressions/boolexpression.h"
+#include "expressions/floatexpression.h"
+#include "expressions/stringexpression.h"
+#include "expressions/symbolexpression.h"
+
 using namespace AnyFX;
 
 
@@ -75,86 +66,32 @@ public:
   virtual void enterEffect(AnyFXParser::EffectContext *ctx) = 0;
   virtual void exitEffect(AnyFXParser::EffectContext *ctx) = 0;
 
-  virtual void enterQualifier(AnyFXParser::QualifierContext *ctx) = 0;
-  virtual void exitQualifier(AnyFXParser::QualifierContext *ctx) = 0;
+  virtual void enterAnnotations(AnyFXParser::AnnotationsContext *ctx) = 0;
+  virtual void exitAnnotations(AnyFXParser::AnnotationsContext *ctx) = 0;
 
-  virtual void enterQualifierValued(AnyFXParser::QualifierValuedContext *ctx) = 0;
-  virtual void exitQualifierValued(AnyFXParser::QualifierValuedContext *ctx) = 0;
+  virtual void enterAttribute(AnyFXParser::AttributeContext *ctx) = 0;
+  virtual void exitAttribute(AnyFXParser::AttributeContext *ctx) = 0;
 
-  virtual void enterType(AnyFXParser::TypeContext *ctx) = 0;
-  virtual void exitType(AnyFXParser::TypeContext *ctx) = 0;
-
-  virtual void enterQualifierExpression(AnyFXParser::QualifierExpressionContext *ctx) = 0;
-  virtual void exitQualifierExpression(AnyFXParser::QualifierExpressionContext *ctx) = 0;
-
-  virtual void enterStructure(AnyFXParser::StructureContext *ctx) = 0;
-  virtual void exitStructure(AnyFXParser::StructureContext *ctx) = 0;
-
-  virtual void enterVarblock(AnyFXParser::VarblockContext *ctx) = 0;
-  virtual void exitVarblock(AnyFXParser::VarblockContext *ctx) = 0;
-
-  virtual void enterVarbuffer(AnyFXParser::VarbufferContext *ctx) = 0;
-  virtual void exitVarbuffer(AnyFXParser::VarbufferContext *ctx) = 0;
-
-  virtual void enterSubroutine(AnyFXParser::SubroutineContext *ctx) = 0;
-  virtual void exitSubroutine(AnyFXParser::SubroutineContext *ctx) = 0;
-
-  virtual void enterValueList(AnyFXParser::ValueListContext *ctx) = 0;
-  virtual void exitValueList(AnyFXParser::ValueListContext *ctx) = 0;
-
-  virtual void enterValueSingleList(AnyFXParser::ValueSingleListContext *ctx) = 0;
-  virtual void exitValueSingleList(AnyFXParser::ValueSingleListContext *ctx) = 0;
+  virtual void enterCompound_resource(AnyFXParser::Compound_resourceContext *ctx) = 0;
+  virtual void exitCompound_resource(AnyFXParser::Compound_resourceContext *ctx) = 0;
 
   virtual void enterVariable(AnyFXParser::VariableContext *ctx) = 0;
   virtual void exitVariable(AnyFXParser::VariableContext *ctx) = 0;
 
-  virtual void enterConstant(AnyFXParser::ConstantContext *ctx) = 0;
-  virtual void exitConstant(AnyFXParser::ConstantContext *ctx) = 0;
+  virtual void enterStructure(AnyFXParser::StructureContext *ctx) = 0;
+  virtual void exitStructure(AnyFXParser::StructureContext *ctx) = 0;
 
-  virtual void enterParameterAttribute(AnyFXParser::ParameterAttributeContext *ctx) = 0;
-  virtual void exitParameterAttribute(AnyFXParser::ParameterAttributeContext *ctx) = 0;
-
-  virtual void enterParameter(AnyFXParser::ParameterContext *ctx) = 0;
-  virtual void exitParameter(AnyFXParser::ParameterContext *ctx) = 0;
-
-  virtual void enterParameterList(AnyFXParser::ParameterListContext *ctx) = 0;
-  virtual void exitParameterList(AnyFXParser::ParameterListContext *ctx) = 0;
-
-  virtual void enterFunctionAttribute(AnyFXParser::FunctionAttributeContext *ctx) = 0;
-  virtual void exitFunctionAttribute(AnyFXParser::FunctionAttributeContext *ctx) = 0;
-
-  virtual void enterCodeBlock(AnyFXParser::CodeBlockContext *ctx) = 0;
-  virtual void exitCodeBlock(AnyFXParser::CodeBlockContext *ctx) = 0;
+  virtual void enterCodeblock(AnyFXParser::CodeblockContext *ctx) = 0;
+  virtual void exitCodeblock(AnyFXParser::CodeblockContext *ctx) = 0;
 
   virtual void enterFunction(AnyFXParser::FunctionContext *ctx) = 0;
   virtual void exitFunction(AnyFXParser::FunctionContext *ctx) = 0;
 
-  virtual void enterBlendStateRow(AnyFXParser::BlendStateRowContext *ctx) = 0;
-  virtual void exitBlendStateRow(AnyFXParser::BlendStateRowContext *ctx) = 0;
-
-  virtual void enterRenderStateRow(AnyFXParser::RenderStateRowContext *ctx) = 0;
-  virtual void exitRenderStateRow(AnyFXParser::RenderStateRowContext *ctx) = 0;
-
-  virtual void enterRenderState(AnyFXParser::RenderStateContext *ctx) = 0;
-  virtual void exitRenderState(AnyFXParser::RenderStateContext *ctx) = 0;
-
-  virtual void enterSampler(AnyFXParser::SamplerContext *ctx) = 0;
-  virtual void exitSampler(AnyFXParser::SamplerContext *ctx) = 0;
-
-  virtual void enterSamplerTextureList(AnyFXParser::SamplerTextureListContext *ctx) = 0;
-  virtual void exitSamplerTextureList(AnyFXParser::SamplerTextureListContext *ctx) = 0;
-
-  virtual void enterSamplerRow(AnyFXParser::SamplerRowContext *ctx) = 0;
-  virtual void exitSamplerRow(AnyFXParser::SamplerRowContext *ctx) = 0;
-
-  virtual void enterProgramRow(AnyFXParser::ProgramRowContext *ctx) = 0;
-  virtual void exitProgramRow(AnyFXParser::ProgramRowContext *ctx) = 0;
-
-  virtual void enterAnnotation(AnyFXParser::AnnotationContext *ctx) = 0;
-  virtual void exitAnnotation(AnyFXParser::AnnotationContext *ctx) = 0;
-
   virtual void enterProgram(AnyFXParser::ProgramContext *ctx) = 0;
   virtual void exitProgram(AnyFXParser::ProgramContext *ctx) = 0;
+
+  virtual void enterState(AnyFXParser::StateContext *ctx) = 0;
+  virtual void exitState(AnyFXParser::StateContext *ctx) = 0;
 
   virtual void enterExpression(AnyFXParser::ExpressionContext *ctx) = 0;
   virtual void exitExpression(AnyFXParser::ExpressionContext *ctx) = 0;

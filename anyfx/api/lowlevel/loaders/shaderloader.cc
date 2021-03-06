@@ -6,7 +6,6 @@
 #include "shadereffect.h"
 #include "base/shaderbase.h"
 #include "gl4/gl4shader.h"
-#include "effect.h"
 #include "vk/vkshader.h"
 
 namespace AnyFX

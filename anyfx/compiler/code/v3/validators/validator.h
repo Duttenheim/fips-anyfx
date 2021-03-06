@@ -7,23 +7,20 @@
     (C) 2021 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include <hash_map>
-#include "symbol.h"
+#include "ast/symbol.h"
+#include <vector>
 namespace AnyFX
 {
 
-class Validator
+struct Compiler;
+struct Validator
 {
-public:
 
     /// validate
-    virtual bool Validate(Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool Validate(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
 
     /// validate function
     virtual bool ValidateFunction();
-
-
-private:
 
 };
 

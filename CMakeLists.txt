@@ -72,15 +72,13 @@ endif()
 
 
         # explicitly only enable implemented generators
-        fips_files(anyfx/compiler/code/generators/glslgenerator.cc)
-
 		fips_src(anyfx/api/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/internal/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/loaders/ NO_RECURSE)
 
-		fips_include_directories(anyfx/api)
 		fips_include_directories(anyfx)
+		fips_include_directories(anyfx/api)
 		fips_include_directories(anyfx/api/lowlevel)
 		fips_include_directories(anyfx/api/highlevel)
 		fips_include_directories(anyfx/compiler/code)

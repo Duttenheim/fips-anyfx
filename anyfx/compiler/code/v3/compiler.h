@@ -7,7 +7,8 @@
 */
 //------------------------------------------------------------------------------
 #include <map>
-#include "symbol.h"
+#include "ast/symbol.h"
+#include "ast/effect.h"
 #include "validators/validator.h"
 #include "generators/generator.h"
 #include "util/code/binwriter.h"
@@ -15,10 +16,8 @@
 namespace AnyFX
 {
 
-class Compiler
+struct Compiler
 {
-public:
-
     enum Language
     {
         GLSL,
@@ -28,23 +27,31 @@ public:
     };
 
     /// setup compiler with target language
-    void Setup(const Language& lang, const std::vector<std::string>& defines, unsigned int version);
+    void Setup(const Compiler::Language& lang, const std::vector<std::string>& defines, unsigned int version);
 
     /// adds symbol to compiler context
-    void AddSymbol(const std::string signature, Symbol* symbol);
+    bool AddSymbol(const std::string signature, Symbol* symbol, std::vector<std::string>& errors);
+    /// get symbol, if symbol can't be found, returns nullptr
+    Symbol* GetSymbol(const std::string signature) const;
 
     /// runs the validation and generation steps, returns true if successful, otherwise false and a list of error messages
-    bool Compile(BinWriter& binaryWriter, TextWriter& headerWriter, std::vector<std::string>& errors);
+    bool Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWriter);
 
-private:
+    /// produce error in compiler with explicit file, line and column
+    void Error(const std::string& msg, const std::string& file, int line, int column);
+    /// produce error in compiler from symbol
+    void Error(const std::string& msg, Symbol* sym);
 
     /// output binary data
     void OutputBinary(Symbol* symbol, BinWriter& writer);
     /// output header data
     void OutputHeader(Symbol* symbol, TextWriter& writer);
+
     std::vector<Symbol*> symbols;
     std::map<std::string, Symbol*> symbolLookup;
     std::vector<std::string> defines;
+
+    std::vector<std::string> errors;
 
     Validator* validator = nullptr;
     Generator* generator = nullptr;

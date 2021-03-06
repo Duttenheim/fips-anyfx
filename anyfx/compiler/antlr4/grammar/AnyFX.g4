@@ -30,25 +30,30 @@ int currentLine = 0;
 }
 
 @parser::members {
+
 // setup function which binds the compiler state to the current AST node
-void SetupFile(AnyFX::Compileable* comp, antlr4::TokenStream* stream, bool updateLine = true)
+Symbol::Location
+SetupFile(bool updateLine = true)
 {
+    Symbol::Location location;
     if (this->lines.empty())
-        return;
-    ::AnyFXToken* token = (::AnyFXToken*)stream->LT(-1);
+        return location;
+    ::AnyFXToken* token = (::AnyFXToken*)_input->LT(-1);
 
     if (updateLine)
-        UpdateLine(stream, -1);
+        UpdateLine(_input, -1);
 
     // assume the previous token is the latest file
     auto tu2 = this->lines[this->currentLine];
-    comp->SetLine(lineOffset);
-    comp->SetPosition(token->getCharPositionInLine());
-    comp->SetFile(std::get<4>(tu2));
+    location.file = std::get<4>(tu2);
+    location.line = lineOffset;
+    location.column = token->getCharPositionInLine();
+    return location;
 }
 
 // update and get current line
-void UpdateLine(antlr4::TokenStream* stream, int index = -1)
+void
+UpdateLine(antlr4::TokenStream* stream, int index = -1)
 {
     ::AnyFXToken* token = (::AnyFXToken*)stream->LT(index);
 
@@ -90,19 +95,29 @@ std::vector<std::tuple<int, int, int, int, std::string>> lines;
 #include <tuple>
 
 #include "anyfxtoken.h"
-#include "../../code/v3/compileable.h"
-#include "../../code/v3/effect.h"
-#include "../../code/v3/function.h"
-#include "../../code/v3/variable.h"
-#include "../../code/v3/resource.h"
-#include "../../code/v3/state.h"
-#include "../../code/v3/program.h"
-#include "../../code/v3/compoundresource.h"
-#include "../../code/v3/typedresource.h"
-#include "../../code/v3/attribute.h"
-#include "../../code/v3/annotations.h"
-#include "../../code/v3/blendstate.h"
-#include "../../code/v3/renderstate.h"
+#include "v3/ast/annotations.h"
+#include "v3/ast/attributable.h"
+#include "v3/ast/blendstate.h"
+#include "v3/ast/compoundresource.h"
+#include "v3/ast/effect.h"
+#include "v3/ast/function.h"
+#include "v3/ast/program.h"
+#include "v3/ast/renderstate.h"
+#include "v3/ast/state.h"
+#include "v3/ast/structure.h"
+#include "v3/ast/resource.h"
+#include "v3/ast/symbol.h"
+#include "v3/ast/typedresource.h"
+#include "v3/ast/variable.h"
+#include "expressions/expression.h"
+#include "expressions/binaryexpression.h"
+#include "expressions/unaryexpression.h"
+#include "expressions/intexpression.h"
+#include "expressions/boolexpression.h"
+#include "expressions/floatexpression.h"
+#include "expressions/stringexpression.h"
+#include "expressions/symbolexpression.h"
+
 using namespace AnyFX;
 
 }
@@ -130,123 +145,148 @@ preprocess
 
 // main entry point
 entry
-    returns[ Effect returnEffect ]:
+    returns[ Effect* returnEffect ]:
     effect {
         $returnEffect = $effect.eff;
     } EOF;
 
 // entry point for effect, call this function to begin parsing
 effect
-    returns[ Effect eff ]:
+    returns[ Effect* eff ]
+    @init
+    {
+        $eff = new Effect();
+    }
+    :
     (
-        function { eff.AddSymbol($function.sym); }    
-        | variable { eff.AddSymbol($variable.sym); }
-        | resource { eff.AddSymbol($resource.sym); }
-        | structure { eff.AddSymbol($structure.sym); }    
-        | state { eff.AddSymbol($state.sym); }
-        | program { eff.AddSymbol($program.sym); }
+        function                { $eff->symbols.push_back($function.sym); }    
+        | variable              { $eff->symbols.push_back($variable.sym); }
+        | compound_resource     { $eff->symbols.push_back($compound_resource.sym); }
+        | structure             { $eff->symbols.push_back($structure.sym); }    
+        | state                 { $eff->symbols.push_back($state.sym); }
+        | program               { $eff->symbols.push_back($program.sym); }
     )*?;
 
+// metarule for annotation - API layer data to be passed to program reading shader
 annotations
     returns[ Annotations annot ]:
-        '[' (name = IDENTIFIER '=' value = IDENTIFIER { $annot.entries.push_back(std::make_pair($name.text, $value.text)); }) (',' name2 = IDENTIFIER '=' value2 = IDENTIFIER { $annot.entries.push_back(std::make_pair($name2.text, $value2.text)); })* ']'
+        '[' (name = IDENTIFIER '=' value = expression ';' { $annot.entries.push_back({$name.text, $value.tree}); }) (',' name2 = IDENTIFIER '=' value2 = expression ';' { $annot.entries.push_back({$name2.text, $value2.tree}); })* ']'
+    ;
+    
+// metarule for attribute - compiler layer data to be passed to target language compiler
+attribute
+    returns[ Attribute attr ]: 
+    name = IDENTIFIER '(' expression ')' { $attr.name = $name.text; $attr.expression = $expression.tree; } 
+    | name = IDENTIFIER { $attr.name = $name.text; $attr.expression = nullptr; }
     ;
 
 compound_resource
-    returns[ Symbol* sym ]
+    returns[ CompoundResource* sym ]
     @init
     {
         $sym = new CompoundResource();
+        Symbol::Location location;
+        Annotations annot;
+        std::vector<Attribute> attributes;
+        std::vector<Variable*> variables;
+        std::string instanceName;
+        Expression* arraySizeExpression = nullptr;
+        bool isArray = false;
     }:
-    (qualifier = IDENTIFIER { $sym->qualifiers.push_back($qualifier.text); })*
-    type = ('buffer'|'constants') name = IDENTIFIER
+    (attribute { attributes.push_back($attribute.attr); })*
+    type = ('buffer'|'constant') name = IDENTIFIER { location = SetupFile(); } 
+    (annotations { annot = $annotations.annot; })?
 
     // body
     '{'
-        (variable { $sym->variables.push_back($variable.sym); })+
+        (variable { variables.push_back($variable.sym); })+
     '}'
 
     // tail, like } myStruct[];
     (
-        instanceName = IDENTIFIER { $sym->instanceName = $instanceName.text; }
-        ( '[' (expression { $sym->arraySizeExpression = $expression.tree; })? ']' { $sym->isArray = true; } )?
+        instanceName = IDENTIFIER { instanceName = $instanceName.text; }
+        ( '[' (expression { arraySizeExpression = $expression.tree; })? ']' { isArray = true; } )?
     )?
     ';'
-    ;
-
-typed_resource
-    returns[ Symbol* sym ]
-    @init
     {
-        $sym = new TypedResource();
-    }:
-    (qualifier = IDENTIFIER { $sym->qualifiers.push_back($qualifier.text); })*
-    (type = 
-        ('sampler'
-        |'image'('2D'|'2DMS'|'3D'|'Cube'|'2DArray'|'3DArray'|'CubeArray')
-        |'texture'('2D'|'2DMS'|'3D'|'Cube'|'2DArray'|'3DArray'|'CubeArray')
-        )
-    ) name = IDENTIFIER
-
-    // array
-    ( '[' (expression { $sym->arraySizeExpression = $expression.expr; } )? ']' { $sym->isArray = true;} )?
-    ';'
-    ;
-
-resource
-    returns[ Symbol* sym ]:
-    (
-        compound_resource
-        | typed_resource
-    )+
+        $sym = new CompoundResource();
+        $sym->location = location;
+        $sym->name = $name.text; 
+        $sym->type = $type.text;
+        $sym->annotations = annot;
+        $sym->variables = variables;
+        $sym->instanceName = instanceName;
+        $sym->arraySizeExpression = arraySizeExpression;
+        $sym->isArray = isArray;
+    }
     ;
 
 variable
-    returns[ Symbol* sym ]
+    returns[ Variable* sym ]
     @init
     {
-        $sym = new Variable();
+        $sym = nullptr;
+        Symbol::Location location;
+        std::vector<Attribute> attributes;
+        Annotations annot;
+        Expression* arraySizeExpression = nullptr;
+        bool isArray = false;
     }:
-    (qualifier = IDENTIFIER { $sym->qualifiers.push_back($qualifier.text); } )* 
-    type = IDENTIFIER name = IDENTIFIER { $sym->type = $type.text; $sym->name = $name.text } 
+    (attribute { attributes.push_back($attribute.attr); })*
+    type = IDENTIFIER name = IDENTIFIER { location = SetupFile(); } 
+    (annotations { annot = $annotations.annot; })?
+    ( '[' (expression { arraySizeExpression = $expression.tree; } )? ']' { isArray = true; } )?
     ';'
+    { 
+        $sym = new Variable(); 
+        $sym->type = $type.text; 
+        $sym->name = $name.text; 
+        $sym->location = location; 
+        $sym->annotations = annot; 
+        $sym->arraySizeExpression = arraySizeExpression;
+        $sym->isArray = isArray;
+    }
     ;
 
 structure
-    returns[ Symbol* sym ]
+    returns[ Structure* sym ]
     @init
     {
-        $sym = new Struct();
+        $sym = nullptr;
+        std::vector<Variable*> variables;
+        Symbol::Location location;
     }:
-    'struct' IDENTIFIER 
+    'struct' name = IDENTIFIER { $sym = new Structure(); location = SetupFile(); }
     '{' 
-        (variable { $sym->variables.push_back($variable.sym); })* 
-    '}' ';' { $sym->name = $IDENTIFIER.text }
+        (variable { variables.push_back($variable.sym); })* 
+    '}' ';' 
+    { 
+        $sym = new Structure(); 
+        $sym->name = $name.text; 
+        $sym->location = location; 
+        $sym->variables = variables; 
+    }
     ;
 
 // metarule for the code content of a function
 codeblock: '{' (codeblock)* '}' | ~('{' | '}');
 
-// metarule for attribute
-attribute
-    returns[ Attribute attr ]: 
-    '@' name = IDENTIFIER '=' expression { attr.name = $name.text; attr.expression = $expression.expr; } 
-    | '@' name = IDENTIFIER { attr.name = $name.text; attr.expression = nullptr; }
-    ;
-
 function
-    returns[ Symbol* sym ]
+    returns[ Function* sym ]
     @init
     {
-        $sym = new Function();
+        $sym = nullptr;
         Token* startToken = nullptr;
         Token* endToken = nullptr;
+        Symbol::Location location;
+        std::vector<Variable*> variables;
+        std::vector<Attribute> attributes;
+        std::string body;
     }:
-    (attribute { $sym->attributes.push_back($attributes.attr); })*
-    returnType = IDENTIFIER name = IDENTIFIER '(' (variable { $sym->parameters.push_back($variable.sym); })* ')' 
+    (attribute { attributes.push_back($attribute.attr); })*
+    returnType = IDENTIFIER name = IDENTIFIER { location = SetupFile(); } '(' (arg0 = variable { variables.push_back($arg0.sym); } (',' argn = variable { variables.push_back($argn.sym); })*)? ')' 
     {
         startToken = _input->LT(2);
-
     }
     codeblock
     {
@@ -256,44 +296,71 @@ function
         antlr4::misc::Interval interval;
         interval.a = startToken->getTokenIndex();
         interval.b = endToken->getTokenIndex();
-        std::string code = _input->getText(interval);
+        body = _input->getText(interval);
 
-        $sym->code = code;
-    } { $sym->returnType = $returnType.text; $sym->name = $name.text; }
+    } 
+    { 
+        $sym = new Function(); 
+        $sym->returnType = $returnType.text; 
+        $sym->name = $name.text; 
+        $sym->location = location; 
+        $sym->parameters = variables; 
+        $sym->attributes = attributes; 
+        $sym->code = body; 
+    }
     ;
 
 program
-    returns[ Symbol* sym ]
+    returns[ Program* sym ]
     @init
     {
-        $sym = new Program();
-        std::vector<std::pair<std::string, std::string>> subroutines;
+        $sym = nullptr;
+        Symbol::Location location;
+        std::vector<Program::SubroutineMapping> subroutines;
+        std::vector<Program::Entry> entries;
+        Annotations annot;
     }:
-    'program' name = IDENTIFIER
+    'program' name = IDENTIFIER { location = SetupFile(); }
+    (annotations { annot = $annotations.annot; })?
     '{'
-        (entry = IDENTIFIER '=' value = IDENTIFIER { $subroutines.clear(); } 
+        (id = IDENTIFIER '=' value = IDENTIFIER { subroutines.clear(); } 
         '(' 
-            (func = IDENTIFIER '=' subroutine = IDENTIFIER  { $subroutines.push_back(std::make_pair($func.text, $subroutine.text)); })* 
+            (func = IDENTIFIER '=' subroutine = IDENTIFIER  { subroutines.push_back({$func.text, $subroutine.text}); })* 
         ')' ';'
-        { $sym->entries.push_back(std::make_tuple($entry.text, $value.text, subroutines)); })*
+        { entries.push_back({$id.text, $value.text, subroutines}); }
+        )*
     '}'
     ';'
+    { 
+        $sym = new Program();
+        $sym->location = location;
+        $sym->name = $name.text;
+        $sym->annotations = annot;
+        $sym->entries = entries;
+    }
     ;
 
 state
-    returns[ Symbol* sym ]
+    returns[ State* sym ]
     @init
     {
         Expression* arrayExpression = nullptr;
+        Symbol::Location location;
+        std::vector<State::Entry> entries;
     }:
     (
         'blend_state' { $sym = new BlendState(); }
-        | 'render_state' { $sym = new RenderState(); }
-    ) name = IDENTIFIER 
+        | 'render_state' { $sym = new RenderState(); } 
+    ) name = IDENTIFIER { location = SetupFile(); }
     '{'
-        (entry = IDENTIFIER { arrayExpression = nullptr; } ('[' index = expression { $arrayExpression = $index.tree; } ']')? value = expression { $sym->entries.push_back(std::make_tuple($entry.text, $value.tree, $arrayExpression)); }) ';'
+        (id = IDENTIFIER { arrayExpression = nullptr; } ('[' index = expression { arrayExpression = $index.tree; } ']')? value = expression { entries.push_back({$id.text, $value.tree, arrayExpression}); }) ';'
     '}'
     ';'
+    {
+        $sym->name = $name.text;
+        $sym->location = location;
+        $sym->entries = entries;
+    }
     ;
 
 
@@ -314,8 +381,8 @@ binaryexp7
         Expression* prev = nullptr;
         $tree = nullptr;
     }:
-    e1 = binaryexp6 { $tree = $e1.tree;	$tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        } (
+    e1 = binaryexp6 { $tree = $e1.tree;	$tree->location = SetupFile(); } 
+    (
         ('||') e2 = binaryexp6 {
                         Expression* lhs = nullptr;
 
@@ -328,7 +395,7 @@ binaryexp7
                             lhs = new BinaryExpression("||", $e1.tree, $e2.tree);
                         }
 
-                        SetupFile(lhs, _input);
+                        lhs->location = SetupFile();
                         prev = lhs;
                         $tree = lhs;
                     }
@@ -342,8 +409,8 @@ binaryexp6
         Expression* prev = nullptr;
         $tree = nullptr;
     }:
-    e1 = binaryexp5 { $tree = $e1.tree;	$tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        } (
+    e1 = binaryexp5 { $tree = $e1.tree;	$tree->location = SetupFile(); } 
+    (
         ('&&') e2 = binaryexp5 {
                         Expression* lhs = nullptr;
 
@@ -356,7 +423,7 @@ binaryexp6
                             lhs = new BinaryExpression("&&", $e1.tree, $e2.tree);
                         }
 
-                        SetupFile(lhs, _input);
+                        lhs->location = SetupFile();
                         prev = lhs;
                         $tree = lhs;
                     }
@@ -370,8 +437,8 @@ binaryexp5
         Expression* prev = nullptr;
         $tree = nullptr;
     }:
-    e1 = binaryexp4 { $tree = $e1.tree;	$tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        } (
+    e1 = binaryexp4 { $tree = $e1.tree;	$tree->location = SetupFile(); } 
+    (
         op = ('==' | '!=') e2 = binaryexp4 {
                         Expression* lhs = nullptr;
 
@@ -384,7 +451,7 @@ binaryexp5
                             lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
                         }
 
-                        SetupFile(lhs, _input);
+                        lhs->location = SetupFile();
                         prev = lhs;
                         $tree = lhs;
                     }
@@ -398,8 +465,8 @@ binaryexp4
         Expression* prev = nullptr;
         $tree = nullptr;
     }:
-    e1 = binaryexp3 { $tree = $e1.tree;	$tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        } (
+    e1 = binaryexp3 { $tree = $e1.tree;	$tree->location = SetupFile(); } 
+    (
         op = ('<' | '>' | '<=' | '>=') e2 = binaryexp3 {
                         Expression* lhs = nullptr;
 
@@ -412,7 +479,7 @@ binaryexp4
                             lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
                         }
 
-                        SetupFile(lhs, _input);
+                        lhs->location = SetupFile();
                         prev = lhs;
                         $tree = lhs;
                     }
@@ -426,8 +493,8 @@ binaryexp3
         Expression* prev = nullptr;
         $tree = nullptr;
     }:
-    e1 = binaryexp2 { $tree = $e1.tree; $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        } (
+    e1 = binaryexp2 { $tree = $e1.tree; $tree->location = SetupFile(); } 
+    (
         op = ('+' | '-') e2 = binaryexp2 {
                         Expression* lhs = nullptr;
 
@@ -440,7 +507,7 @@ binaryexp3
                             lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
                         }
 
-                        SetupFile(lhs, _input);
+                        lhs->location = SetupFile();
                         prev = lhs;
                         $tree = lhs;
                     }
@@ -454,8 +521,8 @@ binaryexp2
         Expression* prev = nullptr;
         $tree = nullptr;
     }:
-    e1 = binaryexp1 { $tree = $e1.tree; $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        } (
+    e1 = binaryexp1 { $tree = $e1.tree; $tree->location = SetupFile(); }
+    (
         op = (MUL_OP | DIV_OP) e2 = binaryexp1 {
                         Expression* lhs = nullptr;
 
@@ -468,7 +535,7 @@ binaryexp2
                             lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
                         }
 
-                        SetupFile(lhs, _input);
+                        lhs->location = SetupFile();
                         prev = lhs;
                         $tree = lhs;
                     }
@@ -491,7 +558,7 @@ binaryexp1
                             rhs = new UnaryExpression(operat, rhs);
                         }
 
-                        SetupFile(rhs, _input);
+                        rhs->location = SetupFile();
                         $tree = rhs;
 
                     };
@@ -503,20 +570,13 @@ binaryexpatom
     {
         $tree = nullptr;
     }:
-    INTEGERLITERAL { $tree = new IntExpression(atoi($INTEGERLITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        }
-    | FLOATLITERAL { $tree = new FloatExpression(atof($FLOATLITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
-        }
-    | DOUBLELITERAL { $tree = new FloatExpression(atof($DOUBLELITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
-        }
-    | HEX { $tree = new IntExpression(strtoul($HEX.text.c_str(), nullptr, 16)); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
-        }
-    | IDENTIFIER { $tree = new SymbolExpression($IDENTIFIER.text); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
-        }
-    | boolean {
-                        $tree = new BoolExpression($boolean.val);
-                        SetupFile($tree, _input);
-                    }
+    INTEGERLITERAL  { $tree = new IntExpression(atoi($INTEGERLITERAL.text.c_str())); $tree->location = SetupFile(); }
+    | FLOATLITERAL  { $tree = new FloatExpression(atof($FLOATLITERAL.text.c_str())); $tree->location = SetupFile(); }
+    | DOUBLELITERAL { $tree = new FloatExpression(atof($DOUBLELITERAL.text.c_str())); $tree->location = SetupFile(); }
+    | HEX           { $tree = new IntExpression(strtoul($HEX.text.c_str(), nullptr, 16)); $tree->location = SetupFile(); }
+    | string        { $tree = new StringExpression($string.val); $tree->location = SetupFile(); }
+    | IDENTIFIER    { $tree = new SymbolExpression($IDENTIFIER.text); $tree->location = SetupFile(); }
+    | boolean       { $tree = new BoolExpression($boolean.val); $tree->location = SetupFile(); }
     | parantexpression { $tree = $parantexpression.tree; };
 
 // expands an expression surrounded by paranthesis

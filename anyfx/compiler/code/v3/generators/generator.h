@@ -6,15 +6,18 @@
     (C) 2021 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
+#include <vector>
+#include <string>
 namespace AnyFX
 {
 
-class Generator
+struct Symbol;
+struct Compiler;
+struct Generator
 {
-public:
 
     /// generate code
-    bool Generate(Symbol* symbol, std::vector<std::string>& errors);
+    bool Generate(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
 };
 
 } // namespace AnyFX

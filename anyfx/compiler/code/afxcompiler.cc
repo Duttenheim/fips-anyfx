@@ -7,9 +7,8 @@
 //------------------------------------------------------------------------------
 #include "cmdlineargs.h"
 #include "afxcompiler.h"
-#include "typechecker.h"
-#include "generator.h"
-#include "header.h"
+#include "v3/compiler.h"
+#include "v3/ast/effect.h"
 #include <fstream>
 #include <algorithm>
 #include <locale>
@@ -24,58 +23,9 @@
 
 using namespace antlr4;
 
-#if __linux__
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <GL/glx.h>
-#undef Success
-#elif APPLE
-#include <libproc.h>
-#include <OpenGL/CGLCurrent.h>
-#include <OpenGL/CGLTypes.h>
-#include <OpenGL/OpenGL.h>
-#endif
-
 #include "mcpp_lib.h"
 #include "mcpp_out.h"
 #include "glslang/Public/ShaderLang.h"
-
-#if __WIN32__
-#define WIN32_LEAN_AND_MEAN 1
-#include "windows.h"
-//------------------------------------------------------------------------------
-/**
-*/
-LRESULT CALLBACK
-AnyFXWinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-    HDC hDc;
-    HGLRC hRc;      
-    HACCEL hAccel;
-    HINSTANCE hInst;
-    HWND hWnd;
-#elif __linux__
-    Display* dsp;
-    Window root;
-    GLint attrs[] = {GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None};
-    XVisualInfo* vi;
-    Colormap cmap;
-    XSetWindowAttributes swa;
-    Window win;
-    GLXContext glc;
-    XWindowAttributes gwa;
-    XEvent xev;
-#elif APPLE
-    CGLContextObj ctx; 
-    CGLPixelFormatObj pix; 
-    GLint npix; 
-    CGLPixelFormatAttribute attribs[] = { 
-        (CGLPixelFormatAttribute) 0
-    }; 
-#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -120,6 +70,9 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     {
         char* preprocessed = mcpp_get_mem_buffer((OUTDEST)0);
         output.append(preprocessed);
+
+        // cleanup mcpp
+        mcpp_use_mem_buffers(1);
         delete[] args;
         return true;
     }
@@ -183,6 +136,20 @@ AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string
 
 //------------------------------------------------------------------------------
 /**
+*/
+AnyFXErrorBlob*
+Error(const std::string message)
+{
+    AnyFXErrorBlob* ret = new AnyFXErrorBlob();
+    ret->buffer = new char[message.size()];
+    ret->size = message.size();
+    message.copy(ret->buffer, ret->size);
+    ret->buffer[ret->size - 1] = '\0';
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
     Compiles AnyFX effect.
 
     @param file			Input file to compile
@@ -202,7 +169,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
     (*errorBuffer)->buffer = new char[errorMessage.size()];\
     (*errorBuffer)->size = errorMessage.size();\
     errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);\
-    (*errorBuffer)->buffer[(*errorBuffer)->size - 1] = '\0';
+    (*errorBuffer)->buffer[(*errorBuffer)->size - 1] = '\0';\
 
 #define FAIL()\
     *errorBuffer = new AnyFXErrorBlob;\
@@ -210,9 +177,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
     (*errorBuffer)->size = errorMessage.size();\
     errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);\
     (*errorBuffer)->buffer[(*errorBuffer)->size - 1] = '\0';\
-    mcpp_use_mem_buffers(1);\
-    ret = false;\
-    goto exit;
+    delete effect;\
+    return false;
 
 #define SUCCESS()\
     ret = true;\
@@ -274,146 +240,45 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
         parser.setTokenStream(&tokens);
         parser.addErrorListener(&parserErrorHandler);
 
-        // create new effect
-        Effect effect = parser.entry()->returnEffect;
+        Effect* effect = parser.entry()->returnEffect;
 
-        // stop the process if lexing or parsing fails
-        if (!lexerErrorHandler.hasError && !parserErrorHandler.hasError)
-        {
-            // no output path provided
-            if (output.empty())
-            {
-                SUCCESS()
-            }
-
-            // create header
-            Header header;
-            header.SetProfile(target);
-
-            // handle shader-file level compile flags
-            header.SetFlags(flags);
-
-            // set effect header and setup effect
-            effect.SetHeader(header);
-            effect.SetName(effectName);
-            effect.SetFile(file);
-            effect.Setup();
-
-            // set debug output dump if flag is supplied
-            if (header.GetFlags() & Header::OutputGeneratedShaders)
-            {
-                effect.SetDebugOutputPath(output);
-            }
-
-            // create type checker
-            TypeChecker typeChecker;
-
-            // type check effect
-            typeChecker.SetHeader(header);
-            effect.TypeCheck(typeChecker);
-
-            // compile effect
-            int typeCheckerStatus = typeChecker.GetStatus();
-            if (typeCheckerStatus == TypeChecker::Success || typeCheckerStatus == TypeChecker::Warnings)
-            {
-                // create code generator
-                Generator generator;
-
-                // generate code for effect
-                generator.SetHeader(header);
-                effect.Generate(generator);
-
-                // set warnings as 'error' buffer
-                if (typeCheckerStatus == TypeChecker::Warnings)
-                {
-                    unsigned warnings = typeChecker.GetWarningCount();
-                    std::string errorMessage;
-                    errorMessage = typeChecker.GetErrorBuffer();
-                    errorMessage = errorMessage + Format("Type checking returned with %d warnings\n", warnings);
-                    WARN()
-                }
-
-                if (generator.GetStatus() == Generator::Success)
-                {
-                    // create binary writer
-                    BinWriter writer;
-                    writer.SetPath(output);
-                    if (writer.Open())
-                    {
-                        // compile and write to binary writer
-                        effect.Compile(writer);
-
-                        // close writer and finish file
-                        writer.Close();
-
-                        // output header file
-                        {
-                            TextWriter headerWriter;
-
-                            // the path is going to be .fxb.h, but that's okay, it makes it super clear its generated from a shader
-                            headerWriter.SetPath(header_output);
-                            if (headerWriter.Open())
-                            {
-                                // call the effect to generate a header
-                                header.SetProfile("c");
-                                effect.SetHeader(header);
-                                effect.GenerateHeader(headerWriter);
-                                headerWriter.Close();
-                            }
-                        }
-
-                        SUCCESS()
-                    }
-                    else
-                    {
-                        std::string errorMessage = Format("File '%s' could not be opened for writing\n", output.c_str());
-                        FAIL()
-                    }
-                }
-                else
-                {
-                    unsigned errors = generator.GetErrorCount();
-                    unsigned warnings = generator.GetWarningCount();
-                    std::string errorMessage;
-                    errorMessage = generator.GetErrorBuffer();
-                    errorMessage = errorMessage + Format("Code generation failed with %d errors and %d warnings\n", errors, warnings);
-
-                    FAIL()
-                }
-            }
-            else
-            {
-                unsigned errors = typeChecker.GetErrorCount();
-                unsigned warnings = typeChecker.GetWarningCount();
-                std::string errorMessage;
-                errorMessage = typeChecker.GetErrorBuffer();
-                errorMessage = errorMessage + Format("Type checking failed with %d errors and %d warnings\n", errors, warnings);
-
-                FAIL()
-            }
-        }
-        else
+        // if we have any lexer or parser error, return early
+        if (lexerErrorHandler.hasError || parserErrorHandler.hasError)
         {
             std::string errorMessage;
             errorMessage.append(lexerErrorHandler.errorBuffer);
             errorMessage.append(parserErrorHandler.errorBuffer);
-
-            FAIL()
+            *errorBuffer = Error(errorMessage);
+            return false;
         }
-    }
-    else
-    {
-        char* err = mcpp_get_mem_buffer(ERR);
-        if (err)
+
+        // setup and run compiler
+        BinWriter binaryWriter;
+        binaryWriter.SetPath(output);
+        TextWriter headerWriter;
+        headerWriter.SetPath(header_output);
+
+        Compiler compiler;
+        if (compiler.Compile(effect, binaryWriter, headerWriter))
         {
-            std::string errorMessage(err);
-            FAIL()
+            // success!
+            return true;
         }
-        ret = false;
+        else
+        {
+            // convert error list to string
+            std::string err;
+            for (size_t i = 0; i < compiler.errors.size(); i++)
+            {
+                if (i > 0)
+                    err.append("\n");
+                err.append(compiler.errors[i]);
+            }
+            *errorBuffer = Error(err);
+            return false;
+        }
     }
-
-exit:
-    return ret;
+    return false;
 }
 
 //------------------------------------------------------------------------------
@@ -423,139 +288,7 @@ exit:
 void
 AnyFXBeginCompile()
 {
-    //ShInitialize();
     glslang::InitializeProcess();
-    /*
-#if WIN32
-    HDC hDc;
-    HGLRC hRc;      
-    HACCEL hAccel;
-    HINSTANCE hInst;
-    HWND hWnd;
-
-    ACCEL acc[1];
-    hAccel = CreateAcceleratorTable(acc, 1);
-    hInst = GetModuleHandle(0);
-
-    HICON icon = LoadIcon(NULL, IDI_APPLICATION);
-    // register window class
-    WNDCLASSEX wndClass;
-    ZeroMemory(&wndClass, sizeof(wndClass));
-    wndClass.cbSize        = sizeof(wndClass);
-    wndClass.style         = CS_DBLCLKS | CS_OWNDC;
-    wndClass.lpfnWndProc   = AnyFXWinProc;
-    wndClass.cbClsExtra    = 0;
-    wndClass.cbWndExtra    = sizeof(void*);   // used to hold 'this' pointer
-    wndClass.hInstance     = hInst;
-    wndClass.hIcon         = icon;
-    wndClass.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wndClass.hbrBackground = (HBRUSH) GetStockObject(NULL_BRUSH);
-    wndClass.lpszMenuName  = NULL;
-    wndClass.lpszClassName = "AnyFX::Compiler";
-    wndClass.hIconSm       = NULL;
-    RegisterClassEx(&wndClass);
-
-    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE;
-    DWORD extendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-
-    RECT		windowRect;				// Grabs Rectangle Upper Left / Lower Right Values
-    windowRect.left=(long)0;			// Set Left Value To 0
-    windowRect.right=(long)0;		// Set Right Value To Requested Width
-    windowRect.top=(long)0;				// Set Top Value To 0
-    windowRect.bottom=(long)0;		// Set Bottom Value To Requested Height
-    AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle);		// Adjust Window To True Requested Size
-
-    // open window
-    hWnd = CreateWindow("AnyFX::Compiler",
-        "AnyFX Compiler",					
-        windowStyle,					
-        0,								
-        0,								
-        windowRect.right-windowRect.left,						
-        windowRect.bottom-windowRect.top,						
-        NULL,							
-        NULL,                             
-        hInst,                      
-        NULL);          
-
-
-    PIXELFORMATDESCRIPTOR pfd =
-    {
-        sizeof(PIXELFORMATDESCRIPTOR),
-        1,
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
-        PFD_TYPE_RGBA,            //The kind of framebuffer. RGBA or palette.
-        32,                        //Colordepth of the framebuffer.
-        0, 0, 0, 0, 0, 0,
-        0,
-        0,
-        0,
-        0, 0, 0, 0,
-        24,                       //Number of bits for the depthbuffer
-        8,                        //Number of bits for the stencilbuffer
-        0,                        //Number of Aux buffers in the framebuffer.
-        PFD_MAIN_PLANE,
-        0,
-        0, 0, 0
-    };
-
-    hDc = GetDC(hWnd);
-    int pixelFormat = ChoosePixelFormat(hDc, &pfd);
-    SetPixelFormat(hDc, pixelFormat, &pfd);
-    hRc = wglCreateContext(hDc);
-    wglMakeCurrent(hDc, hRc);
-#elif __linux__
-    dsp = XOpenDisplay(NULL);
-    if (dsp == NULL)
-    {
-        Emit("Could not connect to X.\n");
-    }
-    root = DefaultRootWindow(dsp);
-    vi = glXChooseVisual(dsp, 0, attrs);
-    if (vi == NULL)
-    {
-        Emit("Could not create visual.\n");
-    }
-    cmap = XCreateColormap(dsp, root, vi->visual, AllocNone);
-    swa.colormap = cmap;
-    swa.event_mask = ExposureMask | KeyPressMask;
-    win = XCreateWindow(dsp, root, 0, 0, 1024, 768, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
-    XStoreName(dsp, win, "AnyFX Compiler");
-    XMapWindow(dsp, win);
-    glc = glXCreateContext(dsp, vi, NULL, GL_TRUE);
-    glXMakeCurrent(dsp, win, glc);
-
-    XNextEvent(dsp, &xev);
-
-    if (xev.type == Expose)
-    {
-        XGetWindowAttributes(dsp, win, &gwa);
-        glXSwapBuffers(dsp, win);
-    }
-#elif APPLE
-    CGLChoosePixelFormat(attribs, &pix, &npix); 
-    CGLCreateContext(pix, NULL, &ctx); 
-    CGLSetCurrentContext(ctx);
-#endif
-
-    if (glewInitialized != GLEW_OK)
-    {
-        glewInitialized = glewInit();
-    }
-
-#ifndef __ANYFX_COMPILER_LIBRARY__
-    if (glewInitialized != GLEW_OK)
-    {
-        Emit("Glew failed to initialize!\n");
-    }
-
-    printf("AnyFX OpenGL capability report:\n");
-    printf("Vendor:   %s\n", glGetString(GL_VENDOR)); 
-    printf("Renderer: %s\n", glGetString(GL_RENDERER)); 
-    printf("Version:  %s\n", glGetString(GL_VERSION)); 
-    printf("GLSL:     %s\n\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-#endif
-    */
 }
 
 //------------------------------------------------------------------------------
@@ -566,18 +299,5 @@ void
 AnyFXEndCompile()
 {
     glslang::FinalizeProcess();
-    //ShFinalize();
-    /*
-#if (WIN32)
-    DestroyWindow(hWnd);
-    wglMakeCurrent(NULL, NULL);
-    wglDeleteContext(hRc);
-#elif (__linux__)
-    glXMakeCurrent(dsp, None, NULL);
-    glXDestroyContext(dsp, glc);
-    XDestroyWindow(dsp, win);
-    XCloseDisplay(dsp);
-#elif (APPLE)
-#endif
-    */
+
 }

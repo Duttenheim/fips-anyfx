@@ -10,7 +10,7 @@
 namespace AnyFX
 {
 
-class OGLValidator : public Validator
+class GLSLValidator : public Validator
 {
 
 };
