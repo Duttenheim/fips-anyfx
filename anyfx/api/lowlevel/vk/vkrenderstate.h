@@ -25,11 +25,8 @@ public:
 	/// setup depth-stencil info
 	void SetupDepthStencil(VkPipelineDepthStencilStateCreateInfo* info);
 	/// setup blending info
-	void SetupBlend(VkPipelineColorBlendStateCreateInfo* info);
+	void SetupBlend(VkPipelineColorBlendStateCreateInfo* info, VkPipelineColorBlendAttachmentState* states);
 
 	static const uint32_t NumBlendSettings = 8;
-private:
-
-	VkPipelineColorBlendAttachmentState states[NumBlendSettings];
 };
 } // namespace AnyFX
