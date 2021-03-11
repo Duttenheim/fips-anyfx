@@ -53,6 +53,9 @@ public:
     std::string Format(const Header& header) const;
 
 private:
+
+    /// converts access pattern to string based on header
+    std::string FormatBufferAccess(const Header& header) const;
     friend class Effect;
     std::vector<Variable> variables;
     std::map<std::string, unsigned> offsetsByName;
@@ -69,6 +72,8 @@ private:
     
     bool hasAnnotation;
     Annotation annotation;
+
+    unsigned accessMode;
 }; 
 
 //------------------------------------------------------------------------------

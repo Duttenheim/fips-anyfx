@@ -26,11 +26,22 @@ struct matrix
 
 enum class Qualifiers : unsigned int
 {
-	None = 0,
-	Shared = 1,			// resource should have the same layout despite the shader (useful for include headers)
-	Push = 2,			// resource is a push-constant block
-	RangeBind = 4,		// resource can be bound as a range of a buffer	
+	None        = 0x0,
+	Shared      = 0x1,		// resource should have the same layout despite the shader (useful for include headers)
+	Push        = 0x2,	    // resource is a push-constant block
+	RangeBind   = 0x4		// resource can be bound as a range of a buffer	
 };
 ENUM_OPERATORS(Qualifiers)
+
+enum Access
+{
+    NoAccess    = 0x0,
+    Read        = 0x1,
+    Write       = 0x2,
+    ReadWrite   = 0x4,
+    Atomic      = 0x8,
+    Volatile    = 0x10
+};
+ENUM_OPERATORS(Access)
 
 }

@@ -20,6 +20,7 @@ VarBuffer::VarBuffer() :
     hasAnnotation(false),
     group(0),
     binding(-1),
+    accessMode(NoAccess),
     arraySizeExpression(nullptr),
     arrayType(Variable::ArrayType::NoArray),
     arraySize(1)
@@ -63,7 +64,12 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
     for (unsigned i = 0; i < this->qualifiers.size(); i++)
     {
         const std::string& qualifier = this->qualifiers[i];
-        if (qualifier == "shared") this->qualifierFlags |= Qualifiers::Shared;
+        if (qualifier == "shared")                                      this->qualifierFlags |= Qualifiers::Shared;
+        else if (qualifier == "read")                                   this->accessMode |= Access::Read;
+        else if (qualifier == "readwrite" || qualifier == "read_write") this->accessMode |= Access::ReadWrite;
+        else if (qualifier == "write")                                  this->accessMode |= Access::Write;
+        else if (qualifier == "atomic")                                 this->accessMode |= Access::Atomic;
+        else if (qualifier == "volatile")                               this->accessMode |= Access::Volatile;
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -210,12 +216,12 @@ VarBuffer::Format(const Header& header) const
     // varbuffers of this type are only available in GLSL4+
     if (header.GetType() == Header::GLSL)
     {
-        std::string layout = AnyFX::Format("layout(std430, binding=%d) buffer ", this->binding);
+        std::string layout = AnyFX::Format("layout(std430, binding=%d) %s buffer ", this->binding, this->FormatBufferAccess(header).c_str());
         formattedCode.append(layout);
     }
     else if (header.GetType() == Header::SPIRV)
     {
-        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d) buffer ", this->group, this->binding);
+        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d) %s buffer ", this->group, this->binding, this->FormatBufferAccess(header).c_str());
         formattedCode.append(layout);
     }
     else if (header.GetType() == Header::C)
@@ -318,5 +324,37 @@ void
 VarBuffer::SortVariables()
 {
     std::sort(this->variables.begin(), this->variables.end(), VarbufferParamCompare);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
+VarBuffer::FormatBufferAccess(const Header& header) const
+{
+    std::string accessQualifiers;
+    if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
+    {
+        if ((this->accessMode & Access::Read) == Access::Read)
+            accessQualifiers.append("readonly ");
+        if ((this->accessMode & Access::Write) == Access::Write)
+            accessQualifiers.append("writeonly ");
+        if ((this->accessMode & Access::ReadWrite) == Access::ReadWrite)
+            accessQualifiers.append("restrict ");
+        if ((this->accessMode & Access::Atomic) == Access::Atomic)
+            accessQualifiers.append("coherent ");
+        if ((this->accessMode & Access::Volatile) == Access::Volatile)
+            accessQualifiers.append("volatile ");
+
+        if (accessQualifiers.size() > 0)
+            accessQualifiers.pop_back();
+    }
+    else
+    {
+        // IMPLEMENT ME
+    }
+
+    // fallthrough
+    return accessQualifiers;
 }
 } // namespace AnyFX

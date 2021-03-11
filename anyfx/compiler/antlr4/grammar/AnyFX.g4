@@ -241,7 +241,10 @@ qualifier
     | 'read'
     | 'write'
     | 'readwrite'
-    | 'read_write';
+    | 'read_write'
+    | 'atomic'
+    | 'volatile'
+    ;
 
 qualifierValued
     returns[ std::string str ]

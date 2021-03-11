@@ -15,6 +15,7 @@
 #include "symbol.h"
 #include "valuelist.h"
 #include "annotation.h"
+#include "types.h"
 #include "expressions/expression.h"
 namespace AnyFX
 {
@@ -69,18 +70,6 @@ public:
         NumImageFormats,
 
         InvalidImageFormat
-    };
-
-    enum AccessMode
-    {
-        Read,
-        Write,
-        ReadWrite,
-        NoAccess,
-
-        NumImageAccessModes,
-
-        InvalidAccess
     };
 
     enum ArrayType
@@ -140,11 +129,6 @@ public:
     /// get variable type
     const DataType& GetDataType() const;
 
-    /// set variable access mode
-    void SetAccess(const AccessMode& mode);
-    /// set variable format
-    void SetFormat(const ImageFormat& format);
-
     /// preprocess variable
     void Preprocess();
     /// type checks variables
@@ -174,7 +158,7 @@ private:
     std::vector<std::pair<DataType, ValueList> > valueTable;
     DataType type;
     ImageFormat format;
-    AccessMode accessMode;
+    unsigned accessMode;
     int qualifierFlags;
     bool isUniform;
 
@@ -291,24 +275,6 @@ inline const DataType&
 Variable::GetDataType() const
 {
     return this->type;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-Variable::SetAccess(const AccessMode& mode)
-{
-    this->accessMode = mode;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-Variable::SetFormat(const ImageFormat& format)
-{
-    this->format = format;
 }
 
 } // namespace AnyFX

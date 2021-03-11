@@ -25,62 +25,6 @@ enum Implementation
 	NumImplementations
 };
 
-enum ImageFormat
-{
-	RGBA32F,
-	RGBA16F,
-	RG32F,
-	RG16F,
-	R11G11B10F,
-	R32F,
-	R16F,
-	RGBA16,
-	RGB10A2,
-	RGBA8,
-	RG16,
-	RG8,
-	R16,
-	R8,
-	RGBA16SNORM,
-	RGBA8SNORM,
-	RG16SNORM,
-	RG8SNORM,
-	R16SNORM,
-	R8SNORM,
-	RGBA32I,
-	RGBA16I,
-	RGBA8I,
-	RG32I,
-	RG16I,
-	RG8I,
-	R32I,
-	R16I,
-	R8I,
-	RGBA32UI,
-	RGBA16UI,
-	RGB10A2UI,
-	RGBA8UI,
-	RG32UI,
-	RG16UI,
-	RG8UI,
-	R32UI,
-	R16UI,
-	R8UI,
-	NoFormat,
-
-	NumImageFormats
-};
-
-enum AccessMode
-{
-	Read,
-	Write,
-	ReadWrite,
-	NoAccess,
-
-	NumImageAccessModes
-};
-
 enum AddressMode
 {
 	Wrap = 0,

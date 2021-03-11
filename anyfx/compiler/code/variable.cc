@@ -19,7 +19,7 @@ Variable::Variable() :
     arrayType(NoArray),
     arraySize(1),
     format(NoFormat),
-    accessMode(NoAccess),
+    accessMode(Access::NoAccess),
     qualifierFlags(NoQualifiers),
     isUniform(true),
     hasAnnotation(false),
@@ -114,9 +114,11 @@ Variable::Preprocess()
         else if (qualifier == "r32ui")			                                this->format = Variable::R32UI;
         else if (qualifier == "r16ui")			                                this->format = Variable::R16UI;
         else if (qualifier == "r8ui")			                                this->format = Variable::R8UI;
-        else if (qualifier == "read")			                                this->accessMode = Variable::Read;
-        else if (qualifier == "write")			                                this->accessMode = Variable::Write;
-        else if (qualifier == "readwrite" || qualifier == "read_write")		    this->accessMode = Variable::ReadWrite;
+        else if (qualifier == "read")			                                this->accessMode |= Access::Read;
+        else if (qualifier == "write")			                                this->accessMode |= Access::Write;
+        else if (qualifier == "readwrite" || qualifier == "read_write")		    this->accessMode |= Access::ReadWrite;
+        else if (qualifier == "atomic")                                         this->accessMode |= Access::Atomic;
+        else if (qualifier == "volatile")                                       this->accessMode |= Access::Volatile;
         else if (qualifier == "groupshared" || qualifier == "group_shared")     this->qualifierFlags |= Variable::GroupShared;
         else if (qualifier == "shared")                                         this->qualifierFlags |= Variable::Shared;
         else if (qualifier == "bindless")                                       this->qualifierFlags |= Variable::Bindless;
@@ -354,14 +356,14 @@ Variable::TypeCheck(TypeChecker& typechecker)
     // assume we have a format set when we have an image
     if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
     {
-        if (this->accessMode == NoAccess)
+        if (this->accessMode == Access::NoAccess)
         {
             std::string message = AnyFX::Format("Variable '%s' is of image type but does not have a required access qualifier, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         else if (typechecker.GetHeader().GetType() != Header::SPIRV)
         {
-            if (this->accessMode != Write)
+            if (this->accessMode != Access::Write)
             {
                 if (this->format == NoFormat)
                 {
@@ -379,7 +381,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
             typechecker.Warning(message, this->GetFile(), this->GetLine());
         }
 
-        if (this->accessMode != NoAccess)
+        if (this->accessMode != Access::NoAccess)
         {
             std::string message = AnyFX::Format("Variable '%s' has an image access qualifier, but is not an image variable, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Warning(message, this->GetFile(), this->GetLine());
@@ -496,17 +498,11 @@ Variable::Format(const Header& header, bool inVarblock) const
         {
             if (this->format == NoFormat)
             {
-                formattedCode.append(AnyFX::Format("layout(binding=%d) ", this->binding));
-                formattedCode.append(this->FormatImageAccess(header));
-                formattedCode.append(" ");
+                formattedCode.append(AnyFX::Format("layout(binding=%d) %s ", this->binding, this->FormatImageAccess(header).c_str()));
             }
             else
             {
-                formattedCode.append(AnyFX::Format("layout(binding=%d, ", this->binding));
-                formattedCode.append(this->FormatImageFormat(header));
-                formattedCode.append(") ");
-                formattedCode.append(this->FormatImageAccess(header));
-                formattedCode.append(" ");
+                formattedCode.append(AnyFX::Format("layout(binding=%d %s) %s ", this->binding, this->FormatImageFormat(header).c_str(), this->FormatImageAccess(header).c_str()));
             }
         }    
         else if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
@@ -747,17 +743,22 @@ Variable::FormatImageFormat(const Header& header) const
 std::string 
 Variable::FormatImageAccess(const Header& header) const
 {
+    std::string accessQualifiers;
     if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
     {
-        switch (this->accessMode)
-        {
-        case Read:
-            return "readonly";
-        case Write:
-            return "writeonly";
-        case ReadWrite:
-            return "restrict";
-        }
+        if ((this->accessMode & Access::Read) == Access::Read)
+            accessQualifiers.append("readonly ");
+        if ((this->accessMode & Access::Write) == Access::Write)
+            accessQualifiers.append("writeonly ");
+        if ((this->accessMode & Access::ReadWrite) == Access::ReadWrite)
+            accessQualifiers.append("restrict ");
+        if ((this->accessMode & Access::Atomic) == Access::Atomic)
+            accessQualifiers.append("coherent ");
+        if ((this->accessMode & Access::Volatile) == Access::Volatile)
+            accessQualifiers.append("volatile ");
+
+        if (accessQualifiers.size() > 0)
+            accessQualifiers.pop_back();
     }
     else
     {
@@ -765,7 +766,7 @@ Variable::FormatImageAccess(const Header& header) const
     }
 
     // fallthrough
-    return "";
+    return accessQualifiers;
 }
 
 //------------------------------------------------------------------------------
