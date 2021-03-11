@@ -107,7 +107,6 @@ std::vector<std::tuple<int, int, int, int, std::string>> lines;
 #include "v3/ast/structure.h"
 #include "v3/ast/resource.h"
 #include "v3/ast/symbol.h"
-#include "v3/ast/typedresource.h"
 #include "v3/ast/variable.h"
 #include "expressions/expression.h"
 #include "expressions/binaryexpression.h"
