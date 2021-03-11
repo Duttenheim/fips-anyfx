@@ -24,13 +24,14 @@ struct matrix
 	T m[R][C];
 };
 
-enum class Qualifiers : unsigned int
+enum Qualifiers
 {
-	None        = 0x0,
-	Shared      = 0x1,		// resource should have the same layout despite the shader (useful for include headers)
-	Push        = 0x2,	    // resource is a push-constant block
-	RangeBind   = 0x4		// resource can be bound as a range of a buffer	
+	NoQualifiers    = 0x0,
+	Shared          = 0x1,		// resource should have the same layout despite the shader (useful for include headers)
+	Push            = 0x2,	    // resource is a push-constant block
+	RangeBind       = 0x4		// resource can be bound as a range of a buffer	
 };
+typedef unsigned int QualifierFlags;
 ENUM_OPERATORS(Qualifiers)
 
 enum Access
@@ -42,6 +43,16 @@ enum Access
     Atomic      = 0x8,
     Volatile    = 0x10
 };
+typedef unsigned int AccessFlags;
 ENUM_OPERATORS(Access)
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool 
+HasFlags(const unsigned int flags, const unsigned int flag)
+{
+    return ((flags & flag) == flag);
+}
 
 }

@@ -73,7 +73,7 @@ protected:
     std::string signature;
     Type symbolType;
 
-    Qualifiers qualifierFlags;
+    QualifierFlags qualifierFlags;
     std::vector<std::string> qualifiers;
     std::vector<QualifierExpression> qualifierExpressions;
 }; 

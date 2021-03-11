@@ -34,7 +34,7 @@ public:
 	std::map<std::string, unsigned> offsetsByName;
 
 	// AnyFX qualifier flags
-	Qualifiers qualifiers;
+    QualifierFlags qualifiers;
 
 	unsigned binding;
 	unsigned set;

@@ -12,7 +12,7 @@ namespace AnyFX
 */
 Symbol::Symbol() :
     reserved(false),
-    qualifierFlags(Qualifiers::None)
+    qualifierFlags(0)
 {
 	// empty
 }

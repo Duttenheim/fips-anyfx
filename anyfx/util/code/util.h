@@ -113,8 +113,6 @@ operator==(const std::string& lhs, const char* rhs)
 	inline bool operator<(TYPE a, unsigned b) { return static_cast<unsigned>(a) < b; }\
 	inline bool operator<(unsigned a, TYPE b) { return a < static_cast<unsigned>(b); }\
 	inline bool HasFlags(const TYPE& a, TYPE flags) { return (a & flags) == flags; }\
-	constexpr typename std::underlying_type<TYPE>::type ToInteger(TYPE a) { return static_cast<typename std::underlying_type<TYPE>::type>(a); }\
-	constexpr TYPE FromInteger(typename std::underlying_type<TYPE>::type a) { return static_cast<TYPE>(a); }
 
 } // namespace AnyFX
 

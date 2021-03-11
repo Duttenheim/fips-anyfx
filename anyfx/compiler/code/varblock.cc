@@ -354,7 +354,7 @@ VarBlock::Compile(BinWriter& writer)
 {
     writer.WriteString(this->name);
     writer.WriteUInt(this->alignedSize);
-    writer.WriteUInt(ToInteger(this->qualifierFlags));
+    writer.WriteUInt(this->qualifierFlags);
     //writer.WriteBool(this->shared);
     writer.WriteUInt(this->binding);
     writer.WriteUInt(this->group);

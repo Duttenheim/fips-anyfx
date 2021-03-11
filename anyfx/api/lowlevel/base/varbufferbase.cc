@@ -13,7 +13,7 @@ namespace AnyFX
 VarbufferBase::VarbufferBase() :
 	binding(0),
 	set(0),
-	qualifiers(Qualifiers::None)
+	qualifiers(0)
 {
 	// empty
 }

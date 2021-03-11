@@ -40,7 +40,7 @@ public:
 	std::map<std::string, unsigned> offsetsByName;
 
 	// AnyFX qualifier flags
-	Qualifiers qualifiers;
+	QualifierFlags qualifiers;
 
 	// Shader flags
 	unsigned binding;	// binding means this block has a predetermined binding point within the shader code
