@@ -20,6 +20,7 @@ struct Symbol
         InvalidType,
         ProgramType,
         RenderStateType,
+        BlendStateType,
         SamplerType,
         VariableType,
         CompoundResourceType,

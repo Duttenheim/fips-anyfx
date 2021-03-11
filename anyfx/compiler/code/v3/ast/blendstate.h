@@ -12,7 +12,8 @@ namespace AnyFX
 
 struct BlendState : public State
 {
-
+    /// constructor
+    BlendState();
 };
 
 } // namespace AnyFX

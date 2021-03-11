@@ -12,7 +12,8 @@ namespace AnyFX
 
 struct RenderState : public State
 {
-
+    /// constructor
+    RenderState();
 };
 
 } // namespace AnyFX

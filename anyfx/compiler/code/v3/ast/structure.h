@@ -13,6 +13,11 @@ namespace AnyFX
 
 struct Structure : public Attributable
 {
+    /// constructor
+    Structure();
+    /// destructor
+    ~Structure();
+
     std::vector<Variable*> variables;
 };
 

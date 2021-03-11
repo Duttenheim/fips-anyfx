@@ -15,6 +15,9 @@ namespace AnyFX
 struct Variable;
 struct Function : public Attributable
 {
+    /// constructor
+    Function();
+
     std::string returnType;
     std::string code;
     std::vector<Variable*> parameters;

@@ -7,11 +7,17 @@
 */
 //------------------------------------------------------------------------------
 #include "symbol.h"
+#include "annotations.h"
+#include <vector>
 namespace AnyFX
 {
 
+struct Expression;
 struct State : public Symbol
 {
+    /// destructor
+    virtual ~State();
+
     struct Entry
     {
         std::string name;

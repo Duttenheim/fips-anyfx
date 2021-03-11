@@ -98,21 +98,14 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
     if (!ret)
         return ret;
 
-    // run validation step
-    for (size_t i = 0; i < this->symbols.size(); i++)
-    {
-        ret &= this->validator->Validate(this, this->symbols[i], this->errors);
-    }
+    ret &= this->validator->Validate(this, this->symbols, this->errors);
 
     // if failed, don't proceed to next step
     if (!ret)
         return ret;
 
     // run generator step
-    for (size_t i = 0; i < this->symbols.size(); i++)
-    {
-        ret &= this->generator->Generate(this, this->symbols[i], this->errors);
-    }
+    ret &= this->generator->Generate(this, this->symbols, this->errors);
 
     // if failed, don't proceed to next step
     if (!ret)

@@ -11,6 +11,14 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
+Function::Function()
+{
+    this->symbolType = FunctionType;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool
 Function::EndOfParse(Compiler* compiler)
 {

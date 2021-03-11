@@ -12,6 +12,7 @@ namespace AnyFX
 CompoundResource::CompoundResource()
     : arraySizeExpression(nullptr)
 {
+    this->symbolType = CompoundResourceType;
 }
 
 //------------------------------------------------------------------------------
