@@ -12,7 +12,7 @@
 #include "v3/ast/annotations.h"
 #include "v3/ast/attributable.h"
 #include "v3/ast/blendstate.h"
-#include "v3/ast/compoundresource.h"
+#include "v3/ast/compoundvariable.h"
 #include "v3/ast/effect.h"
 #include "v3/ast/function.h"
 #include "v3/ast/program.h"
@@ -21,7 +21,6 @@
 #include "v3/ast/structure.h"
 #include "v3/ast/resource.h"
 #include "v3/ast/symbol.h"
-#include "v3/ast/typedresource.h"
 #include "v3/ast/variable.h"
 #include "expressions/expression.h"
 #include "expressions/binaryexpression.h"
@@ -62,7 +61,7 @@ public:
 
   enum {
     RuleString = 0, RuleBoolean = 1, RulePreprocess = 2, RuleEntry = 3, 
-    RuleEffect = 4, RuleAnnotations = 5, RuleAttribute = 6, RuleCompound_resource = 7, 
+    RuleEffect = 4, RuleAnnotations = 5, RuleAttribute = 6, RuleCompound_variable = 7, 
     RuleVariable = 8, RuleStructure = 9, RuleCodeblock = 10, RuleFunction = 11, 
     RuleProgram = 12, RuleState = 13, RuleExpression = 14, RuleBinaryexp7 = 15, 
     RuleBinaryexp6 = 16, RuleBinaryexp5 = 17, RuleBinaryexp4 = 18, RuleBinaryexp3 = 19, 
@@ -139,7 +138,7 @@ public:
   class EffectContext;
   class AnnotationsContext;
   class AttributeContext;
-  class Compound_resourceContext;
+  class Compound_variableContext;
   class VariableContext;
   class StructureContext;
   class CodeblockContext;
@@ -224,7 +223,7 @@ public:
     Effect* eff;
     AnyFXParser::FunctionContext *functionContext = nullptr;;
     AnyFXParser::VariableContext *variableContext = nullptr;;
-    AnyFXParser::Compound_resourceContext *compound_resourceContext = nullptr;;
+    AnyFXParser::Compound_variableContext *compound_variableContext = nullptr;;
     AnyFXParser::StructureContext *structureContext = nullptr;;
     AnyFXParser::StateContext *stateContext = nullptr;;
     AnyFXParser::ProgramContext *programContext = nullptr;;
@@ -234,8 +233,8 @@ public:
     FunctionContext* function(size_t i);
     std::vector<VariableContext *> variable();
     VariableContext* variable(size_t i);
-    std::vector<Compound_resourceContext *> compound_resource();
-    Compound_resourceContext* compound_resource(size_t i);
+    std::vector<Compound_variableContext *> compound_variable();
+    Compound_variableContext* compound_variable(size_t i);
     std::vector<StructureContext *> structure();
     StructureContext* structure(size_t i);
     std::vector<StateContext *> state();
@@ -288,9 +287,9 @@ public:
 
   AttributeContext* attribute();
 
-  class  Compound_resourceContext : public antlr4::ParserRuleContext {
+  class  Compound_variableContext : public antlr4::ParserRuleContext {
   public:
-    CompoundResource* sym;
+    CompoundVariable* sym;
     AnyFXParser::AttributeContext *attributeContext = nullptr;;
     antlr4::Token *type = nullptr;;
     antlr4::Token *name = nullptr;;
@@ -298,7 +297,7 @@ public:
     AnyFXParser::VariableContext *variableContext = nullptr;;
     antlr4::Token *instanceName = nullptr;;
     AnyFXParser::ExpressionContext *expressionContext = nullptr;;
-    Compound_resourceContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    Compound_variableContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
@@ -314,7 +313,7 @@ public:
    
   };
 
-  Compound_resourceContext* compound_resource();
+  Compound_variableContext* compound_variable();
 
   class  VariableContext : public antlr4::ParserRuleContext {
   public:
@@ -324,6 +323,10 @@ public:
     antlr4::Token *name = nullptr;;
     AnyFXParser::AnnotationsContext *annotationsContext = nullptr;;
     AnyFXParser::ExpressionContext *expressionContext = nullptr;;
+    antlr4::Token *initType0 = nullptr;;
+    AnyFXParser::ExpressionContext *value0 = nullptr;;
+    antlr4::Token *initType1 = nullptr;;
+    AnyFXParser::ExpressionContext *value1 = nullptr;;
     VariableContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
@@ -331,7 +334,8 @@ public:
     std::vector<AttributeContext *> attribute();
     AttributeContext* attribute(size_t i);
     AnnotationsContext *annotations();
-    ExpressionContext *expression();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

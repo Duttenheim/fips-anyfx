@@ -4,8 +4,13 @@
     @class AnyFX::Symbol
     
     Basic object representation, contains basic information for an AnyFX symbol.
+
+    Each symbol has a set of parser data and compiler data. Parser data comes from
+    the ANTLR parse of the source code. The other half, compiler data, is data resolved
+    from the validation and generation step, and includes the unfolded result of expressions,
+    flags and such.
     
-    (C) 2013 Gustav Sterbrant
+    (C) 2021 Gustav Sterbrant
 */
 //------------------------------------------------------------------------------
 #include <string>
@@ -70,14 +75,18 @@ struct Symbol
     /// trigger an end-of-parsing event, this is where objects can setup their compiler contextual states
     virtual bool EndOfParse(Compiler* compiler);
 
+    const std::string TypeToString() const;
+
     //------------------------------------------------------------------------------
     /**
         Compiler state
     */
     //------------------------------------------------------------------------------
-    std::string signature;
-
-    std::string TypeToString() const;
+    struct __Resolved
+    {
+        std::string signature;
+    };
+    __Resolved* resolved;
 }; 
 
 } // namespace AnyFX

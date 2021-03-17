@@ -18,7 +18,7 @@ struct Generator
 {
 
     /// generate code
-    bool Generate(Compiler* compiler, const std::vector<Symbol*>& symbols, std::vector<std::string>& errors);
+    bool Generate(Compiler* compiler, const std::vector<Symbol*>& symbols);
 
     std::vector<std::string> targetLanguageFiles;
 };

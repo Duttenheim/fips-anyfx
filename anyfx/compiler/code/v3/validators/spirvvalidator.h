@@ -7,13 +7,15 @@
 */
 //------------------------------------------------------------------------------
 #include "validator.h"
+#include <set>
+#include <map>
 namespace AnyFX
 {
 
 class SPIRVValidator : public Validator
 {
 public:
-    enum SourceLanguage
+    enum class SourceLanguage : uint8_t
     {
         GLSL,
         HLSL
@@ -23,22 +25,34 @@ public:
     SPIRVValidator(const SourceLanguage& lang);
 
     /// validate blendstate
-    bool ValidateBlendState(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateBlendState(Compiler* compiler, Symbol* symbol) override;
     /// validate compound resource
-    bool ValidateCompoundResource(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateCompoundVariable(Compiler* compiler, Symbol* symbol) override;
     /// validate function
-    bool ValidateFunction(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateFunction(Compiler* compiler, Symbol* symbol) override;
     /// validate program
-    bool ValidateProgram(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateProgram(Compiler* compiler, Symbol* symbol) override;
     /// validate render state
-    bool ValidateRenderState(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateRenderState(Compiler* compiler, Symbol* symbol) override;
     /// validate structure 
-    bool ValidateStructure(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateStructure(Compiler* compiler, Symbol* symbol) override;
     /// validate typed resource
-    bool ValidateVariable(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors) override;
+    bool ValidateVariable(Compiler* compiler, Symbol* symbol) override;
 
     SourceLanguage sourceLanguage;
 
+    std::set<std::string> allowedReadWriteTextureAttributes;
+    std::set<std::string> allowedTextureAttributes;
+    std::set<std::string> allowedSamplerAttributes;
+    std::set<std::string> allowedScalarAttributes;
+
+    std::set<std::string> allowedSamplerStateAttributes;
+    std::set<std::string> allowedConstantBufferAttributes;
+    std::set<std::string> allowedStorageBufferAttributes;
+
+    std::set<std::string> allowedFunctionAttributes;
+
+    std::set<std::string> allowedParameterAttributes;
 };
 
 } // namespace AnyFX

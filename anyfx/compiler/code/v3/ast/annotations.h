@@ -22,6 +22,19 @@ struct Annotations
         Expression* value;
     };
     std::vector<Annotation> entries;
+
+    struct __Resolved
+    {
+        union AnnotationValueUnion
+        {
+            int i;
+            unsigned int u;
+            float f;
+            bool b;
+            std::string* str;
+        };
+    };
+    
 };
 
 } // namespace AnyFX

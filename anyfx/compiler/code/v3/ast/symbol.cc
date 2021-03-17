@@ -42,14 +42,14 @@ Symbol::GetLocation() const
 bool
 Symbol::EndOfParse(Compiler* compiler)
 {
-    this->signature = this->name;
+    this->resolved->signature = this->name;
     return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+const std::string 
 Symbol::TypeToString() const
 {
     switch (this->symbolType)

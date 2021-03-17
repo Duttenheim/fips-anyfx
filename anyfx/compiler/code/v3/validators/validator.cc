@@ -11,7 +11,7 @@ namespace AnyFX
 /**
 */
 bool 
-Validator::Validate(Compiler* compiler, const std::vector<Symbol*>& symbols, std::vector<std::string>& errors)
+Validator::Validate(Compiler* compiler, const std::vector<Symbol*>& symbols)
 {
     bool ret = true;
     for (Symbol* sym : symbols)
@@ -19,25 +19,25 @@ Validator::Validate(Compiler* compiler, const std::vector<Symbol*>& symbols, std
         switch (sym->symbolType)
         {
         case Symbol::Type::BlendStateType:
-            ret &= this->ValidateBlendState(compiler, sym, errors);
+            ret &= this->ValidateBlendState(compiler, sym);
             break;
         case Symbol::Type::CompoundResourceType:
-            ret &= this->ValidateCompoundResource(compiler, sym, errors);
+            ret &= this->ValidateCompoundVariable(compiler, sym);
             break;
         case Symbol::Type::FunctionType:
-            ret &= this->ValidateFunction(compiler, sym, errors);
+            ret &= this->ValidateFunction(compiler, sym);
             break;
         case Symbol::Type::ProgramType:
-            ret &= this->ValidateProgram(compiler, sym, errors);
+            ret &= this->ValidateProgram(compiler, sym);
             break;
         case Symbol::Type::RenderStateType:
-            ret &= this->ValidateRenderState(compiler, sym, errors);
+            ret &= this->ValidateRenderState(compiler, sym);
             break;
         case Symbol::Type::StructureType:
-            ret &= this->ValidateStructure(compiler, sym, errors);
+            ret &= this->ValidateStructure(compiler, sym);
             break;
         case Symbol::Type::VariableType:
-            ret &= this->ValidateVariable(compiler, sym, errors);
+            ret &= this->ValidateVariable(compiler, sym);
             break;
         }
     }
@@ -48,7 +48,7 @@ Validator::Validate(Compiler* compiler, const std::vector<Symbol*>& symbols, std
 /**
 */
 bool 
-Validator::ValidateBlendState(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateBlendState(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }
@@ -57,7 +57,7 @@ Validator::ValidateBlendState(Compiler* compiler, Symbol* symbol, std::vector<st
 /**
 */
 bool 
-Validator::ValidateCompoundResource(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateCompoundVariable(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }
@@ -66,7 +66,7 @@ Validator::ValidateCompoundResource(Compiler* compiler, Symbol* symbol, std::vec
 /**
 */
 bool 
-Validator::ValidateFunction(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateFunction(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }
@@ -75,7 +75,7 @@ Validator::ValidateFunction(Compiler* compiler, Symbol* symbol, std::vector<std:
 /**
 */
 bool 
-Validator::ValidateProgram(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateProgram(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }
@@ -84,7 +84,7 @@ Validator::ValidateProgram(Compiler* compiler, Symbol* symbol, std::vector<std::
 /**
 */
 bool 
-Validator::ValidateRenderState(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateRenderState(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }
@@ -93,7 +93,7 @@ Validator::ValidateRenderState(Compiler* compiler, Symbol* symbol, std::vector<s
 /**
 */
 bool 
-Validator::ValidateStructure(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateStructure(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }
@@ -102,7 +102,7 @@ Validator::ValidateStructure(Compiler* compiler, Symbol* symbol, std::vector<std
 /**
 */
 bool 
-Validator::ValidateVariable(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors)
+Validator::ValidateVariable(Compiler* compiler, Symbol* symbol)
 {
     return false;
 }

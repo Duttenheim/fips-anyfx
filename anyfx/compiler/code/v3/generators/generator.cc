@@ -11,11 +11,9 @@ namespace AnyFX
 /**
 */
 bool 
-Generator::Generate(Compiler* compiler, const std::vector<Symbol*>& symbols, std::vector<std::string>& errors)
+Generator::Generate(Compiler* compiler, const std::vector<Symbol*>& symbols)
 {
     return false;
-
-
 }
 
 } // namespace AnyFX

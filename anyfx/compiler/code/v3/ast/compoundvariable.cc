@@ -1,16 +1,16 @@
 //------------------------------------------------------------------------------
-//  @file compoundresource.cc
+//  @file compoundvariable.cc
 //  @copyright (C) 2021 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
-#include "compoundresource.h"
+#include "compoundvariable.h"
 namespace AnyFX
 {
 
 //------------------------------------------------------------------------------
 /**
 */
-CompoundResource::CompoundResource()
-    : arraySizeExpression(nullptr)
+CompoundVariable::CompoundVariable()
+    : Variable()
 {
     this->symbolType = CompoundResourceType;
 }
@@ -18,7 +18,7 @@ CompoundResource::CompoundResource()
 //------------------------------------------------------------------------------
 /**
 */
-CompoundResource::~CompoundResource()
+CompoundVariable::~CompoundVariable()
 {
 }
 

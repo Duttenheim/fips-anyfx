@@ -98,7 +98,7 @@ std::vector<std::tuple<int, int, int, int, std::string>> lines;
 #include "v3/ast/annotations.h"
 #include "v3/ast/attributable.h"
 #include "v3/ast/blendstate.h"
-#include "v3/ast/compoundresource.h"
+#include "v3/ast/compoundvariable.h"
 #include "v3/ast/effect.h"
 #include "v3/ast/function.h"
 #include "v3/ast/program.h"
@@ -160,7 +160,7 @@ effect
     (
         function                { $eff->symbols.push_back($function.sym); }    
         | variable              { $eff->symbols.push_back($variable.sym); }
-        | compound_resource     { $eff->symbols.push_back($compound_resource.sym); }
+        | compound_variable     { $eff->symbols.push_back($compound_variable.sym); }
         | structure             { $eff->symbols.push_back($structure.sym); }    
         | state                 { $eff->symbols.push_back($state.sym); }
         | program               { $eff->symbols.push_back($program.sym); }
@@ -179,11 +179,10 @@ attribute
     | name = IDENTIFIER { $attr.name = $name.text; $attr.expression = nullptr; }
     ;
 
-compound_resource
-    returns[ CompoundResource* sym ]
+compound_variable
+    returns[ CompoundVariable* sym ]
     @init
     {
-        $sym = new CompoundResource();
         Symbol::Location location;
         Annotations annot;
         std::vector<Attribute> attributes;
@@ -208,11 +207,12 @@ compound_resource
     )?
     ';'
     {
-        $sym = new CompoundResource();
+        $sym = new CompoundVariable();
         $sym->location = location;
         $sym->name = $name.text; 
         $sym->type = $type.text;
         $sym->annotations = annot;
+        $sym->attributes = attributes;
         $sym->variables = variables;
         $sym->instanceName = instanceName;
         $sym->arraySizeExpression = arraySizeExpression;
@@ -227,6 +227,8 @@ variable
         $sym = nullptr;
         Symbol::Location location;
         std::vector<Attribute> attributes;
+        std::vector<std::vector<Expression*>> initializers;
+        std::vector<std::string> initializerTypes;
         Annotations annot;
         Expression* arraySizeExpression = nullptr;
         bool isArray = false;
@@ -234,7 +236,83 @@ variable
     (attribute { attributes.push_back($attribute.attr); })*
     type = IDENTIFIER name = IDENTIFIER { location = SetupFile(); } 
     (annotations { annot = $annotations.annot; })?
-    ( '[' (expression { arraySizeExpression = $expression.tree; } )? ']' { isArray = true; } )?
+
+    // array related stuff
+    ( 
+        '[' (expression { arraySizeExpression = $expression.tree; } )? ']' { isArray = true; } 
+    )?
+
+    // initializer stuff
+    ( 
+        '=' 
+        // first method, array initialization array is { TYPE(VALUE), TYPE(VALUE) }
+        (   '{' 
+            // type
+            initType0 = IDENTIFIER 
+            { 
+                initializerTypes.push_back($initType0.text); 
+                std::vector<Expression*> values0;
+            } 
+            // first value
+            '(' 
+                (value0 = expression { values0.push_back($value0.tree); })+ 
+            ')' 
+            {
+                initializers.push_back(values0);
+            }
+            // rest of values
+            (',' 
+                initType1 = IDENTIFIER 
+                { 
+                    initializerTypes.push_back($initType1.text);
+                    std::vector<Expression*> values1;
+                } 
+                '(' 
+                    (value1 = expression { values1.push_back($value1.tree); })+
+                ')'
+                {
+                    initializers.push_back(values1);
+                }
+            )*
+            '}'
+        )
+        | 
+        // second method, initialization type is inferred, array is: { {0.5f, 0.5f} -> implicitly vec2  }
+        (
+            '{'
+            // type
+            { 
+                initializerTypes.push_back(""); 
+                std::vector<Expression*> values0;
+            } 
+            // first value
+            '{' 
+                (value0 = expression { values0.push_back($value0.tree); })+ 
+            '}' 
+            {
+                initializers.push_back(values0);
+            }
+            // rest of values
+            (',' 
+                { 
+                    initializerTypes.push_back("");
+                    std::vector<Expression*> values1;
+                } 
+                '{' 
+                    (value1 = expression { values1.push_back($value1.tree); })+
+                '}'
+                {
+                    initializers.push_back(values1);
+                }
+            )*
+            '}'
+        )    
+        |
+        // single value initialization
+        (
+            value = expression { std::vector<Expression*> expressions { $value.tree }; initializers.push_back(expressions); initializerTypes.push_back(""); }
+        )
+    )?
     ';'
     { 
         $sym = new Variable(); 
@@ -242,6 +320,9 @@ variable
         $sym->name = $name.text; 
         $sym->location = location; 
         $sym->annotations = annot; 
+        $sym->initializers = initializers;
+        $sym->initializerTypes = initializerTypes;
+        $sym->attributes = attributes;
         $sym->arraySizeExpression = arraySizeExpression;
         $sym->isArray = isArray;
     }

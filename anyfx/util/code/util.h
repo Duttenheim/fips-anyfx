@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 //------------------------------------------------------------------------------
 /**
     @file util.h
@@ -8,6 +7,7 @@
 
     2012 Gustav Sterbrant
 */
+//------------------------------------------------------------------------------
 
 #include <stdlib.h>
 #include <locale.h>
@@ -70,7 +70,6 @@ Format(const char* format, ...)
 	return retVal;
 }
 
-
 //------------------------------------------------------------------------------
 /**
 	Compares const char* with std::string
@@ -96,27 +95,24 @@ operator==(const std::string& lhs, const char* rhs)
 	Neat macro to make enums act as bit flags, be able to check if bits are set, and convert to integers
 */
 #define ENUM_OPERATORS(TYPE) \
-	inline TYPE operator|(TYPE a, TYPE b) { return static_cast<TYPE>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); }\
-	inline TYPE operator&(TYPE a, TYPE b) { return static_cast<TYPE>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); }\
-	inline TYPE& operator|=(TYPE& a, TYPE b) { a = static_cast<TYPE>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); return a; }\
-	inline TYPE& operator&=(TYPE& a, TYPE b) { a = static_cast<TYPE>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); return a; }\
-	inline TYPE operator|(TYPE a, unsigned b) { return static_cast<TYPE>(static_cast<unsigned>(a) | b); }\
-	inline TYPE operator&(TYPE a, unsigned b) { return static_cast<TYPE>(static_cast<unsigned>(a) & b); }\
-	inline TYPE& operator|=(TYPE& a, unsigned b) { a = static_cast<TYPE>(static_cast<unsigned>(a) | b); return a; }\
-	inline TYPE& operator&=(TYPE& a, unsigned b) { a = static_cast<TYPE>(static_cast<unsigned>(a) & b); return a; }\
-	inline unsigned operator|(unsigned a, TYPE b) { return a | static_cast<unsigned>(b); }\
-	inline unsigned operator&(unsigned a, TYPE b) { return a & static_cast<unsigned>(b); }\
-	inline unsigned& operator|=(unsigned& a, TYPE b) { a = a | static_cast<unsigned>(b); return a; }\
-	inline unsigned& operator&=(unsigned& a, TYPE b) { a = a & static_cast<unsigned>(b); return a; }\
-	inline bool operator>(TYPE a, unsigned b) { return static_cast<unsigned>(a) > b; }\
-	inline bool operator>(unsigned a, TYPE b) { return a > static_cast<unsigned>(b); }\
-	inline bool operator<(TYPE a, unsigned b) { return static_cast<unsigned>(a) < b; }\
-	inline bool operator<(unsigned a, TYPE b) { return a < static_cast<unsigned>(b); }\
-	inline bool HasFlags(const TYPE& a, TYPE flags) { return (a & flags) == flags; }\
-	constexpr typename std::underlying_type<TYPE>::type ToInteger(TYPE a) { return static_cast<typename std::underlying_type<TYPE>::type>(a); }\
-	constexpr TYPE FromInteger(typename std::underlying_type<TYPE>::type a) { return static_cast<TYPE>(a); }
+	constexpr TYPE operator|(TYPE a, TYPE b) { return static_cast<TYPE>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); }\
+	constexpr TYPE operator&(TYPE a, TYPE b) { return static_cast<TYPE>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); }\
+	constexpr TYPE& operator|=(TYPE& a, TYPE b) { a = static_cast<TYPE>(static_cast<unsigned>(a) | static_cast<unsigned>(b)); return a; }\
+	constexpr TYPE& operator&=(TYPE& a, TYPE b) { a = static_cast<TYPE>(static_cast<unsigned>(a) & static_cast<unsigned>(b)); return a; }\
+	constexpr TYPE operator|(TYPE a, unsigned b) { return static_cast<TYPE>(static_cast<unsigned>(a) | b); }\
+	constexpr TYPE operator&(TYPE a, unsigned b) { return static_cast<TYPE>(static_cast<unsigned>(a) & b); }\
+	constexpr TYPE& operator|=(TYPE& a, unsigned b) { a = static_cast<TYPE>(static_cast<unsigned>(a) | b); return a; }\
+	constexpr TYPE& operator&=(TYPE& a, unsigned b) { a = static_cast<TYPE>(static_cast<unsigned>(a) & b); return a; }\
+	constexpr unsigned operator|(unsigned a, TYPE b) { return a | static_cast<unsigned>(b); }\
+	constexpr unsigned operator&(unsigned a, TYPE b) { return a & static_cast<unsigned>(b); }\
+	constexpr unsigned& operator|=(unsigned& a, TYPE b) { a = a | static_cast<unsigned>(b); return a; }\
+	constexpr unsigned& operator&=(unsigned& a, TYPE b) { a = a & static_cast<unsigned>(b); return a; }\
+	constexpr bool operator>(TYPE a, unsigned b) { return static_cast<unsigned>(a) > b; }\
+	constexpr bool operator>(unsigned a, TYPE b) { return a > static_cast<unsigned>(b); }\
+	constexpr bool operator<(TYPE a, unsigned b) { return static_cast<unsigned>(a) < b; }\
+	constexpr bool operator<(unsigned a, TYPE b) { return a < static_cast<unsigned>(b); }\
+	constexpr bool HasFlags(const TYPE& a, TYPE flags) { return (a & flags) == flags; }\
+	constexpr typename std::underlying_type<TYPE>::type EnumToInt(TYPE a) { return static_cast<typename std::underlying_type<TYPE>::type>(a); }\
+    constexpr TYPE IntToEnum(typename std::underlying_type<TYPE>::type a) { return static_cast<TYPE>(a); }
 
 } // namespace AnyFX
-
-
-#endif // UTIL_H

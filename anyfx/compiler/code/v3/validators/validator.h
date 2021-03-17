@@ -17,23 +17,23 @@ struct Validator
 {
 
     /// validate
-    virtual bool Validate(Compiler* compiler, const std::vector<Symbol*>& symbols, std::vector<std::string>& errors);
+    virtual bool Validate(Compiler* compiler, const std::vector<Symbol*>& symbols);
 
 
     /// validate blendstate
-    virtual bool ValidateBlendState(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateBlendState(Compiler* compiler, Symbol* symbol);
     /// validate compound resource
-    virtual bool ValidateCompoundResource(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateCompoundVariable(Compiler* compiler, Symbol* symbol);
     /// validate function
-    virtual bool ValidateFunction(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateFunction(Compiler* compiler, Symbol* symbol);
     /// validate program
-    virtual bool ValidateProgram(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateProgram(Compiler* compiler, Symbol* symbol);
     /// validate render state
-    virtual bool ValidateRenderState(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateRenderState(Compiler* compiler, Symbol* symbol);
     /// validate structure 
-    virtual bool ValidateStructure(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateStructure(Compiler* compiler, Symbol* symbol);
     /// validate typed resource
-    virtual bool ValidateVariable(Compiler* compiler, Symbol* symbol, std::vector<std::string>& errors);
+    virtual bool ValidateVariable(Compiler* compiler, Symbol* symbol);
 
 };
 

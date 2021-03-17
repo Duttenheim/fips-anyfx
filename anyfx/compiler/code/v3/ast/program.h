@@ -7,12 +7,18 @@
 */
 //------------------------------------------------------------------------------
 #include <vector>
+#include <map>
+#include <string>
+#include "annotations.h"
 #include "symbol.h"
 namespace AnyFX
 {
 
 struct Program : public Symbol
 {
+    /// constructor
+    Program();
+
     struct SubroutineMapping
     {
         std::string name;
@@ -27,6 +33,33 @@ struct Program : public Symbol
     std::vector<Entry> entries;
     Annotations annotations;
 
+    struct __Resolved : public Symbol::__Resolved
+    {
+        enum ProgramEntryType
+        {
+            InvalidEntryType,
+            VertexShader,
+            HullShader,
+            DomainShader,
+            GeometryShader,
+            PixelShader,
+            ComputeShader,
+            RayMissShader,
+            RayHitShader,
+            RayAnyHitShader,
+            RayIntersectionShader,
+            BlendState,
+            RenderState
+        };
+
+        /// convert from string to program entry type
+        static const ProgramEntryType StringToEntryType(const std::string& str);
+
+        std::map<ProgramEntryType, Symbol*> programMappings;
+    };
+
 };
+
+extern const std::map<std::string, Program::__Resolved::ProgramEntryType> programEntryTypeLookup;
 
 } // namespace AnyFX

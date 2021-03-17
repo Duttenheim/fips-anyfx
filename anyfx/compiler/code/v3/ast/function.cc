@@ -14,6 +14,13 @@ namespace AnyFX
 Function::Function()
 {
     this->symbolType = FunctionType;
+    this->resolved = new Function::__Resolved();
+
+    Function::__Resolved* typeResolved = static_cast<Function::__Resolved*>(this->resolved);
+    typeResolved->computeShaderWorkGroupSize[0] = 1;
+    typeResolved->computeShaderWorkGroupSize[2] = 1;
+    typeResolved->computeShaderWorkGroupSize[3] = 1;
+    typeResolved->earlyDepth = false;
 }
 
 //------------------------------------------------------------------------------
@@ -30,7 +37,7 @@ Function::EndOfParse(Compiler* compiler)
             paramList.append(",");
         paramList.append(var->type);
     }
-    this->signature = Format("%s %s(%s)", this->returnType.c_str(), this->name.c_str(), paramList.c_str());
+    this->resolved->signature = Format("%s %s(%s)", this->returnType.c_str(), this->name.c_str(), paramList.c_str());
     return true;
 }
 

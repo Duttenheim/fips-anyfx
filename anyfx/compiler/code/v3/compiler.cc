@@ -21,30 +21,30 @@ Compiler::Setup(const Compiler::Language& lang, const std::vector<std::string>& 
 {
     switch (lang)
     {
-    case GLSL:
+    case Language::GLSL:
         this->validator = new GLSLValidator();
         break;
-    case HLSL:
+    case Language::HLSL:
         this->validator = new HLSLValidator();
         break;
-    case HLSL_SPIRV:
+    case Language::HLSL_SPIRV:
         this->validator = new SPIRVValidator(SPIRVValidator::SourceLanguage::HLSL);
         break;
-    case GLSL_SPIRV:
+    case Language::GLSL_SPIRV:
         this->validator = new SPIRVValidator(SPIRVValidator::SourceLanguage::GLSL);
         break;
     }
 
     switch (lang)
     {
-    case GLSL:
+    case Language::GLSL:
         this->generator = new GLSLGenerator();
         break;
-    case HLSL:
+    case Language::HLSL:
         this->generator = new HLSLGenerator();
         break;
-    case GLSL_SPIRV:
-    case HLSL_SPIRV:
+    case Language::GLSL_SPIRV:
+    case Language::HLSL_SPIRV:
         this->generator = new SPIRVGenerator();
     }
 }
@@ -53,16 +53,16 @@ Compiler::Setup(const Compiler::Language& lang, const std::vector<std::string>& 
 /**
 */
 bool 
-Compiler::AddSymbol(const std::string signature, Symbol* symbol, std::vector<std::string>& errors)
+Compiler::AddSymbol(const std::string& signature, const std::string& name, Symbol* symbol)
 {
-    auto it = this->symbolLookup.find(signature);
-    if (it != this->symbolLookup.end())
+    auto it = this->symbolsBySignatureLookup.find(signature);
+    if (it != this->symbolsBySignatureLookup.end())
     {
         Symbol* symbol = it->second;
-        errors.push_back(Format("Symbol %s redefinition, original definition at %s(%d)", signature.c_str(), symbol->location.file.c_str(), symbol->location.line));
+        this->errors.push_back(Format("Symbol %s redefinition, original definition at %s(%d)", signature.c_str(), symbol->location.file.c_str(), symbol->location.line));
         return false;
     }
-    this->symbolLookup[signature] = symbol;
+    this->symbolsBySignatureLookup[signature] = symbol;
     this->symbols.push_back(symbol);
     return true;
 }
@@ -71,10 +71,23 @@ Compiler::AddSymbol(const std::string signature, Symbol* symbol, std::vector<std
 /**
 */
 Symbol* 
-Compiler::GetSymbol(const std::string signature) const
+Compiler::GetSymbolByName(const std::string& signature) const
 {
-    auto it = this->symbolLookup.find(signature);
-    if (it != this->symbolLookup.end())
+    auto it = this->symbolsByNameLookup.find(signature);
+    if (it != this->symbolsBySignatureLookup.end())
+        return it->second;
+    else
+        return nullptr;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Symbol* 
+Compiler::GetSymbolBySignature(const std::string& signature) const
+{
+    auto it = this->symbolsBySignatureLookup.find(signature);
+    if (it != this->symbolsBySignatureLookup.end())
         return it->second;
     else
         return nullptr;
@@ -91,21 +104,21 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
     for (size_t i = 0; i < root->symbols.size(); i++)
     {
         root->symbols[i]->EndOfParse(this);
-        ret &= this->AddSymbol(root->symbols[i]->signature, root->symbols[i], this->errors);
+        ret &= this->AddSymbol(root->symbols[i]->resolved->signature, root->symbols[i]);
     }
 
     // if failed, don't proceed to next step
     if (!ret)
         return ret;
 
-    ret &= this->validator->Validate(this, this->symbols, this->errors);
+    ret &= this->validator->Validate(this, this->symbols);
 
     // if failed, don't proceed to next step
     if (!ret)
         return ret;
 
     // run generator step
-    ret &= this->generator->Generate(this, this->symbols, this->errors);
+    ret &= this->generator->Generate(this, this->symbols);
 
     // if failed, don't proceed to next step
     if (!ret)
@@ -127,7 +140,7 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
 void 
 Compiler::Error(const std::string& msg, const std::string& file, int line, int column)
 {
-    std::string err = Format("%s(%d) : error:%s", file.c_str(), line, msg.c_str());
+    std::string err = Format("%s(%d) : error: %s", file.c_str(), line, msg.c_str());
     this->errors.push_back(err);
 }
 
@@ -137,8 +150,7 @@ Compiler::Error(const std::string& msg, const std::string& file, int line, int c
 void 
 Compiler::Error(const std::string& msg, Symbol* sym)
 {
-    std::string err = Format("%s(%d) : error:%s", sym->location.file.c_str(), sym->location.line, msg.c_str());
-    this->errors.push_back(err);
+    this->Error(msg, sym->location.file, sym->location.line, sym->location.column);
 }
 
 //------------------------------------------------------------------------------

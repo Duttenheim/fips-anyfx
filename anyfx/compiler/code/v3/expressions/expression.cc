@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "expression.h"
 #include "util.h"
+#include "compiler.h"
 
 namespace AnyFX
 {
@@ -30,7 +31,7 @@ Expression::~Expression()
 Symbol*
 Expression::EvalSymbol(Compiler* compiler)
 {
-    Error("Expression::EvalSymbol() called!\n");
+    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalSymbol() called!\n", this);
     return nullptr;
 }
 
@@ -40,7 +41,7 @@ Expression::EvalSymbol(Compiler* compiler)
 int
 Expression::EvalInt(Compiler* compiler)
 {
-    Error("Expression::EvalInt() called!\n");
+    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalInt() called!\n", this);
     return -1;
 }
 
@@ -50,7 +51,7 @@ Expression::EvalInt(Compiler* compiler)
 unsigned
 Expression::EvalUInt(Compiler* compiler)
 {
-    Error("Expression::EvalUInt() called!\n");
+    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalUInt() called!\n", this);
     return 0;
 }
 
@@ -60,7 +61,7 @@ Expression::EvalUInt(Compiler* compiler)
 float
 Expression::EvalFloat(Compiler* compiler)
 {
-    Error("Expression::EvalFloat() called!\n");
+    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalFloat() called!\n", this);
     return 0.0f;
 }
 
@@ -70,7 +71,7 @@ Expression::EvalFloat(Compiler* compiler)
 bool
 Expression::EvalBool(Compiler* compiler)
 {
-    Error("Expression::EvalBool() called!\n");
+    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalBool() called!\n", this);
     return false;
 }
 
@@ -80,7 +81,7 @@ Expression::EvalBool(Compiler* compiler)
 std::string 
 Expression::EvalString(Compiler* compiler)
 {
-    Error("Expression::EvalString() called!\n");
+    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalString() called!\n", this);
     return "";
 }
 

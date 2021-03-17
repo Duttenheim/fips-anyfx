@@ -141,10 +141,18 @@ AnyFXErrorBlob*
 Error(const std::string message)
 {
     AnyFXErrorBlob* ret = new AnyFXErrorBlob();
-    ret->buffer = new char[message.size()];
-    ret->size = message.size();
-    message.copy(ret->buffer, ret->size);
-    ret->buffer[ret->size - 1] = '\0';
+    if (message.size() > 0)
+    {
+        ret->buffer = new char[message.size()];
+        ret->size = message.size();
+        message.copy(ret->buffer, ret->size);
+        ret->buffer[ret->size - 1] = '\0';
+    }
+    else
+    {
+        ret->buffer = nullptr;
+        ret->size = 0;
+    }
     return ret;
 }
 
@@ -259,6 +267,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
         headerWriter.SetPath(header_output);
 
         Compiler compiler;
+        compiler.Setup(Compiler::Language::GLSL_SPIRV, {}, 1);
         if (compiler.Compile(effect, binaryWriter, headerWriter))
         {
             // success!

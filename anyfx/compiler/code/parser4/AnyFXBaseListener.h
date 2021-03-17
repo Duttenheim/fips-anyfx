@@ -12,7 +12,7 @@
 #include "v3/ast/annotations.h"
 #include "v3/ast/attributable.h"
 #include "v3/ast/blendstate.h"
-#include "v3/ast/compoundresource.h"
+#include "v3/ast/compoundvariable.h"
 #include "v3/ast/effect.h"
 #include "v3/ast/function.h"
 #include "v3/ast/program.h"
@@ -21,7 +21,6 @@
 #include "v3/ast/structure.h"
 #include "v3/ast/resource.h"
 #include "v3/ast/symbol.h"
-#include "v3/ast/typedresource.h"
 #include "v3/ast/variable.h"
 #include "expressions/expression.h"
 #include "expressions/binaryexpression.h"
@@ -74,8 +73,8 @@ public:
   virtual void enterAttribute(AnyFXParser::AttributeContext * /*ctx*/) override { }
   virtual void exitAttribute(AnyFXParser::AttributeContext * /*ctx*/) override { }
 
-  virtual void enterCompound_resource(AnyFXParser::Compound_resourceContext * /*ctx*/) override { }
-  virtual void exitCompound_resource(AnyFXParser::Compound_resourceContext * /*ctx*/) override { }
+  virtual void enterCompound_variable(AnyFXParser::Compound_variableContext * /*ctx*/) override { }
+  virtual void exitCompound_variable(AnyFXParser::Compound_variableContext * /*ctx*/) override { }
 
   virtual void enterVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
   virtual void exitVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
