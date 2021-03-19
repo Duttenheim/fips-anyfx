@@ -89,6 +89,7 @@ std::set<std::string> functionAttributes =
     , "local_size_y", "localsizey"
     , "local_size_z", "localsizez"
     , "earlydepth", "early_depth"
+    , "shader"
 };
 
 std::set<std::string> parameterAccessFlags =
@@ -233,6 +234,8 @@ SPIRVValidator::ValidateFunction(Compiler* compiler, Symbol* symbol)
             typeResolved->computeShaderWorkGroupSize[2] = attr.expression->EvalUInt(compiler);
         else if (attr.name == "earlydepth" || attr.name == "early_depth")
             typeResolved->earlyDepth = true;
+        else if (attr.name == "shader")
+            compiler->AddSymbol(fun->name, fun); // if shader, add symbol as just the name without signature
     }
 
     // run validation on parameters

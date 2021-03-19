@@ -7,7 +7,7 @@
 */
 //------------------------------------------------------------------------------
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include "annotations.h"
 #include "symbol.h"
@@ -55,7 +55,7 @@ struct Program : public Symbol
         /// convert from string to program entry type
         static const ProgramEntryType StringToEntryType(const std::string& str);
 
-        std::map<ProgramEntryType, Symbol*> programMappings;
+        std::unordered_map<ProgramEntryType, Symbol*> programMappings;
     };
 
 };

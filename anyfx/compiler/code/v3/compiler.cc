@@ -53,7 +53,7 @@ Compiler::Setup(const Compiler::Language& lang, const std::vector<std::string>& 
 /**
 */
 bool 
-Compiler::AddSymbol(const std::string& signature, const std::string& name, Symbol* symbol)
+Compiler::AddSymbol(const std::string& signature, Symbol* symbol)
 {
     auto it = this->symbolsBySignatureLookup.find(signature);
     if (it != this->symbolsBySignatureLookup.end())
@@ -71,20 +71,7 @@ Compiler::AddSymbol(const std::string& signature, const std::string& name, Symbo
 /**
 */
 Symbol* 
-Compiler::GetSymbolByName(const std::string& signature) const
-{
-    auto it = this->symbolsByNameLookup.find(signature);
-    if (it != this->symbolsBySignatureLookup.end())
-        return it->second;
-    else
-        return nullptr;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-Symbol* 
-Compiler::GetSymbolBySignature(const std::string& signature) const
+Compiler::GetSymbol(const std::string& signature) const
 {
     auto it = this->symbolsBySignatureLookup.find(signature);
     if (it != this->symbolsBySignatureLookup.end())

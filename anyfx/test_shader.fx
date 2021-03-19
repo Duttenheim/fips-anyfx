@@ -17,6 +17,7 @@ group(BATCH_GROUP) constant CombineUniforms [ Visibility = "CS"; ]
 /**
 */
 local_size_x(64)
+shader
 void csCombine()
 {
     vec2 coord = vec2(gl_GlobalInvocationID.xy) * LowresResolution;

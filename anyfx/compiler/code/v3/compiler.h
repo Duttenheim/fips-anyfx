@@ -30,11 +30,9 @@ struct Compiler
     void Setup(const Compiler::Language& lang, const std::vector<std::string>& defines, unsigned int version);
 
     /// adds symbol to compiler context
-    bool AddSymbol(const std::string& signature, const std::string& name, Symbol* symbol);
-    /// get symbol, if symbol can't be found, returns nullptr
-    Symbol* GetSymbolByName(const std::string& name) const;
+    bool AddSymbol(const std::string& signature, Symbol* symbol);
     /// get symbol by signature
-    Symbol* GetSymbolBySignature(const std::string& signature) const;
+    Symbol* GetSymbol(const std::string& signature) const;
 
     /// runs the validation and generation steps, returns true if successful, otherwise false and a list of error messages
     bool Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWriter);
@@ -50,8 +48,7 @@ struct Compiler
     void OutputHeader(Symbol* symbol, TextWriter& writer);
 
     std::vector<Symbol*> symbols;
-    std::map<std::string, Symbol*> symbolsBySignatureLookup;
-    std::map<std::string, Symbol*> symbolsByNameLookup;
+    std::map<std::string, Symbol*> symbolLookup;
     std::vector<std::string> defines;
 
     std::vector<std::string> errors;
