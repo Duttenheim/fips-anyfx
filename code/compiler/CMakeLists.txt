@@ -1,0 +1,146 @@
+#-------------------------------------------------------------------------------
+# anyfx compiler
+#-------------------------------------------------------------------------------
+
+ADD_SUBDIRECTORY(ext/antlr4)
+ADD_SUBDIRECTORY(ext/mcpp)
+
+fips_begin_lib(anyfx_compiler)
+
+fips_include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${ANYFX_ROOT}/code/util/
+    ${ANYFX_ROOT}/code/compiler
+    ${ANYFX_ROOT}/code/compiler/ext/antlr4/src
+    ${ANYFX_ROOT}/exts/glslang
+    ${ANYFX_ROOT}/code/compiler/ext/mcpp
+    ${ANYFX_ROOT}/code/compiler/v3
+    )
+
+fips_files(
+    afxcompiler.cc
+    afxcompiler.h
+)
+
+fips_dir(parser4)
+    fips_files(
+        AnyFXParser.cpp
+        AnyFXParser.h
+        AnyFXLexer.cpp
+        AnyFXLexer.h
+        anyfxerrorhandlers.cpp
+        anyfxerrorhandlers.h
+        anyfxtoken.cpp
+        anyfxtoken.h
+    )
+
+fips_dir(v3)
+    fips_files(
+        compiler.cc
+        compiler.h
+    )
+fips_dir(v3/ast)
+    fips_files(
+        alias.h
+        alias.cc
+        annotation.h
+        attribute.h
+        effect.cc
+        effect.h
+        function.cc
+        function.h
+        program.cc
+        program.h
+        renderstate.cc
+        renderstate.h
+        samplerstate.cc
+        samplerstate.h
+        state.cc
+        state.h
+        structure.cc
+        structure.h
+        symbol.cc
+        symbol.h
+        type.cc
+        type.h
+        variable.cc
+        variable.h
+    )
+fips_dir(v3/ast/expressions)
+    fips_files(
+        accessexpression.cc
+        accessexpression.h
+        arrayindexexpression.cc
+        arrayindexexpression.h
+        binaryexpression.cc
+        binaryexpression.h
+        boolexpression.cc
+        boolexpression.h
+        callexpression.cc
+        callexpression.h
+        expression.cc
+        expression.h
+        floatexpression.cc
+        floatexpression.h
+        intexpression.cc
+        intexpression.h
+        stringexpression.cc
+        stringexpression.h
+        symbolexpression.cc
+        symbolexpression.h
+        ternaryexpression.cc
+        ternaryexpression.h
+        unaryexpression.cc
+        unaryexpression.h
+    )
+fips_dir(v3/ast/statements)
+    fips_files(
+        breakstatement.cc
+        breakstatement.h
+        continuestatement.cc
+        continuestatement.h
+        declarationstatement.cc
+        declarationstatement.h
+        expressionstatement.cc
+        expressionstatement.h
+        forstatement.cc
+        forstatement.h
+        ifstatement.cc
+        ifstatement.h
+        returnstatement.cc
+        returnstatement.h
+        scopestatement.cc
+        scopestatement.h
+        statement.cc
+        statement.h
+        switchstatement.cc
+        switchstatement.h
+        whilestatement.cc
+        whilestatement.h
+    )
+fips_dir(v3/generators)
+    fips_files(
+        generator.cc
+        generator.h
+        glslgenerator.cc
+        glslgenerator.h
+        hgenerator.cc
+        hgenerator.h
+        hlslgenerator.cc
+        hlslgenerator.h
+        spirvgenerator.cc
+        spirvgenerator.h
+    )
+fips_dir(v3/validators)
+    fips_files(
+        validator.cc
+        validator.h
+    )
+
+fips_deps(anyfx_util antlr4 glslang mcpp)
+
+IF (MSVC11)
+    ADD_DEFINITIONS(-D_XKEYCHECK_H)
+ENDIF()
+
+fips_end_lib()

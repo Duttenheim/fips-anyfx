@@ -12,14 +12,12 @@ imports:
         
 exports:
     header-dirs: 
-    - anyfx 
-    - anyfx/api   
-    #- anyfx/api/highlevel
-    - anyfx/api/lowlevel
-    - anyfx/compiler/code
-    - anyfx/compiler/antlr4/src
-    - anyfx/compiler/mcpp
-    - anyfx/util/code
+    - code 
+    - code/api   
+    - code/compiler
+    - code/compiler/ext/antlr4/src
+    - code/compiler/ext/mcpp
+    - code/util
     modules:
-        anyfx: .
+        code: .
 
