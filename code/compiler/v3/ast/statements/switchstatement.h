@@ -16,11 +16,12 @@ namespace AnyFX
 struct SwitchStatement : public Statement
 {
     /// constructor
-    SwitchStatement(Expression* switchExpression, const std::vector<std::string>& caseValues, const std::vector<Statement*>& caseStatements);
+    SwitchStatement(Expression* switchExpression, const std::vector<std::string>& caseValues, const std::vector<Statement*>& caseStatements, Statement* defaultStatement);
 
     Expression* switchExpression;
     std::vector<std::string> caseValues;
     std::vector<Statement*> caseStatements;
+    Statement* defaultStatement;
 };
 
 } // namespace AnyFX

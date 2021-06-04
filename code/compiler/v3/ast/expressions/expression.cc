@@ -5,6 +5,7 @@
 #include "expression.h"
 #include "util.h"
 #include "compiler.h"
+#include "v3/ast/types/type.h"
 
 namespace AnyFX
 {
@@ -28,60 +29,63 @@ Expression::~Expression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-Expression::EvalSymbol(Compiler* compiler) const
-{
-    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalSymbol() called!\n", this);
-    return nullptr;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-int
-Expression::EvalInt(Compiler* compiler) const
-{
-    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalInt() called!\n", this);
-    return -1;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-Expression::EvalUInt(Compiler* compiler) const
-{
-    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalUInt() called!\n", this);
-    return 0;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float
-Expression::EvalFloat(Compiler* compiler) const
-{
-    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalFloat() called!\n", this);
-    return 0.0f;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 bool
-Expression::EvalBool(Compiler* compiler) const
+Expression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalBool() called!\n", this);
     return false;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+bool
+Expression::EvalSymbol(Compiler* compiler, std::string& out) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Expression::EvalInt(Compiler* compiler, int& out) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Expression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Expression::EvalFloat(Compiler* compiler, float& out) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Expression::EvalBool(Compiler* compiler, bool& out) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
 Expression::EvalString(Compiler* compiler) const
 {
-    compiler->Error("INTERNAL COMPILER ERROR: Expression::EvalString() called!\n", this);
     return "";
 }
 

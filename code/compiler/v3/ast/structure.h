@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 #include "attribute.h"
 #include "variable.h"
-#include "type.h"
+#include "types/type.h"
 namespace AnyFX
 {
 
@@ -41,8 +41,8 @@ struct Structure : public Type
         Variable::__Resolved::AccessBits accessBits;
 
         static const uint8_t NOT_BOUND = 0xF;
-        uint8_t group;
-        uint8_t binding;
+        uint32_t group;
+        uint32_t binding;
 
         // for alignment
         size_t byteSize;

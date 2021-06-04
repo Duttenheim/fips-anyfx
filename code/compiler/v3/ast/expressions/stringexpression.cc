@@ -27,53 +27,48 @@ StringExpression::~StringExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-StringExpression::EvalSymbol(Compiler* compiler) const
+bool
+StringExpression::EvalInt(Compiler* compiler, int& out) const
 {
-    return nullptr;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-int
-StringExpression::EvalInt(Compiler* compiler) const
-{
-    return std::stoi(this->value);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-StringExpression::EvalUInt(Compiler* compiler) const
-{
-    return std::stoul(this->value);
-}
-
-//------------------------------------------------------------------------------
-/**
-    Convert this integer to a float
-*/
-float
-StringExpression::EvalFloat(Compiler* compiler) const
-{
-    return std::stof(this->value);
+    out = std::stoi(this->value);
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-StringExpression::EvalBool(Compiler* compiler) const
+StringExpression::EvalUInt(Compiler* compiler, unsigned& out) const
 {
-    return this->value == "true";
+    out = std::stoul(this->value);
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+    Convert this integer to a float
+*/
+bool
+StringExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    out = std::stof(this->value);
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+bool
+StringExpression::EvalBool(Compiler* compiler, bool& out) const
+{
+    out = this->value == "true";
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
 StringExpression::EvalString(Compiler* compiler) const
 {
     return this->value;

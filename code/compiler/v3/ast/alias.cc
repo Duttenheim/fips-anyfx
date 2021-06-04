@@ -14,6 +14,7 @@ namespace AnyFX
 Alias::Alias()
 {
     this->resolved = nullptr;
+    this->symbolType = Symbol::SymbolType::AliasType;
 }
 
 //------------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 //  (C) 2013 Gustav Sterbrant
 //------------------------------------------------------------------------------
 #include "binaryexpression.h"
+#include "ast/function.h"
 #include "compiler.h"
 #include "util.h"
 
@@ -12,10 +13,10 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-BinaryExpression::BinaryExpression(uint32_t op, Expression* left, Expression* right) :
-    op(op),
-    left(left),
-    right(right)
+BinaryExpression::BinaryExpression(uint32_t op, Expression* left, Expression* right) 
+    : op(op)
+    , left(left)
+    , right(right)
 {
     this->symbolType = Symbol::BinaryExpressionType;
 }
@@ -33,304 +34,313 @@ BinaryExpression::~BinaryExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-BinaryExpression::EvalSymbol(Compiler* compiler) const
+bool
+BinaryExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    Symbol* lhs = this->left->EvalSymbol(compiler);
-    Symbol* rhs = this->right->EvalSymbol(compiler);
+    bool ret = true;
+    Type::FullType leftType, rightType;
+    ret &= this->left->EvalType(compiler, leftType);
+    ret &= this->right->EvalType(compiler, rightType);
 
-    if (lhs == rhs)
-    {	
-        return lhs;
-    }
-    else if (lhs->symbolType == IntExpressionType)
-    {
-        if (rhs->symbolType == FloatExpressionType)
-        {
-            return rhs;
-        }
-    }
-    else if (lhs->symbolType == FloatExpressionType)
-    {
-        if (rhs->symbolType == IntExpressionType)
-        {
-            return lhs;
-        }
-    }
+    Type* leftTypeSymbol = compiler->GetSymbol<Type>(leftType.name);
+    Type* rightTypeSymbol = compiler->GetSymbol<Type>(rightType.name);
 
-    std::string msg = Format("Type '%s' cannot use binary operator '%s' with type '%s'", lhs->TypeToString().c_str(), FourCCToString(this->op).c_str(), rhs->TypeToString().c_str());
-    compiler->Error(msg, this);
-    return nullptr;
+    std::string functionName = Format("operator%s", FourCCToString(this->op).c_str());
+    std::vector<Symbol*> functions = leftTypeSymbol->GetSymbols(functionName);
+    Symbol* matchingOverload = Function::MatchOverload(compiler, functions, { rightType });
+    if (matchingOverload != nullptr)
+    {
+        Function* fun = static_cast<Function*>(matchingOverload);
+        out = fun->returnType;
+    }
+    else
+    {
+        ret = false;
+    }
+    return ret;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-int 
-BinaryExpression::EvalInt(Compiler* compiler) const
+bool
+BinaryExpression::EvalSymbol(Compiler* compiler, std::string& out) const
 {
-    int lVal = this->left->EvalInt(compiler);
-    int rVal = this->right->EvalInt(compiler);
-
-    if (this->op == '+')
-    {
-        return lVal + rVal;
-    }
-    else if (this->op == '-')
-    {
-        return lVal - rVal;
-    }
-    else if (this->op == '*')
-    {
-        return lVal * rVal;
-    }
-    else if (this->op == '/')
-    {
-        return lVal / rVal;
-    }
-    else if (this->op == '%')
-    {
-        return lVal % rVal;
-    }
-    else if (this->op == '^')
-    {
-        return lVal ^ rVal;
-    }
-    else if (this->op == '|')
-    {
-        return lVal | rVal;
-    }
-    else if (this->op == '&')
-    {
-        return lVal & rVal;
-    }
-    else if (this->op == '>>')
-    {
-        return lVal >> rVal;
-    }
-    else if (this->op == '<<')
-    {
-        return lVal << rVal;
-    }
-    else if (this->op == '||')
-    {
-        return (int)(lVal || rVal);
-    }
-    else if (this->op == '&&')
-    {
-        return (int)(lVal & rVal);
-    }
-    else if (this->op == '<')
-    {
-        return (int)(lVal < rVal);
-    }
-    else if (this->op == '>')
-    {
-        return (int)(lVal > rVal);
-    }
-    else if (this->op == '<=')
-    {
-        return (int)(lVal <= rVal);
-    }
-    else if (this->op == '>=')
-    {
-        return (int)(lVal >= rVal);
-    }
-    else if (this->op == '==')
-    {
-        return (int)(lVal == rVal);
-    }
-    else if (this->op == '!=')
-    {
-        return (int)(lVal != rVal);
-    }
-    else
-    {
-        std::string msg = Format("Invalid operator '%s' with int", FourCCToString(this->op).c_str());
-        compiler->Error(msg, this);
-        return -1;
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-BinaryExpression::EvalUInt(Compiler* compiler) const
-{
-    unsigned lVal = this->left->EvalUInt(compiler);
-    unsigned rVal = this->right->EvalUInt(compiler);
-
-    if (this->op == '+')
-    {
-        return lVal + rVal;
-    }
-    else if (this->op == '-')
-    {
-        return lVal - rVal;
-    }
-    else if (this->op == '*')
-    {
-        return lVal * rVal;
-    }
-    else if (this->op == '/')
-    {
-        return lVal / rVal;
-    }
-    else if (this->op == '%')
-    {
-        return lVal % rVal;
-    }
-    else if (this->op == '^')
-    {
-        return lVal ^ rVal;
-    }
-    else if (this->op == '|')
-    {
-        return lVal | rVal;
-    }
-    else if (this->op == '&')
-    {
-        return lVal & rVal;
-    }
-    else if (this->op == '>>')
-    {
-        return lVal >> rVal;
-    }
-    else if (this->op == '<<')
-    {
-        return lVal << rVal;
-    }
-    else if (this->op == '||')
-    {
-        return (unsigned)(lVal || rVal);
-    }
-    else if (this->op == '&&')
-    {
-        return (unsigned)(lVal & rVal);
-    }
-    else if (this->op == '<')
-    {
-        return (unsigned)(lVal < rVal);
-    }
-    else if (this->op == '>')
-    {
-        return (unsigned)(lVal > rVal);
-    }
-    else if (this->op == '<=')
-    {
-        return (unsigned)(lVal <= rVal);
-    }
-    else if (this->op == '>=')
-    {
-        return (unsigned)(lVal >= rVal);
-    }
-    else if (this->op == '==')
-    {
-        return (unsigned)(lVal == rVal);
-    }
-    else if (this->op == '!=')
-    {
-        return (unsigned)(lVal != rVal);
-    }
-    else
-    {
-        std::string msg = Format("Invalid operator '%s' with int, %s\n", FourCCToString(this->op).c_str(), this->GetLocation().c_str());
-        compiler->Error(msg, this);
-        return -1;
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float 
-BinaryExpression::EvalFloat(Compiler* compiler) const
-{
-    float lVal = this->left->EvalFloat(compiler);
-    float rVal = this->right->EvalFloat(compiler);
-
-    if (this->op == '+')
-    {
-        return lVal + rVal;
-    }
-    else if (this->op == '-')
-    {
-        return lVal - rVal;
-    }
-    else if (this->op == '*')
-    {
-        return lVal * rVal;
-    }
-    else if (this->op == '/')
-    {
-        return lVal / rVal;
-    }
-    else
-    {
-        std::string msg = Format("Invalid operator '%s' with float, %s\n", FourCCToString(this->op).c_str(), this->GetLocation().c_str());
-        compiler->Error(msg, this);
-        return -1;
-    }
+    bool ret = true;
+    ret &= this->left->EvalSymbol(compiler, out);
+    if (this->right != nullptr)
+        ret &= this->right->EvalSymbol(compiler, out);
+    return ret;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool 
-BinaryExpression::EvalBool(Compiler* compiler) const
+BinaryExpression::EvalInt(Compiler* compiler, int& out) const
 {
-    Symbol* lhs = this->left->EvalSymbol(compiler);
-    Symbol* rhs = this->right->EvalSymbol(compiler);
+    int lVal, rVal;
+    this->left->EvalInt(compiler, lVal);
+    this->right->EvalInt(compiler, rVal);
 
-    if (lhs->symbolType == IntExpressionType)
+    if (this->op == '+')
     {
-        int lVal = this->left->EvalInt(compiler);
-        if (rhs->symbolType == FloatExpressionType)
-        {
-            float rVal = this->right->EvalFloat(compiler);
-            return EvalBool(lVal, rVal, compiler);
-        }
-        else if (rhs->symbolType == IntExpressionType)
-        {
-            int rVal = this->right->EvalInt(compiler);
-            return EvalBool(lVal, rVal, compiler);
-        }
-        else goto error;
+        out = lVal + rVal;
     }
-    else if (lhs->symbolType == FloatExpressionType)
+    else if (this->op == '-')
     {
-        float lVal = this->left->EvalFloat(compiler);
-        if (rhs->symbolType == IntExpressionType)
-        {
-            float rVal = this->right->EvalInt(compiler);
-            return EvalBool(lVal, rVal, compiler);
-        }
-        else if (rhs->symbolType == FloatExpressionType)
-        {
-            float rVal = this->right->EvalInt(compiler);
-            return EvalBool(lVal, rVal, compiler);
-        }
-        else goto error;
+        out = lVal - rVal;
     }
-    else if (lhs->symbolType == BoolExpressionType)
+    else if (this->op == '*')
     {
-        bool lVal = this->left->EvalBool(compiler);
-        if (rhs->symbolType == BoolExpressionType)
-        {
-            bool rVal = this->right->EvalBool(compiler);
-            return EvalBool(lVal, rVal, compiler);
-        }
-        else goto error;
+        out = lVal * rVal;
     }
+    else if (this->op == '/')
+    {
+        out = lVal / rVal;
+    }
+    else if (this->op == '%')
+    {
+        out = lVal % rVal;
+    }
+    else if (this->op == '^')
+    {
+        out = lVal ^ rVal;
+    }
+    else if (this->op == '|')
+    {
+        out = lVal | rVal;
+    }
+    else if (this->op == '&')
+    {
+        out = lVal & rVal;
+    }
+    else if (this->op == '>>')
+    {
+        out = lVal >> rVal;
+    }
+    else if (this->op == '<<')
+    {
+        out = lVal << rVal;
+    }
+    else if (this->op == '||')
+    {
+        out = (int)(lVal || rVal);
+    }
+    else if (this->op == '&&')
+    {
+        out = (int)(lVal & rVal);
+    }
+    else if (this->op == '<')
+    {
+        out = (int)(lVal < rVal);
+    }
+    else if (this->op == '>')
+    {
+        out = (int)(lVal > rVal);
+    }
+    else if (this->op == '<=')
+    {
+        out = (int)(lVal <= rVal);
+    }
+    else if (this->op == '>=')
+    {
+        out = (int)(lVal >= rVal);
+    }
+    else if (this->op == '==')
+    {
+        out = (int)(lVal == rVal);
+    }
+    else if (this->op == '!=')
+    {
+        out = (int)(lVal != rVal);
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
 
-    else goto error;
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+BinaryExpression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    unsigned lVal, rVal;
+    this->left->EvalUInt(compiler, lVal);
+    this->right->EvalUInt(compiler, rVal);
 
-error:
-    std::string msg = Format("Type '%s' cannot use binary operator '%s' with type '%s'", lhs->TypeToString().c_str(), FourCCToString(this->op).c_str(), rhs->TypeToString().c_str());
-    compiler->Error(msg, this);
-    return false;
+    if (this->op == '+')
+    {
+        out = lVal + rVal;
+    }
+    else if (this->op == '-')
+    {
+        out = lVal - rVal;
+    }
+    else if (this->op == '*')
+    {
+        out = lVal * rVal;
+    }
+    else if (this->op == '/')
+    {
+        out = lVal / rVal;
+    }
+    else if (this->op == '%')
+    {
+        out = lVal % rVal;
+    }
+    else if (this->op == '^')
+    {
+        out = lVal ^ rVal;
+    }
+    else if (this->op == '|')
+    {
+        out = lVal | rVal;
+    }
+    else if (this->op == '&')
+    {
+        out = lVal & rVal;
+    }
+    else if (this->op == '>>')
+    {
+        out = lVal >> rVal;
+    }
+    else if (this->op == '<<')
+    {
+        out = lVal << rVal;
+    }
+    else if (this->op == '||')
+    {
+        out = (unsigned)(lVal || rVal);
+    }
+    else if (this->op == '&&')
+    {
+        out = (unsigned)(lVal & rVal);
+    }
+    else if (this->op == '<')
+    {
+        out = (unsigned)(lVal < rVal);
+    }
+    else if (this->op == '>')
+    {
+        out = (unsigned)(lVal > rVal);
+    }
+    else if (this->op == '<=')
+    {
+        out = (unsigned)(lVal <= rVal);
+    }
+    else if (this->op == '>=')
+    {
+        out = (unsigned)(lVal >= rVal);
+    }
+    else if (this->op == '==')
+    {
+        out = (unsigned)(lVal == rVal);
+    }
+    else if (this->op == '!=')
+    {
+        out = (unsigned)(lVal != rVal);
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
 
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+BinaryExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    float lVal, rVal;
+    this->left->EvalFloat(compiler, lVal);
+    this->right->EvalFloat(compiler, rVal);
+
+    if (this->op == '+')
+    {
+        out = lVal + rVal;
+    }
+    else if (this->op == '-')
+    {
+        out = lVal - rVal;
+    }
+    else if (this->op == '*')
+    {
+        out = lVal * rVal;
+    }
+    else if (this->op == '/')
+    {
+        out = lVal / rVal;
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+BinaryExpression::EvalBool(Compiler* compiler, bool& out) const
+{
+    Type::FullType lhsType, rhsType;
+    this->left->EvalType(compiler, lhsType);
+    this->right->EvalType(compiler, rhsType);
+
+    bool ret = true;
+    if (lhsType.name == "int")
+    {
+        int lVal;
+        ret &= this->left->EvalInt(compiler, lVal);
+        if (rhsType.name == "float")
+        {
+            float rVal;
+            ret &= this->right->EvalFloat(compiler, rVal);
+            out = EvalBool(lVal, rVal, compiler);
+        }
+        else if (rhsType.name == "int")
+        {
+            int rVal;
+            ret &= this->right->EvalInt(compiler, rVal);
+            out = EvalBool(lVal, rVal, compiler);
+        }
+    }
+    else if (lhsType.name == "float")
+    {
+        float lVal;
+        ret &= this->left->EvalFloat(compiler, lVal);
+        if (rhsType.name == "int")
+        {
+            int rVal;
+            ret &= this->right->EvalInt(compiler, rVal);
+            out = EvalBool(lVal, rVal, compiler);
+        }
+        else if (rhsType.name == "float")
+        {
+            float rVal;
+            ret &= this->right->EvalFloat(compiler, rVal);
+            out = EvalBool(lVal, rVal, compiler);
+        }
+    }
+    else if (lhsType.name == "bool")
+    {
+        bool lVal;
+        ret &= this->left->EvalBool(compiler, lVal);
+        if (rhsType.name == "bool")
+        {
+            bool rVal;
+            ret &= this->right->EvalBool(compiler, rVal);
+            out = EvalBool(lVal, rVal, compiler);
+        }
+    }
+    return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -339,7 +349,10 @@ error:
 std::string 
 BinaryExpression::EvalString(Compiler* compiler) const
 {
-    return Format("%s %s %s", this->left->EvalString(compiler).c_str(), FourCCToString(this->op).c_str(), this->right->EvalString(compiler).c_str());
+    std::string left, right;
+    left = this->left->EvalString(compiler);
+    right = this->right->EvalString(compiler);
+    return Format("%s %s %s", left.c_str(), FourCCToString(this->op).c_str(), right.c_str());
 }
 
 //------------------------------------------------------------------------------

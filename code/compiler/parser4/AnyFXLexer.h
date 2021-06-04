@@ -21,15 +21,16 @@ public:
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
-    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, SC = 32, 
-    CO = 33, COL = 34, LP = 35, RP = 36, LB = 37, RB = 38, LL = 39, RR = 40, 
-    DOT = 41, NOT = 42, EQ = 43, QO = 44, QU = 45, AND = 46, ANDSET = 47, 
-    OR = 48, ORSET = 49, XOR = 50, XORSET = 51, CONNJUGATE = 52, Q = 53, 
-    NU = 54, FORWARDSLASH = 55, LESS = 56, LESSEQ = 57, GREATER = 58, GREATEREQ = 59, 
-    LOGICEQ = 60, NOTEQ = 61, LOGICAND = 62, LOGICOR = 63, MOD = 64, UNDERSC = 65, 
-    SOBAKA = 66, ADD_OP = 67, SUB_OP = 68, DIV_OP = 69, MUL_OP = 70, INTEGERLITERAL = 71, 
-    COMMENT = 72, ML_COMMENT = 73, FLOATLITERAL = 74, EXPONENT = 75, DOUBLELITERAL = 76, 
-    HEX = 77, IDENTIFIER = 78, WS = 79
+    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
+    T__32 = 33, SC = 34, CO = 35, COL = 36, LP = 37, RP = 38, LB = 39, RB = 40, 
+    LL = 41, RR = 42, DOT = 43, NOT = 44, EQ = 45, QO = 46, QU = 47, AND = 48, 
+    ANDSET = 49, OR = 50, ORSET = 51, XOR = 52, XORSET = 53, CONNJUGATE = 54, 
+    Q = 55, NU = 56, FORWARDSLASH = 57, LESS = 58, LESSEQ = 59, GREATER = 60, 
+    GREATEREQ = 61, LOGICEQ = 62, NOTEQ = 63, LOGICAND = 64, LOGICOR = 65, 
+    MOD = 66, UNDERSC = 67, SOBAKA = 68, ADD_OP = 69, SUB_OP = 70, DIV_OP = 71, 
+    MUL_OP = 72, ARROW = 73, INTEGERLITERAL = 74, UINTEGERLITERAL = 75, 
+    COMMENT = 76, ML_COMMENT = 77, FLOATLITERAL = 78, EXPONENT = 79, DOUBLELITERAL = 80, 
+    HEX = 81, IDENTIFIER = 82, WS = 83
   };
 
   AnyFXLexer(antlr4::CharStream *input);

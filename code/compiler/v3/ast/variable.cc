@@ -4,7 +4,6 @@
 //------------------------------------------------------------------------------
 #include "variable.h"
 #include "util.h"
-#include "type.h"
 
 #include <map>
 namespace AnyFX
@@ -15,14 +14,13 @@ namespace AnyFX
 /**
 */
 Variable::Variable()
-    : arraySizeExpression(nullptr)
-    , isArray(false)
 {
     this->symbolType = VariableType;
     this->resolved = new Variable::__Resolved;
+    this->type = { "" };
+    this->nameExpression = nullptr;
 
     Variable::__Resolved* typeResolved = static_cast<Variable::__Resolved*>(this->resolved);
-    typeResolved->type = nullptr;
     typeResolved->accessBits.bits = 0x0;
     typeResolved->parameterBits.bits = 0x0;
     typeResolved->usageBits.bits = 0x0;
@@ -30,10 +28,14 @@ Variable::Variable()
     typeResolved->binding = __Resolved::NOT_BOUND;
     typeResolved->imageFormat = InvalidImageFormat;
     typeResolved->arraySize = __Resolved::NOT_ARRAY;
+    typeResolved->isArray = false;
+    typeResolved->inBinding = 0xF;
+    typeResolved->outBinding = 0xF;
     typeResolved->byteSize = 0;
     typeResolved->structureOffset = 0;
     typeResolved->elementPadding = 0;
     typeResolved->startPadding = 0;
+    typeResolved->value = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -41,7 +43,12 @@ Variable::Variable()
 */
 Variable::~Variable()
 {
+    for (Expression* expr : this->type.modifierExpressions)
+        delete expr;
+
     Variable::__Resolved* typeResolved = static_cast<Variable::__Resolved*>(this->resolved);
+    for (Variable* sibling : typeResolved->siblings)
+        delete sibling;
     delete typeResolved;
 }
 

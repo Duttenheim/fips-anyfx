@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 #include "attribute.h"
 #include "annotation.h"
-#include "type.h"
+#include "types/type.h"
 #include <vector>
 #include <map>
 namespace AnyFX
@@ -21,17 +21,11 @@ struct Variable : public Symbol
     /// destructor
     ~Variable();
 
-    std::string type;
     std::vector<std::string> values;
+    Type::FullType type;
+    Expression* nameExpression;
     _IMPLEMENT_ANNOTATIONS()
     _IMPLEMENT_ATTRIBUTES()
-
-    std::vector<std::string> initializerTypes;
-    std::vector<std::vector<Expression*>> initializers;
-
-    Expression* arraySizeExpression;
-    bool isArray;
-
 
     enum ImageFormat
     {
@@ -92,13 +86,12 @@ struct Variable : public Symbol
         };
         ParameterBits parameterBits;
 
-        Type* type;
-
         union UsageBits
         {
             struct
             {
                 uint32_t isConst : 1;                   // true if variable is const
+                uint32_t isMutable : 1;                 // true if variable is mutable
                 uint32_t isParameter : 1;               // true if variable is passed to a function
                 uint32_t isStructMember : 1;            // true if variable is the member of a struct
                 uint32_t isConstantBufferMember : 1;    // true if variable belongs to a struct const
@@ -108,15 +101,24 @@ struct Variable : public Symbol
             uint32_t bits;
         };
         UsageBits usageBits;
-        
+
+        std::vector<Variable*> siblings;
+
+        /// type here is the fully qualified (pointer and array) type
+        Type* typeSymbol;
+        Type::FullType type;
+        std::string name;
+        Expression* value;
+
         static const uint8_t NOT_BOUND = 0xF;
-        uint8_t group;          // resource group
-        uint8_t binding;        // resource binding
+        uint32_t group;          // resource group
+        uint32_t binding;        // resource binding
 
         uint8_t inBinding;      // parameter input binding
         uint8_t outBinding;     // parameter output binding
 
         static const uint32_t NOT_ARRAY = 0x1;
+        bool isArray;
         uint32_t arraySize;
 
         uint32_t byteSize;          // size in bytes
@@ -125,28 +127,6 @@ struct Variable : public Symbol
         uint32_t startPadding;      // padding before variable
 
         ImageFormat imageFormat;    // for read write images, this is the format
-
-        struct Initializer
-        {
-            enum Type
-            {
-                FloatType,
-                IntType,
-                UIntType,
-                BoolType
-            };
-            Type type;
-            union Data
-            {
-                float f;
-                int i;
-                unsigned int u;
-                bool b;
-            } data;
-        };
-
-        // per each array item, per each component of type
-        std::vector<std::vector<Initializer>> initializers;
         
     };
 };

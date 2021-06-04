@@ -39,15 +39,6 @@ Symbol::GetLocation() const
 //------------------------------------------------------------------------------
 /**
 */
-bool
-Symbol::EndOfParse(Compiler* compiler)
-{
-    return compiler->AddSymbol(this->name, this);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 const std::string 
 Symbol::TypeToString() const
 {

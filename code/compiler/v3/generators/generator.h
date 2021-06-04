@@ -30,6 +30,8 @@ struct Generator
     /// generate variable
     virtual void GenerateVariable(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode, bool isShaderArgument);
 
+
+
     std::vector<std::string> targetLanguageFiles;
     Function* mainFunction;
 };

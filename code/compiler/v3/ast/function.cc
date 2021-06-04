@@ -5,8 +5,14 @@
 #include "function.h"
 #include "util.h"
 #include "variable.h"
-#include "type.h"
+#include "types/type.h"
 #include "compiler.h"
+
+#define __BEGIN_INTRINSICS__ std::map<std::string, Symbol*> functions; Function* newFunction = nullptr;
+#define __MAKE_INTRINSIC(funName, retType) newFunction = new Function(); newFunction->name = #funName; newFunction->returnType = { #retType };
+#define __ADD_PARAM(paramName, paramType) Variable* var = new Variable(); var->type = { #paramType }; var->name = #paramName; newFunction->parameters.push_back(var);
+#define __ADD_LOOKUP(name) functions[#name] = newFunction;
+#define __END_LOOKUP__ return functions;
 
 namespace AnyFX
 {
@@ -44,6 +50,9 @@ Function::Function()
 */
 Function::~Function()
 {
+    for (Expression* expr : this->returnType.modifierExpressions)
+        delete expr;
+
     for (Variable* var : this->parameters)
         delete var;
 }
@@ -51,65 +60,73 @@ Function::~Function()
 //------------------------------------------------------------------------------
 /**
 */
-bool
-Function::EndOfParse(Compiler* compiler)
+std::map<std::string, Symbol*> 
+Function::SetupIntrinsics()
 {
-    // setup our variables and attributes as sets
-    std::string paramList;
-    for (Variable* var : this->parameters)
+    __BEGIN_INTRINSICS__
+
+
+    __END_LOOKUP__
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Symbol*
+Function::MatchOverload(Compiler* compiler, const std::vector<Symbol*>& functions, const std::vector<Type::FullType>& args, bool allowImplicitConversion)
+{
+    Symbol* ret = nullptr;
+    for (Symbol* sym : functions)
     {
-        // add comma if not first argument
-        if (var != this->parameters.front())
-            paramList.append(",");
+        // presume nothing
+        if (sym->symbolType != SymbolType::FunctionType)
+            continue;
 
-        // finally add type
-        paramList.append(var->type);
-    }
+        Function* fun = static_cast<Function*>(sym);
+        if (fun->parameters.size() != args.size())
+            continue;
 
-    std::string attributeList;
-    bool isPrototype = false;
-
-    // make a set of all attributes
-    for (const Attribute& attr : this->attributes)
-    {
-        const std::string& attrAsString = attr.ToString(compiler);
-        attributeList.append(Format("%s ", attrAsString.c_str()));
-        if (attr.name == "prototype")
-            isPrototype = true;
-    }
-
-    // format function with all attributes and parameters
-    std::string functionFormatted = Format("%s%s %s(%s)", attributeList.c_str(), this->returnType.c_str(), this->name.c_str(), paramList.c_str());
-    this->signature = functionFormatted;
-
-    // if prototype, add as an ordinary symbol
-    if (isPrototype)
-    {
-        return compiler->AddSymbol(this->name, this, false);
-    }
-    else
-    {
-        // find functions with similar name
-        std::pair<Compiler::SymbolIterator, Compiler::SymbolIterator> matchingFunctions = compiler->GetSymbols(this->name);
-        for (auto it = matchingFunctions.first; it != matchingFunctions.second; it++)
+        ret = sym;
+        for (size_t i = 0; i < args.size() && ret != nullptr; i++)
         {
-            Function* otherFunction = static_cast<Function*>(it->second);
+            if (args[i] != fun->parameters[i]->type)
+            {
+                if (allowImplicitConversion)
+                {
+                    // types don't match, check if there is a constructor for this argument which matches the input argument
+                    Type* argType = compiler->GetSymbol<Type>(fun->parameters[i]->type.name);
+                    std::vector<Symbol*> conversionMethods = argType->GetSymbols(argType->name);
 
-            if (!this->IsCompatible(otherFunction, false))
-                continue;
+                    ret = nullptr;
+                    for (size_t j = 0; j < conversionMethods.size(); j++)
+                    {
+                        Function* conv = static_cast<Function*>(conversionMethods[j]);
+                        if (conv->symbolType != SymbolType::FunctionType)
+                            continue;
 
-            // if all checks prove these functions are identical, throw error
-            if (this->returnType != otherFunction->returnType)
-                compiler->Error(Format("Function '%s' can not be overloaded because it only differs by return type when trying to overload previous definition at %s(%d)", functionFormatted.c_str(), otherFunction->location.file.c_str(), otherFunction->location.line), this);
-            else
-                compiler->Error(Format("Function '%s' redefinition, previous definition at %s(%d)", functionFormatted.c_str(), otherFunction->location.file.c_str(), otherFunction->location.line), this);
+                        if (conv->parameters.size() != 1)
+                            continue;
 
-            return false;
+                        if (conv->parameters[0]->type == args[i])
+                        {
+                            // okay, conversion found so move to next argument in outer loop
+                            ret = sym;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    ret = nullptr;
+                }
+            }
         }
-    }
 
-    // if we didn't fault, add the symbol
-    return compiler->AddSymbol(this->name, this, true);
+        // if ret kept itself from being unset, return it as it's a match
+        if (ret != nullptr)
+            return ret;
+    }
+    return ret;
 }
 
 //------------------------------------------------------------------------------

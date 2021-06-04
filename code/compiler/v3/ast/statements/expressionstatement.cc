@@ -9,8 +9,8 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-ExpressionStatement::ExpressionStatement(Expression* expression)
-    : expression(expression)
+ExpressionStatement::ExpressionStatement(Expression* expr)
+    : expr(expr)
 {
     this->symbolType = ExpressionStatementType;
 }

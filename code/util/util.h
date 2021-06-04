@@ -97,6 +97,7 @@ inline const std::string
 FourCCToString(uint32_t fourCC)
 {
     char buf[4];
+    char usedBytes = 0;
     uint32_t masks[4] =
     {
         0x000000FF
@@ -104,12 +105,30 @@ FourCCToString(uint32_t fourCC)
         , 0x00FF0000
         , 0xFF000000
     };
-    for (int i = 3, shift = 0; i >= 0; i--)
+    for (int i = 0, shift = 0; i < 4; i++)
     {
-        buf[i] = (char)((fourCC & masks[i]) >> shift);
+        char c = (char)((fourCC & masks[i]) >> shift);
+        if (c != 0x0)
+            usedBytes++;
+        buf[i] = c;
         shift += 8;
     }
-    return std::string(buf, 4);
+    return std::string(buf, usedBytes);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline uint32_t
+StringToFourCC(const std::string& str)
+{
+    uint32_t fourcc = 0;
+    for (int i = str.size() - 1, shift = 0; i >= 0; i--)
+    {
+        fourcc |= uint32_t(str.c_str()[i]) << shift;
+        shift += 8;
+    }
+    return fourcc;
 }
 
 //------------------------------------------------------------------------------
@@ -136,5 +155,24 @@ FourCCToString(uint32_t fourCC)
 	constexpr bool HasFlags(const TYPE& a, TYPE flags) { return (a & flags) == flags; }\
 	constexpr typename std::underlying_type<TYPE>::type EnumToInt(TYPE a) { return static_cast<typename std::underlying_type<TYPE>::type>(a); }\
     constexpr TYPE IntToEnum(typename std::underlying_type<TYPE>::type a) { return static_cast<TYPE>(a); }
+
+//------------------------------------------------------------------------------
+/**
+*/
+template <typename T>
+inline constexpr T max(T a, T b)
+{
+    return a > b ? a : b;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template <typename T, typename T2>
+inline constexpr T max(T a, T2 b)
+{
+    return a > b ? a : b;
+}
+
 
 } // namespace AnyFX

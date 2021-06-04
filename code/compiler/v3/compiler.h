@@ -21,6 +21,7 @@
 namespace AnyFX
 {
 
+struct Type;
 struct Compiler
 {
     enum class Language : uint8_t
@@ -34,6 +35,8 @@ struct Compiler
 
     /// constructor
     Compiler();
+    /// destructor
+    ~Compiler();
 
     /// setup compiler with target language
     void Setup(const Compiler::Language& lang, const std::vector<std::string>& defines, unsigned int version);
@@ -42,9 +45,32 @@ struct Compiler
     bool AddSymbol(const std::string& name, Symbol* symbol, bool allowDuplicate = false);
     /// get symbol by name
     Symbol* GetSymbol(const std::string& name) const;
+    /// get symbol by name as other type
+    template <typename T> T* GetSymbol(const std::string& name) const;
     /// return iterator to first and last symbol matching name
-    typedef std::multimap<std::string, Symbol*>::const_iterator SymbolIterator;
-    std::pair<SymbolIterator, SymbolIterator> GetSymbols(const std::string& name) const;
+    std::vector<Symbol*> GetSymbols(const std::string& name) const;
+    
+
+    struct Scope
+    {
+        enum class Type
+        {
+            Global,
+            Local
+        };
+        Type type = Type::Local;
+        std::vector<Symbol*> symbols;
+        std::multimap<std::string, Symbol*> symbolLookup;
+        Symbol* owningSymbol;
+    };
+    /// create new scope and push it to the stack
+    void PushScope(Scope::Type type, Symbol* owner = nullptr);
+    /// pop the scope
+    void PopScope();
+    /// current scope global
+    bool IsScopeGlobal();
+    /// get scope owner
+    Symbol* GetScopeOwner();
 
     /// runs the validation and generation steps, returns true if successful, otherwise false and a list of error messages
     bool Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWriter);
@@ -60,11 +86,12 @@ struct Compiler
     /// produce an internal generator error
     void GeneratorError(const std::string& msg);
 
+    /// helper for unrecognized type error
+    void UnrecognizedTypeError(const std::string& type, Symbol* sym);
+
     /// output binary data
     void OutputBinary(Symbol* symbol, BinWriter& writer, Serialize::DynamicLengthBlob& dynamicDataBlob);
 
-    std::vector<Symbol*> symbols;
-    std::multimap<std::string, Symbol*> symbolLookup;
     std::vector<std::string> defines;
     std::vector<std::string> errors;
     std::vector<std::string> warnings;
@@ -72,6 +99,27 @@ struct Compiler
     Validator* validator = nullptr;
     Generator* generator = nullptr;
     Generator* headerGenerator = nullptr;
+
+    std::vector<Scope*> scopes;
+
+    struct TypeScope
+    {
+        TypeScope(Compiler* compiler, Type* type)
+        {
+            this->compiler = compiler;
+            this->oldType = this->compiler->typeScope;
+            this->compiler->typeScope = type;
+        }
+
+        ~TypeScope()
+        {
+            this->compiler->typeScope = this->oldType;
+        }
+
+        Compiler* compiler;
+        Type* oldType;
+    };
+    Type* typeScope;
 
     std::string debugPath;
     bool debugOutput;
@@ -120,24 +168,6 @@ map_contains(const std::unordered_map<K, T>& map, const K& key)
 /**
 */
 template <typename T>
-inline constexpr T max(T a, T b)
-{
-    return a > b ? a : b;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-template <typename T, typename T2>
-inline constexpr T max(T a, T2 b)
-{
-    return a > b ? a : b;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-template <typename T>
 inline constexpr T min(T a, T b)
 {
     return a < b ? a : b;
@@ -152,5 +182,14 @@ inline constexpr T min(T a, T2 b)
     return a < b ? a : b;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+template <typename T>
+inline T*
+Compiler::GetSymbol(const std::string& name) const
+{
+    return static_cast<T*>(this->GetSymbol(name));
+}
 
 } // namespace AnyFX

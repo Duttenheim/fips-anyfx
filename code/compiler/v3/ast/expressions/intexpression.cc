@@ -28,53 +28,67 @@ IntExpression::~IntExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-IntExpression::EvalSymbol(Compiler* compiler) const
+bool
+IntExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    return nullptr;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-int
-IntExpression::EvalInt(Compiler* compiler) const
-{
-    return this->value;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-IntExpression::EvalUInt(Compiler* compiler) const
-{
-    return (unsigned)this->value;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Convert this integer to a float
-*/
-float
-IntExpression::EvalFloat(Compiler* compiler) const
-{
-    return (float)this->value;
+    out = Type::FullType{ "int" };
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-IntExpression::EvalBool(Compiler* compiler) const
+IntExpression::EvalSymbol(Compiler* compiler, std::string& out) const
 {
-    return this->value != 0;
+    return false;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+bool
+IntExpression::EvalInt(Compiler* compiler, int& out) const
+{
+    out = this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+IntExpression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    out = (unsigned)this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+    Convert this integer to a float
+*/
+bool
+IntExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    out = (float)this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+IntExpression::EvalBool(Compiler* compiler, bool& out) const
+{
+    out = this->value != 0;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
 IntExpression::EvalString(Compiler* compiler) const
 {
     return Format("%d", this->value);

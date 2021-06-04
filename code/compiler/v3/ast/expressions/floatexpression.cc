@@ -5,6 +5,7 @@
 #include "floatexpression.h"
 #include "compiler.h"
 #include "util.h"
+#include "v3/ast/types/type.h"
 
 namespace AnyFX
 {
@@ -29,55 +30,66 @@ FloatExpression::~FloatExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-FloatExpression::EvalSymbol(Compiler* compiler) const
+bool 
+FloatExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    return nullptr;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Convert this float to an integer
-*/
-int 
-FloatExpression::EvalInt(Compiler* compiler) const
-{
-    return (int)this->value;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-FloatExpression::EvalUInt(Compiler* compiler) const
-{
-    return (unsigned)this->value;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float
-FloatExpression::EvalFloat(Compiler* compiler) const
-{
-    return this->value;
+    out = Type::FullType{ "float" };
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-FloatExpression::EvalBool(Compiler* compiler) const
+FloatExpression::EvalSymbol(Compiler* compiler, std::string& out) const
 {
-    std::string err = Format("Float cannot be explicitly cast to bool");
-    compiler->Error(err, this);
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+    Convert this float to an integer
+*/
+bool  
+FloatExpression::EvalInt(Compiler* compiler, int& out) const
+{
+    out = (int)this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+FloatExpression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    out = (unsigned)this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+FloatExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    out = this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+FloatExpression::EvalBool(Compiler* compiler, bool& out) const
+{
     return false;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+std::string
 FloatExpression::EvalString(Compiler* compiler) const
 {
     return Format("%f", this->value);

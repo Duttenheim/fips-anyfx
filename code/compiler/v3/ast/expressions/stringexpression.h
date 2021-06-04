@@ -20,17 +20,15 @@ public:
 	/// destructor
 	virtual ~StringExpression();
 
-    /// evaulate type of expression
-    Symbol* EvalSymbol(Compiler* compiler) const override;
     /// evaluates expression as an integer
-    int EvalInt(Compiler* compiler) const override;
+    bool EvalInt(Compiler* compiler, int& out) const override;
     /// evaluates expression as an integer
-    unsigned EvalUInt(Compiler* compiler) const override;
+    bool EvalUInt(Compiler* compiler, unsigned& out) const override;
     /// evaulates expression as a float
-    float EvalFloat(Compiler* compiler) const override;
-    /// evaluates expression as a bool
-    bool EvalBool(Compiler* compiler) const override;
-    /// evaluates expression as string
+    bool EvalFloat(Compiler* compiler, float& out) const override;
+    /// evaluates expression as a boolean
+    bool EvalBool(Compiler* compiler, bool& out) const override;
+    /// evaluates expression as a string
     std::string EvalString(Compiler* compiler) const override;
 
 	std::string value;

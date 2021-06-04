@@ -14,43 +14,70 @@ namespace AnyFX
 {
 
 struct Compiler;
+struct Expression;
 struct Attribute
 {
     std::string name;
     Expression* expression;
 
     /// converts attribute to string
-    std::string ToString(Compiler* compiler) const;
+    bool ToString(Compiler* compiler, std::string& out) const;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
-inline std::string 
-Attribute::ToString(Compiler* compiler) const
+inline bool
+Attribute::ToString(Compiler* compiler, std::string& out) const
 {
-    std::string ret;
+    bool ret = true;
     if (this->expression == nullptr)
-        ret.append(Format("%s", this->name.c_str()));
+        out.append(Format("%s", this->name.c_str()));
     else
     {
         switch (this->expression->symbolType)
         {
         case Symbol::FloatExpressionType:
-            ret.append(Format("%s(%f)", this->name.c_str(), this->expression->EvalFloat(compiler)));
+        {
+            float f;
+            ret &= this->expression->EvalFloat(compiler, f);
+            out.append(Format("%s(%f)", this->name.c_str(), f));
             break;
+        }
+        case Symbol::UIntExpressionType:
+        {
+            unsigned i;
+            ret &= this->expression->EvalUInt(compiler, i);
+            out.append(Format("%s(%d)", this->name.c_str(), i));
+            break;
+        }
         case Symbol::IntExpressionType:
-            ret.append(Format("%s(%d)", this->name.c_str(), this->expression->EvalInt(compiler)));
+        {
+            int i;
+            ret &= this->expression->EvalInt(compiler, i);
+            out.append(Format("%s(%d)", this->name.c_str(), i));
             break;
+        }
         case Symbol::BoolExpressionType:
-            ret.append(Format("%s(%d)", this->name.c_str(), this->expression->EvalInt(compiler)));
+        {
+            bool b;
+            ret &= this->expression->EvalBool(compiler, b);
+            out.append(Format("%s(%d)", this->name.c_str(), b));
             break;
+        }
         case Symbol::StringExpressionType:
-            ret.append(Format("%s(%s)", this->name.c_str(), this->expression->EvalString(compiler).c_str()));
+        {
+            std::string str = this->expression->EvalString(compiler);
+            out.append(Format("%s(%s)", this->name.c_str(), str.c_str()));
             break;
+        }
         case Symbol::SymbolExpressionType:
-            ret.append(Format("%s(%s)", this->name.c_str(), this->expression->EvalString(compiler).c_str()));
+        {
+            std::string str;
+            ret &= this->expression->EvalSymbol(compiler, str);
+            out.append(Format("%s(%s)", this->name.c_str(), str.c_str()));
             break;
+        }
         }
     }
     return ret;

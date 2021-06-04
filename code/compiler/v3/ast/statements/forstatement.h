@@ -15,10 +15,10 @@ namespace AnyFX
 struct ForStatement : public Statement
 {
     /// constructor
-    ForStatement(const std::vector<Symbol*>& declarations, Expression* condition, const std::vector<Expression*>& expressions, Statement* contents);
-    std::vector<Symbol*> declarations;
+    ForStatement(Symbol* declaration, Expression* condition, Statement* statement, Statement* contents);
+    Symbol* declaration;
     Expression* condition;
-    std::vector<Expression*> expressions;
+    Statement* statement;
     Statement* contents;
 };
 

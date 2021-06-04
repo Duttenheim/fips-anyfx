@@ -23,32 +23,34 @@ struct Function : public Symbol
     /// destructor
     ~Function();
 
+    /// setup intrinsics
+    static std::map<std::string, Symbol*> SetupIntrinsics();
+
     Statement* ast;
     std::string signature;
-    std::string returnType;
+    Type::FullType returnType;
     std::string body;
     bool hasBody;
     std::vector<Variable*> parameters;
     _IMPLEMENT_ANNOTATIONS()
     _IMPLEMENT_ATTRIBUTES()
 
-    /// handle function end of parse specially
-    bool EndOfParse(Compiler* compiler) override;
+    static Symbol* MatchOverload(Compiler* compiler, const std::vector<Symbol*>& functions, const std::vector<Type::FullType>& args, bool allowImplicitConversion = false);
 
     /// returns true if functions are compatible
     bool IsCompatible(Function* otherFunction, bool checkReturnType = false);
 
     struct __Resolved : public Symbol::__Resolved
     {
-        Type* returnType;
+        Type* returnTypeSymbol;
 
         unsigned int computeShaderWorkGroupSize[3];
         bool earlyDepth;
 
         static const uint8_t INVALID_SIZE = 0xF;
-        uint8_t invocations;
-        uint8_t maxOutputVertices;
-        uint8_t patchSize;
+        uint32_t invocations;
+        uint32_t maxOutputVertices;
+        uint32_t patchSize;
 
         enum WindingOrder
         {

@@ -15,9 +15,9 @@ namespace AnyFX
 struct ExpressionStatement : public Statement
 {
     /// constructor
-    ExpressionStatement(Expression* expression);
+    ExpressionStatement(Expression* expr);
 
-    Expression* expression;
+    Expression* expr;
 };
 
 } // namespace AnyFX

@@ -12,6 +12,7 @@
 #include "ast/alias.h"
 #include "ast/annotation.h"
 #include "ast/effect.h"
+#include "ast/enumeration.h"
 #include "ast/function.h"
 #include "ast/program.h"
 #include "ast/renderstate.h"
@@ -22,7 +23,6 @@
 #include "ast/variable.h"
 #include "ast/statements/breakstatement.h"
 #include "ast/statements/continuestatement.h"
-#include "ast/statements/declarationstatement.h"
 #include "ast/statements/expressionstatement.h"
 #include "ast/statements/forstatement.h"
 #include "ast/statements/ifstatement.h"
@@ -32,18 +32,21 @@
 #include "ast/statements/switchstatement.h"
 #include "ast/statements/whilestatement.h"
 #include "ast/expressions/accessexpression.h"
-#include "ast/expressions/accessexpression.h"
 #include "ast/expressions/arrayindexexpression.h"
 #include "ast/expressions/binaryexpression.h"
 #include "ast/expressions/boolexpression.h"
 #include "ast/expressions/callexpression.h"
+#include "ast/expressions/commaexpression.h"
 #include "ast/expressions/expression.h"
 #include "ast/expressions/floatexpression.h"
+#include "ast/expressions/initializerexpression.h"
 #include "ast/expressions/intexpression.h"
 #include "ast/expressions/stringexpression.h"
 #include "ast/expressions/symbolexpression.h"
 #include "ast/expressions/ternaryexpression.h"
+#include "ast/expressions/uintexpression.h"
 #include "ast/expressions/unaryexpression.h"
+#include "util.h"
 
 using namespace AnyFX;
 
@@ -88,6 +91,9 @@ public:
   virtual void enterAttribute(AnyFXParser::AttributeContext *ctx) = 0;
   virtual void exitAttribute(AnyFXParser::AttributeContext *ctx) = 0;
 
+  virtual void enterTypeDeclaration(AnyFXParser::TypeDeclarationContext *ctx) = 0;
+  virtual void exitTypeDeclaration(AnyFXParser::TypeDeclarationContext *ctx) = 0;
+
   virtual void enterVariable(AnyFXParser::VariableContext *ctx) = 0;
   virtual void exitVariable(AnyFXParser::VariableContext *ctx) = 0;
 
@@ -96,6 +102,9 @@ public:
 
   virtual void enterStructure(AnyFXParser::StructureContext *ctx) = 0;
   virtual void exitStructure(AnyFXParser::StructureContext *ctx) = 0;
+
+  virtual void enterEnumeration(AnyFXParser::EnumerationContext *ctx) = 0;
+  virtual void exitEnumeration(AnyFXParser::EnumerationContext *ctx) = 0;
 
   virtual void enterFunctionDeclaration(AnyFXParser::FunctionDeclarationContext *ctx) = 0;
   virtual void exitFunctionDeclaration(AnyFXParser::FunctionDeclarationContext *ctx) = 0;
@@ -112,17 +121,11 @@ public:
   virtual void enterState(AnyFXParser::StateContext *ctx) = 0;
   virtual void exitState(AnyFXParser::StateContext *ctx) = 0;
 
-  virtual void enterDeclaration(AnyFXParser::DeclarationContext *ctx) = 0;
-  virtual void exitDeclaration(AnyFXParser::DeclarationContext *ctx) = 0;
-
   virtual void enterStatement(AnyFXParser::StatementContext *ctx) = 0;
   virtual void exitStatement(AnyFXParser::StatementContext *ctx) = 0;
 
   virtual void enterExpressionStatement(AnyFXParser::ExpressionStatementContext *ctx) = 0;
   virtual void exitExpressionStatement(AnyFXParser::ExpressionStatementContext *ctx) = 0;
-
-  virtual void enterDeclarationStatement(AnyFXParser::DeclarationStatementContext *ctx) = 0;
-  virtual void exitDeclarationStatement(AnyFXParser::DeclarationStatementContext *ctx) = 0;
 
   virtual void enterIfStatement(AnyFXParser::IfStatementContext *ctx) = 0;
   virtual void exitIfStatement(AnyFXParser::IfStatementContext *ctx) = 0;
@@ -154,59 +157,53 @@ public:
   virtual void enterExpression(AnyFXParser::ExpressionContext *ctx) = 0;
   virtual void exitExpression(AnyFXParser::ExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp12(AnyFXParser::Binaryexp12Context *ctx) = 0;
-  virtual void exitBinaryexp12(AnyFXParser::Binaryexp12Context *ctx) = 0;
+  virtual void enterCommaExpression(AnyFXParser::CommaExpressionContext *ctx) = 0;
+  virtual void exitCommaExpression(AnyFXParser::CommaExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp11(AnyFXParser::Binaryexp11Context *ctx) = 0;
-  virtual void exitBinaryexp11(AnyFXParser::Binaryexp11Context *ctx) = 0;
+  virtual void enterAssignmentExpression(AnyFXParser::AssignmentExpressionContext *ctx) = 0;
+  virtual void exitAssignmentExpression(AnyFXParser::AssignmentExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp10(AnyFXParser::Binaryexp10Context *ctx) = 0;
-  virtual void exitBinaryexp10(AnyFXParser::Binaryexp10Context *ctx) = 0;
+  virtual void enterLogicalOrExpression(AnyFXParser::LogicalOrExpressionContext *ctx) = 0;
+  virtual void exitLogicalOrExpression(AnyFXParser::LogicalOrExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp9(AnyFXParser::Binaryexp9Context *ctx) = 0;
-  virtual void exitBinaryexp9(AnyFXParser::Binaryexp9Context *ctx) = 0;
+  virtual void enterLogicalAndExpression(AnyFXParser::LogicalAndExpressionContext *ctx) = 0;
+  virtual void exitLogicalAndExpression(AnyFXParser::LogicalAndExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp8(AnyFXParser::Binaryexp8Context *ctx) = 0;
-  virtual void exitBinaryexp8(AnyFXParser::Binaryexp8Context *ctx) = 0;
+  virtual void enterOrExpression(AnyFXParser::OrExpressionContext *ctx) = 0;
+  virtual void exitOrExpression(AnyFXParser::OrExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp7(AnyFXParser::Binaryexp7Context *ctx) = 0;
-  virtual void exitBinaryexp7(AnyFXParser::Binaryexp7Context *ctx) = 0;
+  virtual void enterXorExpression(AnyFXParser::XorExpressionContext *ctx) = 0;
+  virtual void exitXorExpression(AnyFXParser::XorExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp6(AnyFXParser::Binaryexp6Context *ctx) = 0;
-  virtual void exitBinaryexp6(AnyFXParser::Binaryexp6Context *ctx) = 0;
+  virtual void enterAndExpression(AnyFXParser::AndExpressionContext *ctx) = 0;
+  virtual void exitAndExpression(AnyFXParser::AndExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp5(AnyFXParser::Binaryexp5Context *ctx) = 0;
-  virtual void exitBinaryexp5(AnyFXParser::Binaryexp5Context *ctx) = 0;
+  virtual void enterEquivalencyExpression(AnyFXParser::EquivalencyExpressionContext *ctx) = 0;
+  virtual void exitEquivalencyExpression(AnyFXParser::EquivalencyExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp4(AnyFXParser::Binaryexp4Context *ctx) = 0;
-  virtual void exitBinaryexp4(AnyFXParser::Binaryexp4Context *ctx) = 0;
+  virtual void enterRelationalExpression(AnyFXParser::RelationalExpressionContext *ctx) = 0;
+  virtual void exitRelationalExpression(AnyFXParser::RelationalExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp3(AnyFXParser::Binaryexp3Context *ctx) = 0;
-  virtual void exitBinaryexp3(AnyFXParser::Binaryexp3Context *ctx) = 0;
+  virtual void enterShiftExpression(AnyFXParser::ShiftExpressionContext *ctx) = 0;
+  virtual void exitShiftExpression(AnyFXParser::ShiftExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp2(AnyFXParser::Binaryexp2Context *ctx) = 0;
-  virtual void exitBinaryexp2(AnyFXParser::Binaryexp2Context *ctx) = 0;
+  virtual void enterAddSubtractExpression(AnyFXParser::AddSubtractExpressionContext *ctx) = 0;
+  virtual void exitAddSubtractExpression(AnyFXParser::AddSubtractExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp1(AnyFXParser::Binaryexp1Context *ctx) = 0;
-  virtual void exitBinaryexp1(AnyFXParser::Binaryexp1Context *ctx) = 0;
+  virtual void enterMultiplyDivideExpression(AnyFXParser::MultiplyDivideExpressionContext *ctx) = 0;
+  virtual void exitMultiplyDivideExpression(AnyFXParser::MultiplyDivideExpressionContext *ctx) = 0;
 
-  virtual void enterBinaryexp0(AnyFXParser::Binaryexp0Context *ctx) = 0;
-  virtual void exitBinaryexp0(AnyFXParser::Binaryexp0Context *ctx) = 0;
+  virtual void enterPrefixExpression(AnyFXParser::PrefixExpressionContext *ctx) = 0;
+  virtual void exitPrefixExpression(AnyFXParser::PrefixExpressionContext *ctx) = 0;
+
+  virtual void enterSuffixExpression(AnyFXParser::SuffixExpressionContext *ctx) = 0;
+  virtual void exitSuffixExpression(AnyFXParser::SuffixExpressionContext *ctx) = 0;
 
   virtual void enterBinaryexpatom(AnyFXParser::BinaryexpatomContext *ctx) = 0;
   virtual void exitBinaryexpatom(AnyFXParser::BinaryexpatomContext *ctx) = 0;
 
-  virtual void enterParantExpression(AnyFXParser::ParantExpressionContext *ctx) = 0;
-  virtual void exitParantExpression(AnyFXParser::ParantExpressionContext *ctx) = 0;
-
-  virtual void enterCallExpression(AnyFXParser::CallExpressionContext *ctx) = 0;
-  virtual void exitCallExpression(AnyFXParser::CallExpressionContext *ctx) = 0;
-
-  virtual void enterAccessExpression(AnyFXParser::AccessExpressionContext *ctx) = 0;
-  virtual void exitAccessExpression(AnyFXParser::AccessExpressionContext *ctx) = 0;
-
-  virtual void enterArrayIndexExpression(AnyFXParser::ArrayIndexExpressionContext *ctx) = 0;
-  virtual void exitArrayIndexExpression(AnyFXParser::ArrayIndexExpressionContext *ctx) = 0;
+  virtual void enterInitializerExpression(AnyFXParser::InitializerExpressionContext *ctx) = 0;
+  virtual void exitInitializerExpression(AnyFXParser::InitializerExpressionContext *ctx) = 0;
 
 
 };

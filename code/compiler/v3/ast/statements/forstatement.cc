@@ -9,10 +9,10 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-ForStatement::ForStatement(const std::vector<Symbol*>& declarations, Expression* condition, const std::vector<Expression*>& expressions, Statement* contents)
-    : declarations(declarations)
+ForStatement::ForStatement(Symbol* declaration, Expression* condition, Statement* statement, Statement* contents)
+    : declaration(declaration)
     , condition(condition)
-    , expressions(expressions)
+    , statement(statement)
     , contents(contents)
 {
     this->symbolType = ForStatementType;

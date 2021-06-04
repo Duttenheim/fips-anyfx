@@ -10,7 +10,8 @@
 #include "generators/spirvgenerator.h"
 #include "generators/hgenerator.h"
 #include "util.h"
-#include "v3/ast/type.h"
+#include "v3/ast/types/type.h"
+#include "v3/ast/function.h"
 #include "v3/ast/variable.h"
 #include "v3/ast/renderstate.h"
 #include "v3/ast/samplerstate.h"
@@ -25,18 +26,50 @@ namespace AnyFX
 */
 Compiler::Compiler() 
     : debugOutput(false)
+    , typeScope(nullptr)
 {
-    // setup default types and their lookups
     Variable::SetupImageFormats();
+    this->validator = new Validator;
+
+    // push global scope for all the builtins
+    this->PushScope(Scope::Type::Global);
+
+    // setup default types and their lookups
     const std::map<std::string, Symbol*> defaultTypes = Type::SetupDefaultTypes();
-    auto it = defaultTypes.begin();
-    while (it != defaultTypes.end())
+    auto typeIt = defaultTypes.begin();
+    while (typeIt != defaultTypes.end())
     {
-        this->AddSymbol(it->first, it->second);
-        it++;
+        this->AddSymbol(typeIt->first, typeIt->second);
+        typeIt++;
     }
 
-    this->validator = new Validator;
+    // resolve types
+    typeIt = defaultTypes.begin();
+    while (typeIt != defaultTypes.end())
+    {
+        this->validator->ResolveType(this, typeIt->second);
+        typeIt++;
+    }
+
+    // setup intrinsics
+    const std::map<std::string, Symbol*> intrinsics = Function::SetupIntrinsics();
+    auto intrinIt = intrinsics.begin();
+    while (intrinIt != intrinsics.end())
+    {
+        this->validator->ResolveFunction(this, intrinIt->second);
+        intrinIt++;
+    }
+
+    // push a new scope for all the parsed symbols
+    this->PushScope(Scope::Type::Global);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Compiler::~Compiler()
+{
+    delete this->validator;
 }
 
 //------------------------------------------------------------------------------
@@ -72,15 +105,30 @@ Compiler::Setup(const Compiler::Language& lang, const std::vector<std::string>& 
 bool 
 Compiler::AddSymbol(const std::string& name, Symbol* symbol, bool allowDuplicate)
 {
-    auto it = this->symbolLookup.find(name);
-    if (it != this->symbolLookup.end() && !allowDuplicate)
+    if (this->typeScope)
     {
-        Symbol* symbol = it->second;
-        this->errors.push_back(Format("Symbol %s redefinition, previous definition at %s(%d)", name.c_str(), symbol->location.file.c_str(), symbol->location.line));
-        return false;
+        auto it = this->typeScope->lookup.find(name);
+        if (it != this->typeScope->lookup.end())
+        {
+            Symbol* symbol = it->second;
+            this->errors.push_back(Format("Symbol %s redefinition, previous definition at %s(%d)", name.c_str(), symbol->location.file.c_str(), symbol->location.line));
+            return false;
+        }
+        this->typeScope->lookup.insert({ name, symbol });
     }
-    this->symbolLookup.insert({name, symbol});
-    this->symbols.push_back(symbol);
+    else
+    {
+        Scope* scope = this->scopes.back();
+        auto it = scope->symbolLookup.find(name);
+        if (it != scope->symbolLookup.end() && !allowDuplicate)
+        {
+            Symbol* symbol = it->second;
+            this->errors.push_back(Format("Symbol %s redefinition, previous definition at %s(%d)", name.c_str(), symbol->location.file.c_str(), symbol->location.line));
+            return false;
+        }
+        scope->symbolLookup.insert({ name, symbol });
+        scope->symbols.push_back(symbol);
+    }
     return true;
 }
 
@@ -90,20 +138,96 @@ Compiler::AddSymbol(const std::string& name, Symbol* symbol, bool allowDuplicate
 Symbol* 
 Compiler::GetSymbol(const std::string& name) const
 {
-    auto it = this->symbolLookup.find(name);
-    if (it != this->symbolLookup.end())
-        return it->second;
-    else
-        return nullptr;
+    // first check type scope, then check bracket scopes
+    if (this->typeScope != nullptr)
+    {
+        Symbol* ret = this->typeScope->GetSymbol(name);
+        if (ret != nullptr)
+            return ret;
+    }
+
+    auto scopeIter = this->scopes.rbegin();
+    do
+    {
+        auto it = (*scopeIter)->symbolLookup.find(name);
+        if (it != (*scopeIter)->symbolLookup.end())
+            return it->second;
+        scopeIter++;
+    } 
+    while (scopeIter != this->scopes.rend());
+    return nullptr;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-std::pair<Compiler::SymbolIterator, Compiler::SymbolIterator>
+std::vector<Symbol*>
 Compiler::GetSymbols(const std::string& name) const
 {
-    return this->symbolLookup.equal_range(name);
+    std::vector<Symbol*> ret;
+    if (this->typeScope != nullptr)
+    {
+        ret = this->typeScope->GetSymbols(name);
+    }
+
+    auto scopeIter = this->scopes.rbegin();
+    do
+    {
+        auto range = (*scopeIter)->symbolLookup.equal_range(name);
+        for (auto it = range.first; it != range.second; it++)
+            ret.push_back((*it).second);
+        scopeIter++;
+    } while (scopeIter != this->scopes.rend());
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Compiler::PushScope(Scope::Type type, Symbol* owner)
+{
+    this->scopes.push_back(new Scope());
+    this->scopes.back()->type = type;
+    this->scopes.back()->owningSymbol = owner;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Compiler::PopScope()
+{
+    Scope* currentScope = this->scopes.back();
+    delete currentScope;
+    this->scopes.pop_back();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Compiler::IsScopeGlobal()
+{
+    return this->scopes.back()->type == Scope::Type::Global && this->typeScope == nullptr;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Symbol* 
+Compiler::GetScopeOwner()
+{
+    Symbol* lastSymbol = nullptr;
+    auto it = this->scopes.rbegin();
+    while (it != this->scopes.rend())
+    {
+        lastSymbol = (*it)->owningSymbol;
+        if (lastSymbol != nullptr)
+            break;
+        it++;
+    }
+    return lastSymbol;
 }
 
 //------------------------------------------------------------------------------
@@ -114,25 +238,8 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
 {
     bool ret = true;
 
-    // run end-of-parse pass, which adds symbols to the symbol lookup table
-    for (size_t i = 0; i < root->symbols.size(); i++)
-    {
-        ret &= root->symbols[i]->EndOfParse(this);
-    }
-
-    // if failed, don't proceed to next step
-    if (!ret || !this->errors.empty())
-        return false;
-
-    // resolves parser state to compiler internal state, which can then be validated
-    ret &= this->validator->Resolve(this, this->symbols);
-
-    // if failed, don't proceed to next step
-    if (!ret || !this->errors.empty())
-        return false;
-
-    // validates 
-    ret &= this->validator->Validate(this, this->symbols);
+    // resolves parser state and runs validation
+    ret &= this->validator->Resolve(this, root->symbols);
 
     // if failed, don't proceed to next step
     if (!ret || !this->errors.empty())
@@ -155,11 +262,11 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
     }
 
     // collect programs
-    for (Symbol* symbol : this->symbols)
+    for (Symbol* symbol : root->symbols)
     {
         if (symbol->symbolType == Symbol::ProgramType)
         {
-            ret &= this->generator->Generate(this, static_cast<Program*>(symbol), this->symbols, writeFunction);
+            ret &= this->generator->Generate(this, static_cast<Program*>(symbol), root->symbols, writeFunction);
         }
     }
 
@@ -175,7 +282,7 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
 
         // run binary output step
         Serialize::DynamicLengthBlob blob;
-        for (Symbol* symbol : this->symbols)
+        for (Symbol* symbol : root->symbols)
         {
             this->OutputBinary(symbol, binaryWriter, blob);
         }
@@ -195,7 +302,7 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
     // header writing is optional
     if (headerWriter.Open())
     {
-        ret &= this->headerGenerator->Generate(this, nullptr, this->symbols, [&headerWriter](const std::string& name, const std::string& code)
+        ret &= this->headerGenerator->Generate(this, nullptr, root->symbols, [&headerWriter](const std::string& name, const std::string& code)
         {
             headerWriter.WriteString(code);
         });
@@ -256,6 +363,15 @@ Compiler::GeneratorError(const std::string& msg)
 //------------------------------------------------------------------------------
 /**
 */
+void 
+Compiler::UnrecognizedTypeError(const std::string& type, Symbol* sym)
+{
+    this->Error(Format("Unrecognized type '%s'", type.c_str()), sym);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 WriteAnnotation(Compiler* compiler, const Annotation& annot, size_t offset, Serialize::DynamicLengthBlob& dynamicDataBlob)
 {
@@ -276,21 +392,27 @@ WriteAnnotation(Compiler* compiler, const Annotation& annot, size_t offset, Seri
         }
         case Symbol::IntExpressionType:
         {
-            unsigned int i = annot.value->EvalUInt(compiler);
+            unsigned int i;
+            bool res = annot.value->EvalUInt(compiler, i);
+            assert(res == true);
             output.data.i = i;
             output.type = Serialize::IntType;
             break;
         }
         case Symbol::FloatExpressionType:
         {
-            float f = annot.value->EvalFloat(compiler);
+            float f;
+            bool res = annot.value->EvalFloat(compiler, f);
+            assert(res == true);
             output.data.f = f;
             output.type = Serialize::FloatType;
             break;
         }
         case Symbol::BoolExpressionType:
         {
-            bool b = annot.value->EvalBool(compiler);
+            bool b;
+            bool res = annot.value->EvalBool(compiler, b);
+            assert(res == true);
             output.data.b = b;
             output.type = Serialize::BoolType;
             break;
@@ -582,7 +704,7 @@ Compiler::OutputBinary(Symbol* symbol, BinWriter& writer, Serialize::DynamicLeng
             varOutput.nameOffset = dynamicDataBlob.Write(var->name.c_str(), var->name.length());
             varOutput.byteSize = resolved->byteSize;
             varOutput.structureOffset = resolved->structureOffset;
-            varOutput.isArray = var->isArray;
+            varOutput.isArray = resolved->isArray;
             varOutput.arraySize = resolved->arraySize;
 
             // write variable
@@ -611,7 +733,7 @@ Compiler::OutputBinary(Symbol* symbol, BinWriter& writer, Serialize::DynamicLeng
         Serialize::Variable output;
         output.binding = resolved->binding;
         output.group = resolved->group;
-        output.isArray = var->isArray;
+        output.isArray = resolved->isArray;
         output.arraySize = resolved->arraySize;
         output.nameLength = symbol->name.length();
         output.nameOffset = dynamicDataBlob.Write(symbol->name.c_str(), symbol->name.length());

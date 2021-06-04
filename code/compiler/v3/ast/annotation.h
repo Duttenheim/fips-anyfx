@@ -20,34 +20,6 @@ struct Annotation
 {
     std::string name;
     Expression* value;
-
-    /// write to binary
-    void Emit(Compiler* compiler, BinWriter* writer);
 };
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-Annotation::Emit(Compiler* compiler, BinWriter* writer)
-{
-    writer->WriteString(this->name);
-    writer->WriteInt(value->symbolType);
-    switch (value->symbolType)
-    {
-    case Symbol::StringExpressionType:
-        writer->WriteString(value->EvalString(compiler));
-        break;  
-    case Symbol::IntExpressionType:
-        writer->WriteInt(value->EvalInt(compiler));
-        break;
-    case Symbol::FloatExpressionType:
-        writer->WriteFloat(value->EvalFloat(compiler));
-        break;
-    case Symbol::BoolExpressionType:
-        writer->WriteBool(value->EvalBool(compiler));
-        break;
-    }
-}
 
 } // namespace AnyFX

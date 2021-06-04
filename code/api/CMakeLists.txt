@@ -4,7 +4,7 @@
 
 
 fips_begin_lib(anyfx_api)
-fips_deps(anyfx_api anyfx_util)
+fips_deps(anyfx_util)
 
 fips_include_directories(
 	${ANYFX_ROOT}

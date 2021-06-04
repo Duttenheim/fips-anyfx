@@ -15,6 +15,8 @@ namespace AnyFX
 {
 
 struct Compiler;
+struct Expression;
+struct Statement;
 struct Validator
 {
     /// constructor
@@ -23,6 +25,10 @@ struct Validator
     /// resolve
     bool Resolve(Compiler* compiler, const std::vector<Symbol*>& symbols);
 
+    /// resolve alias
+    bool ResolveAlias(Compiler* compiler, Symbol* symbol);
+    /// resolve type
+    bool ResolveType(Compiler* compiler, Symbol* symbol);
     /// resolve blend state
     bool ResolveSamplerState(Compiler* compiler, Symbol* symbol);
     /// resolve function
@@ -36,27 +42,59 @@ struct Validator
     /// resolve variable
     bool ResolveVariable(Compiler* compiler, Symbol* symbol);
 
-    /// validate
-    bool Validate(Compiler* compiler, const std::vector<Symbol*>& symbols);
-
-    /// validate blendstate
-    bool ValidateSamplerState(Compiler* compiler, Symbol* symbol);
     /// validate function
     bool ValidateFunction(Compiler* compiler, Symbol* symbol);
     /// validate program
     bool ValidateProgram(Compiler* compiler, Symbol* symbol);
-    /// validate render state
-    bool ValidateRenderState(Compiler* compiler, Symbol* symbol);
-    /// validate structure 
-    bool ValidateStructure(Compiler* compiler, Symbol* symbol);
-    /// validate typed resource
-    bool ValidateVariable(Compiler* compiler, Symbol* symbol);
+
+    /// validate statement
+    bool ValidateStatement(Compiler* compiler, Statement* statement);
+    /// validate break statement
+    bool ValidateBreakStatement(Compiler* compiler, Statement* statement);
+    /// validate continue statement
+    bool ValidateContinueStatement(Compiler* compiler, Statement* statement);
+    /// validate expression statement
+    bool ValidateExpressionStatement(Compiler* compiler, Statement* statement);
+    /// validate for statement
+    bool ValidateForStatement(Compiler* compiler, Statement* statement);
+    /// validate if statement
+    bool ValidateIfStatement(Compiler* compiler, Statement* statement);
+    /// validate return statement
+    bool ValidateReturnStatement(Compiler* compiler, Statement* statement);
+    /// validate scope statement
+    bool ValidateScopeStatement(Compiler* compiler, Statement* statement);
+    /// validate swithc statement
+    bool ValidateSwitchStatement(Compiler* compiler, Statement* statement);
+    /// validate while statement
+    bool ValidateWhileStatement(Compiler* compiler, Statement* statement);
+
+    /// validate expression
+    bool ValidateExpression(Compiler* compiler, Expression* expression);
+    /// validate access expression
+    bool ValidateAccessExpression(Compiler* compiler, Expression* expression);
+    /// validate array index expression
+    bool ValidateArrayIndexExpression(Compiler* compiler, Expression* expression);
+    /// validate comma expression
+    bool ValidateCommaExpression(Compiler* compiler, Expression* expression);
+    /// validate binary expression
+    bool ValidateBinaryExpression(Compiler* compiler, Expression* expression);
+    /// validate call expression
+    bool ValidateCallExpression(Compiler* compiler, Expression* expression);
+    /// validate initializer expression
+    bool ValidateInitializerExpression(Compiler* compiler, Expression* expression);
+    /// validate symbol expression
+    bool ValidateSymbolExpression(Compiler* compiler, Expression* expression);
+    /// validate ternary expression
+    bool ValidateTernaryExpression(Compiler* compiler, Expression* expression);
+    /// validate unary expression
+    bool ValidateUnaryExpression(Compiler* compiler, Expression* expression);
 
     std::set<std::string> allowedReadWriteTextureAttributes;
     std::set<std::string> allowedTextureAttributes;
     std::set<std::string> allowedSampledTextureAttributes;
     std::set<std::string> allowedSamplerAttributes;
     std::set<std::string> allowedScalarAttributes;
+    std::set<std::string> allowedPointerAttributes;
 
     std::set<std::string> allowedSamplerStateAttributes;
     std::set<std::string> allowedConstantBufferAttributes;

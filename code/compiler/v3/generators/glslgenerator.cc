@@ -8,6 +8,19 @@
 #include "ast/structure.h"
 #include "ast/variable.h"
 #include "ast/program.h"
+#include "ast/expressions/initializerexpression.h"
+#include "ast/expressions/callexpression.h"
+
+#include "ast/statements/breakstatement.h"
+#include "ast/statements/continuestatement.h"
+#include "ast/statements/expressionstatement.h"
+#include "ast/statements/forstatement.h"
+#include "ast/statements/ifstatement.h"
+#include "ast/statements/returnstatement.h"
+#include "ast/statements/scopestatement.h"
+#include "ast/statements/switchstatement.h"
+#include "ast/statements/whilestatement.h"
+
 #include "compiler.h"
 
 #include "glslang/Include/ResourceLimits.h"
@@ -317,62 +330,63 @@ struct TypeDimensions
     unsigned int x, y;
 };
 
-std::map<Type::Code, TypeDimensions> typeToDimensions =
+std::map<std::string, TypeDimensions> typeToDimensions =
 {
-    { Type::Code::Float, { 1, 1 } },
-    { Type::Code::Float2, { 2, 1 } },
-    { Type::Code::Float3, { 3, 1 } },
-    { Type::Code::Float4, { 4, 1 } },
-    { Type::Code::Int, { 1, 1 } },
-    { Type::Code::Int2, { 2, 1 } },
-    { Type::Code::Int3, { 3, 1 } },
-    { Type::Code::Int4, { 4, 1 } },
-    { Type::Code::UInt, { 1, 1 } },
-    { Type::Code::UInt2, { 2, 1 } },
-    { Type::Code::UInt3, { 3, 1 } },
-    { Type::Code::UInt4, { 4, 1 } },
-    { Type::Code::Bool, { 1, 1 } },
-    { Type::Code::Bool2, { 2, 1 } },
-    { Type::Code::Bool3, { 3, 1 } },
-    { Type::Code::Bool4, { 4, 1 } },
-    { Type::Code::Mat2x2, { 2, 2 } },
-    { Type::Code::Mat2x3, { 2, 3 } },
-    { Type::Code::Mat2x4, { 2, 4 } },
-    { Type::Code::Mat3x2, { 3, 2 } },
-    { Type::Code::Mat3x3, { 3, 3 } },
-    { Type::Code::Mat3x4, { 3, 4 } },
-    { Type::Code::Mat4x2, { 4, 2 } },
-    { Type::Code::Mat4x3, { 4, 3 } },
-    { Type::Code::Mat4x4, { 4, 4 } }
+    { "float",      { 1, 1 } },
+    { "float2",     { 2, 1 } },
+    { "float3",     { 3, 1 } },
+    { "float4",     { 4, 1 } },
+    { "int",        { 1, 1 } },
+    { "int2",       { 2, 1 } },
+    { "int3",       { 3, 1 } },
+    { "int4",       { 4, 1 } },
+    { "uint",       { 1, 1 } },
+    { "uint2",      { 2, 1 } },
+    { "uint3",      { 3, 1 } },
+    { "uint4",      { 4, 1 } },
+    { "bool",       { 1, 1 } },
+    { "bool2",      { 2, 1 } },
+    { "bool3",      { 3, 1 } },
+    { "bool4",      { 4, 1 } },
+    { "float2x2",   { 2, 2 } },
+    { "float2x3",   { 2, 3 } },
+    { "float2x4",   { 2, 4 } },
+    { "float3x2",   { 3, 2 } },
+    { "float3x3",   { 3, 3 } },
+    { "float3x4",   { 3, 4 } },
+    { "float4x2",   { 4, 2 } },
+    { "float4x3",   { 4, 3 } },
+    { "float4x4",   { 4, 4 } }
 };
 
-std::map<Type::Code, unsigned int> typeToByteSize =
+// type being the underlying base type (float2x2 -> float)
+std::map<std::string, unsigned int> typeToByteSize =
 {
-    { Type::Code::Float, 4 },
-    { Type::Code::Float2, 4 },
-    { Type::Code::Float3, 4 },
-    { Type::Code::Float4, 4 },
-    { Type::Code::Int, 4 },
-    { Type::Code::Int2, 4 },
-    { Type::Code::Int3, 4 },
-    { Type::Code::Int4, 4 },
-    { Type::Code::UInt, 4 },
-    { Type::Code::UInt2, 4 },
-    { Type::Code::UInt3, 4 },
-    { Type::Code::UInt4, 4 },
-    { Type::Code::Bool, 1 },
-    { Type::Code::Bool2, 1 },
-    { Type::Code::Bool3, 1 },
-    { Type::Code::Bool4, 1 },
-    { Type::Code::Mat2x2, 4 },
-    { Type::Code::Mat2x3, 4 },
-    { Type::Code::Mat2x4, 4 },
-    { Type::Code::Mat3x2, 4 },
-    { Type::Code::Mat3x3, 4 },
-    { Type::Code::Mat3x4, 4 },
-    { Type::Code::Mat4x2, 4 },
-    { Type::Code::Mat4x3, 4 },
-    { Type::Code::Mat4x4, 4 },
+    { "float",      4 },
+    { "float2",     4 },
+    { "float3",     4 },
+    { "float4",     4 },
+    { "int",        4 },
+    { "int2",       4 },
+    { "int3",       4 },
+    { "int4",       4 },
+    { "uint",       4 },
+    { "uint2",      4 },
+    { "uint3",      4 },
+    { "uint4",      4 },
+    { "bool",       1 },
+    { "bool2",      1 },
+    { "bool3",      1 },
+    { "bool4",      1 },
+    { "float2x2",   4 },
+    { "float2x3",   4 },
+    { "float2x4",   4 },
+    { "float3x2",   4 },
+    { "float3x3",   4 },
+    { "float3x4",   4 },
+    { "float4x2",   4 },
+    { "float4x3",   4 },
+    { "float4x4",   4 },
 };
 
 //------------------------------------------------------------------------------
@@ -392,8 +406,8 @@ void
 CalculateLayout(Compiler* compiler, Variable* var, uint32_t arraySize, const bool std140, uint32_t& size, uint32_t& alignment, uint32_t& arrayElementPadding)
 {
     Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
-    TypeDimensions dimensions = typeToDimensions[varResolved->type->code];
-    uint32_t byteSize = typeToByteSize[varResolved->type->code];
+    TypeDimensions dimensions = typeToDimensions[var->type.name];
+    uint32_t byteSize = typeToByteSize[var->type.name];
     const uint32_t vec4alignment = 16;
     arrayElementPadding = 0;
 
@@ -463,10 +477,10 @@ CalculateLayout(Compiler* compiler, Variable* var, uint32_t arraySize, const boo
         // the final size is the size per element + element padding * number of elements
         size = (size + arrayElementPadding) * arraySize;
     }
-    else if (varResolved->type->code == Type::UserType)
+    else if (varResolved->typeSymbol->symbolType == Symbol::StructureType)
     {
         // struct case
-        Structure* struc = static_cast<Structure*>(varResolved->type);
+        Structure* struc = static_cast<Structure*>(varResolved->typeSymbol);
         Structure::__Resolved* strucResolved = static_cast<Structure::__Resolved*>(struc->resolved);
         alignment = strucResolved->baseAlignment;
         size = strucResolved->byteSize;
@@ -481,64 +495,64 @@ CalculateLayout(Compiler* compiler, Variable* var, uint32_t arraySize, const boo
     }
 }
 
-std::map<Type::Code, std::string> typeToGlslType =
+std::map<std::string, std::string> typeToGlslType =
 {
-    { Type::Code::ReadWriteTexture1D, "image1D" },
-    { Type::Code::ReadWriteTexture2D, "image2D" },
-    { Type::Code::ReadWriteTexture2DMS, "image2DMS" },
-    { Type::Code::ReadWriteTextureCube, "imageCube" },
-    { Type::Code::ReadWriteTexture3D, "image3D" },
-    { Type::Code::ReadWriteTexture1DArray, "image1DArray" },
-    { Type::Code::ReadWriteTexture2DArray, "image2DArray" },
-    { Type::Code::ReadWriteTexture2DMSArray, "image2DMSArray" },
-    { Type::Code::ReadWriteTextureCubeArray, "imageCubeArray" },
-    { Type::Code::Texture1D, "texture1D" },
-    { Type::Code::Texture2D, "texture2D" },
-    { Type::Code::Texture2DMS, "texture2DMS" },
-    { Type::Code::TextureCube, "textureCube" },
-    { Type::Code::Texture3D, "texture3D" },
-    { Type::Code::Texture1DArray, "texture1DArray" },
-    { Type::Code::Texture2DArray, "texture2DArray" },
-    { Type::Code::Texture2DMSArray, "texture2DMSArray" },
-    { Type::Code::TextureCubeArray, "textureCubeArray" },
-    { Type::Code::SampledTexture1D, "sampler1D" },
-    { Type::Code::SampledTexture2D, "sampler2D" },
-    { Type::Code::SampledTexture2DMS, "sampler2DMS" },
-    { Type::Code::SampledTextureCube, "samplerCube" },
-    { Type::Code::SampledTexture3D, "sampler3D" },
-    { Type::Code::SampledTexture1DArray, "sampler1DArray" },
-    { Type::Code::SampledTexture2DArray, "sampler2DArray" },
-    { Type::Code::SampledTexture2DMSArray, "sampler2DMSArray" },
-    { Type::Code::SampledTextureCubeArray, "samplerCubeArray" },
-    { Type::Code::InputAttachment, "subpassInput" },
-    { Type::Code::InputAttachmentMS, "subpassInputMS" },
-    { Type::Code::Float, "float" },
-    { Type::Code::Float2, "vec2" },
-    { Type::Code::Float3, "vec3" },
-    { Type::Code::Float4, "vec4" },
-    { Type::Code::Int, "int" },
-    { Type::Code::Int2, "ivec2" },
-    { Type::Code::Int3, "ivec3" },
-    { Type::Code::Int4, "ivec4" },
-    { Type::Code::UInt, "uint" },
-    { Type::Code::UInt2, "uvec2" },
-    { Type::Code::UInt3, "uvec3" },
-    { Type::Code::UInt4, "uvec4" },
-    { Type::Code::Bool, "bool" },
-    { Type::Code::Bool2, "bvec2" },
-    { Type::Code::Bool3, "bvec3" },
-    { Type::Code::Bool4, "bvec4" },
-    { Type::Code::Mat2x2, "mat2" },
-    { Type::Code::Mat2x3, "mat2x3" },
-    { Type::Code::Mat2x4, "mat2x4" },
-    { Type::Code::Mat3x2, "mat3x2" },
-    { Type::Code::Mat3x3, "mat3" },
-    { Type::Code::Mat3x4, "mat3x4" },
-    { Type::Code::Mat4x2, "mat4x2" },
-    { Type::Code::Mat4x3, "mat4x3" },
-    { Type::Code::Mat4x4, "mat4" },
-    { Type::Code::Sampler, "sampler" },
-    { Type::Code::Void, "void" }
+    { "readWriteTexture1D", "image1D" },
+    { "readWriteTexture2D", "image2D" },
+    { "readWriteTexture2DMS", "image2DMS" },
+    { "readWriteTextureCube", "imageCube" },
+    { "readWriteTexture3D", "image3D" },
+    { "readWriteTexture1DArray", "image1DArray" },
+    { "readWriteTexture2DArray", "image2DArray" },
+    { "readWriteTexture2DMSArray", "image2DMSArray" },
+    { "readWriteTextureCubeArray", "imageCubeArray" },
+    { "texture1D", "texture1D" },
+    { "texture2D", "texture2D" },
+    { "texture2DMS", "texture2DMS" },
+    { "textureCube", "textureCube" },
+    { "texture3D", "texture3D" },
+    { "texture1DArray", "texture1DArray" },
+    { "texture2DArray", "texture2DArray" },
+    { "texture2DMSArray", "texture2DMSArray" },
+    { "textureCubeArray", "textureCubeArray" },
+    { "sampledTexture1D", "sampler1D" },
+    { "sampledTexture2D", "sampler2D" },
+    { "sampledTexture2DMS", "sampler2DMS" },
+    { "sampledTextureCube", "samplerCube" },
+    { "sampledTexture3D", "sampler3D" },
+    { "sampledTexture1DArray", "sampler1DArray" },
+    { "sampledTexture2DArray", "sampler2DArray" },
+    { "sampledTexture2DMSArray", "sampler2DMSArray" },
+    { "sampledTextureCubeArray", "samplerCubeArray" },
+    { "inputAttachment", "subpassInput" },
+    { "inputAttachmentMS", "subpassInputMS" },
+    { "float", "float" },
+    { "float2", "vec2" },
+    { "float3", "vec3" },
+    { "float4", "vec4" },
+    { "int", "int" },
+    { "int2", "ivec2" },
+    { "int3", "ivec3" },
+    { "int4", "ivec4" },
+    { "uint", "uint" },
+    { "uint2", "uvec2" },
+    { "uint3", "uvec3" },
+    { "uint4", "uvec4" },
+    { "bool", "bool" },
+    { "bool2", "bvec2" },
+    { "bool3", "bvec3" },
+    { "bool4", "bvec4" },
+    { "float2x2", "mat2" },
+    { "float2x3", "mat2x3" },
+    { "float2x4", "mat2x4" },
+    { "float3x2", "mat3x2" },
+    { "float3x3", "mat3" },
+    { "float3x4", "mat3x4" },
+    { "float4x2", "mat4x2" },
+    { "float4x3", "mat4x3" },
+    { "float4x4", "mat4" },
+    { "sampler", "sampler" },
+    { "void", "void" }
 };
 
 std::map<Variable::ImageFormat, std::string> imageFormatToGlsl =
@@ -584,7 +598,300 @@ std::map<Variable::ImageFormat, std::string> imageFormatToGlsl =
     { Variable::ImageFormat::R8U, "r8ui" }
 };
 
+void GenerateExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCode);
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateCallExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCode)
+{
+    CallExpression* callExpression = static_cast<CallExpression*>(expr);
+    std::string fun;
+    callExpression->EvalSymbol(compiler, fun);
+    auto it = typeToGlslType.find(fun);
+    if (it != typeToGlslType.end())
+    {
+        fun = it->second;
+    }
+
+    std::string args;
+    for (Expression* arg : callExpression->args)
+    {
+        std::string str;
+        GenerateExpressionGLSL(compiler, arg, str);
+        args.append(str);
+        if (arg != callExpression->args.back())
+            args.append(", ");
+    }
+    outCode.append(Format("%s(%s)", fun.c_str(), args.c_str()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateInitializerExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCode)
+{
+    std::string inner;
+    InitializerExpression* initExpression = static_cast<InitializerExpression*>(expr);
+    for (Expression* expr : initExpression->values)
+    {
+        if (expr->symbolType == Symbol::InitializerExpressionType)
+            GenerateInitializerExpressionGLSL(compiler, expr, inner);
+        else
+        {
+            Type::FullType type;
+            if (!expr->EvalType(compiler, type))
+            {
+                compiler->Error(Format("INTERNAL ERROR IN '%s' LINE '%s'", __FILE__, __LINE__), expr);
+            }
+
+            GenerateExpressionGLSL(compiler, expr, inner);
+            if (expr != initExpression->values.back())
+                inner.append(",");
+        }
+    }
+    outCode = Format("{ %s }", inner.c_str());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCode)
+{
+    switch (expr->symbolType)
+    {
+        // call expression might have to change constructor types
+        case Symbol::CallExpressionType:
+            GenerateCallExpressionGLSL(compiler, expr, outCode);
+            break;
+        case Symbol::InitializerExpressionType:
+            GenerateInitializerExpressionGLSL(compiler, expr, outCode);
+            break;
+        default:
+            outCode.append(expr->EvalString(compiler));
+            break;
+    }
+}
+
+void GenerateStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode);
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateVariableGLSL(Compiler* compiler, Variable* var, std::string& outCode)
+{
+    Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+
+    std::string type;
+    if (varResolved->typeSymbol->symbolType == Symbol::StructureType)
+        type = varResolved->type.name;
+    else
+        type = typeToGlslType[varResolved->type.name];
+
+    if (varResolved->value != nullptr)
+    {
+        std::string value;
+        GenerateExpressionGLSL(compiler, varResolved->value, value);
+        outCode.append(Format("%s %s = %s", type.c_str(), varResolved->name.c_str(), value.c_str()));
+    }
+    else
+    {
+        outCode.append(Format("%s %s", type.c_str(), varResolved->name.c_str()));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateForStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    ForStatement* forStatement = static_cast<ForStatement*>(statement);
+    Variable* var = static_cast<Variable*>(forStatement->declaration);
+    std::string declarations;
+    if (var != nullptr)
+    {
+        Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+
+        GenerateVariableGLSL(compiler, var, declarations);
+
+        for (Variable* sibling : varResolved->siblings)
+        {
+            declarations.append(",");
+            GenerateVariableGLSL(compiler, sibling, declarations);
+        }
+    }
+
+    std::string conditions = "";
+    if (forStatement->condition != nullptr)
+        GenerateExpressionGLSL(compiler, forStatement->condition, conditions);
+
+    std::string endOfLoopStatement = "";
+    if (forStatement->statement != nullptr)
+        GenerateStatementGLSL(compiler, forStatement->statement, endOfLoopStatement);
+
+    std::string contents = "";
+    GenerateStatementGLSL(compiler, forStatement->contents, contents);
+
+    outCode.append(Format("for (%s;%s;%s)\n{\n\t%s\n}", declarations.c_str(), conditions.c_str(), endOfLoopStatement.c_str(), contents.c_str()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateIfStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    IfStatement* ifStatement = static_cast<IfStatement*>(statement);
+    std::string condition;
+    GenerateExpressionGLSL(compiler, ifStatement->condition, condition);
+
+    std::string ifBody;
+    GenerateStatementGLSL(compiler, ifStatement->ifStatement, ifBody);
+
+    std::string elseBody = "";
+    if (ifStatement->elseStatement)
+    {
+        elseBody = "else";
+        GenerateStatementGLSL(compiler, ifStatement->elseStatement, elseBody);
+    }
+
+    outCode.append(Format("if (%s) %s%s", condition.c_str(), ifBody.c_str(), elseBody.c_str()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateReturnStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    ReturnStatement* returnStatement = static_cast<ReturnStatement*>(statement);
+    if (returnStatement->returnValue != nullptr)
+    {
+        std::string val;
+        GenerateExpressionGLSL(compiler, returnStatement->returnValue, val);
+        outCode.append(Format("return %s;", val.c_str()));
+    }
+    else
+    {
+        outCode.append("return;");
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateScopeStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    ScopeStatement* scope = static_cast<ScopeStatement*>(statement);
+    std::string contents;
+    for (Symbol* content : scope->statements)
+    {
+        if (content->symbolType == Symbol::VariableType)
+            GenerateVariableGLSL(compiler, static_cast<Variable*>(content), contents);
+        else
+            GenerateStatementGLSL(compiler, static_cast<Statement*>(content), contents);
+    }
+    outCode.append(Format("{%s}", contents.c_str()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateSwitchStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    SwitchStatement* switchStatement = static_cast<SwitchStatement*>(statement);
+
+    std::string expr;
+    GenerateExpressionGLSL(compiler, switchStatement->switchExpression, expr);
+
+    std::string cases;
+    for (size_t i = 0; i < switchStatement->caseValues.size(); i++)
+    {
+        std::string caseValue = switchStatement->caseValues[i];
+        std::string caseStatement;
+        GenerateStatementGLSL(compiler, switchStatement->caseStatements[i], caseStatement);
+        cases.append(Format("case %s:\n%s", caseValue.c_str(), caseStatement.c_str()));
+    }
+
+    if (switchStatement->defaultStatement != nullptr)
+    {
+        std::string defaultStatement;
+        GenerateStatementGLSL(compiler, switchStatement->defaultStatement, defaultStatement);
+        cases.append(Format("default:\n%s", defaultStatement.c_str()));
+    }
+
+    outCode.append(Format("switch (%s)\n{\n\t%s\n}", expr.c_str(), cases.c_str()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateWhileStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    WhileStatement* whileStatement = static_cast<WhileStatement*>(statement);
+
+    std::string cond;
+    GenerateExpressionGLSL(compiler, whileStatement->condition, cond);
+
+    std::string body;
+    GenerateStatementGLSL(compiler, whileStatement->statement, body);
+
+    if (whileStatement->isDoWhile)
+    {
+        outCode.append(Format("do \n{\n\t%s\n} while (%s)", body.c_str(), cond.c_str()));
+    }
+    else
+    {
+        outCode.append(Format("while (%s)\n{\n\t%s\n}", cond.c_str(), body.c_str()));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
+{
+    switch (statement->symbolType)
+    {
+        case Symbol::BreakStatementType:
+            outCode.append("break;");
+            break;
+        case Symbol::ContinueStatementType:
+            outCode.append("continue;");
+            break;
+        case Symbol::ExpressionStatementType:
+            GenerateExpressionGLSL(compiler, static_cast<ExpressionStatement*>(statement)->expr, outCode);
+            outCode.append(";");
+            break;
+        case Symbol::ForStatementType:
+            GenerateForStatementGLSL(compiler, statement, outCode);
+            break;
+        case Symbol::IfStatementType:
+            GenerateIfStatementGLSL(compiler, statement, outCode);
+            break;
+        case Symbol::ReturnStatementType:
+            GenerateReturnStatementGLSL(compiler, statement, outCode);
+            break;
+        case Symbol::ScopeStatementType:
+            GenerateScopeStatementGLSL(compiler, statement, outCode);
+            break;
+        case Symbol::SwitchStatementType:
+            GenerateSwitchStatementGLSL(compiler, statement, outCode);
+            break;
+        case Symbol::WhileStatementType:
+            GenerateWhileStatementGLSL(compiler, statement, outCode);
+            break;
+    }
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -604,13 +911,10 @@ GLSLGenerator::GenerateFunction(Compiler* compiler, Program* program, Symbol* sy
     if (funResolved->shaderUsage.bits != 0x0 && !isMain)
         return;
 
-    std::string returnType;
-    if (funResolved->returnType->code == Type::UserType)
-        returnType = fun->returnType;
-    else
-    {
-        returnType = typeToGlslType[funResolved->returnType->code];
-    }
+    // convert typename to glsl
+    Type::FullType returnType = fun->returnType;
+    if (funResolved->returnTypeSymbol->symbolType != Symbol::StructureType)
+        returnType.name = typeToGlslType[returnType.name];
 
     std::string body;
     if (funResolved->isPrototype)
@@ -663,7 +967,7 @@ GLSLGenerator::GenerateFunction(Compiler* compiler, Program* program, Symbol* sy
 \n{\n\
     %s\
 \n}\n\n", 
-       returnType.c_str(), name.c_str(), arguments.c_str(), body.c_str()));
+       returnType.ToString(compiler).c_str(), name.c_str(), arguments.c_str(), body.c_str()));
     }
 }
 
@@ -758,15 +1062,33 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
     Variable* var = static_cast<Variable*>(symbol);
     Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
 
-    std::string type;
-    if (varResolved->type->code == Type::UserType)
-        type = var->type;
-    else
+    Type::FullType type = varResolved->type;
+    if (varResolved->typeSymbol->symbolType != Symbol::StructureType)
     {
-        type = typeToGlslType[varResolved->type->code].c_str();
+        auto it = typeToGlslType.find(type.name);
+        if (it == typeToGlslType.end())
+        {
+            compiler->Error(Format("INTERNAL ERROR, built-in type '%s' has no GLSL mapping", type.name.c_str()), symbol);
+        }
+        type.name = it->second.c_str();
+
     }
 
-    std::string name = var->name;
+    std::string name = varResolved->name;
+    std::string arraySize = "";
+    for (size_t i = 0; i < varResolved->type.modifiers.size(); i++)
+    {
+        uint32_t size = -1;
+        if (varResolved->type.modifierExpressions[i] != nullptr)
+        {
+            varResolved->type.modifierExpressions[i]->EvalUInt(compiler, size);
+            arraySize.append(Format("[%d]", size));
+        }
+        else
+        {
+            arraySize.append(Format("[]"));
+        }
+    }
 
     // format parameters
     if (varResolved->usageBits.flags.isParameter)
@@ -795,69 +1117,26 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
         if (varResolved->parameterBits.flags.isPatch)
             outCode.append("patch ");
 
-        outCode.append(Format("%s %s", type.c_str(), name.c_str()));
+        outCode.append(Format("%s %s", type.name.c_str(), name.c_str()));
     }
     else if (varResolved->usageBits.flags.isConst)
     {
         std::string initializerStr;
-        for (int j = 0; j < varResolved->initializers.size(); j++)
-        {
-            auto& initializers = varResolved->initializers[j];
-            std::string internalInitializerStr;
-            for (int i = 0; i < initializers.size(); i++)
-            {
-                auto& init = initializers[i];
-                switch (init.type)
-                {
-                case Variable::__Resolved::Initializer::FloatType:
-                    internalInitializerStr.append(Format("%f", init.data.f));
-                    break;
-                case Variable::__Resolved::Initializer::IntType:
-                    internalInitializerStr.append(Format("%d", init.data.i));
-                    break;
-                case Variable::__Resolved::Initializer::UIntType:
-                    internalInitializerStr.append(Format("%d", init.data.u));
-                    break;
-                case Variable::__Resolved::Initializer::BoolType:
-                    internalInitializerStr.append(init.data.b ? "true" : "false");
-                    break;
-                }
-
-                if (i < initializers.size() - 1)
-                    internalInitializerStr.append(", ");
-            }
-
-            // if we have more than one initializer, add {} around it
-            if (initializers.size() > 1)
-                internalInitializerStr = Format("%s( %s )", type.c_str(), internalInitializerStr.c_str());
-
-            initializerStr.append(internalInitializerStr);
-            if (j < varResolved->initializers.size() - 1)
-                initializerStr.append(", ");
-        }
-        std::string arraySize = "";
-        if (varResolved->arraySize > 1)
-        {
-            initializerStr = Format("{ %s }", initializerStr.c_str());
-            arraySize = Format("[%d]", varResolved->arraySize);
-        }
-        else
-            initializerStr = Format("%s", initializerStr.c_str());
-
-        outCode.append(Format("const %s %s%s = %s;\n", type.c_str(), name.c_str(), arraySize.c_str(), initializerStr.c_str()));
+        GenerateExpressionGLSL(compiler, varResolved->value, initializerStr);
+        outCode.append(Format("const %s %s%s = %s;\n", type.name.c_str(), name.c_str(), arraySize.c_str(), initializerStr.c_str()));
     }
     else if (!varResolved->usageBits.flags.isConstantBufferMember && !varResolved->usageBits.flags.isStorageBufferMember && !varResolved->usageBits.flags.isStructMember)
     {
         outCode.append(Format("#line %d %s\n", var->location.line, var->location.file.c_str()));
-        if (varResolved->type->IsReadWriteTexture())
+        if (varResolved->typeSymbol->category == Type::ReadWriteTextureCategory)
         {
             outCode.append(Format("layout(set=%d, binding=%d, %s) ", varResolved->group, varResolved->binding, imageFormatToGlsl[varResolved->imageFormat].c_str()));
 
             // if integer or unsigned, format variable
             if (Variable::IsImageFormatInteger(varResolved->imageFormat))
-                type = Format("i%s", type.c_str());
+                type.name = Format("i%s", type.name.c_str());
             else if (Variable::IsImageFormatUnsigned(varResolved->imageFormat))
-                type = Format("u%s", type.c_str());
+                type.name = Format("u%s", type.name.c_str());
         }
         else
             outCode.append(Format("layout(set=%d, binding=%d) ", varResolved->group, varResolved->binding));
@@ -879,19 +1158,11 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
         if (varResolved->usageBits.flags.isGroupShared)
             outCode.append("shared ");
 
-        if (var->isArray)
-        {
-            if (varResolved->arraySize != Variable::__Resolved::NOT_ARRAY)
-                name = Format("%s[%d]", name.c_str(), varResolved->arraySize);
-            else
-                name = Format("%s[]", name.c_str());
-        }
-            
-        outCode.append(Format("uniform %s %s;\n", type.c_str(), name.c_str()));
+        outCode.append(Format("uniform %s %s%s;\n", type.name.c_str(), name.c_str(), arraySize.c_str()));
     }
     else
     {
-        outCode.append(Format("    %s %s;", type.c_str(), name.c_str()));
+        outCode.append(Format("    %s %s%s;", type.name.c_str(), name.c_str(), arraySize.c_str()));
     }
 
 }

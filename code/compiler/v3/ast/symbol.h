@@ -27,33 +27,41 @@ struct Symbol
     enum SymbolType
     {
         InvalidType,
+        AliasType,
+        TypeType,
         ProgramType,
         RenderStateType,
         SamplerStateType,
+        VariableDeclarationType,
         VariableType,
         SubroutineType,
         FunctionType,
         StructureType,
+        EnumerationType,
         FloatExpressionType,
         IntExpressionType,
+        UIntExpressionType,
         BoolExpressionType,
+        SwizzleExpressionType,
         StringExpressionType,
         BinaryExpressionType,
         SymbolExpressionType,
         AccessExpressionType,
+        InitializerExpressionType,
         ArrayIndexExpressionType,
         AssignExpressionType,
         CallExpressionType,
+        CommaExpressionType,
+        TernaryExpressionType,
+        UnaryExpressionType,
         BreakStatementType,
         ContinueStatementType,
-        DeclarationStatementType,
         ExpressionStatementType,
         ForStatementType,
         IfStatementType,
         ReturnStatementType,
         ScopeStatementType,
         SwitchStatementType,
-        TernaryStatementType,
         WhileStatementType,
 
         NumSymbolTypes
@@ -89,9 +97,6 @@ struct Symbol
     /// construct string representing the line:row and file for this symbol
     std::string GetLocation() const;
 
-    /// trigger an end-of-parsing event, this is where objects can setup their compiler contextual states
-    virtual bool EndOfParse(Compiler* compiler);
-
     const std::string TypeToString() const;
 
     //------------------------------------------------------------------------------
@@ -104,6 +109,14 @@ struct Symbol
         std::string signature;
     };
     __Resolved* resolved;
+
+    template <typename T>
+    using unwrap = typename T::__Resolved;
+
+    template <typename T> unwrap<T>* Resolved()
+    {
+        return static_cast<unwrap<T>*>(this->resolved);
+    }
 }; 
 
 } // namespace AnyFX

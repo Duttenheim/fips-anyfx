@@ -78,17 +78,7 @@ UpdateLine(antlr4::TokenStream* stream, int index = -1)
       this->lineOffset = std::get<0>(line) + padding;
 }
 
-uint32_t
-StringToFourCC(const std::string& str)
-{
-    uint32_t fourcc = 0;
-    for (int i = 0, shift = 0; i < str.size(); i++)
-    {
-        fourcc |= uint32_t(str.c_str()[i]) << shift;
-        shift += 8;
-    }
-    return fourcc;
-}
+
 
 int currentLine = 0;
 int lineOffset = 0;
@@ -110,6 +100,7 @@ std::vector<std::tuple<int, size_t, size_t, size_t, std::string>> lines;
 #include "ast/alias.h"
 #include "ast/annotation.h"
 #include "ast/effect.h"
+#include "ast/enumeration.h"
 #include "ast/function.h"
 #include "ast/program.h"
 #include "ast/renderstate.h"
@@ -120,7 +111,6 @@ std::vector<std::tuple<int, size_t, size_t, size_t, std::string>> lines;
 #include "ast/variable.h"
 #include "ast/statements/breakstatement.h"
 #include "ast/statements/continuestatement.h"
-#include "ast/statements/declarationstatement.h"
 #include "ast/statements/expressionstatement.h"
 #include "ast/statements/forstatement.h"
 #include "ast/statements/ifstatement.h"
@@ -130,18 +120,21 @@ std::vector<std::tuple<int, size_t, size_t, size_t, std::string>> lines;
 #include "ast/statements/switchstatement.h"
 #include "ast/statements/whilestatement.h"
 #include "ast/expressions/accessexpression.h"
-#include "ast/expressions/accessexpression.h"
 #include "ast/expressions/arrayindexexpression.h"
 #include "ast/expressions/binaryexpression.h"
 #include "ast/expressions/boolexpression.h"
 #include "ast/expressions/callexpression.h"
+#include "ast/expressions/commaexpression.h"
 #include "ast/expressions/expression.h"
 #include "ast/expressions/floatexpression.h"
+#include "ast/expressions/initializerexpression.h"
 #include "ast/expressions/intexpression.h"
 #include "ast/expressions/stringexpression.h"
 #include "ast/expressions/symbolexpression.h"
 #include "ast/expressions/ternaryexpression.h"
+#include "ast/expressions/uintexpression.h"
 #include "ast/expressions/unaryexpression.h"
+#include "util.h"
 
 using namespace AnyFX;
 
@@ -189,6 +182,7 @@ effect
         | function                  { $eff->symbols.push_back($function.sym); }    
         | variable ';'              { $eff->symbols.push_back($variable.sym); }
         | structure ';'             { $eff->symbols.push_back($structure.sym); }
+        | enumeration ';'           { $eff->symbols.push_back($enumeration.sym); }
         | state ';'                 { $eff->symbols.push_back($state.sym); }
         | program ';'               { $eff->symbols.push_back($program.sym); }
     )*?;
@@ -222,119 +216,36 @@ attribute
     | name = IDENTIFIER { $attr.name = $name.text; $attr.expression = nullptr; }
     ;
 
+typeDeclaration
+    returns[ Type::FullType type ]
+    @init
+    {
+        $type.name = "";
+        Expression* arraySizeExpression = nullptr;
+    }:
+    IDENTIFIER { $type.name = $IDENTIFIER.text; } 
+    ;
+
 variable
     returns[ Variable* sym ]
     @init
     {
         $sym = nullptr;
-        Symbol::Location location;
         std::vector<Annotation> annotations;
         std::vector<Attribute> attributes;
-        std::vector<std::vector<Expression*>> initializers;
-        std::vector<std::string> initializerTypes;
-        Expression* arraySizeExpression = nullptr;
-        bool isArray = false;
+        Expression* nameExpression = nullptr;
+        Symbol::Location location;
     }:
     (annotation { annotations.push_back($annotation.annot); })*
     (attribute { attributes.push_back($attribute.attr); })*
-    type = IDENTIFIER name = IDENTIFIER { location = SetupFile(); } 
-    
-    // array related stuff
-    ( 
-        '[' (expression { arraySizeExpression = $expression.tree; } )? ']' { isArray = true; } 
-    )?
-
-    // initializer stuff
-    ( 
-         
-        // first method, array initialization array is { TYPE(VALUE), TYPE(VALUE) }
-        ( '=' '{' 
-            // type
-            initType0 = IDENTIFIER 
-            { 
-                initializerTypes.push_back($initType0.text); 
-                std::vector<Expression*> values0;
-            } 
-            // first value
-            '(' 
-                (
-                    value0 = expression { values0.push_back($value0.tree); }
-                    (','
-                        valuen = expression { values0.push_back($valuen.tree); }
-                    )*
-                )
-            ')' 
-            {
-                initializers.push_back(values0);
-            }
-            // rest of values
-            (',' 
-                initType1 = IDENTIFIER 
-                { 
-                    initializerTypes.push_back($initType1.text);
-                    std::vector<Expression*> values1;
-                } 
-                '(' 
-                    (
-                        value1 = expression { values1.push_back($value1.tree); }
-                        (','
-                            valuen = expression { values1.push_back($valuen.tree); }
-                        )*
-                    )
-                ')'
-                {
-                    initializers.push_back(values1);
-                }
-            )*
-            '}'
-        )
-        | 
-        // second method, initialization type is inferred, array is: { {0.5f, 0.5f} -> implicitly vec2  }
-        ( '=' '{'
-            // type
-            { 
-                initializerTypes.push_back(""); 
-                std::vector<Expression*> values0;
-            } 
-            // first value
-            '{' 
-                (value0 = expression { values0.push_back($value0.tree); })+ 
-            '}' 
-            {
-                initializers.push_back(values0);
-            }
-            // rest of values
-            (',' 
-                { 
-                    initializerTypes.push_back("");
-                    std::vector<Expression*> values1;
-                } 
-                '{' 
-                    (value1 = expression { values1.push_back($value1.tree); })+
-                '}'
-                {
-                    initializers.push_back(values1);
-                }
-            )*
-            '}'
-        )    
-        |
-        // single value initialization
-        (
-            '=' value = expression { std::vector<Expression*> expressions { $value.tree }; initializers.push_back(expressions); initializerTypes.push_back(""); }
-        )
-    )?
-    { 
+    typeDeclaration { location = SetupFile(); } var0 = expression { nameExpression = $var0.tree; }
+    {
         $sym = new Variable(); 
-        $sym->type = $type.text; 
-        $sym->name = $name.text; 
+        $sym->type = $typeDeclaration.type; 
         $sym->location = location; 
         $sym->annotations = annotations; 
-        $sym->initializers = initializers;
-        $sym->initializerTypes = initializerTypes;
         $sym->attributes = attributes;
-        $sym->arraySizeExpression = arraySizeExpression;
-        $sym->isArray = isArray;
+        $sym->nameExpression = nameExpression;
     }
     ;
 
@@ -345,18 +256,17 @@ structureDeclaration
         $sym = nullptr;
         std::vector<Annotation> annotations;
         std::vector<Attribute> attributes;
-        Symbol::Location location;
     }:
     (annotation { annotations.push_back($annotation.annot); })*
     'struct' 
     (attribute { attributes.push_back($attribute.attr); })*
     name = IDENTIFIER 
     { 
-        $sym = new Structure(); location = SetupFile(); 
+        $sym = new Structure();
         $sym->name = $name.text; 
         $sym->annotations = annotations;
         $sym->attributes = attributes;
-        $sym->location = location; 
+        $sym->location = SetupFile();
     }
     ;
 
@@ -366,7 +276,7 @@ structure
     {
         $sym = nullptr;
         std::vector<Variable*> variables;
-        bool isArray;
+        bool isArray = false;
         Expression* arraySizeExpression = nullptr;
         std::string instanceName;
     }:
@@ -387,6 +297,28 @@ structure
     }
     ;
 
+enumeration
+    returns[ Enumeration* sym ]
+    @init
+    {
+        $sym = nullptr;
+        std::vector<std::string> enumLabels;
+        std::vector<Expression*> enumValues;
+    }:
+    'enum' name = IDENTIFIER
+    '{'
+        label = IDENTIFIER { Expression* expr = nullptr; } ('=' value = expression { expr = $value.tree; })?
+        {
+            enumLabels.push_back($label.text);
+            enumValues.push_back(expr);
+        }
+    '}'
+    {
+        $sym = new Enumeration(enumLabels, enumValues);
+        $sym->location = SetupFile();
+    }
+    ;
+
 functionDeclaration
     returns[ Function* sym ]
     @init
@@ -397,12 +329,12 @@ functionDeclaration
         Symbol::Location location;
     }:
     (attribute { attributes.push_back($attribute.attr); })*
-    returnType = IDENTIFIER name = IDENTIFIER { location = SetupFile(); } '(' (arg0 = variable { variables.push_back($arg0.sym); } (',' argn = variable { variables.push_back($argn.sym); })* )? ')' 
+    returnType = typeDeclaration name = IDENTIFIER { location = SetupFile(); } '(' (arg0 = variable { variables.push_back($arg0.sym); } (',' argn = variable { variables.push_back($argn.sym); })* )? ')' 
     {
         $sym = new Function(); 
         $sym->hasBody = false;
         $sym->location = location;
-        $sym->returnType = $returnType.text; 
+        $sym->returnType = $returnType.type; 
         $sym->name = $name.text; 
         $sym->parameters = variables; 
         $sym->attributes = attributes; 
@@ -484,60 +416,36 @@ state
     }
     ;
 
-declaration
-    returns[ Symbol* sym ]:
-    variable    { $sym = $variable.sym; }
-    ;
-
 statement
     returns[ Statement* tree ]
     @init
     {
         $tree = nullptr;
     }:
-    declarationStatement ';'    { $tree = $declarationStatement.tree; }
-    | ifStatement               { $tree = $ifStatement.tree; }
+    ifStatement               { $tree = $ifStatement.tree; }
     | scopeStatement            { $tree = $scopeStatement.tree; }
     | forStatement              { $tree = $forStatement.tree; }
     | whileStatement            { $tree = $whileStatement.tree; }
     | returnStatement           { $tree = $returnStatement.tree; }
     | continueStatement         { $tree = $continueStatement.tree; }
     | breakStatement            { $tree = $breakStatement.tree; }
-    | expressionStatement       { $tree = $expressionStatement.tree; }
-    | ';'                       // empty statement
+    | expressionStatement ';'   { $tree = $expressionStatement.tree; }
     ;
 
-// expression as a statement, basically supposing the expression will have a side effect
+// expression list as a statement, basically supposing the expression will have a side effect
 expressionStatement
     returns[ Statement* tree ]
     @init 
     {
         $tree = nullptr;
     }: 
-    expression ';'
+    expression
     {
         $tree = new ExpressionStatement($expression.tree);
         $tree->location = SetupFile();
     }
     ;
 
-declarationStatement
-    returns[ Statement* tree ]
-    @init
-    {
-        $tree = nullptr;
-        std::vector<std::string> qualifiers;
-        std::vector<Expression*> arrayExpressions;
-        Expression* initializer = nullptr;
-    }:
-    (qualifier = IDENTIFIER { qualifiers.push_back($qualifier.text); })
-    type = IDENTIFIER name = IDENTIFIER ('[' arraySize = expression ']' { arrayExpressions.push_back($arraySize.tree); })*
-    ('=' expression { initializer = $expression.tree; } )?
-    {
-        $tree = new DeclarationStatement($type.text, $name.text, qualifiers, initializer);
-        $tree->location = SetupFile();
-    }
-    ;
 
 ifStatement
     returns[ Statement* tree ]
@@ -564,21 +472,21 @@ forStatement
     @init
     {
         $tree = nullptr;
-        std::vector<Symbol*> declarations;
+        Symbol* declaration;
         Expression* conditionExpression = nullptr;
-        std::vector<Expression*> expressions;
+        Statement* loopStatement;
         Statement* contents = nullptr;
         Symbol::Location location;
     }:
     'for' { location = SetupFile(); }
     '(' 
-        (declare0 = declaration { declarations.push_back($declare0.sym); } (',' declaren = declaration { declarations.push_back($declaren.sym); })* )? ';' 
+        variable { declaration = $variable.sym; } ';'
         (condition = expression { conditionExpression = $condition.tree; })? ';' 
-        (expression0 = expression { expressions.push_back($expression0.tree); } (',' expressionn = expression { expressions.push_back($expressionn.tree); })* )?
+        expressionStatement { loopStatement = $expressionStatement.tree; }
     ')'
     content = statement { contents = $content.tree; }
     {
-        $tree = new ForStatement(declarations, conditionExpression, expressions, contents);
+        $tree = new ForStatement(declaration, conditionExpression, loopStatement, contents);
         $tree->location = location;
     }
     ;
@@ -591,7 +499,7 @@ forRangeStatement
         Statement* contents = nullptr;
         Symbol::Location location;
     }:
-    'for' { location = SetupFile(); } '(' iterator = IDENTIFIER ':' start = IDENTIFIER '.' '.' end = IDENTIFIER ')'
+    'for' { location = SetupFile(); } '(' iterator = IDENTIFIER ':' start = IDENTIFIER '..' end = IDENTIFIER ')'
     content = statement { contents = $content.tree; }
     {
 
@@ -610,9 +518,13 @@ whileStatement
     }:
     'while' { location = SetupFile(); } '(' condition = expression { conditionExpression = $condition.tree; } ')'
     content = statement { contents = $content.tree; }
+    {
+        $tree = new WhileStatement(conditionExpression, contents, isDoWhile);
+        $tree->location = location;
+    }
     | 'do' { location = SetupFile(); }
     content = statement { contents = $content.tree; isDoWhile = true; } 
-    'while' '(' condition = expression { conditionExpression = $condition.tree; } ')'
+    'while' '(' condition = expression { conditionExpression = $condition.tree; } ')' ';'
     {
         $tree = new WhileStatement(conditionExpression, contents, isDoWhile);
         $tree->location = location;
@@ -629,8 +541,8 @@ scopeStatement
     }:
     '{' { location = SetupFile(); }
     (
-        content = statement { contents.push_back($content.tree); }
-        | declare = declaration { contents.push_back($declare.sym); }
+        statement { contents.push_back($statement.tree); }
+        | variable ';' { contents.push_back($variable.sym); }
     )* 
     '}'
     {
@@ -696,7 +608,7 @@ switchStatement
         )?
     '}'
     {
-        $tree = new SwitchStatement(switchExpression, caseValues, caseStatements);
+        $tree = new SwitchStatement(switchExpression, caseValues, caseStatements, defaultStatement);
     }
     ;
 
@@ -720,410 +632,308 @@ expression
     {
         $tree = nullptr;
     }: 
-    binaryexp12 { $tree = $binaryexp12.tree; }
+    commaExpression { $tree = $commaExpression.tree; }
+    ;
+
+commaExpression
+    returns[ Expression* tree ]
+    @init
+    {
+        $tree = nullptr;
+    }:
+    e1 = assignmentExpression { $tree = $e1.tree; }
+    (
+        ',' e2 = assignmentExpression
+        {
+            CommaExpression* expr = new CommaExpression($tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
+        }
+    )*
     ;
 
 // start of with ||
-binaryexp12
+assignmentExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp11 { $tree = $e1.tree; } 
+    e1 = logicalOrExpression { $tree = $e1.tree; } 
     (
-        op = ('+=' | '-=' | '*=' | '/=' | '%=' | '<<=' | '>>=' | '&=' | '^=' | '|=' | '=') { ops.push_back(StringToFourCC($op.text)); } e2 = binaryexp11 { exprs.push_back($e2.tree); }
+        op = ('+=' | '-=' | '*=' | '/=' | '%=' | '<<=' | '>>=' | '&=' | '^=' | '|=' | '=') e2 = logicalOrExpression
+        { 
+            BinaryExpression* expr = new BinaryExpression(StringToFourCC($op.text), $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
+        } 
         | '?' ifBody = expression ':' elseBody = expression
         { 
-            exprs.push_back(new TernaryExpression($ifBody.tree, $elseBody.tree));
-            ops.push_back(StringToFourCC("?:"));
+            TernaryExpression* expr = new TernaryExpression($tree, $ifBody.tree, $elseBody.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // start of with ||
-binaryexp11
+logicalOrExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp10 { $tree = $e1.tree; } 
+    e1 = logicalAndExpression { $tree = $e1.tree; } 
     (
-        ('||') e2 = binaryexp10
+        ('||') e2 = logicalAndExpression
         {
-            ops.push_back(StringToFourCC("||"));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression('||', $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // then solve &&
-binaryexp10
+logicalAndExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp9 { $tree = $e1.tree; } 
+    e1 = orExpression { $tree = $e1.tree; } 
     (
-        ('&&') e2 = binaryexp9
+        ('&&') e2 = orExpression
         {
-            ops.push_back(StringToFourCC("&&"));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression('&&', $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // |
-binaryexp9
+orExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp8 { $tree = $e1.tree; } 
+    e1 = xorExpression { $tree = $e1.tree; } 
     (
-        ('|') e2 = binaryexp8
+        ('|') e2 = xorExpression
         {
-            ops.push_back(StringToFourCC("|"));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression('|', $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // ^
-binaryexp8
+xorExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp7 { $tree = $e1.tree; } 
+    e1 = andExpression { $tree = $e1.tree; } 
     (
-        ('^') e2 = binaryexp7
+        ('^') e2 = andExpression
         {
-            ops.push_back(StringToFourCC("^"));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression('^', $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // &
-binaryexp7
+andExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp6 { $tree = $e1.tree;	} 
+    e1 = equivalencyExpression { $tree = $e1.tree;	} 
     (
-        ('&') e2 = binaryexp6
+        ('&') e2 = equivalencyExpression
         {
-            ops.push_back(StringToFourCC("&"));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression('&', $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // == and !=
-binaryexp6
+equivalencyExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp5 { $tree = $e1.tree; } 
+    e1 = relationalExpression { $tree = $e1.tree; } 
     (
-        op = ('==' | '!=') e2 = binaryexp5
+        op = ('==' | '!=') e2 = relationalExpression
         {
-            ops.push_back(StringToFourCC($op.text));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression(StringToFourCC($op.text), $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // <, >, <= and >=
-binaryexp5
+relationalExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp4 { $tree = $e1.tree;	} 
+    e1 = shiftExpression { $tree = $e1.tree; } 
     (
-        op = ('<' | '>' | '<=' | '>=') e2 = binaryexp4
+        op = ('<' | '>' | '<=' | '>=') e2 = shiftExpression
         {
-            ops.push_back(StringToFourCC($op.text));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression(StringToFourCC($op.text), $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // <<, >>
-binaryexp4
+shiftExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp3 { $tree = $e1.tree;	} 
+    e1 = addSubtractExpression { $tree = $e1.tree; } 
     (
-        op = ('<<' | '>>') e2 = binaryexp3 
+        op = ('<<' | '>>') e2 = addSubtractExpression 
         {
-            ops.push_back(StringToFourCC($op.text));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression(StringToFourCC($op.text), $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // + and -
-binaryexp3
+addSubtractExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp2 { $tree = $e1.tree; } 
+    e1 = multiplyDivideExpression { $tree = $e1.tree; } 
     (
-        op = ('+' | '-') e2 = binaryexp2 
+        op = ('+' | '-') e2 = multiplyDivideExpression 
         {
-            ops.push_back(StringToFourCC($op.text));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression(StringToFourCC($op.text), $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
-    }
     ;
 
 // * and /
-binaryexp2
+multiplyDivideExpression
     returns[ Expression* tree ]
     @init 
     {
-        std::vector<Expression*> exprs;
-        std::vector<uint32_t> ops;
         $tree = nullptr;
     }:
-    e1 = binaryexp1 { $tree = $e1.tree; }
+    e1 = prefixExpression { $tree = $e1.tree; }
     (
-        op = ('*' | '/' | '%') e2 = binaryexp1 
+        op = ('*' | '/' | '%') e2 = prefixExpression 
         {
-            ops.push_back(StringToFourCC($op.text));
-            exprs.push_back($e2.tree);
+            BinaryExpression* expr = new BinaryExpression(StringToFourCC($op.text), $tree, $e2.tree);
+            expr->location = SetupFile();
+            $tree = expr;
         }
     )*
-    {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
+    ;
 
-        $tree = lhs;
+// unary expressions. Create chain of unary expressions by removing one token from the left and create new unary expressions
+prefixExpression
+    returns[ Expression* tree ]
+    @init 
+    {
+        $tree = nullptr;
+        std::vector<uint32_t> ops;
+        std::vector<Symbol::Location> locations;
+    }:
+    (op = ('-' | '+' | '!' | '~' | '++' | '--' | '*') { ops.push_back(StringToFourCC($op.text)); locations.push_back(SetupFile()); } )* e1 = suffixExpression 
+    {
+        $tree = $e1.tree;
         $tree->location = SetupFile();
+        for (size_t i = 0; i < ops.size(); i++)
+        {
+            $tree = new UnaryExpression(ops[i], 0x0, $tree);
+            $tree->location = locations[i];
+        }
     }
     ;
 
 // unary expressions. Create chain of unary expressions by removing one token from the left and create new unary expressions
-binaryexp1
+suffixExpression
     returns[ Expression* tree ]
     @init 
     {
         $tree = nullptr;
-    }:
-    (op = ('-' | '+' | '!' | '~' | '++' | '--'))? e1 = binaryexp0 
-    {
-        $tree = $e1.tree;
-        if ($op != nullptr)
-        {
-            uint32_t op = StringToFourCC($op.text);
-            $tree = new UnaryExpression(op, 0x0, $e1.tree);
-        }
 
-        $tree->location = SetupFile();
-    }
-    ;
+        Symbol::Location location;
+        std::vector<Expression*> args;
+        Expression* arrayIndexExpr = nullptr;
 
-// unary expressions. Create chain of unary expressions by removing one token from the left and create new unary expressions
-binaryexp0
-    returns[ Expression* tree ]
-    @init 
-    {
-        $tree = nullptr;
-        std::vector<Expression*> exprs;
         std::vector<uint32_t> ops;
+        std::vector<Symbol::Location> locations;
     }:
-    e1 = binaryexpatom (op = ('++' | '--'))? 
+    e1 = binaryexpatom (op = ('++' | '--') { ops.push_back(StringToFourCC($op.text)); locations.push_back(SetupFile()); } )* 
     {
         $tree = $e1.tree;
-        if ($op != nullptr)
+        $tree->location = SetupFile();
+        for (size_t i = 0; i < ops.size(); i++)
         {
-            uint32_t op = StringToFourCC($op.text);
-            $tree = new UnaryExpression(0x0, op, $e1.tree);
+            $tree = new UnaryExpression(0x0, ops[i], $tree);
+            $tree->location = locations[i];
         }
 
-        $tree->location = SetupFile();
     }
-    | e1 = binaryexpatom 
-    (
-        callExpression { ops.push_back(StringToFourCC("()")); exprs.push_back($callExpression.tree); } 
-        | accessExpression { ops.push_back(StringToFourCC(".")); exprs.push_back($accessExpression.tree); } 
-        | arrayIndexExpression { ops.push_back(StringToFourCC("[]")); exprs.push_back($arrayIndexExpression.tree); }
-    )*
+    | e1 = binaryexpatom
     {
-        Expression* lhs = $e1.tree;
-        
-        int i;
-        for ( i = 0; i < exprs.size(); i++)
-        {
-            lhs = new BinaryExpression(ops[i], lhs, exprs[i]); 
-        }
-
-        $tree = lhs;
-        $tree->location = SetupFile();
+        $tree = $e1.tree;
     }
+    (
+        '(' { location = SetupFile(); } (arg0 = expression {args.push_back($arg0.tree); } (',' argn = expression { args.push_back($argn.tree); })* )? ')'
+        {
+            CallExpression* expr = new CallExpression($tree, args);
+            expr->location = location;
+            $tree = expr;
+        }
+        | '.' { location = SetupFile(); } e2 = expression
+        {
+            AccessExpression* expr = new AccessExpression($tree, $e2.tree, false);
+            expr->location = location;
+            $tree = expr;
+        }
+        | '->' { location = SetupFile(); } e2 = expression
+        {
+            AccessExpression* expr = new AccessExpression($tree, $e2.tree, true);
+            expr->location = location;
+            $tree = expr;
+        }
+        | '[' { location = SetupFile(); } (e2 = expression { arrayIndexExpr = $e2.tree; })? ']'
+        {
+            ArrayIndexExpression* expr = new ArrayIndexExpression($tree, arrayIndexExpr);
+            expr->location = location;
+            $tree = expr;
+        }
+    )*
     ;
+
 
 // end of binary expansion, in the end, every expression can be expressed as either an ID or a new expression surrounded by paranthesis.
 binaryexpatom
@@ -1133,62 +943,27 @@ binaryexpatom
         $tree = nullptr;
     }:
     INTEGERLITERAL          { $tree = new IntExpression(atoi($INTEGERLITERAL.text.c_str())); $tree->location = SetupFile(); }
+    | UINTEGERLITERAL       { $tree = new UIntExpression(strtoul($UINTEGERLITERAL.text.c_str(), nullptr, 10)); $tree->location = SetupFile(); }
     | FLOATLITERAL          { $tree = new FloatExpression(atof($FLOATLITERAL.text.c_str())); $tree->location = SetupFile(); }
     | DOUBLELITERAL         { $tree = new FloatExpression(atof($DOUBLELITERAL.text.c_str())); $tree->location = SetupFile(); }
-    | HEX                   { $tree = new IntExpression(strtoul($HEX.text.c_str(), nullptr, 16)); $tree->location = SetupFile(); }
+    | HEX                   { $tree = new UIntExpression(strtoul($HEX.text.c_str(), nullptr, 16)); $tree->location = SetupFile(); }
     | string                { $tree = new StringExpression($string.val); $tree->location = SetupFile(); }
     | IDENTIFIER            { $tree = new SymbolExpression($IDENTIFIER.text); $tree->location = SetupFile(); }
     | boolean               { $tree = new BoolExpression($boolean.val); $tree->location = SetupFile(); }
-    | parantExpression      { $tree = $parantExpression.tree; }
+    | initializerExpression { $tree = $initializerExpression.tree; }
+    | '(' expression ')'    { $tree = $expression.tree; }
     ;
 
-// expands an expression surrounded by paranthesis
-parantExpression
-    returns[ Expression* tree ]
-    @init 
-    {
-        $tree = nullptr;
-    }: '(' expression ')' { $tree = $expression.tree; };
-
-callExpression
+initializerExpression
     returns[ Expression* tree ]
     @init
     {
         $tree = nullptr;
-        std::vector<Expression*> args;
-        Symbol::Location location;
+        std::vector<Expression*> exprs;
     }:
-    '(' { location = SetupFile(); }  (arg0 = expression {args.push_back($arg0.tree); } (',' argn = expression { args.push_back($argn.tree); })* )? ')'
+    '{' ( arg0 = assignmentExpression { exprs.push_back($arg0.tree); } (',' argN = assignmentExpression { exprs.push_back($argN.tree); })* )? '}'
     {
-        $tree = new CallExpression(args);
-        $tree->location = SetupFile();
-    }
-    ;
-
-accessExpression
-    returns[ Expression* tree ]
-    @init
-    {
-        $tree = nullptr;
-        Symbol::Location location;
-    }:
-    '.' expression
-    {
-        $tree = new AccessExpression($expression.tree);
-        $tree->location = SetupFile();
-    }
-    ;
-
-arrayIndexExpression
-    returns[ Expression* tree ]
-    @init
-    {
-        $tree = nullptr;
-        Symbol::Location location;
-    }:
-    '[' expression { location = SetupFile(); } ']'  
-    {
-        $tree = new ArrayIndexExpression($expression.tree);
+        $tree = new InitializerExpression(exprs);
         $tree->location = SetupFile();
     }
     ;
@@ -1234,9 +1009,12 @@ SUB_OP: '-';
 DIV_OP: '/';
 MUL_OP: '*';
 
-fragment INTEGER: ('0' ..'9');
+ARROW: '->';
 
-INTEGERLITERAL: INTEGER+ ('u' | 'U')?;
+fragment INTEGER: ('0' .. '9');
+
+INTEGERLITERAL: INTEGER+;
+UINTEGERLITERAL: INTEGER+ ('u' | 'U');
 
 // single line comment begins with // and ends with new line
 COMMENT: ('//' .*? '\n') -> channel(HIDDEN);

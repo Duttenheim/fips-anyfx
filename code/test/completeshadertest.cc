@@ -18,7 +18,10 @@ CompleteShaderTest()
     AnyFXEndCompile();
 
     if (errors != nullptr)
+    {
         printf(errors->buffer);
+        return;
+    }
 
     // try to load
     FILE* file = fopen((std::string(TEST_OUTPUT_FOLDER) + "/completeshader.fxb").c_str(), "r");

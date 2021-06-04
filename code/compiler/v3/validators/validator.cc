@@ -3,14 +3,34 @@
 //  @copyright (C) 2021 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "validator.h"
+#include "ast/alias.h"
 #include "ast/samplerstate.h"
 #include "ast/function.h"
 #include "ast/program.h"
 #include "ast/renderstate.h"
 #include "ast/structure.h"
 #include "ast/variable.h"
+
 #include "ast/expressions/binaryexpression.h"
+#include "ast/expressions/commaexpression.h"
 #include "ast/expressions/arrayindexexpression.h"
+#include "ast/expressions/symbolexpression.h"
+#include "ast/expressions/callexpression.h"
+#include "ast/expressions/ternaryexpression.h"
+#include "ast/expressions/initializerexpression.h"
+#include "ast/expressions/accessexpression.h"
+#include "ast/expressions/unaryexpression.h"
+
+#include "ast/statements/breakstatement.h"
+#include "ast/statements/continuestatement.h"
+#include "ast/statements/expressionstatement.h"
+#include "ast/statements/forstatement.h"
+#include "ast/statements/ifstatement.h"
+#include "ast/statements/returnstatement.h"
+#include "ast/statements/scopestatement.h"
+#include "ast/statements/switchstatement.h"
+#include "ast/statements/whilestatement.h"
+
 #include "compiler.h"
 #include "util.h"
 #include <algorithm>
@@ -121,6 +141,11 @@ std::set<std::string> attributesRequiringEvaluation =
     , "topology", "patch_type", "patch_size", "partition"
 };
 
+std::set<std::string> pointerQualifiers =
+{
+    "const", "mutable"
+};
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -138,17 +163,13 @@ Validator::Validator()
     }
 
     this->allowedTextureAttributes.insert(textureQualifiers.begin(), textureQualifiers.end());
-
     this->allowedSampledTextureAttributes.insert(sampledTextureQualifiers.begin(), sampledTextureQualifiers.end());
-
     this->allowedScalarAttributes.insert(scalarQualifiers.begin(), scalarQualifiers.end());
-
     this->allowedSamplerAttributes.insert(samplerQualifiers.begin(), samplerQualifiers.end());
-
     this->allowedConstantBufferAttributes.insert(constantBufferQualifiers.begin(), constantBufferQualifiers.end());
-
     this->allowedStorageBufferAttributes.insert(storageBufferAccessFlags.begin(), storageBufferAccessFlags.end());
     this->allowedStorageBufferAttributes.insert(storageBufferQualifiers.begin(), storageBufferQualifiers.end());
+    this->allowedPointerAttributes.insert(pointerQualifiers.begin(), pointerQualifiers.end());
 
     this->allowedFunctionAttributes.insert(functionAttributes.begin(), functionAttributes.end());
 
@@ -173,6 +194,9 @@ Validator::Resolve(Compiler* compiler, const std::vector<Symbol*>& symbols)
         case Symbol::SymbolType::FunctionType:
             ret &= this->ResolveFunction(compiler, sym);
             break;
+        case Symbol::SymbolType::AliasType:
+            ret &= this->ResolveAlias(compiler, sym);
+            break;
         case Symbol::SymbolType::ProgramType:
             ret &= this->ResolveProgram(compiler, sym);
             break;
@@ -196,11 +220,66 @@ Validator::Resolve(Compiler* compiler, const std::vector<Symbol*>& symbols)
 //------------------------------------------------------------------------------
 /**
 */
+bool 
+Validator::ResolveAlias(Compiler* compiler, Symbol* symbol)
+{
+    Alias* alias = static_cast<Alias*>(symbol);
+    Symbol* sym = compiler->GetSymbol(alias->type);
+    if (sym == nullptr)
+    {
+        compiler->UnrecognizedTypeError(alias->type, alias);
+        return false;
+    }
+    return compiler->AddSymbol(alias->name, sym);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ResolveType(Compiler* compiler, Symbol* symbol)
+{
+    Type* type = static_cast<Type*>(symbol);
+    bool ret = true;
+
+    for (Variable* var : type->members)
+    {
+        Variable::__Resolved* res = static_cast<Variable::__Resolved*>(var->resolved);
+        res->typeSymbol = static_cast<Type*>(compiler->GetSymbol(var->type.name));
+    }
+
+    for (Variable* var : type->staticMembers)
+    {
+        Variable::__Resolved* res = static_cast<Variable::__Resolved*>(var->resolved);
+        res->typeSymbol = static_cast<Type*>(compiler->GetSymbol(var->type.name));
+    }
+
+    for (Function* fun : type->methods)
+    {
+        Function::__Resolved* res = static_cast<Function::__Resolved*>(fun->resolved);
+        res->returnTypeSymbol = static_cast<Type*>(compiler->GetSymbol(fun->returnType.name));
+    }
+
+    for (Function* fun : type->staticMethods)
+    {
+        Function::__Resolved* res = static_cast<Function::__Resolved*>(fun->resolved);
+        res->returnTypeSymbol = static_cast<Type*>(compiler->GetSymbol(fun->returnType.name));
+    }
+
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool
 Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
 {
     SamplerState* state = static_cast<SamplerState*>(symbol);
     SamplerState::__Resolved* stateResolved = static_cast<SamplerState::__Resolved*>(state->resolved);
+
+    if (!compiler->AddSymbol(symbol->name, symbol))
+        return false;
 
     for (Expression* entry : state->entries)
     {
@@ -208,7 +287,7 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
 
         if (assignEntry->symbolType != Symbol::BinaryExpressionType || assignEntry->op != '=')
         {
-            compiler->Error(Format("Sampler state entry must be an assignment expression"), entry);
+            compiler->Error(Format("Sampler state entry '%s' must be an assignment expression", assignEntry->EvalString(compiler).c_str()), assignEntry);
             return false;
         }
 
@@ -229,6 +308,9 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
 
         std::string stringValue;
         AddressMode addressMode;
+        float f;
+        bool b;
+
         Filter filter;
         switch (entryType)
         {
@@ -281,7 +363,7 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
             break;
         case SamplerState::__Resolved::MinFilterType:
             stringValue = assignEntry->right->EvalString(compiler);
-            stateResolved->minFilter = SamplerState::__Resolved::StringToFilter(assign->right->EvalString(compiler));
+            stateResolved->minFilter = SamplerState::__Resolved::StringToFilter(assignEntry->right->EvalString(compiler));
             if (stateResolved->minFilter == InvalidFilter)
             {
                 compiler->Error(Format("Invalid filter '%s'", stringValue.c_str()), assignEntry);
@@ -290,7 +372,7 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
             break;
         case SamplerState::__Resolved::MagFilterType:
             stringValue = assignEntry->right->EvalString(compiler);
-            stateResolved->magFilter = SamplerState::__Resolved::StringToFilter(assign->right->EvalString(compiler));
+            stateResolved->magFilter = SamplerState::__Resolved::StringToFilter(assignEntry->right->EvalString(compiler));
             if (stateResolved->magFilter == InvalidFilter)
             {
                 compiler->Error(Format("Invalid filter '%s'", stringValue.c_str()), assignEntry);
@@ -307,16 +389,36 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
             }
             break;
         case SamplerState::__Resolved::MipLodBiasType:
-            stateResolved->mipLodBias = assignEntry->right->EvalFloat(compiler);
+            if (!assignEntry->right->EvalFloat(compiler, f))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time float constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->mipLodBias = f;
             break;
         case SamplerState::__Resolved::AnisotropicFlagType:
-            stateResolved->anisotropicEnabled = assignEntry->right->EvalBool(compiler);
+            if (!assignEntry->right->EvalBool(compiler, b))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time bool constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->anisotropicEnabled = b;
             break;
         case SamplerState::__Resolved::MaxAnisotropyType:
-            stateResolved->maxAnisotropy = assignEntry->right->EvalFloat(compiler);
+            if (!assignEntry->right->EvalFloat(compiler, f))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time float constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->maxAnisotropy = f;
             break;
         case SamplerState::__Resolved::CompareFlagType:
-            stateResolved->compareSamplerEnabled = assignEntry->right->EvalBool(compiler);
+            if (!assignEntry->right->EvalBool(compiler, b))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time bool constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->compareSamplerEnabled = b;
             break;
         case SamplerState::__Resolved::CompareModeType:
             stringValue = assignEntry->right->EvalString(compiler);
@@ -328,10 +430,20 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
             }
             break;
         case SamplerState::__Resolved::MinLodType:
-            stateResolved->minLod = assignEntry->right->EvalFloat(compiler);
+            if (!assignEntry->right->EvalFloat(compiler, f))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time float constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->minLod = f;
             break;
         case SamplerState::__Resolved::MaxLodType:
-            stateResolved->maxLod = assignEntry->right->EvalFloat(compiler);
+            if (!assignEntry->right->EvalFloat(compiler, f))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time float constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->maxLod = f;
             break;
         case SamplerState::__Resolved::BorderColorType:
             stringValue = assignEntry->right->EvalString(compiler);
@@ -343,7 +455,12 @@ Validator::ResolveSamplerState(Compiler* compiler, Symbol* symbol)
             }
             break;
         case SamplerState::__Resolved::UnnormalizedSamplingType:
-            stateResolved->unnormalizedSamplingEnabled = assignEntry->right->EvalBool(compiler);
+            if (!assignEntry->right->EvalBool(compiler, b))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time bool constant", stringValue.c_str()), assignEntry);
+                return false;
+            }
+            stateResolved->unnormalizedSamplingEnabled = b;
             break;
         }
     }
@@ -359,13 +476,77 @@ Validator::ResolveFunction(Compiler* compiler, Symbol* symbol)
     Function* fun = static_cast<Function*>(symbol);
     Function::__Resolved* funResolved = static_cast<Function::__Resolved*>(fun->resolved);
 
-    Type* type = (Type*)compiler->GetSymbol(fun->returnType);
-    funResolved->returnType = type;
-    if (funResolved->returnType->code == Type::Code::InvalidType)
+    // setup our variables and attributes as sets
+    std::string paramList;
+    for (Variable* var : fun->parameters)
     {
-        compiler->Error(Format("INTERNAL COMPILER ERROR, type '%s' does not have a numerical mapping", fun->returnType.c_str()), symbol);
+        // add comma if not first argument
+        if (var != fun->parameters.front())
+            paramList.append(",");
+
+        // finally add type
+        paramList.append(var->type.name);
+    }
+
+    std::string attributeList;
+    bool isPrototype = false;
+
+    // make a set of all attributes
+    for (const Attribute& attr : fun->attributes)
+    {
+        std::string attrAsString;
+        if (!attr.ToString(compiler, attrAsString))
+        {
+            compiler->Error(Format("Attribute '%s' can not be evaluated to a compile time value", attr.name.c_str()), symbol);
+            return false;
+        }
+        attributeList.append(Format("%s ", attrAsString.c_str()));
+        if (attr.name == "prototype")
+            isPrototype = true;
+    }
+
+    // format function with all attributes and parameters
+    std::string functionFormatted = Format("%s%s %s(%s)", attributeList.c_str(), fun->returnType.name.c_str(), fun->name.c_str(), paramList.c_str());
+    fun->signature = functionFormatted;
+
+    // if prototype, add as an ordinary symbol
+    if (isPrototype)
+    {
+        if (!compiler->AddSymbol(fun->name, fun, false))
+            return false;
+    }
+    else
+    {
+        // find functions with similar name
+        std::vector<Symbol*> matchingFunctions = compiler->GetSymbols(fun->name);
+        for (Symbol* matchingFunction : matchingFunctions)
+        {
+            Function* otherFunction = static_cast<Function*>(matchingFunction);
+
+            if (!fun->IsCompatible(otherFunction, false))
+                continue;
+
+            // if all checks prove these functions are identical, throw error
+            if (fun->returnType != otherFunction->returnType)
+                compiler->Error(Format("Function '%s' can not be overloaded because it only differs by return type when trying to overload previous definition at %s(%d)", functionFormatted.c_str(), otherFunction->location.file.c_str(), otherFunction->location.line), fun);
+            else
+                compiler->Error(Format("Function '%s' redefinition, previous definition at %s(%d)", functionFormatted.c_str(), otherFunction->location.file.c_str(), otherFunction->location.line), fun);
+
+            return false;
+        }
+    }
+
+    // if we didn't fault, add the symbol
+    if (!compiler->AddSymbol(fun->name, fun, true))
+        return false;
+
+    Type* type = (Type*)compiler->GetSymbol(fun->returnType.name);
+    if (type == nullptr)
+    {
+        compiler->UnrecognizedTypeError(fun->returnType.name, fun);
         return false;
     }
+    funResolved->returnTypeSymbol = type;
 
     // run attribute validation
     for (const Attribute& attr : fun->attributes)
@@ -384,19 +565,43 @@ Validator::ResolveFunction(Compiler* compiler, Symbol* symbol)
         }
 
         if (attr.name == "local_size_x")
-            funResolved->computeShaderWorkGroupSize[0] = attr.expression->EvalUInt(compiler);
+            if (!attr.expression->EvalUInt(compiler, funResolved->computeShaderWorkGroupSize[0]))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time uint constant", attr.name.c_str()), symbol);
+                return false;
+            }
         else if (attr.name == "local_size_y")
-            funResolved->computeShaderWorkGroupSize[1] = attr.expression->EvalUInt(compiler);
+            if (!attr.expression->EvalUInt(compiler, funResolved->computeShaderWorkGroupSize[1]))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time uint constant", attr.name.c_str()), symbol);
+                return false;
+            }
         else if (attr.name == "local_size_z")
-            funResolved->computeShaderWorkGroupSize[2] = attr.expression->EvalUInt(compiler);
+            if (!attr.expression->EvalUInt(compiler, funResolved->computeShaderWorkGroupSize[2]))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time uint constant", attr.name.c_str()), symbol);
+                return false;
+            }
         else if (attr.name == "early_depth")
             funResolved->earlyDepth = true;
         else if (attr.name == "invocations")
-            funResolved->invocations = attr.expression->EvalUInt(compiler);
+            if (!attr.expression->EvalUInt(compiler, funResolved->invocations))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time uint constant", attr.name.c_str()), symbol);
+                return false;
+            }
         else if (attr.name == "max_output_vertices")
-            funResolved->maxOutputVertices = attr.expression->EvalUInt(compiler);
+            if (!attr.expression->EvalUInt(compiler, funResolved->maxOutputVertices))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time uint constant", attr.name.c_str()), symbol);
+                return false;
+            }
         else if (attr.name == "patch_size")
-            funResolved->patchSize = attr.expression->EvalUInt(compiler);
+            if (!attr.expression->EvalUInt(compiler, funResolved->patchSize))
+            {
+                compiler->Error(Format("Value '%s' has to be a compile time uint constant", attr.name.c_str()), symbol);
+                return false;
+            }
         else if (attr.name == "winding")
         {
             std::string str = attr.expression->EvalString(compiler);
@@ -494,6 +699,9 @@ Validator::ResolveFunction(Compiler* compiler, Symbol* symbol)
     this->inParameterIndexCounter = 0;
     this->outParameterIndexCounter = 0;
 
+    // push scope for function parameters and body
+    compiler->PushScope(Compiler::Scope::Type::Local, fun);
+
     // run validation on parameters
     for (Variable* var : fun->parameters)
     {
@@ -501,6 +709,17 @@ Validator::ResolveFunction(Compiler* compiler, Symbol* symbol)
         varResolved->usageBits.flags.isParameter = true;
         this->ResolveVariable(compiler, var);
     }
+
+    // validate function body
+    if (fun->ast != nullptr
+        && !this->ValidateStatement(compiler, fun->ast))
+    {
+        compiler->PopScope();
+        return false;
+    }
+
+    // pop scope
+    compiler->PopScope(); 
 
     return true;
 }
@@ -519,14 +738,14 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
         const BinaryExpression* assignEntry = static_cast<const BinaryExpression*>(entry);
         if (entry->symbolType != Symbol::BinaryExpressionType || assignEntry->left->symbolType == Symbol::ArrayIndexExpressionType)
         {
-            compiler->Error(Format("Program entry '%s' is not an array", assignEntry->name.c_str()), symbol);
+            compiler->Error(Format("Program entry '%s' must be an assignment expression", assignEntry->EvalString(compiler).c_str()), symbol);
             return false;
         }
 
         // only allow symbol assignments
         if (assignEntry->right->symbolType != Symbol::SymbolExpressionType)
         {
-            compiler->Error(Format("Program binds '%s' but it is not an identifier", assignEntry->right->EvalString(compiler).c_str()), symbol);
+            compiler->Error(Format("Program binds '%s' but it is not an identifier", assignEntry->EvalString(compiler).c_str()), symbol);
             return false;
         }
 
@@ -540,7 +759,7 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
             // check that we actually got a symbol
             if (functionStub == nullptr)
             {
-                compiler->Error(Format("Unrecognized symbol '%s'", entry), symbol);
+                compiler->UnrecognizedTypeError(entry, symbol);
                 return false;
             }
 
@@ -552,27 +771,33 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
             }
 
             // next up, function to assign
-            std::pair<Compiler::SymbolIterator, Compiler::SymbolIterator> functions = compiler->GetSymbols(assignEntry->right->EvalString(compiler));
-            Function* functionImplementation = static_cast<Function*>(functions.first->second);
-
-            // again, check if not null
-            if (functionImplementation == nullptr)
+            std::string functionName;
+            if (!assignEntry->right->EvalSymbol(compiler, functionName))
             {
-                compiler->Error(Format("Unrecognized symbol '%s'", assignEntry->right->EvalString(compiler).c_str()), symbol);
+                compiler->Error(Format("Expected symbol, but got '%s'", entry.c_str()), symbol);
                 return false;
             }
+            std::vector<Symbol*> functions = compiler->GetSymbols(functionName);
 
-            // and check that it's actually a function
-            if (functionImplementation->symbolType != Symbol::FunctionType)
+            // again, check if not null
+            if (functions.empty())
             {
-                compiler->Error(Format("Symbol '%s' is not a recognized function", assignEntry->right->EvalString(compiler).c_str()), symbol);
+                compiler->UnrecognizedTypeError(functionName, symbol);
                 return false;
             }
 
             bool matched = false;
-            for (auto it = functions.first; it != functions.second; it++)
+            for (Symbol* sym : functions)
             {
-                Function* func = static_cast<Function*>(it->second);
+                Function* func = static_cast<Function*>(sym);
+
+                // and check that it's actually a function
+                if (func->symbolType != Symbol::FunctionType)
+                {
+                    compiler->Error(Format("Symbol '%s' is not a recognized function", functionName.c_str()), symbol);
+                    return false;
+                }
+
                 if (functionStub->IsCompatible(func, true))
                 {
                     // if compatible, this is our match
@@ -584,11 +809,11 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
             if (!matched)
             {
                 std::string candidates;
-                for (auto it = functions.first; it != functions.second; it++)
+                for (Symbol* sym : functions)
                 {
-                    Function* func = static_cast<Function*>(it->second);
+                    Function* func = static_cast<Function*>(sym);
                     candidates.append(func->signature);
-                    if (it != functions.second)
+                    if (sym != functions.back())
                         candidates.append(",\n");
                 }
                 compiler->Error(Format("Function prototype '%s' can not bind function '%s', possible candidates: \n%s", functionStub->name.c_str(), assignEntry->right->EvalString(compiler).c_str(), candidates.c_str()), symbol);
@@ -598,10 +823,16 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
         else
         {
             // get the symbol for this entry
-            Symbol* value = assignEntry->right->EvalSymbol(compiler);
+            std::string sym;
+            if (!assignEntry->right->EvalSymbol(compiler, sym))
+            {
+                compiler->Error(Format("Entry '%s' has to be a symbol", entry.c_str()), symbol);
+                return false;
+            }
+            Symbol* value = compiler->GetSymbol(sym);
             if (value->symbolType != Symbol::SymbolType::FunctionType)
             {
-                compiler->Error(Format("Program binds symbol '%s' to '%s' but it is not a recognized function", assignEntry->name.c_str(), assignEntry->name.c_str()), assignEntry);
+                compiler->Error(Format("Program binds symbol '%s' to '%s' but it is not a recognized function", sym.c_str(), assignEntry->name.c_str()), assignEntry);
                 return false;
             }
 
@@ -696,6 +927,10 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
                     funResolved->shaderUsage.flags.isRayIntersectionShader = true;
                     break;
                 }
+
+                // when we've set these flags, run function validation to make sure it's properly formatted
+                if (!this->ValidateFunction(compiler, fun))
+                    return false;
             }
             else
             {
@@ -707,6 +942,10 @@ Validator::ResolveProgram(Compiler* compiler, Symbol* symbol)
             }
         }
     }
+
+    if (!this->ValidateProgram(compiler, prog))
+        return false;
+
     return true;
 }
 
@@ -719,30 +958,34 @@ Validator::ResolveRenderState(Compiler* compiler, Symbol* symbol)
     RenderState* state = static_cast<RenderState*>(symbol);
     RenderState::__Resolved* stateResolved = static_cast<RenderState::__Resolved*>(state->resolved);
 
+    if (!compiler->AddSymbol(symbol->name, symbol))
+        return false;
+
     for (const Expression* entry : state->entries)
     {
         const BinaryExpression* assignEntry = static_cast<const BinaryExpression*>(entry);
 
         if (assignEntry->symbolType != Symbol::BinaryExpressionType || assignEntry->op != '=')
         {
-            compiler->Error(Format("Render state entry not an assignment statement"), entry);
+            compiler->Error(Format("Render state entry '%s' not an assignment statement", assignEntry->EvalString(compiler).c_str()), entry);
             return false;
         }
 
         std::string entry;
 
         // if left is binary, then validate it is an array expression
-        if (assignEntry->left->symbolType == Symbol::BinaryExpressionType)
+        if (assignEntry->left->symbolType == Symbol::ArrayIndexExpressionType)
         {
-            const BinaryExpression* lhs = static_cast<const BinaryExpression*>(assignEntry->left);
-            if (lhs->right->symbolType != Symbol::ArrayIndexExpressionType)
+            const ArrayIndexExpression* lhs = static_cast<const ArrayIndexExpression*>(assignEntry->left);
+            if (lhs->right->symbolType != Symbol::IntExpressionType
+                && lhs->right->symbolType != Symbol::UIntExpressionType)
             {
-                compiler->Error(Format("Render state entry '%s' may be either identifier or array expression", lhs->right->name.c_str()), assignEntry);
+                compiler->Error(Format("Render state entry '%s' may be either identifier or array expression", assignEntry->EvalString(compiler).c_str()), assignEntry);
                 return false;
             }
             if (lhs->left->symbolType != Symbol::SymbolExpressionType)
             {
-                compiler->Error(Format("Render state array entry '%s' must be a valid identifier", lhs->left->name.c_str()), assignEntry);
+                compiler->Error(Format("Render state array entry '%s' must be a valid identifier", lhs->left->EvalString(compiler).c_str()), assignEntry);
                 return false;
             }
             entry = lhs->left->EvalString(compiler);
@@ -751,7 +994,7 @@ Validator::ResolveRenderState(Compiler* compiler, Symbol* symbol)
         {
             if (assignEntry->left->symbolType != Symbol::SymbolExpressionType)
             {
-                compiler->Error(Format("Render state entry '%s' must be a valid identifier", assignEntry->left->name.c_str()), assignEntry);
+                compiler->Error(Format("Render state entry '%s' must be a valid identifier", assignEntry->left->EvalString(compiler).c_str()), assignEntry);
                 return false;
             }
             entry = assignEntry->left->EvalString(compiler);
@@ -767,15 +1010,20 @@ Validator::ResolveRenderState(Compiler* compiler, Symbol* symbol)
         if (entryType >= RenderState::__Resolved::BlendEnabledType && entryType <= RenderState::__Resolved::ColorComponentMaskType)
         {
             uint32_t index = -1;
-            if (assignEntry->left->symbolType != Symbol::BinaryExpressionType)
+            if (assignEntry->left->symbolType == Symbol::ArrayIndexExpressionType)
             {
-                const BinaryExpression* lhs = static_cast<const BinaryExpression*>(assignEntry->left);
-                if (lhs->right->symbolType != Symbol::ArrayIndexExpressionType)
+                const ArrayIndexExpression* lhs = static_cast<const ArrayIndexExpression*>(assignEntry->left);
+                if (lhs->right->symbolType != Symbol::IntExpressionType
+                    && lhs->right->symbolType != Symbol::UIntExpressionType)
                 {
-                    compiler->Error(Format("Blend state entry '%s' must supply an array index", entry.c_str()), assignEntry);
+                    compiler->Error(Format("Blend state entry '%s' must supply an array index", lhs->EvalString(compiler).c_str()), assignEntry);
                     return false;
                 }
-                index = lhs->right->EvalUInt(compiler);
+                if (!lhs->right->EvalUInt(compiler, index))
+                {
+                    compiler->Error(Format("Blend state entry '%s' array index must be a compile time constant", lhs->EvalString(compiler).c_str()), assignEntry);
+                    return false;
+                }
             }
 
             if (index >= 8)
@@ -788,7 +1036,11 @@ Validator::ResolveRenderState(Compiler* compiler, Symbol* symbol)
             switch (entryType)
             {
             case RenderState::__Resolved::BlendEnabledType:
-                stateResolved->blendStates[index].blendEnabled = assignEntry->right->EvalBool(compiler);
+                if (!assignEntry->right->EvalBool(compiler, stateResolved->blendStates[index].blendEnabled))
+                {
+                    compiler->Error(Format("Blend state entry '%s' must evaluate to a compile time bool", entry.c_str()), assignEntry);
+                    return false;
+                }
                 break;
             case RenderState::__Resolved::SourceBlendColorFactorType:
                 str = assignEntry->right->EvalString(compiler);
@@ -827,6 +1079,9 @@ Validator::ResolveStructure(Compiler* compiler, Symbol* symbol)
 {
     Structure* struc = static_cast<Structure*>(symbol);
     Structure::__Resolved* strucResolved = static_cast<Structure::__Resolved*>(struc->resolved);
+
+    if (!compiler->AddSymbol(symbol->name, symbol))
+        return false;
 
     // run attribute validation
     for (const Attribute& attr : struc->attributes)
@@ -878,9 +1133,17 @@ Validator::ResolveStructure(Compiler* compiler, Symbol* symbol)
                 return false;
             }
             if (attr.name == "group")
-                strucResolved->group = attr.expression->EvalUInt(compiler);
+                if (!attr.expression->EvalUInt(compiler, strucResolved->group))
+                {
+                    compiler->Error(Format("group qualifier has to evaluate to a compile time uint", attr.name.c_str()), symbol);
+                    return false;
+                }
             else if (attr.name == "binding")
-                strucResolved->binding = attr.expression->EvalUInt(compiler);
+                if (!attr.expression->EvalUInt(compiler, strucResolved->binding))
+                {
+                    compiler->Error(Format("binding qualifier has to evaluate to a compile time uint", attr.name.c_str()), symbol);
+                    return false;
+                }
             else if (attr.name == "push")
             {
                 if (!strucResolved->usageFlags.flags.isConstantBuffer)
@@ -939,6 +1202,9 @@ Validator::ResolveStructure(Compiler* compiler, Symbol* symbol)
         }
     }
 
+    // push scope for struct but not for storage and constant buffers
+    Compiler::TypeScope scope(compiler, struc);
+
     // validate members
     for (Variable* var : struc->members)
     {
@@ -961,19 +1227,126 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
     Variable* var = static_cast<Variable*>(symbol);
     Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
 
-    Type* type = (Type*)compiler->GetSymbol(var->type);
+    Type* type = (Type*)compiler->GetSymbol(var->type.name);
     if (type == nullptr)
     {
-        compiler->Error(Format("Unrecognized type '%s'", var->type.c_str()), symbol);
+        compiler->UnrecognizedTypeError(var->type.name, symbol);
         return false;
     }
-    varResolved->type = type;
+    varResolved->typeSymbol = type;
+    var->type.name = type->name;        // because we can do an alias lookup, this value might change
+    varResolved->type = var->type;
 
     // struct members may only be scalars
-    if (varResolved->usageBits.flags.isStructMember && !type->IsScalar())
+    if (varResolved->usageBits.flags.isStructMember && type->category != Type::ScalarCategory)
     {
-        compiler->Error(Format("Member '%s' may only be scalar type if member of a struct", var->name.c_str()), symbol);
+        compiler->Error(Format("Member '%s' may only be scalar type if member of a struct", varResolved->name.c_str()), symbol);
         return false;
+    }
+
+    // resolve array type and names
+    if (var->nameExpression != nullptr)
+    {
+        Expression* expr = var->nameExpression;
+
+loop_variable_list:
+        // if we have a list of declarations, go through them in order
+        if (expr->symbolType == Symbol::CommaExpressionType)
+        {
+            CommaExpression* commaExpr = static_cast<CommaExpression*>(expr);
+
+            // create new variable
+            Variable* newVar = new Variable;
+            newVar->type = var->type;
+            newVar->attributes = var->attributes;
+            newVar->annotations = var->annotations;
+            Variable::__Resolved* newVarRes = newVar->Resolved<Variable>();
+            newVarRes->typeSymbol = varResolved->typeSymbol;
+            newVar->nameExpression = commaExpr->right;
+
+            // add this variable as a sibling to the variable
+            varResolved->siblings.push_back(newVar);
+
+            // run new resolve, this will bypass the comma expression and add this as a new variable
+            this->ResolveVariable(compiler, newVar);
+
+            // set to next expression in comma sequence and repeat
+            expr = commaExpr->left;
+            goto loop_variable_list;
+        }
+        else
+        {
+loop_variable:
+            // make sure binary expression is valid
+            if (expr->symbolType == Symbol::BinaryExpressionType)
+            {
+
+                BinaryExpression* binaryExpression = static_cast<BinaryExpression*>(expr);
+                if (binaryExpression->op != '=')
+                {
+                    compiler->Error(Format("Expected assignment expression but got operator '%s'", FourCCToString(binaryExpression->op).c_str()), expr);
+                    return false;
+                }
+                if (!this->ValidateExpression(compiler, binaryExpression->right))
+                    return false;
+                varResolved->value = binaryExpression->right;
+                expr = binaryExpression->left;
+                goto loop_variable;
+            }
+            else if (expr->symbolType == Symbol::ArrayIndexExpressionType)
+            {
+                // array expression means we have an array level
+                ArrayIndexExpression* arrayIndexExpression = static_cast<ArrayIndexExpression*>(expr);
+                varResolved->type.modifiers.push_back(Type::FullType::Modifier::ArrayLevel);
+                varResolved->type.modifierExpressions.push_back(arrayIndexExpression->right);
+
+                // if array access is missing size, value is uninitialized and it's not in the global scope, throw error
+                if (arrayIndexExpression->right == nullptr
+                    && varResolved->value == nullptr
+                    && !compiler->IsScopeGlobal())
+                {
+                    compiler->Error(Format("Invalid array declaration, size can't be determined"), expr);
+                    return false;
+                }
+
+                expr = arrayIndexExpression->left;
+                goto loop_variable;
+            }
+            else if (expr->symbolType == Symbol::UnaryExpressionType)
+            {
+                // unary expression can only mean pointer
+                UnaryExpression* unaryExpression = static_cast<UnaryExpression*>(expr);
+                if (unaryExpression->op == StringToFourCC("*"))
+                {
+                    varResolved->type.modifiers.push_back(Type::FullType::Modifier::PointerLevel);
+                    varResolved->type.modifierExpressions.push_back(nullptr);
+                }
+                else
+                {
+                    compiler->Error(Format("Expected pointer indirection '*' but got '%s'", FourCCToString(unaryExpression->op).c_str()), expr);
+                    return false;
+                }
+                expr = unaryExpression->expr;
+                goto loop_variable;
+            }
+            else if (expr->symbolType == Symbol::SymbolExpressionType)
+            {
+                // the last stage is to parse just the name
+                if (!expr->EvalSymbol(compiler, varResolved->name))
+                {
+                    compiler->Error(Format("Expected symbol expression"), symbol);
+                    return false;
+                }
+
+                if (!compiler->AddSymbol(varResolved->name, var))
+                    return false;
+            }
+            else
+            {
+                compiler->Error(Format("Expected either comma, symbol, assignment or pointer expression"), symbol);
+                return false;
+            }
+        }
     }
 
     // figure out set of allowed attributes
@@ -984,16 +1357,22 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
         allowedAttributesSet = &this->allowedParameterAttributes;
     else
     {
-        if (type->IsReadWriteTexture())
+        if (type->category == Type::ReadWriteTextureCategory)
             allowedAttributesSet = &this->allowedReadWriteTextureAttributes;
-        else if (type->IsTexture())
+        else if (type->category == Type::TextureCategory)
             allowedAttributesSet = &this->allowedTextureAttributes;
-        else if (type->IsSampledTexture())
+        else if (type->category == Type::SampledTextureCategory)
             allowedAttributesSet = &this->allowedSampledTextureAttributes;
-        else if (type->IsScalar())
+        else if (type->category == Type::ScalarCategory)
             allowedAttributesSet = &this->allowedScalarAttributes;
-        else if (type->IsSampler())
+        else if (type->category == Type::SamplerCategory)
             allowedAttributesSet = &this->allowedSamplerAttributes;
+        else if (type->category == Type::UserTypeCategory
+                && !varResolved->type.modifiers.empty()
+                && varResolved->type.modifiers.back() == Type::FullType::Modifier::PointerLevel)
+        {
+            allowedAttributesSet = &this->allowedPointerAttributes;
+        }
     }
 
     // run attribute validation
@@ -1001,17 +1380,31 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
     {
         if (allowedAttributesSet == nullptr || (!set_contains(*allowedAttributesSet, attr.name)))
         {
-            compiler->Error(Format("Invalid attribute for type '%s': '%s'", var->type.c_str(), attr.name.c_str()), symbol);
+            compiler->Error(Format("Invalid attribute for type '%s': '%s'", varResolved->name.c_str(), attr.name.c_str()), symbol);
             return false;
         }
 
         // resolve attributes
         if (attr.name == "group")
-            varResolved->group = attr.expression->EvalUInt(compiler);
+        {
+            if (!attr.expression->EvalUInt(compiler, varResolved->group))
+            {
+                compiler->Error(Format("Expected compile time constant for 'group' qualifier"), symbol);
+                return false;
+            }
+        }
         else if (attr.name == "binding")
-            varResolved->binding = attr.expression->EvalUInt(compiler);
+        {
+            if (!attr.expression->EvalUInt(compiler, varResolved->binding))
+            {
+                compiler->Error(Format("Expected compile time constant for 'binding' qualifier"), symbol);
+                return false;
+            }
+        }
         else if (attr.name == "const")
             varResolved->usageBits.flags.isConst = true;
+        else if (attr.name == "mutable")
+            varResolved->usageBits.flags.isMutable = true;
         else if (attr.name == "group_shared")
             varResolved->usageBits.flags.isGroupShared = true;
         else
@@ -1050,7 +1443,11 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
             else if (attr.name == "no_interpolate")
                 varResolved->parameterBits.flags.isNoInterpolate = true;
             else if (attr.name == "binding")
-                varResolved->binding = attr.expression->EvalUInt(compiler);
+                if (!attr.expression->EvalUInt(compiler, varResolved->binding))
+                {
+                    compiler->Error(Format("Expected compile time constant for 'binding' qualifier"), symbol);
+                    return false;
+                }
         }
 
         // check image formats
@@ -1060,10 +1457,103 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
         }
     }
 
-    // check if image formats have been resolved
-    if (type->IsReadWriteTexture() && varResolved->imageFormat == Variable::InvalidImageFormat)
+    if (compiler->IsScopeGlobal())
     {
-        compiler->Error(Format("Image variable '%s' must provide a format qualifier", var->name.c_str()), var);
+        if (type->category != Type::ScalarCategory)
+        {
+            uint16_t numPointers = 0;
+            uint16_t numArrays = 0;
+            for (Type::FullType::Modifier mod : varResolved->type.modifiers)
+            {
+                if (mod == Type::FullType::Modifier::ArrayLevel)
+                    numArrays++;
+                else if (mod == Type::FullType::Modifier::PointerLevel)
+                    numPointers++;
+            }
+            if (numArrays > 1)
+            {
+                compiler->Error(Format("Global variables may only be single array"), symbol);
+                return false;
+            }
+            if (numPointers > 1)
+            {
+                compiler->Error(Format("Global variables may only be single pointer"), symbol);
+                return false;
+            }
+
+            if (type->category == Type::ReadWriteTextureCategory
+                && numPointers == 0)
+            {
+                compiler->Error(Format("Instance of 'readWriteTexture' must be pointer if in global scope"), symbol);
+                return false;
+            }            
+            else if (type->category == Type::TextureCategory
+                     && numPointers == 0)
+            {
+                compiler->Error(Format("Instance of 'texture' must be pointer if in global scope"), symbol);
+                return false;
+            }
+            else if (type->category == Type::SampledTextureCategory
+                     && numPointers == 0)
+            {
+                compiler->Error(Format("Instance of 'sampledTexture' must be pointer if in global scope"), symbol);
+                return false;
+            }
+            else if (type->category == Type::SamplerCategory
+                     && numPointers == 0)
+            {
+                compiler->Error(Format("Instance of 'sampler' must be pointer if in global scope"), symbol);
+                return false;
+            }
+            else if (type->category == Type::UserTypeCategory
+                     && numPointers == 0)
+            {
+                compiler->Error(Format("Instance of '%s' must be pointer if in global scope", type->name.c_str()), symbol);
+                return false;
+            }
+        }
+        else // scalar
+        {
+            if (!varResolved->usageBits.flags.isConst)
+            {
+                compiler->Error(Format("Non-const scalars are not allowed in global scope"), symbol);
+                return false;
+            }
+            else if (varResolved->usageBits.flags.isConst && varResolved->value == nullptr)
+            {
+                // check for variable initialization criteria
+                compiler->Error(Format("Variable declared as const but is never initialized"), symbol);
+                return false;
+            }
+        }
+    }
+
+    // validate types on both sides of the equivalency
+    if (varResolved->value != nullptr)
+    {
+        Type::FullType lhs = varResolved->type;
+        Type::FullType rhs;
+        if (!varResolved->value->EvalType(compiler, rhs))
+        {
+            compiler->UnrecognizedTypeError(rhs.name, symbol);
+            return false;
+        }
+
+        Type* lhsType = compiler->GetSymbol<Type>(lhs.name);
+        std::vector<Symbol*> assignmentOperators = lhsType->GetSymbols("operator=");
+        Symbol* fun = Function::MatchOverload(compiler, assignmentOperators, { rhs });
+        if (lhs != rhs
+            && fun == nullptr)
+        {
+            compiler->Error(Format("Type '%s' can't be converted to '%s'", lhs.ToString(compiler).c_str(), rhs.ToString(compiler).c_str()), symbol);
+            return false;
+        }
+    }
+
+    // check if image formats have been resolved
+    if (type->category == Type::ReadWriteTextureCategory && varResolved->imageFormat == Variable::InvalidImageFormat)
+    {
+        compiler->Error(Format("Image variable '%s' must provide a format qualifier", varResolved->name.c_str()), var);
         return false;
     }
 
@@ -1087,12 +1577,13 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
     }
     else
     {
+        Type::Category cat = type->category;
         // if not a parameter, assume resource (these types can't be declared inside functions)
-        if (type->IsReadWriteTexture()
-            || type->IsSampledTexture()
-            || type->IsTexture()
-            || type->IsSampler()
-            || type->IsInputAttachment())
+        if (cat == Type::Category::ReadWriteTextureCategory
+            || cat == Type::Category::SampledTextureCategory
+            || cat == Type::Category::TextureCategory
+            || cat == Type::Category::SamplerCategory
+            || cat == Type::Category::InputAttachmentCategory)
         {
             if (varResolved->group == Variable::__Resolved::NOT_BOUND)
             {
@@ -1101,7 +1592,6 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
 
             if (this->resourceIndexingMode == ResourceIndexingByType)
             {
-                Type::Category cat = type->ToCategory();
                 auto it = this->resourceIndexCounter.find(cat);
                 if (it == this->resourceIndexCounter.end())
                 {
@@ -1139,122 +1629,6 @@ Validator::ResolveVariable(Compiler* compiler, Symbol* symbol)
         }
     }
 
-    // setup array
-    if (var->isArray)
-    {
-        if (var->arraySizeExpression)
-            varResolved->arraySize = var->arraySizeExpression->EvalUInt(compiler);
-    }
-
-    // setup initializers
-    if (!var->initializers.empty())
-    {
-        // only allow initializers on parameters or const variables
-        if (!varResolved->usageBits.flags.isConst || varResolved->usageBits.flags.isParameter)
-        {
-            compiler->Error(Format("Initializer can only be used on 'const' qualifier variables or function parameters"), symbol);
-            return false;
-        }
-
-        uint32_t typeComponents = type->ComponentCount();
-
-        // reduce type to single component
-        const Type::Code singleComponentType = type->SingleComponent();
-        if (
-            singleComponentType != Type::Code::Float
-            && singleComponentType != Type::Code::Int
-            && singleComponentType != Type::Code::UInt
-            && singleComponentType != Type::Code::Bool)
-        {
-            compiler->Error(Format("Initializer only accepts components as floats, ints, uints or bools"), symbol);
-            return false;
-        }
-
-        // run through initializers and evaluate value expressions
-        for (auto& initializer : var->initializers)
-        {
-            if (initializer.size() != typeComponents)
-            {
-                compiler->Error(Format("Initializer expected %d initializers but got %d", typeComponents, initializer.size()), symbol);
-                return false;
-            }
-
-            std::vector<Variable::__Resolved::Initializer> values;
-            for (auto& expr : initializer)
-            {
-                Variable::__Resolved::Initializer value;
-                switch (singleComponentType)
-                {
-                case Type::Code::Float:
-                    value.type = Variable::__Resolved::Initializer::FloatType;
-                    value.data.f = expr->EvalFloat(compiler);
-                    break;
-                case Type::Code::Int:
-                    value.type = Variable::__Resolved::Initializer::IntType;
-                    value.data.i = expr->EvalInt(compiler);
-                    break;
-                case Type::Code::UInt:
-                    value.type = Variable::__Resolved::Initializer::UIntType;
-                    value.data.u = expr->EvalUInt(compiler);
-                    break;
-                case Type::Code::Bool:
-                    value.type = Variable::__Resolved::Initializer::BoolType;
-                    value.data.b = expr->EvalBool(compiler);
-                    break;
-                default:
-                    compiler->Error(Format("INTERNAL COMPILER ERROR did not catch type '%s' as a invalid array initializer type", var->type), symbol);
-                    return false;
-                }
-                values.push_back(value);
-            }
-            varResolved->initializers.push_back(values);
-        }
-    }
-
-    return true;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-bool
-Validator::Validate(Compiler* compiler, const std::vector<Symbol*>& symbols)
-{
-    bool ret = true;
-    for (Symbol* sym : symbols)
-    {
-        switch (sym->symbolType)
-        {
-        case Symbol::SymbolType::FunctionType:
-            ret &= this->ValidateFunction(compiler, sym);
-            break;
-        case Symbol::SymbolType::ProgramType:
-            ret &= this->ValidateProgram(compiler, sym);
-            break;
-        case Symbol::SymbolType::RenderStateType:
-            ret &= this->ValidateRenderState(compiler, sym);
-            break;
-        case Symbol::SymbolType::StructureType:
-            ret &= this->ValidateStructure(compiler, sym);
-            break;
-        case Symbol::SymbolType::VariableType:
-            ret &= this->ValidateVariable(compiler, sym);
-            break;
-        case Symbol::SymbolType::SamplerStateType:
-            ret &= this->ValidateSamplerState(compiler, sym);
-            break;
-        }
-    }
-    return ret;
-}
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-bool 
-Validator::ValidateSamplerState(Compiler* compiler, Symbol* symbol)
-{
     return true;
 }
 
@@ -1314,7 +1688,7 @@ Validator::ValidateFunction(Compiler* compiler, Symbol* symbol)
                 numOutputs++;
         }
         if (numOutputs == 0)
-            compiler->Warning(Format("Function '%s' is used as pixel shader but produces no outputs", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Function '%s' is used as pixel shader but produces no color output", fun->name.c_str()), symbol);
     }
     else
     {
@@ -1326,7 +1700,7 @@ Validator::ValidateFunction(Compiler* compiler, Symbol* symbol)
     {
         if (funResolved->patchSize == Function::__Resolved::INVALID_SIZE)
         {
-            compiler->Error(Format("Function '%s' is hull/tessellation control shader but does not define 'patch_size'", fun->name.c_str()), symbol);
+            compiler->Error(Format("Hull shader '%s' is hull/tessellation control shader but does not define 'patch_size'", fun->name.c_str()), symbol);
             return false;
         }
     }
@@ -1341,12 +1715,12 @@ Validator::ValidateFunction(Compiler* compiler, Symbol* symbol)
         // validate required qualifiers
         if (funResolved->patchType != Function::__Resolved::InvalidPatchType)
         {
-            compiler->Warning(Format("Function '%s' does not define 'patch_type' for DomainShader/TessellationEvaluationShader, defaulting to 'triangles'", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Domain shader '%s' does not define 'patch_type' for DomainShader/TessellationEvaluationShader, defaulting to 'triangles'", fun->name.c_str()), symbol);
             funResolved->patchType = Function::__Resolved::PatchType::TrianglePatch;
         }
         if (funResolved->partitionMethod != Function::__Resolved::InvalidPartitionMethod)
         {
-            compiler->Warning(Format("Function '%s' does not define 'partition', defaulting to 'steps'", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Domain shader '%s' does not define 'partition', defaulting to 'steps'", fun->name.c_str()), symbol);
             funResolved->partitionMethod = Function::__Resolved::PartitionMethod::IntegerSteps;
         }
     }
@@ -1362,17 +1736,17 @@ Validator::ValidateFunction(Compiler* compiler, Symbol* symbol)
     {
         if (funResolved->maxOutputVertices == Function::__Resolved::INVALID_SIZE)
         {
-            compiler->Error(Format("Function '%s' does not define 'max_output_vertices' for GeometryShader", fun->name.c_str()), symbol);
+            compiler->Error(Format("Geometry shader '%s' does not define 'max_output_vertices' for GeometryShader", fun->name.c_str()), symbol);
             return false;
         }
         if (funResolved->inputPrimitiveTopology == Function::__Resolved::InvalidPrimitiveTopology)
         {
-            compiler->Warning(Format("Function '%s' does not define 'input_topology' for GeometryShader, defaulting to 'triangles'", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Geometry shader '%s' does not define 'input_topology' for GeometryShader, defaulting to 'triangles'", fun->name.c_str()), symbol);
             funResolved->inputPrimitiveTopology = Function::__Resolved::Triangles;
         }
         if (funResolved->outputPrimitiveTopology == Function::__Resolved::InvalidPrimitiveTopology)
         {
-            compiler->Warning(Format("Function '%s' does not define 'output_topology' for GeometryShader, defaulting to 'triangles'", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Geometry shader '%s' does not define 'output_topology' for GeometryShader, defaulting to 'triangles'", fun->name.c_str()), symbol);
             funResolved->outputPrimitiveTopology = Function::__Resolved::Triangles;
         }
     }
@@ -1392,28 +1766,28 @@ Validator::ValidateFunction(Compiler* compiler, Symbol* symbol)
     {
         if (funResolved->computeShaderWorkGroupSize[0] <= 0)
         {
-            compiler->Error(Format("Function must declare 'local_size_x' bigger than or equal to 1", fun->name.c_str()), symbol);
+            compiler->Error(Format("Compute shader must declare 'local_size_x' bigger than or equal to 1", fun->name.c_str()), symbol);
             return false;
         }
         if (funResolved->computeShaderWorkGroupSize[1] <= 0)
         {
-            compiler->Error(Format("Function must declare 'local_size_y' bigger than or equal to 1", fun->name.c_str()), symbol);
+            compiler->Error(Format("Compute shader must declare 'local_size_y' bigger than or equal to 1", fun->name.c_str()), symbol);
             return false;
         }
         if (funResolved->computeShaderWorkGroupSize[2] <= 0)
         {
-            compiler->Error(Format("Function must declare 'local_size_z' bigger than or equal to 1", fun->name.c_str()), symbol);
+            compiler->Error(Format("Compute shader must declare 'local_size_z' bigger than or equal to 1", fun->name.c_str()), symbol);
             return false;
         }
     }
     else
     {
         if (funResolved->computeShaderWorkGroupSize[0] > 1)
-            compiler->Warning(Format("Function '%s' has attribute 'local_size_x' but is not used as a ComputeShader", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Function '%s' has attribute 'local_size_x' but is not used as a compute shader", fun->name.c_str()), symbol);
         if (funResolved->computeShaderWorkGroupSize[1] > 1)
-            compiler->Warning(Format("Function '%s' has attribute 'local_size_y' but is not used as a ComputeShader", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Function '%s' has attribute 'local_size_y' but is not used as a compute shader", fun->name.c_str()), symbol);
         if (funResolved->computeShaderWorkGroupSize[2] > 1)
-            compiler->Warning(Format("Function '%s' has attribute 'local_size_z' but is not used as a ComputeShader", fun->name.c_str()), symbol);
+            compiler->Warning(Format("Function '%s' has attribute 'local_size_z' but is not used as a compute shader", fun->name.c_str()), symbol);
     }
 
     return true;
@@ -1468,9 +1842,9 @@ ValidateParameterSets(Compiler* compiler, Function* outFunc, Function* inFunc)
         }
         else
         {
-            if (outResolved->type != inResolved->type)
+            if (var->type != inParams[inIterator]->type)
             {
-                compiler->Error(Format("Can't match types '%s' and '%s' between shader '%s' and '%s'", var->type.c_str(), inParams[inIterator]->type.c_str(), outFunc->name.c_str(), inFunc->name.c_str()), outFunc);
+                compiler->Error(Format("Can't match types '%s' and '%s' between shader '%s' and '%s'", var->type.name.c_str(), inParams[inIterator]->type.name.c_str(), outFunc->name.c_str(), inFunc->name.c_str()), outFunc);
                 return false;
             }
         }
@@ -1516,19 +1890,19 @@ Validator::ValidateProgram(Compiler* compiler, Symbol* symbol)
         IsGraphics,
         IsCompute
     };
-    GraphicsProgramTristate programType = NotSet;
+    GraphicsProgramTristate programType = GraphicsProgramTristate::NotSet;
 
     // validate program setup as compute or graphics program, do it on a first-come-first-serve basis
     for (auto& it : progResolved->programMappings)
     {
         if (it.first == Program::__Resolved::ComputeShader)
         {
-            if (programType == IsGraphics)
+            if (programType == GraphicsProgramTristate::IsGraphics)
             {
                 compiler->Error(Format("Invalid program setup, program already used as a graphics program, ComputeShader is not allowed"), symbol);
                 return false;
             }
-            programType = IsCompute;
+            programType = GraphicsProgramTristate::IsCompute;
         }
         else if (it.first == Program::__Resolved::VertexShader
             || it.first == Program::__Resolved::HullShader
@@ -1542,12 +1916,12 @@ Validator::ValidateProgram(Compiler* compiler, Symbol* symbol)
             || it.first == Program::__Resolved::RenderState
             )
         {
-            if (programType == IsCompute)
+            if (programType == GraphicsProgramTristate::IsCompute)
             {
                 compiler->Error(Format("Invalid program setup, program already used with ComputeShader but '%s' was provided", Program::__Resolved::EntryTypeToString(it.first)), symbol);
                 return false;
             }
-            programType = IsGraphics;
+            programType = GraphicsProgramTristate::IsGraphics;
         }
     }
 
@@ -1623,8 +1997,29 @@ Validator::ValidateProgram(Compiler* compiler, Symbol* symbol)
 /**
 */
 bool 
-Validator::ValidateRenderState(Compiler* compiler, Symbol* symbol)
+Validator::ValidateStatement(Compiler* compiler, Statement* statement)
 {
+    switch (statement->symbolType)
+    {
+    case Symbol::BreakStatementType:
+        return this->ValidateBreakStatement(compiler, statement);
+    case Symbol::ContinueStatementType:
+        return this->ValidateContinueStatement(compiler, statement);
+    case Symbol::ExpressionStatementType:
+        return this->ValidateExpressionStatement(compiler, statement);
+    case Symbol::ForStatementType:
+        return this->ValidateForStatement(compiler, statement);
+    case Symbol::IfStatementType:
+        return this->ValidateIfStatement(compiler, statement);
+    case Symbol::ReturnStatementType:
+        return this->ValidateReturnStatement(compiler, statement);
+    case Symbol::ScopeStatementType:
+        return this->ValidateScopeStatement(compiler, statement);
+    case Symbol::SwitchStatementType:
+        return this->ValidateSwitchStatement(compiler, statement);
+    case Symbol::WhileStatementType:
+        return this->ValidateWhileStatement(compiler, statement);
+    }
     return true;
 }
 
@@ -1632,8 +2027,19 @@ Validator::ValidateRenderState(Compiler* compiler, Symbol* symbol)
 /**
 */
 bool 
-Validator::ValidateStructure(Compiler* compiler, Symbol* symbol)
+Validator::ValidateBreakStatement(Compiler* compiler, Statement* statement)
 {
+    Symbol* scopeOwner = compiler->GetScopeOwner();
+    if (scopeOwner == nullptr
+        || !(
+        scopeOwner->symbolType == Symbol::ForStatementType
+        && scopeOwner->symbolType == Symbol::WhileStatementType
+        && scopeOwner->symbolType == Symbol::SwitchStatementType)
+        )
+    {
+        compiler->Error(Format("Statement 'break' is only valid inside a for, while or switch statement body"), statement);
+        return false;
+    }
     return true;
 }
 
@@ -1641,8 +2047,561 @@ Validator::ValidateStructure(Compiler* compiler, Symbol* symbol)
 /**
 */
 bool 
-Validator::ValidateVariable(Compiler* compiler, Symbol* symbol)
+Validator::ValidateContinueStatement(Compiler* compiler, Statement* statement)
 {
+    Symbol* scopeOwner = compiler->GetScopeOwner();
+    if (scopeOwner == nullptr
+        || !(
+        scopeOwner->symbolType == Symbol::ForStatementType
+        && scopeOwner->symbolType == Symbol::WhileStatementType)
+        )
+    {
+        compiler->Error(Format("Statement 'break' is only valid inside a for or while statement body"), statement);
+        return false;
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateExpressionStatement(Compiler* compiler, Statement* statement)
+{
+    ExpressionStatement* expr = static_cast<ExpressionStatement*>(statement);
+    return this->ValidateExpression(compiler, expr->expr);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateForStatement(Compiler* compiler, Statement* statement)
+{
+    ForStatement* forStatement = static_cast<ForStatement*>(statement);
+    if (!this->ResolveVariable(compiler, forStatement->declaration))
+        return false;
+    if (!this->ValidateExpression(compiler, forStatement->condition))
+        return false;
+    if (!this->ValidateStatement(compiler, forStatement->statement))
+        return false;
+
+    compiler->PushScope(Compiler::Scope::Type::Local, forStatement);
+    if (!this->ValidateStatement(compiler, forStatement->contents))
+        return false;
+    compiler->PopScope();
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateIfStatement(Compiler* compiler, Statement* statement)
+{
+    IfStatement* ifStatement = static_cast<IfStatement*>(statement);
+    if (!this->ValidateExpression(compiler, ifStatement->condition))
+        return false;
+    if (!this->ValidateStatement(compiler, ifStatement->ifStatement))
+        return false;
+    if (ifStatement->elseStatement
+        && !this->ValidateStatement(compiler, ifStatement->elseStatement))
+        return false;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateReturnStatement(Compiler* compiler, Statement* statement)
+{
+    ReturnStatement* returnStatement = static_cast<ReturnStatement*>(statement);
+    if (!this->ValidateExpression(compiler, returnStatement->returnValue))
+        return false;
+    Symbol* scopeOwner = compiler->GetScopeOwner();
+    if (scopeOwner == nullptr
+        || scopeOwner->symbolType != Symbol::FunctionType)
+    {
+        compiler->Error(Format("Statement 'return' is only valid inside function body"), statement);
+        return false;
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateScopeStatement(Compiler* compiler, Statement* statement)
+{
+    compiler->PushScope(Compiler::Scope::Type::Local);
+
+    ScopeStatement* scopeStatement = static_cast<ScopeStatement*>(statement);
+    for (Symbol* stat : scopeStatement->statements)
+    {
+        if (stat->symbolType == Symbol::VariableType)
+        {
+            if (!this->ResolveVariable(compiler, stat))
+                return false;
+        }
+        else
+        {
+            if (!this->ValidateStatement(compiler, static_cast<Statement*>(stat)))
+                return false;
+        }
+    }
+
+    compiler->PopScope();
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateSwitchStatement(Compiler* compiler, Statement* statement)
+{
+    SwitchStatement* switchStatement = static_cast<SwitchStatement*>(statement);
+    if (!this->ValidateExpression(compiler, switchStatement->switchExpression))
+        return false;
+
+    compiler->PushScope(Compiler::Scope::Type::Local, switchStatement);
+
+    for (size_t i = 0; i < switchStatement->caseStatements.size(); i++)
+    {
+        if (!this->ValidateStatement(compiler, switchStatement->caseStatements[i]))
+            return false;
+    }
+    if (switchStatement->defaultStatement != nullptr
+        && !this->ValidateStatement(compiler, switchStatement->defaultStatement))
+        return false;
+
+    compiler->PopScope();
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateWhileStatement(Compiler* compiler, Statement* statement)
+{
+    WhileStatement* whileStatement = static_cast<WhileStatement*>(statement);
+    if (!this->ValidateExpression(compiler, whileStatement->condition))
+        return false;
+    compiler->PushScope(Compiler::Scope::Type::Local, whileStatement);
+    if (!this->ValidateStatement(compiler, whileStatement->statement))
+        return false;
+    compiler->PopScope();
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateExpression(Compiler* compiler, Expression* expression)
+{
+    switch (expression->symbolType)
+    {
+    case Symbol::CommaExpressionType:
+        return this->ValidateCommaExpression(compiler, expression);
+    case Symbol::BinaryExpressionType:
+        return this->ValidateBinaryExpression(compiler, expression);
+    case Symbol::InitializerExpressionType:
+        return this->ValidateInitializerExpression(compiler, expression);
+    case Symbol::ArrayIndexExpressionType:
+        return this->ValidateArrayIndexExpression(compiler, expression);
+    case Symbol::TernaryExpressionType:
+        return this->ValidateTernaryExpression(compiler, expression);
+    case Symbol::CallExpressionType:
+        return this->ValidateCallExpression(compiler, expression);
+    case Symbol::AccessExpressionType:
+        return this->ValidateAccessExpression(compiler, expression);
+    case Symbol::SymbolExpressionType:
+        return this->ValidateSymbolExpression(compiler, expression);
+    case Symbol::UnaryExpressionType:
+        return this->ValidateUnaryExpression(compiler, expression);
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateAccessExpression(Compiler* compiler, Expression* expression)
+{
+    AccessExpression* accessExpr = static_cast<AccessExpression*>(expression);
+    Type::FullType leftType;
+
+    if (!accessExpr->left->EvalType(compiler, leftType))
+    {
+        compiler->UnrecognizedTypeError(leftType.name, expression);
+        return false;
+    }
+
+    if (!this->ValidateExpression(compiler, accessExpr->left))
+        return false;
+
+    // if deref, check that left hand side has a pointer modifier
+    if (accessExpr->deref)
+    {
+        if (leftType.modifiers.empty()
+            || leftType.modifiers.back() != Type::FullType::Modifier::PointerLevel)
+        {
+            compiler->Error(Format("Cannot dereference type '%s', did you mean to use '.' instead?", leftType.ToString(compiler).c_str()), expression);
+            return false;
+        }
+    }
+
+    // get type
+    Type* type = static_cast<Type*>(compiler->GetSymbol(leftType.name));
+
+    if (type == nullptr)
+    {
+        std::string var;
+        accessExpr->left->EvalSymbol(compiler, var);
+        compiler->UnrecognizedTypeError(leftType.name, expression);
+        return false;
+    }
+
+    Compiler::TypeScope scope(compiler, type);
+
+    std::string member;
+    if (!accessExpr->right->EvalSymbol(compiler, member))
+    {
+        compiler->Error(Format("Expected valid symbol for right hand side"), accessExpr);
+        return false;
+    }
+
+    // check if swizzle if is vector
+    if (type->IsVector())
+    {
+        // if vector, the only allowed member is a swizzle
+        unsigned swizzle;
+        if (!Type::SwizzleMask(member, swizzle))
+        {
+            compiler->Error(Format("Invalid swizzle mask '%s'", member.c_str()), accessExpr);
+            return false;
+        }  
+        unsigned biggestComponent = Type::SwizzleMaskBiggestComponent(swizzle);
+        if (biggestComponent > type->columnSize)
+        {
+            compiler->Error(Format("Swizzle '%s' is out of bounds for type '%s'", member.c_str(), type->name.c_str()), accessExpr);
+            return false;
+        }
+        
+    }
+    else
+    {
+        // not vector type, lookup member
+        Symbol* sym = compiler->GetSymbol(member);
+        if (sym == nullptr)
+        {
+            compiler->Error(Format("Type '%s' does not have member or method '%s'", leftType.ToString(compiler).c_str(), member.c_str()), accessExpr);
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateArrayIndexExpression(Compiler* compiler, Expression* expression)
+{
+    ArrayIndexExpression* arrayIndexExpr = static_cast<ArrayIndexExpression*>(expression);
+    Type::FullType lhsType;
+    if (!arrayIndexExpr->left->EvalType(compiler, lhsType))
+    {
+        compiler->UnrecognizedTypeError(lhsType.name, expression);
+        return false;
+    }
+
+    // if lhs is level 0
+    if (lhsType.modifiers.empty())
+    {
+        std::string typeString = lhsType.name;
+        Type* type = static_cast<Type*>(compiler->GetSymbol(typeString));
+        auto it = type->lookup.find("operator[]");
+        if (it == type->lookup.end())
+        {
+            compiler->Error(Format("'%s' does not implement the [] operator", lhsType.ToString(compiler).c_str()), arrayIndexExpr->right);
+            return false;
+        }
+    }
+    else if (lhsType.modifiers.back() != Type::FullType::Modifier::ArrayLevel)
+    {
+        compiler->Error(Format("operator [] not valid on non-array type '%s'", lhsType.ToString(compiler).c_str()), arrayIndexExpr->right);
+        return false;
+    }
+        
+
+    if (arrayIndexExpr->right != nullptr)
+    {
+        if (!this->ValidateExpression(compiler, arrayIndexExpr->right));
+            return false;
+
+        Type::FullType type;
+        if (!arrayIndexExpr->right->EvalType(compiler, type))
+        {
+            compiler->UnrecognizedTypeError(type.name, expression);
+            return false;
+        }
+        Type* typeSymbol = compiler->GetSymbol<Type>(type.name);
+        if ((typeSymbol->name != "uint" && typeSymbol->name != "int") || type.modifiers.empty())
+        {
+            compiler->Error(Format("Expected array index to be uint or int but got '%s'", type.ToString(compiler).c_str()), arrayIndexExpr->right);
+            return false;
+        }
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateCommaExpression(Compiler* compiler, Expression* expression)
+{
+    CommaExpression* commaExpr = static_cast<CommaExpression*>(expression);
+    return this->ValidateExpression(compiler, commaExpr->left) && this->ValidateExpression(compiler, commaExpr->right);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateBinaryExpression(Compiler* compiler, Expression* expression)
+{
+    BinaryExpression* binExp = static_cast<BinaryExpression*>(expression);
+
+    Type::FullType leftType, rightType;
+    if (!binExp->left->EvalType(compiler, leftType))
+    {
+        compiler->UnrecognizedTypeError(leftType.name, expression);
+        return false;
+    }
+    if (!binExp->right->EvalType(compiler, rightType))
+    {
+        compiler->UnrecognizedTypeError(rightType.name, expression);
+        return false;
+    }
+    Type* leftTypeSymbol = compiler->GetSymbol<Type>(leftType.name);
+    Type* rightTypeSymbol = compiler->GetSymbol<Type>(rightType.name);
+
+    // find operators for types and compare
+    std::string operatorName = Format("operator%s", FourCCToString(binExp->op).c_str());
+    std::vector<Symbol*> leftOperators = leftTypeSymbol->GetSymbols(operatorName);
+    if (leftOperators.empty())
+    {
+        compiler->Error(Format("Type '%s' does not implement '%s'", leftTypeSymbol->name.c_str(), operatorName.c_str()), binExp);
+        return false;
+    }
+    else
+    {
+        Symbol* match = Function::MatchOverload(compiler, leftOperators, { rightType });
+        if (match == nullptr)
+        {
+            compiler->Error(Format("No overloads of '%s' matches type '%s' for type '%s'", operatorName.c_str(), rightType.ToString(compiler).c_str(), leftType.ToString(compiler).c_str()), binExp);
+            return false;
+        }
+    }
+
+    return this->ValidateExpression(compiler, binExp->left) && this->ValidateExpression(compiler, binExp->right);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateCallExpression(Compiler* compiler, Expression* expression)
+{
+    bool ret = true;
+    CallExpression* call = static_cast<CallExpression*>(expression);
+    std::vector<Type::FullType> args;
+    for (Expression* expr : call->args)
+    {
+        ret &= this->ValidateExpression(compiler, expr);
+        Type::FullType type;
+        if (!expr->EvalType(compiler, type))
+        {
+            compiler->UnrecognizedTypeError(type.name, expression);
+            return false;
+        }
+        args.push_back(type);
+    }
+
+    std::string funName;
+    if (!call->function->EvalSymbol(compiler, funName))
+    {
+        compiler->Error(Format("Could not function name for '%s'", call->EvalString(compiler).c_str()), expression);
+        return false;
+    }
+    std::vector<Symbol*> overloads = compiler->GetSymbols(funName);
+    for (Symbol* symbol : overloads)
+    {
+        if (symbol->symbolType == Symbol::TypeType)
+        {
+            Type* typeSymbol = static_cast<Type*>(symbol);
+            std::vector<Symbol*> constructors = typeSymbol->GetSymbols(funName);
+            Symbol* match = Function::MatchOverload(compiler, constructors, args, true);
+            if (match == nullptr)
+            {
+                std::string argList;
+                for (size_t i = 0; i < args.size(); i++)
+                {
+                    argList.append(args[i].ToString(compiler));
+                    if (i < args.size() - 1)
+                        argList.append(", ");
+                }
+                compiler->Error(Format("No constructor for type '%s' matches arguments '%s'", typeSymbol->name.c_str(), argList.c_str()), call);
+                return false;
+            }
+        }
+        else if (symbol->symbolType == Symbol::FunctionType)
+        {
+            Symbol* match = Function::MatchOverload(compiler, overloads, args);
+            if (match == nullptr)
+            {
+                std::string argList;
+                for (size_t i = 0; i < args.size(); i++)
+                {
+                    argList.append(args[i].ToString(compiler));
+                    if (i < args.size() - 1)
+                        argList.append(", ");
+                }
+                compiler->Error(Format("No overload of '%s' matches arguments '%s'", funName.c_str(), argList.c_str()), call);
+                return false;
+            }
+        }
+    }
+
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateInitializerExpression(Compiler* compiler, Expression* expression)
+{
+    // check that all initializers are equivalent
+    InitializerExpression* rhs = static_cast<InitializerExpression*>(expression);
+    Type::FullType type;
+
+    // first step, validate expressions
+    for (Expression* expr : rhs->values)
+        if (!this->ValidateExpression(compiler, expr))
+            return false;
+
+    if (!rhs->values.front()->EvalType(compiler, type))
+    {
+        compiler->UnrecognizedTypeError(type.name, expression);
+        return false;
+    }
+    for (size_t i = 0; i < rhs->values.size(); i++)
+    {
+        Expression* expr = rhs->values[i];
+        Type::FullType nextType;
+        if (!expr->EvalType(compiler, nextType))
+        {
+            compiler->UnrecognizedTypeError(type.name, expression);
+            return false;
+        }
+        if (type != nextType)
+        {
+            compiler->Error(Format("Initializer list at index '%d' expected type '%s' but got '%s'", i, type.ToString(compiler).c_str(), nextType.ToString(compiler).c_str()), rhs);
+            return false;
+        }
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateSymbolExpression(Compiler* compiler, Expression* expression)
+{
+    SymbolExpression* symExpr = static_cast<SymbolExpression*>(expression);
+    Symbol* sym = compiler->GetSymbol(symExpr->symbol);
+    if (sym == nullptr)
+    {
+        compiler->Error(Format("Unrecognized symbol '%s' in scope", symExpr->symbol.c_str()), symExpr);
+        return false;
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateTernaryExpression(Compiler* compiler, Expression* expression)
+{
+    TernaryExpression* ternaryExpr = static_cast<TernaryExpression*>(expression);
+    Type::FullType lhsType, middleType, lastType;
+    if (!ternaryExpr->lhs->EvalType(compiler, lhsType))
+    {
+        compiler->UnrecognizedTypeError(lhsType.name, expression);
+        return false;
+    }
+    if (!ternaryExpr->ifExpression->EvalType(compiler, middleType))
+    {
+        compiler->UnrecognizedTypeError(middleType.name, expression);
+        return false;
+    }
+    if (!ternaryExpr->elseExpression->EvalType(compiler, lastType))
+    {
+        compiler->UnrecognizedTypeError(lastType.name, expression);
+        return false;
+    }
+
+    if (lhsType != middleType)
+    {
+        compiler->Error(Format("Type mismatch between '%s' : '%s'", lhsType.ToString(compiler).c_str(), middleType.ToString(compiler).c_str()), expression);
+        return false;
+    }
+
+    if (middleType != lastType)
+    {
+        compiler->Error(Format("Type mismatch between '%s' : '%s'", middleType.ToString(compiler).c_str(), lastType.ToString(compiler).c_str()), expression);
+        return false;
+    }
+
+    bool ret = true;
+    ret &= this->ValidateExpression(compiler, ternaryExpr->lhs);
+    ret &= this->ValidateExpression(compiler, ternaryExpr->ifExpression);
+    ret &= this->ValidateExpression(compiler, ternaryExpr->elseExpression);
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+Validator::ValidateUnaryExpression(Compiler* compiler, Expression* expression)
+{
+    UnaryExpression* unary = static_cast<UnaryExpression*>(expression);
+    Type::FullType type;
+    if (!unary->expr->EvalType(compiler, type))
+    {
+        compiler->UnrecognizedTypeError(type.name, expression);
+        return false;
+    }
+
+    if (unary->op == '*'
+        && type.modifiers.empty()
+        || type.modifiers.back() != Type::FullType::Modifier::PointerLevel)
+    {
+        compiler->Error(Format("Can't dereference type '%s'", type.ToString(compiler).c_str()), expression);
+        return false;
+    }
     return true;
 }
 

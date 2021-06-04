@@ -5,8 +5,11 @@
 #include "symbolexpression.h"
 #include "ast/symbol.h"
 #include "ast/variable.h"
+#include "ast/function.h"
 #include "compiler.h"
 #include "util.h"
+#include "v3/ast/types/type.h"
+#include "v3/ast/structure.h"
 #include <string>
 
 namespace AnyFX
@@ -32,149 +35,69 @@ SymbolExpression::~SymbolExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-SymbolExpression::EvalSymbol(Compiler* compiler) const
+bool 
+SymbolExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    Symbol* symbol = compiler->GetSymbol(this->symbol);
-    if (symbol == nullptr)
+    Symbol* sym = compiler->GetSymbol(this->symbol);
+    if (sym != nullptr)
     {
-        std::string err = Format("Symbol '%s' not declared", this->symbol.c_str());
-        compiler->Error(err, this);
-    }
-    return symbol;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-int
-SymbolExpression::EvalInt(Compiler* compiler) const
-{
-    Symbol* symbol = compiler->GetSymbol(this->symbol);
-    if (symbol)
-    {
-        switch (symbol->symbolType)
+        if (sym->symbolType == Symbol::VariableType)
         {
-        case VariableType:
-        {
-            Variable* var = static_cast<Variable*>(symbol);
-            if (var->values.size() > 1)
-            {
-                std::string msg = Format("Expression '%s' could not be evaluated to single value", var->name.c_str());
-                compiler->Error(msg, this);
-            }
-            else
-            {
-                return std::stoi(var->values[0].c_str());
-            }
-            break;
+            Variable* var = static_cast<Variable*>(sym);
+            Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+            out = varResolved->type;
+            return true;
         }
-        default:
-            std::string msg = Format("Expression '%s' is of a type which can't be used as a literal", symbol->name.c_str());
-            compiler->Error(msg, this);
-            break;
+        else if (sym->symbolType == Symbol::StructureType)
+        {
+            Structure* struc = static_cast<Structure*>(sym);
+            out = Type::FullType{ struc->name };
+            return true;
+        }
+        else if (sym->symbolType == Symbol::TypeType)
+        {
+            Type* type = static_cast<Type*>(sym);
+            out = Type::FullType{ type->name };
+            return true;
+        }
+        else if (sym->symbolType == Symbol::FunctionType)
+        {
+            Function* fun = static_cast<Function*>(sym);
+            out = fun->returnType;
+            return true;
         }
     }
-    return -1;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-SymbolExpression::EvalUInt(Compiler* compiler) const
-{
-    Symbol* symbol = compiler->GetSymbol(this->symbol);
-    if (symbol)
-    {
-        switch (symbol->symbolType)
-        {
-        case VariableType:
-        {
-            Variable* var = static_cast<Variable*>(symbol);
-            if (var->values.size() > 1)
-            {
-                std::string msg = Format("Expression '%s' could not be evaluated to single value", var->name.c_str());
-                compiler->Error(msg, this);
-            }
-            else
-            {
-                return std::stoul(var->values[0].c_str());
-            }
-            break;
-        }
-        default:
-            std::string msg = Format("Expression '%s' is of a type which can't be used as a literal", symbol->name.c_str());
-            compiler->Error(msg, this);
-            break;
-        }
-    }
-    return 0;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float
-SymbolExpression::EvalFloat(Compiler* compiler) const
-{
-    Symbol* symbol = compiler->GetSymbol(this->symbol);
-    if (symbol)
-    {
-        switch (symbol->symbolType)
-        {
-        case VariableType:
-        {
-            Variable* var = static_cast<Variable*>(symbol);
-            if (var->values.size() > 1)
-            {
-                std::string msg = Format("Expression '%s' could not be evaluated to single value", var->name.c_str());
-                compiler->Error(msg, this);
-            }
-            else
-            {
-                return std::stof(var->values[0].c_str());
-            }
-            break;
-        }
-        default:
-            std::string msg = Format("Expression '%s' is of a type which can't be used as a literal", symbol->name.c_str());
-            compiler->Error(msg, this);
-            break;
-        }
-    }
-    return 0.0f;
+    out.name = this->symbol;
+    return false;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-SymbolExpression::EvalBool(Compiler* compiler) const
+SymbolExpression::EvalSymbol(Compiler* compiler, std::string& out) const
+{
+    out = this->symbol;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+SymbolExpression::EvalInt(Compiler* compiler, int& out) const
 {
     Symbol* symbol = compiler->GetSymbol(this->symbol);
     if (symbol)
     {
         switch (symbol->symbolType)
         {
-        case VariableType:
-        {
-            Variable* var = static_cast<Variable*>(symbol);
-            if (var->values.size() > 1)
+            case VariableType:
             {
-                std::string msg = Format("Expression '%s' could not be evaluated to single value", var->name.c_str());
-                compiler->Error(msg, this);
+                Variable* var = static_cast<Variable*>(symbol);
+                Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+                return varResolved->value->EvalInt(compiler, out);
             }
-            else
-            {
-                return std::stoi(var->values[0].c_str());
-            }
-            break;
-        }
-        default:
-            std::string msg = Format("Expression '%s' is of a type which can't be used as a literal", symbol->name.c_str());
-            compiler->Error(msg, this);
-            break;
         }
     }
     return false;
@@ -183,7 +106,73 @@ SymbolExpression::EvalBool(Compiler* compiler) const
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+bool
+SymbolExpression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    Symbol* symbol = compiler->GetSymbol(this->symbol);
+    if (symbol)
+    {
+        switch (symbol->symbolType)
+        {
+            case VariableType:
+            {
+                Variable* var = static_cast<Variable*>(symbol);
+                Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+                return varResolved->value->EvalUInt(compiler, out);
+            }
+        }
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+SymbolExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    Symbol* symbol = compiler->GetSymbol(this->symbol);
+    if (symbol)
+    {
+        switch (symbol->symbolType)
+        {
+            case VariableType:
+            {
+                Variable* var = static_cast<Variable*>(symbol);
+                Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+                return varResolved->value->EvalFloat(compiler, out);
+            }
+        }
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+SymbolExpression::EvalBool(Compiler* compiler, bool& out) const
+{
+    Symbol* symbol = compiler->GetSymbol(this->symbol);
+    if (symbol)
+    {
+        switch (symbol->symbolType)
+        {
+            case VariableType:
+            {
+                Variable* var = static_cast<Variable*>(symbol);
+                Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+                return varResolved->value->EvalBool(compiler, out);
+            }
+        }
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
 SymbolExpression::EvalString(Compiler* compiler) const
 {
     return this->symbol;

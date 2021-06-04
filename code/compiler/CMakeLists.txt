@@ -47,6 +47,8 @@ fips_dir(v3/ast)
         attribute.h
         effect.cc
         effect.h
+        enumeration.cc
+        enumeration.h
         function.cc
         function.h
         program.cc
@@ -61,8 +63,6 @@ fips_dir(v3/ast)
         structure.h
         symbol.cc
         symbol.h
-        type.cc
-        type.h
         variable.cc
         variable.h
     )
@@ -78,10 +78,14 @@ fips_dir(v3/ast/expressions)
         boolexpression.h
         callexpression.cc
         callexpression.h
+        commaexpression.cc
+        commaexpression.h
         expression.cc
         expression.h
         floatexpression.cc
         floatexpression.h
+        initializerexpression.cc
+        initializerexpression.h
         intexpression.cc
         intexpression.h
         stringexpression.cc
@@ -90,6 +94,8 @@ fips_dir(v3/ast/expressions)
         symbolexpression.h
         ternaryexpression.cc
         ternaryexpression.h
+        uintexpression.cc
+        uintexpression.h
         unaryexpression.cc
         unaryexpression.h
     )
@@ -99,8 +105,6 @@ fips_dir(v3/ast/statements)
         breakstatement.h
         continuestatement.cc
         continuestatement.h
-        declarationstatement.cc
-        declarationstatement.h
         expressionstatement.cc
         expressionstatement.h
         forstatement.cc
@@ -117,6 +121,70 @@ fips_dir(v3/ast/statements)
         switchstatement.h
         whilestatement.cc
         whilestatement.h
+    )
+fips_dir(v3/ast/types)
+    fips_files(
+        bool.cc
+        bool.h
+        bool2.cc
+        bool2.h
+        bool3.cc
+        bool3.h
+        bool4.cc
+        bool4.h
+        float.cc
+        float.h
+        float2.cc
+        float2.h
+        float3.cc
+        float3.h
+        float4.cc
+        float4.h
+        int.cc
+        int.h
+        int2.cc
+        int2.h
+        int3.cc
+        int3.h
+        int4.cc
+        int4.h
+        mat2x2.cc
+        mat2x2.h
+        mat2x3.cc
+        mat2x3.h
+        mat2x4.cc
+        mat2x4.h
+        mat3x2.cc
+        mat3x2.h
+        mat3x3.cc
+        mat3x3.h
+        mat3x4.cc
+        mat3x4.h
+        mat4x2.cc
+        mat4x2.h
+        mat4x3.cc
+        mat4x3.h
+        mat4x4.cc
+        mat4x4.h
+        uint.cc
+        uint.h
+        uint2.cc
+        uint2.h
+        uint3.cc
+        uint3.h
+        uint4.cc
+        uint4.h
+        type.cc
+        type.h
+    )
+fips_dir(v3/ast/intrinsics)
+    fips_files(
+        scalar.cc
+        scalar.h
+        subgroup.cc
+        subgroup.h
+        texture.cc
+        texture.h
     )
 fips_dir(v3/generators)
     fips_files(

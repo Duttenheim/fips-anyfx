@@ -6,10 +6,11 @@
     Base class for expressions. 
     In AnyFX, expressions are purely aritmetic, meaning they can only return a value.
     
-    (C) 2013 Gustav Sterbrant
+    (C) 2021 Gustav Sterbrant
 */
 //------------------------------------------------------------------------------
 #include "ast/symbol.h"
+#include "v3/ast/types/type.h"
 
 namespace AnyFX
 {
@@ -22,15 +23,18 @@ struct Expression : public Symbol
     /// destructor
     virtual ~Expression();
 
-    virtual Symbol* EvalSymbol(Compiler* compiler) const;
+    /// eval type
+    virtual bool EvalType(Compiler* compiler, Type::FullType& out) const;
+    /// eval symbol
+    virtual bool EvalSymbol(Compiler* compiler, std::string& out) const;
     /// evaluates expression as an integer
-    virtual int EvalInt(Compiler* compiler) const;
+    virtual bool EvalInt(Compiler* compiler, int& out) const;
     /// evaluates expression as an integer
-    virtual unsigned EvalUInt(Compiler* compiler) const;
+    virtual bool EvalUInt(Compiler* compiler, unsigned& out) const;
     /// evaulates expression as a float
-    virtual float EvalFloat(Compiler* compiler) const;
+    virtual bool EvalFloat(Compiler* compiler, float& out) const;
     /// evaluates expression as a boolean
-    virtual bool EvalBool(Compiler* compiler) const;
+    virtual bool EvalBool(Compiler* compiler, bool& out) const;
     /// evaluates expression as a string
     virtual std::string EvalString(Compiler* compiler) const;
 }; 

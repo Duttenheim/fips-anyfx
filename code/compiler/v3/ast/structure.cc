@@ -13,8 +13,8 @@ namespace AnyFX
 Structure::Structure()
 {
     this->symbolType = StructureType;
-    this->code = UserType;
     this->resolved = new Structure::__Resolved;
+    this->category = Type::Category::UserTypeCategory;
     Structure::__Resolved* typeResolved = static_cast<Structure::__Resolved*>(this->resolved);
     typeResolved->usageFlags.bits = 0x0;
     typeResolved->accessBits.bits = 0x0;

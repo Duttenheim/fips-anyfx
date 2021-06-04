@@ -12,6 +12,7 @@
 #include "ast/alias.h"
 #include "ast/annotation.h"
 #include "ast/effect.h"
+#include "ast/enumeration.h"
 #include "ast/function.h"
 #include "ast/program.h"
 #include "ast/renderstate.h"
@@ -22,7 +23,6 @@
 #include "ast/variable.h"
 #include "ast/statements/breakstatement.h"
 #include "ast/statements/continuestatement.h"
-#include "ast/statements/declarationstatement.h"
 #include "ast/statements/expressionstatement.h"
 #include "ast/statements/forstatement.h"
 #include "ast/statements/ifstatement.h"
@@ -32,18 +32,21 @@
 #include "ast/statements/switchstatement.h"
 #include "ast/statements/whilestatement.h"
 #include "ast/expressions/accessexpression.h"
-#include "ast/expressions/accessexpression.h"
 #include "ast/expressions/arrayindexexpression.h"
 #include "ast/expressions/binaryexpression.h"
 #include "ast/expressions/boolexpression.h"
 #include "ast/expressions/callexpression.h"
+#include "ast/expressions/commaexpression.h"
 #include "ast/expressions/expression.h"
 #include "ast/expressions/floatexpression.h"
+#include "ast/expressions/initializerexpression.h"
 #include "ast/expressions/intexpression.h"
 #include "ast/expressions/stringexpression.h"
 #include "ast/expressions/symbolexpression.h"
 #include "ast/expressions/ternaryexpression.h"
+#include "ast/expressions/uintexpression.h"
 #include "ast/expressions/unaryexpression.h"
+#include "util.h"
 
 using namespace AnyFX;
 
@@ -90,6 +93,9 @@ public:
   virtual void enterAttribute(AnyFXParser::AttributeContext * /*ctx*/) override { }
   virtual void exitAttribute(AnyFXParser::AttributeContext * /*ctx*/) override { }
 
+  virtual void enterTypeDeclaration(AnyFXParser::TypeDeclarationContext * /*ctx*/) override { }
+  virtual void exitTypeDeclaration(AnyFXParser::TypeDeclarationContext * /*ctx*/) override { }
+
   virtual void enterVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
   virtual void exitVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
 
@@ -98,6 +104,9 @@ public:
 
   virtual void enterStructure(AnyFXParser::StructureContext * /*ctx*/) override { }
   virtual void exitStructure(AnyFXParser::StructureContext * /*ctx*/) override { }
+
+  virtual void enterEnumeration(AnyFXParser::EnumerationContext * /*ctx*/) override { }
+  virtual void exitEnumeration(AnyFXParser::EnumerationContext * /*ctx*/) override { }
 
   virtual void enterFunctionDeclaration(AnyFXParser::FunctionDeclarationContext * /*ctx*/) override { }
   virtual void exitFunctionDeclaration(AnyFXParser::FunctionDeclarationContext * /*ctx*/) override { }
@@ -114,17 +123,11 @@ public:
   virtual void enterState(AnyFXParser::StateContext * /*ctx*/) override { }
   virtual void exitState(AnyFXParser::StateContext * /*ctx*/) override { }
 
-  virtual void enterDeclaration(AnyFXParser::DeclarationContext * /*ctx*/) override { }
-  virtual void exitDeclaration(AnyFXParser::DeclarationContext * /*ctx*/) override { }
-
   virtual void enterStatement(AnyFXParser::StatementContext * /*ctx*/) override { }
   virtual void exitStatement(AnyFXParser::StatementContext * /*ctx*/) override { }
 
   virtual void enterExpressionStatement(AnyFXParser::ExpressionStatementContext * /*ctx*/) override { }
   virtual void exitExpressionStatement(AnyFXParser::ExpressionStatementContext * /*ctx*/) override { }
-
-  virtual void enterDeclarationStatement(AnyFXParser::DeclarationStatementContext * /*ctx*/) override { }
-  virtual void exitDeclarationStatement(AnyFXParser::DeclarationStatementContext * /*ctx*/) override { }
 
   virtual void enterIfStatement(AnyFXParser::IfStatementContext * /*ctx*/) override { }
   virtual void exitIfStatement(AnyFXParser::IfStatementContext * /*ctx*/) override { }
@@ -156,59 +159,53 @@ public:
   virtual void enterExpression(AnyFXParser::ExpressionContext * /*ctx*/) override { }
   virtual void exitExpression(AnyFXParser::ExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp12(AnyFXParser::Binaryexp12Context * /*ctx*/) override { }
-  virtual void exitBinaryexp12(AnyFXParser::Binaryexp12Context * /*ctx*/) override { }
+  virtual void enterCommaExpression(AnyFXParser::CommaExpressionContext * /*ctx*/) override { }
+  virtual void exitCommaExpression(AnyFXParser::CommaExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp11(AnyFXParser::Binaryexp11Context * /*ctx*/) override { }
-  virtual void exitBinaryexp11(AnyFXParser::Binaryexp11Context * /*ctx*/) override { }
+  virtual void enterAssignmentExpression(AnyFXParser::AssignmentExpressionContext * /*ctx*/) override { }
+  virtual void exitAssignmentExpression(AnyFXParser::AssignmentExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp10(AnyFXParser::Binaryexp10Context * /*ctx*/) override { }
-  virtual void exitBinaryexp10(AnyFXParser::Binaryexp10Context * /*ctx*/) override { }
+  virtual void enterLogicalOrExpression(AnyFXParser::LogicalOrExpressionContext * /*ctx*/) override { }
+  virtual void exitLogicalOrExpression(AnyFXParser::LogicalOrExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp9(AnyFXParser::Binaryexp9Context * /*ctx*/) override { }
-  virtual void exitBinaryexp9(AnyFXParser::Binaryexp9Context * /*ctx*/) override { }
+  virtual void enterLogicalAndExpression(AnyFXParser::LogicalAndExpressionContext * /*ctx*/) override { }
+  virtual void exitLogicalAndExpression(AnyFXParser::LogicalAndExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp8(AnyFXParser::Binaryexp8Context * /*ctx*/) override { }
-  virtual void exitBinaryexp8(AnyFXParser::Binaryexp8Context * /*ctx*/) override { }
+  virtual void enterOrExpression(AnyFXParser::OrExpressionContext * /*ctx*/) override { }
+  virtual void exitOrExpression(AnyFXParser::OrExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp7(AnyFXParser::Binaryexp7Context * /*ctx*/) override { }
-  virtual void exitBinaryexp7(AnyFXParser::Binaryexp7Context * /*ctx*/) override { }
+  virtual void enterXorExpression(AnyFXParser::XorExpressionContext * /*ctx*/) override { }
+  virtual void exitXorExpression(AnyFXParser::XorExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp6(AnyFXParser::Binaryexp6Context * /*ctx*/) override { }
-  virtual void exitBinaryexp6(AnyFXParser::Binaryexp6Context * /*ctx*/) override { }
+  virtual void enterAndExpression(AnyFXParser::AndExpressionContext * /*ctx*/) override { }
+  virtual void exitAndExpression(AnyFXParser::AndExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp5(AnyFXParser::Binaryexp5Context * /*ctx*/) override { }
-  virtual void exitBinaryexp5(AnyFXParser::Binaryexp5Context * /*ctx*/) override { }
+  virtual void enterEquivalencyExpression(AnyFXParser::EquivalencyExpressionContext * /*ctx*/) override { }
+  virtual void exitEquivalencyExpression(AnyFXParser::EquivalencyExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp4(AnyFXParser::Binaryexp4Context * /*ctx*/) override { }
-  virtual void exitBinaryexp4(AnyFXParser::Binaryexp4Context * /*ctx*/) override { }
+  virtual void enterRelationalExpression(AnyFXParser::RelationalExpressionContext * /*ctx*/) override { }
+  virtual void exitRelationalExpression(AnyFXParser::RelationalExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp3(AnyFXParser::Binaryexp3Context * /*ctx*/) override { }
-  virtual void exitBinaryexp3(AnyFXParser::Binaryexp3Context * /*ctx*/) override { }
+  virtual void enterShiftExpression(AnyFXParser::ShiftExpressionContext * /*ctx*/) override { }
+  virtual void exitShiftExpression(AnyFXParser::ShiftExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp2(AnyFXParser::Binaryexp2Context * /*ctx*/) override { }
-  virtual void exitBinaryexp2(AnyFXParser::Binaryexp2Context * /*ctx*/) override { }
+  virtual void enterAddSubtractExpression(AnyFXParser::AddSubtractExpressionContext * /*ctx*/) override { }
+  virtual void exitAddSubtractExpression(AnyFXParser::AddSubtractExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp1(AnyFXParser::Binaryexp1Context * /*ctx*/) override { }
-  virtual void exitBinaryexp1(AnyFXParser::Binaryexp1Context * /*ctx*/) override { }
+  virtual void enterMultiplyDivideExpression(AnyFXParser::MultiplyDivideExpressionContext * /*ctx*/) override { }
+  virtual void exitMultiplyDivideExpression(AnyFXParser::MultiplyDivideExpressionContext * /*ctx*/) override { }
 
-  virtual void enterBinaryexp0(AnyFXParser::Binaryexp0Context * /*ctx*/) override { }
-  virtual void exitBinaryexp0(AnyFXParser::Binaryexp0Context * /*ctx*/) override { }
+  virtual void enterPrefixExpression(AnyFXParser::PrefixExpressionContext * /*ctx*/) override { }
+  virtual void exitPrefixExpression(AnyFXParser::PrefixExpressionContext * /*ctx*/) override { }
+
+  virtual void enterSuffixExpression(AnyFXParser::SuffixExpressionContext * /*ctx*/) override { }
+  virtual void exitSuffixExpression(AnyFXParser::SuffixExpressionContext * /*ctx*/) override { }
 
   virtual void enterBinaryexpatom(AnyFXParser::BinaryexpatomContext * /*ctx*/) override { }
   virtual void exitBinaryexpatom(AnyFXParser::BinaryexpatomContext * /*ctx*/) override { }
 
-  virtual void enterParantExpression(AnyFXParser::ParantExpressionContext * /*ctx*/) override { }
-  virtual void exitParantExpression(AnyFXParser::ParantExpressionContext * /*ctx*/) override { }
-
-  virtual void enterCallExpression(AnyFXParser::CallExpressionContext * /*ctx*/) override { }
-  virtual void exitCallExpression(AnyFXParser::CallExpressionContext * /*ctx*/) override { }
-
-  virtual void enterAccessExpression(AnyFXParser::AccessExpressionContext * /*ctx*/) override { }
-  virtual void exitAccessExpression(AnyFXParser::AccessExpressionContext * /*ctx*/) override { }
-
-  virtual void enterArrayIndexExpression(AnyFXParser::ArrayIndexExpressionContext * /*ctx*/) override { }
-  virtual void exitArrayIndexExpression(AnyFXParser::ArrayIndexExpressionContext * /*ctx*/) override { }
+  virtual void enterInitializerExpression(AnyFXParser::InitializerExpressionContext * /*ctx*/) override { }
+  virtual void exitInitializerExpression(AnyFXParser::InitializerExpressionContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

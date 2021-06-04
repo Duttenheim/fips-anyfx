@@ -3,16 +3,31 @@
 //  @copyright (C) 2021 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
-read rgba32f image2D myReadImage;
-write rgb10_a2 image2D myWriteImage;
-binding(0) rg16f read_write image2D myReadWriteImage;
-volatile r8u image2D myVolatileImage[5];
-atomic r32i image2D myAtomicImage[];
 
-alias textureHandle as int;
+const float4 ARRAY_VEC4[] = { float4(1) };
+struct MyConstantBuffer
+{
+    int NumWorkGroups;
+    float2 ElementPaddedArray[10];
+};
 
 @Visibility("CS")
-group(0) sampler MyDynamicSampler;
+const MyConstantBuffer* myConstantBuffer;
+
+alias textureHandle as int;
+const textureHandle foobar = 5;
+
+const int foo = 5;
+const int ARRAY_INIT[][] = { {1}, {foo}, {3} };
+
+read rgba32f readWriteTexture2D* myReadImage;
+write rgb10_a2 readWriteTexture2D* myWriteImage;
+binding(0) rg16f read_write readWriteTexture2D* myReadWriteImage;
+volatile r8u readWriteTexture2D* myVolatileImage[5];
+atomic r32i readWriteTexture2D* myAtomicImage[];
+
+@Visibility("CS")
+group(0) sampler* MyDynamicSampler;
 
 struct MyStruct
 {
@@ -20,21 +35,15 @@ struct MyStruct
     textureHandle tex;
 };
 
-@Visibility("CS")
-struct const MyConstantBuffer
-{
-    int NumWorkGroups;
-    vec2 ElementPaddedArray[10];
-};
-
-struct mutable MyStorageBuffer
+struct MyStorageBuffer
 {
     int ProvokePadding;
-    vec3 Output;  
+    float3 Output;  
 };
+mutable MyStorageBuffer* myStorageBuffer;
 
 const int NUM_FOO = 5;
-const vec4 NUM_BLORF[2] = { vec4(1,1,1,1), vec4(2,2,2,2) };
+const float4 NUM_BLORF[2] = { float4(1,1,1,1), float4(2,2,2,2) };
 
 // sampler_states gets converted to ordinary sampler objects, 
 // but is supposed to be read on the receiving side
@@ -67,6 +76,12 @@ MegaFunction()
         int foo = 5;
     }
 
+    const int arr[5][2] = { {1,1},{2,2},{3,3},{4,4},{5,5} };
+
+    const float4 vecarray[5] = { float4(1), float4(2), float4(3), float4(4), float4(5) };
+
+    float3 foobar = vecarray[1].xyz;
+
     if (foo)
     {
         int bar = 5;
@@ -94,7 +109,7 @@ MegaFunction()
     } while (foo > 0);
 
     foo = 6;
-    for (int i = 0; i < foo; i++)
+    for (int i = 0, j = 0; i < foo; i++, ++j)
     {
         if (i % 2)
             continue;
@@ -106,27 +121,27 @@ MegaFunction()
 //------------------------------------------------------------------------------
 /**
 */
-vec4 
+float4 
 Function(in float f)
 {
-    return vec4(f);
+    return float4(f);
 }
 
 //------------------------------------------------------------------------------
 /**
     Overload function
 */
-vec4
+float4
 Function(in int i)
 {
-    return vec4(i);
+    return float4(i);
 }
 
 //------------------------------------------------------------------------------
 /**
     Per-program bind function
 */
-prototype vec4 DynamicFunction(in int i);
+prototype float4 DynamicFunction(in int i);
 
 //------------------------------------------------------------------------------
 /**
@@ -134,7 +149,7 @@ prototype vec4 DynamicFunction(in int i);
 void
 ComputeShader()
 {
-    imageStore(myReadWriteImage, ivec2(0, 0), Function(NumWorkGroups));
+    imageStore(myReadWriteImage, int2(0, 0), Function(myConstantBuffer->NumWorkGroups));
 }
 
 //------------------------------------------------------------------------------
@@ -151,8 +166,8 @@ program MyProgram
 */
 void
 VertexShader(
-    binding(0) in vec4 position
-    , binding(0) out vec4 Position
+    binding(0) in float4 position
+    , binding(0) out float4 Position
 )
 {
     Position = position;
@@ -163,8 +178,8 @@ VertexShader(
 */
 void
 PixelShader(
-    binding(0) in vec4 position
-    , binding(0) out vec4 Color
+    binding(0) in float4 position
+    , binding(0) out float4 Color
 )
 {
     Color = position;

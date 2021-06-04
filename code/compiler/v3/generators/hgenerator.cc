@@ -5,6 +5,8 @@
 #include "hgenerator.h"
 #include "ast/symbol.h"
 #include "ast/structure.h"
+#include "ast/expressions/initializerexpression.h"
+#include "compiler.h"
 #include "util.h"
 namespace AnyFX
 {
@@ -36,64 +38,64 @@ HGenerator::Generate(Compiler* compiler, Program* program, const std::vector<Sym
     return true;
 }
 
-std::map<Type::Code, std::string> typeToHeaderType =
+std::map<std::string, std::string> typeToHeaderType =
 {
-    { Type::Code::Float, "float" },
-    { Type::Code::Float2, "float" },
-    { Type::Code::Float3, "float" },
-    { Type::Code::Float4, "float" },
-    { Type::Code::Int, "int" },
-    { Type::Code::Int2, "int" },
-    { Type::Code::Int3, "int" },
-    { Type::Code::Int4, "int" },
-    { Type::Code::UInt, "unsigned int" },
-    { Type::Code::UInt2, "unsigned int" },
-    { Type::Code::UInt3, "unsigned int" },
-    { Type::Code::UInt4, "unsigned int" },
-    { Type::Code::Bool, "bool" },
-    { Type::Code::Bool2, "bool" },
-    { Type::Code::Bool3, "bool" },
-    { Type::Code::Bool4, "bool" },
-    { Type::Code::Mat2x2, "float" },
-    { Type::Code::Mat2x3, "float" },
-    { Type::Code::Mat2x4, "float" },
-    { Type::Code::Mat3x2, "float" },
-    { Type::Code::Mat3x3, "float" },
-    { Type::Code::Mat3x4, "float" },
-    { Type::Code::Mat4x2, "float" },
-    { Type::Code::Mat4x3, "float" },
-    { Type::Code::Mat4x4, "float" },
-    { Type::Code::Void, "void" }
+    { "float", "float" },
+    { "float2", "float" },
+    { "float3", "float" },
+    { "float4", "float" },
+    { "int", "int" },
+    { "int2", "int" },
+    { "int3", "int" },
+    { "int4", "int" },
+    { "uint", "unsigned int" },
+    { "uint2", "unsigned int" },
+    { "uint3", "unsigned int" },
+    { "uint4", "unsigned int" },
+    { "bool", "bool" },
+    { "bool2", "bool" },
+    { "bool3", "bool" },
+    { "bool4", "bool" },
+    { "float2x2", "float" },
+    { "float2x3", "float" },
+    { "float2x4", "float" },
+    { "float3x2", "float" },
+    { "float3x3", "float" },
+    { "float3x4", "float" },
+    { "float4x2", "float" },
+    { "float4x3", "float" },
+    { "float4x4", "float" },
+    { "void", "void" }
 };
 
-std::map<Type::Code, std::string> typeToArraySize =
+std::map<std::string, std::string> typeToArraySize =
 {
-    { Type::Code::Float, "" },
-    { Type::Code::Float2, "[2]" },
-    { Type::Code::Float3, "[3]" },
-    { Type::Code::Float4, "[4]" },
-    { Type::Code::Int, "" },
-    { Type::Code::Int2, "[2]" },
-    { Type::Code::Int3, "[3]" },
-    { Type::Code::Int4, "[4]" },
-    { Type::Code::UInt, "" },
-    { Type::Code::UInt2, "[2]" },
-    { Type::Code::UInt3, "[3]" },
-    { Type::Code::UInt4, "[4]" },
-    { Type::Code::Bool, "" },
-    { Type::Code::Bool2, "[2]" },
-    { Type::Code::Bool3, "[3]" },
-    { Type::Code::Bool4, "[4]" },
-    { Type::Code::Mat2x2, "[2][2]" },
-    { Type::Code::Mat2x3, "[2][3]" },
-    { Type::Code::Mat2x4, "[2][4]" },
-    { Type::Code::Mat3x2, "[3][2]" },
-    { Type::Code::Mat3x3, "[3][3]" },
-    { Type::Code::Mat3x4, "[3][4]" },
-    { Type::Code::Mat4x2, "[4][2]" },
-    { Type::Code::Mat4x3, "[4][3]" },
-    { Type::Code::Mat4x4, "[4][4]" },
-    { Type::Code::Void, "void" }
+    { "float", "" },
+    { "float2", "[2]" },
+    { "float3", "[3]" },
+    { "float4", "[4]" },
+    { "int", "" },
+    { "int2", "[2]" },
+    { "int3", "[3]" },
+    { "int4", "[4]" },
+    { "uint", "" },
+    { "uint2", "[2]" },
+    { "uint3", "[3]" },
+    { "uint4", "[4]" },
+    { "bool", "" },
+    { "bool2", "[2]" },
+    { "bool3", "[3]" },
+    { "bool4", "[4]" },
+    { "float2x2", "[2][2]" },
+    { "float2x3", "[2][3]" },
+    { "float2x4", "[2][4]" },
+    { "float3x2", "[3][2]" },
+    { "float3x3", "[3][3]" },
+    { "float3x4", "[3][4]" },
+    { "float4x2", "[4][2]" },
+    { "float4x3", "[4][3]" },
+    { "float4x4", "[4][4]" },
+    { "void", "void" }
 };
 
 //------------------------------------------------------------------------------
@@ -117,6 +119,33 @@ HGenerator::GenerateStructure(Compiler* compiler, Program* program, Symbol* symb
 //------------------------------------------------------------------------------
 /**
 */
+void
+GenerateHInitializer(Compiler* compiler, Expression* expr, std::string& outCode)
+{
+    std::string inner;
+    InitializerExpression* initExpression = static_cast<InitializerExpression*>(expr);
+    for (Expression* expr : initExpression->values)
+    {
+        if (expr->symbolType == Symbol::InitializerExpressionType)
+            GenerateHInitializer(compiler, expr, inner);
+        else
+        {
+            Type::FullType type;
+            if (!expr->EvalType(compiler, type))
+            {
+                compiler->Error(Format("INTERNAL ERROR IN '%s' LINE '%s'", __FILE__, __LINE__), expr);
+            }
+
+            inner = expr->EvalString(compiler);
+        }
+    }
+
+    outCode = Format("{ %s }", inner.c_str());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 HGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode, bool isShaderArgument)
 {
@@ -132,8 +161,8 @@ HGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbo
             outCode.append(Format("    unsigned int : %d;\n", varResolved->startPadding));
         }
 
-        std::string type = typeToHeaderType[varResolved->type->code];
-        std::string arrayType = typeToArraySize[varResolved->type->code];
+        std::string type = typeToHeaderType[var->type.name];
+        std::string arrayType = typeToArraySize[var->type.name];
 
         // if element padding, we need to split the array into elements where each element is padded
         if (varResolved->elementPadding > 0)
@@ -156,44 +185,11 @@ HGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbo
     }
     else if (varResolved->usageBits.flags.isConst)
     {
-        std::string typeStr = typeToHeaderType[varResolved->type->code];
-        std::string arrayTypeStr = typeToArraySize[varResolved->type->code];
+        std::string typeStr = typeToHeaderType[var->type.name];
+        std::string arrayTypeStr = typeToArraySize[var->type.name];
         std::string initializerStr;
-        for (int j = 0; j < varResolved->initializers.size(); j++)
-        {
-            auto& initializers = varResolved->initializers[j];
-            std::string internalInitializerStr;
-            for (int i = 0; i < initializers.size(); i++)
-            {
-                auto& init = initializers[i];
-                switch (init.type)
-                {
-                case Variable::__Resolved::Initializer::FloatType:
-                    internalInitializerStr.append(Format("%f", init.data.f));
-                    break;
-                case Variable::__Resolved::Initializer::IntType:
-                    internalInitializerStr.append(Format("%d", init.data.f));
-                    break;
-                case Variable::__Resolved::Initializer::UIntType:
-                    internalInitializerStr.append(Format("%d", init.data.f));
-                    break;
-                case Variable::__Resolved::Initializer::BoolType:
-                    internalInitializerStr.append(init.data.b ? "true" : "false");
-                    break;
-                }
-
-                if (i != initializers.size() - 1)
-                    internalInitializerStr.append(", ");
-            }
-
-            // if we have more than one initializer, add {} around it
-            if (initializers.size() > 1)
-                internalInitializerStr = Format("{ %s }", internalInitializerStr.c_str());
-
-            initializerStr.append(internalInitializerStr);
-            if (j != varResolved->initializers.size() - 1)
-                initializerStr.append(", ");
-        }
+        GenerateHInitializer(compiler, varResolved->value, initializerStr);
+       
         std::string arraySize = "";
         if (varResolved->arraySize > 1)
         {

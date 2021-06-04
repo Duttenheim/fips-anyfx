@@ -1,9 +1,10 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    Function call expression
+    Array index expression
+    < [ expression ] >
 
-    (C) 2021 Individual contributors, see AUTHORS file
+    (C) 2021 Gustav Sterbrant
 */
 //------------------------------------------------------------------------------
 #include "expression.h"
@@ -15,21 +16,25 @@ namespace AnyFX
 struct ArrayIndexExpression : public Expression
 {
     /// constructor
-    ArrayIndexExpression(Expression* value);
+    ArrayIndexExpression(Expression* left, Expression* right);
 
-    Symbol* EvalSymbol(Compiler* compiler) const;
+    /// eval type
+    bool EvalType(Compiler* compiler, Type::FullType& out) const override;
+    /// eval symbol
+    bool EvalSymbol(Compiler* compiler, std::string& out) const override;
     /// evaluates expression as an integer
-    int EvalInt(Compiler* compiler) const;
+    bool EvalInt(Compiler* compiler, int& out) const override;
     /// evaluates expression as an integer
-    unsigned EvalUInt(Compiler* compiler) const;
+    bool EvalUInt(Compiler* compiler, unsigned& out) const override;
     /// evaulates expression as a float
-    float EvalFloat(Compiler* compiler) const;
+    bool EvalFloat(Compiler* compiler, float& out) const override;
     /// evaluates expression as a boolean
-    bool EvalBool(Compiler* compiler) const;
+    bool EvalBool(Compiler* compiler, bool& out) const override;
     /// evaluates expression as a string
-    std::string EvalString(Compiler* compiler) const;
+    std::string EvalString(Compiler* compiler) const override;
 
-    Expression* value;
+    Expression* left;
+    Expression* right;
 };
 
 } // namespace AnyFX

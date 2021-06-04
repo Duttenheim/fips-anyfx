@@ -17,7 +17,7 @@ UnaryExpression::UnaryExpression(uint32_t op, uint32_t postOp, Expression* expr)
     , postOp(postOp)
     , expr(expr)
 {
-    // empty
+    this->symbolType = UnaryExpressionType;
 }
 
 //------------------------------------------------------------------------------
@@ -31,80 +31,43 @@ UnaryExpression::~UnaryExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-UnaryExpression::EvalSymbol(Compiler* compiler) const
+bool 
+UnaryExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    return this->expr->EvalSymbol(compiler);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-int
-UnaryExpression::EvalInt(Compiler* compiler) const
-{
-    if (this->op == '-')
+    Type::FullType type;
+    this->expr->EvalType(compiler, type);
+    if (this->op == '*')
     {
-        return this->expr->EvalInt(compiler) * -1;
+        if (type.modifiers.empty())
+            return false;
+        type.modifiers.pop_back();
+        type.modifierExpressions.pop_back();
     }
-    else
-    {
-        std::string msg = Format("Invalid operator '%c' for int", this->op);
-        compiler->Error(msg, this);
-        return -1;
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-UnaryExpression::EvalUInt(Compiler* compiler) const
-{
-    if (this->op == '-')
-    {
-        return this->expr->EvalUInt(compiler) * -1;
-    }
-    else
-    {
-        std::string msg = Format("Invalid operator '%c' for unsigned int", this->op);
-        compiler->Error(msg, this);
-        return -1;
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float
-UnaryExpression::EvalFloat(Compiler* compiler) const
-{
-    if (this->op == '-')
-    {
-        return this->expr->EvalFloat(compiler) * -1;
-    }
-    else
-    {
-        std::string msg = Format("Invalid operator '%c' for float", this->op);
-        compiler->Error(msg, this);
-        return 0;
-    }
+    out = type;
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-UnaryExpression::EvalBool(Compiler* compiler) const
+UnaryExpression::EvalSymbol(Compiler* compiler, std::string& out) const
 {
-    if (this->op == '!')
+    return this->expr->EvalSymbol(compiler, out);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+UnaryExpression::EvalInt(Compiler* compiler, int& out) const
+{
+    if (this->op == '-')
     {
-        return !this->expr->EvalBool(compiler);
+        return this->expr->EvalInt(compiler, out) * -1;
     }
     else
     {
-        std::string msg = Format("Invalid operator '%c' for bool", this->op);
-        compiler->Error(msg, this);
         return false;
     }
 }
@@ -112,16 +75,64 @@ UnaryExpression::EvalBool(Compiler* compiler) const
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
+bool
+UnaryExpression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    if (this->op == '-')
+    {
+        return this->expr->EvalUInt(compiler, out) * -1;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+UnaryExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    if (this->op == '-')
+    {
+        return this->expr->EvalFloat(compiler, out) * -1;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+UnaryExpression::EvalBool(Compiler* compiler, bool& out) const
+{
+    if (this->op == '!')
+    {
+        return !this->expr->EvalBool(compiler, out);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
 UnaryExpression::EvalString(Compiler* compiler) const
 {
+    std::string expString;
+    expString = this->expr->EvalString(compiler);
     if (this->op != 0x0)
-    {
-        return Format("%s%s", FourCCToString(this->op).c_str(), this->expr->EvalString(compiler).c_str());
-    }
+        return Format("%s%s", FourCCToString(this->op).c_str(), expString.c_str());
     else if (this->postOp != 0x0)
-    {
-        return Format("%s%s", this->expr->EvalString(compiler).c_str(), FourCCToString(this->op).c_str());
-    }
+        return Format("%s%s", expString.c_str(), FourCCToString(this->op).c_str());
+    else
+        return Format("%s", expString.c_str());
 }
 } // namespace AnyFX

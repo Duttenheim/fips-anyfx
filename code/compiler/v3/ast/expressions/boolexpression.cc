@@ -29,48 +29,59 @@ BoolExpression::~BoolExpression()
 //------------------------------------------------------------------------------
 /**
 */
-Symbol*
-BoolExpression::EvalSymbol(Compiler* compiler) const
+bool
+BoolExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
-    return nullptr;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-int
-BoolExpression::EvalInt(Compiler* compiler) const
-{
-    return (int)this->value;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-unsigned
-BoolExpression::EvalUInt(Compiler* compiler) const
-{
-    return (unsigned) this->value;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-float
-BoolExpression::EvalFloat(Compiler* compiler) const
-{
-    static std::string err = "Bool cannot be explicitly cast to float";
-    compiler->Error(err, this);
-    return 0;
+    out = Type::FullType{ "bool" };
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-BoolExpression::EvalBool(Compiler* compiler) const
+BoolExpression::EvalSymbol(Compiler* compiler, std::string& out) const
 {
-    return this->value;
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+BoolExpression::EvalInt(Compiler* compiler, int& out) const
+{
+    out = (int)this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool 
+BoolExpression::EvalUInt(Compiler* compiler, unsigned& out) const
+{
+    out = (unsigned) this->value;
+    return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+BoolExpression::EvalFloat(Compiler* compiler, float& out) const
+{
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+BoolExpression::EvalBool(Compiler* compiler, bool& out) const
+{
+    out = this->value;
+    return true;
 }
 
 //------------------------------------------------------------------------------
