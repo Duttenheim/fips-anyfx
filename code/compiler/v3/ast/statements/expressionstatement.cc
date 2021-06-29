@@ -15,4 +15,12 @@ ExpressionStatement::ExpressionStatement(Expression* expr)
     this->symbolType = ExpressionStatementType;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+ExpressionStatement::~ExpressionStatement()
+{
+    delete this->expr;
+}
+
 } // namespace AnyFX

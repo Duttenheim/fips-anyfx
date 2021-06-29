@@ -16,6 +16,8 @@ struct CallExpression : public Expression
 {
     /// constructor
     CallExpression(Expression* function, const std::vector<Expression*>& args);
+    /// destructor
+    virtual ~CallExpression();
 
     /// eval type
     bool EvalType(Compiler* compiler, Type::FullType& out) const override;

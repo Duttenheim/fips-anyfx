@@ -23,19 +23,32 @@ AccessExpression::AccessExpression(Expression* left, Expression* right, bool der
 //------------------------------------------------------------------------------
 /**
 */
+AccessExpression::~AccessExpression()
+{
+    delete this->left;
+    delete this->right;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool
 AccessExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
     Type::FullType leftType;
     bool ret = true;
-    ret &= this->left->EvalType(compiler, leftType);
+    if (!this->left->EvalType(compiler, leftType))
+    {
+        compiler->Error(Format("Could not resolve type '%s'", leftType.name.c_str()), this->right);
+        return false;
+    }
 
     // if deref, pop modifier
     if (this->deref)
     {
         if (leftType.modifiers.empty())
             return false;
-        leftType.modifierExpressions.pop_back();
+        leftType.modifierValues.pop_back();
         leftType.modifiers.pop_back();
     }
 
@@ -45,21 +58,24 @@ AccessExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 
     // get old type and replace type with current type
     std::string member;
+    if (!this->right->EvalSymbol(compiler, member))
+    {
+        compiler->Error(Format("Could not resolve type '%s'", member.c_str()), this->right);
+        return false;
+    }
     
     if (type->IsVector())
     {
         // eval swizzled type
         unsigned swizzle;
-        ret &= Type::SwizzleMask(member, swizzle);
+        Type::SwizzleMask(member, swizzle);
         unsigned biggestComponent = Type::SwizzleMaskBiggestComponent(swizzle);
-        ret &= biggestComponent > type->columnSize;
         unsigned numComponents = Type::SwizzleMaskComponents(swizzle);
         std::string vectorType = Type::ToVector(type->baseType, numComponents);
         out = Type::FullType{ vectorType };
     }
     else
     {
-        ret &= this->right->EvalSymbol(compiler, member);
         Variable* memberVar = static_cast<Variable*>(compiler->GetSymbol(member));
         if (memberVar == nullptr)
             return false;

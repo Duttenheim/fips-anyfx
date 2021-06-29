@@ -17,4 +17,14 @@ IfStatement::IfStatement(Expression* condition, Statement* ifStatement, Statemen
     this->symbolType = IfStatementType;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+IfStatement::~IfStatement()
+{
+    delete this->condition;
+    delete this->ifStatement;
+    delete this->elseStatement;
+}
+
 } // namespace AnyFX

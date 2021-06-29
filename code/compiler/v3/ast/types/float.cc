@@ -28,6 +28,13 @@ Float::Float()
     __IMPLEMENT_FUNCTION_1(multiplicationAssignOperator, operator*=, float, float);
     __IMPLEMENT_FUNCTION_1(divisionAssignOperator, operator/=, float, float);
 
+    __IMPLEMENT_FUNCTION_1(ltOperator, operator<, bool, float);
+    __IMPLEMENT_FUNCTION_1(lteOperator, operator<=, bool, float);
+    __IMPLEMENT_FUNCTION_1(gtOperator, operator>, bool, float);
+    __IMPLEMENT_FUNCTION_1(gteOperator, operator>=, bool, float);
+    __IMPLEMENT_FUNCTION_1(eOperator, operator==, bool, float);
+    __IMPLEMENT_FUNCTION_1(neOperator, operator!=, bool, float);
+
     __IMPLEMENT_FUNCTION_1(assignOperator, operator=, float, float);
 }
 

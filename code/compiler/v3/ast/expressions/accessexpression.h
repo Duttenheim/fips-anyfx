@@ -18,6 +18,8 @@ struct AccessExpression : public Expression
 {
     /// constructor
     AccessExpression(Expression* left, Expression* right, bool deref);
+    /// destructor
+    virtual ~AccessExpression();
 
     /// eval type
     bool EvalType(Compiler* compiler, Type::FullType& out) const override;

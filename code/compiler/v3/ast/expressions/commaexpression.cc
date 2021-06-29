@@ -21,6 +21,15 @@ CommaExpression::CommaExpression(Expression* left, Expression* right)
 //------------------------------------------------------------------------------
 /**
 */
+CommaExpression::~CommaExpression()
+{
+    delete this->left;
+    delete this->right;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool 
 CommaExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {

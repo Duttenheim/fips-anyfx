@@ -43,6 +43,13 @@ struct Int : public Type
     Function divisionAssignOperator;
     Function moduloAssignOperator;
 
+    Function ltOperator;
+    Function lteOperator;
+    Function gtOperator;
+    Function gteOperator;
+    Function eOperator;
+    Function neOperator;
+
     Function assignOperator;
 };
 

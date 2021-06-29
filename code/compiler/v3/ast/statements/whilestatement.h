@@ -15,6 +15,8 @@ struct WhileStatement : public Statement
 {
     /// constructor
     WhileStatement(Expression* condition, Statement* statement, bool isDoWhile);
+    /// destructor
+    virtual ~WhileStatement();
 
     Expression* condition;
     Statement* statement;

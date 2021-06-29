@@ -30,9 +30,9 @@ struct Structure : public Type
         {
             struct
             {
-                bool isStorageBuffer : 1;
-                bool isConstantBuffer : 1;
                 bool isPush : 1;
+                bool isUniformBuffer : 1;
+                bool isMutableBuffer : 1;
             } flags;
             int bits;
         };

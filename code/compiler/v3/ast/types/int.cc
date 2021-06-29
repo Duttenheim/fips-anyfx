@@ -42,6 +42,13 @@ Int::Int()
     __IMPLEMENT_FUNCTION_1(divisionAssignOperator, operator/=, int, int);
     __IMPLEMENT_FUNCTION_1(moduloAssignOperator, operator%=, int, int);
 
+    __IMPLEMENT_FUNCTION_1(ltOperator, operator<, bool, int);
+    __IMPLEMENT_FUNCTION_1(lteOperator, operator<=, bool, int);
+    __IMPLEMENT_FUNCTION_1(gtOperator, operator>, bool, int);
+    __IMPLEMENT_FUNCTION_1(gteOperator, operator>=, bool, int);
+    __IMPLEMENT_FUNCTION_1(eOperator, operator==, bool, int);
+    __IMPLEMENT_FUNCTION_1(neOperator, operator!=, bool, int);
+
     __IMPLEMENT_FUNCTION_1(assignOperator, operator=, int, int);
 }
 

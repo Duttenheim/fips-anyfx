@@ -52,10 +52,9 @@ using namespace AnyFX;
 
 
 
-// Generated from antlr4/grammar/AnyFX.g4 by ANTLR 4.7.1
+// Generated from g:\anyfxv3\fips-anyfx\code\compiler\ext\antlr4\grammar\AnyFX.g4 by ANTLR 4.8
 
 
-#include "AnyFXListener.h"
 
 #include "AnyFXParser.h"
 
@@ -90,22 +89,27 @@ AnyFXParser::StringContext::StringContext(ParserRuleContext *parent, size_t invo
   : ParserRuleContext(parent, invokingState) {
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::StringContext::QO() {
+  return getTokens(AnyFXParser::QO);
+}
+
+tree::TerminalNode* AnyFXParser::StringContext::QO(size_t i) {
+  return getToken(AnyFXParser::QO, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::StringContext::Q() {
+  return getTokens(AnyFXParser::Q);
+}
+
+tree::TerminalNode* AnyFXParser::StringContext::Q(size_t i) {
+  return getToken(AnyFXParser::Q, i);
+}
+
 
 size_t AnyFXParser::StringContext::getRuleIndex() const {
   return AnyFXParser::RuleString;
 }
 
-void AnyFXParser::StringContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterString(this);
-}
-
-void AnyFXParser::StringContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitString(this);
-}
 
 AnyFXParser::StringContext* AnyFXParser::string() {
   StringContext *_localctx = _tracker.createInstance<StringContext>(_ctx, getState());
@@ -364,17 +368,6 @@ size_t AnyFXParser::BooleanContext::getRuleIndex() const {
   return AnyFXParser::RuleBoolean;
 }
 
-void AnyFXParser::BooleanContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBoolean(this);
-}
-
-void AnyFXParser::BooleanContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBoolean(this);
-}
 
 AnyFXParser::BooleanContext* AnyFXParser::boolean() {
   BooleanContext *_localctx = _tracker.createInstance<BooleanContext>(_ctx, getState());
@@ -451,17 +444,6 @@ size_t AnyFXParser::PreprocessContext::getRuleIndex() const {
   return AnyFXParser::RulePreprocess;
 }
 
-void AnyFXParser::PreprocessContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterPreprocess(this);
-}
-
-void AnyFXParser::PreprocessContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitPreprocess(this);
-}
 
 AnyFXParser::PreprocessContext* AnyFXParser::preprocess() {
   PreprocessContext *_localctx = _tracker.createInstance<PreprocessContext>(_ctx, getState());
@@ -540,17 +522,6 @@ size_t AnyFXParser::EntryContext::getRuleIndex() const {
   return AnyFXParser::RuleEntry;
 }
 
-void AnyFXParser::EntryContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterEntry(this);
-}
-
-void AnyFXParser::EntryContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitEntry(this);
-}
 
 AnyFXParser::EntryContext* AnyFXParser::entry() {
   EntryContext *_localctx = _tracker.createInstance<EntryContext>(_ctx, getState());
@@ -591,6 +562,14 @@ std::vector<AnyFXParser::AliasContext *> AnyFXParser::EffectContext::alias() {
 
 AnyFXParser::AliasContext* AnyFXParser::EffectContext::alias(size_t i) {
   return getRuleContext<AnyFXParser::AliasContext>(i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::EffectContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::EffectContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
 }
 
 std::vector<AnyFXParser::FunctionDeclarationContext *> AnyFXParser::EffectContext::functionDeclaration() {
@@ -654,17 +633,6 @@ size_t AnyFXParser::EffectContext::getRuleIndex() const {
   return AnyFXParser::RuleEffect;
 }
 
-void AnyFXParser::EffectContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterEffect(this);
-}
-
-void AnyFXParser::EffectContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitEffect(this);
-}
 
 AnyFXParser::EffectContext* AnyFXParser::effect() {
   EffectContext *_localctx = _tracker.createInstance<EffectContext>(_ctx, getState());
@@ -793,17 +761,6 @@ size_t AnyFXParser::AliasContext::getRuleIndex() const {
   return AnyFXParser::RuleAlias;
 }
 
-void AnyFXParser::AliasContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAlias(this);
-}
-
-void AnyFXParser::AliasContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAlias(this);
-}
 
 AnyFXParser::AliasContext* AnyFXParser::alias() {
   AliasContext *_localctx = _tracker.createInstance<AliasContext>(_ctx, getState());
@@ -850,6 +807,18 @@ AnyFXParser::AnnotationContext::AnnotationContext(ParserRuleContext *parent, siz
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::AnnotationContext::SOBAKA() {
+  return getToken(AnyFXParser::SOBAKA, 0);
+}
+
+tree::TerminalNode* AnyFXParser::AnnotationContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::AnnotationContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 tree::TerminalNode* AnyFXParser::AnnotationContext::IDENTIFIER() {
   return getToken(AnyFXParser::IDENTIFIER, 0);
 }
@@ -863,17 +832,6 @@ size_t AnyFXParser::AnnotationContext::getRuleIndex() const {
   return AnyFXParser::RuleAnnotation;
 }
 
-void AnyFXParser::AnnotationContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAnnotation(this);
-}
-
-void AnyFXParser::AnnotationContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAnnotation(this);
-}
 
 AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
   AnnotationContext *_localctx = _tracker.createInstance<AnnotationContext>(_ctx, getState());
@@ -913,8 +871,16 @@ AnyFXParser::AttributeContext::AttributeContext(ParserRuleContext *parent, size_
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::AttributeContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::AttributeContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
+}
+
+tree::TerminalNode* AnyFXParser::AttributeContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
 }
 
 tree::TerminalNode* AnyFXParser::AttributeContext::IDENTIFIER() {
@@ -926,17 +892,6 @@ size_t AnyFXParser::AttributeContext::getRuleIndex() const {
   return AnyFXParser::RuleAttribute;
 }
 
-void AnyFXParser::AttributeContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAttribute(this);
-}
-
-void AnyFXParser::AttributeContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAttribute(this);
-}
 
 AnyFXParser::AttributeContext* AnyFXParser::attribute() {
   AttributeContext *_localctx = _tracker.createInstance<AttributeContext>(_ctx, getState());
@@ -998,24 +953,12 @@ size_t AnyFXParser::TypeDeclarationContext::getRuleIndex() const {
   return AnyFXParser::RuleTypeDeclaration;
 }
 
-void AnyFXParser::TypeDeclarationContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterTypeDeclaration(this);
-}
-
-void AnyFXParser::TypeDeclarationContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitTypeDeclaration(this);
-}
 
 AnyFXParser::TypeDeclarationContext* AnyFXParser::typeDeclaration() {
   TypeDeclarationContext *_localctx = _tracker.createInstance<TypeDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 16, AnyFXParser::RuleTypeDeclaration);
 
           _localctx->type.name = "";
-          Expression* arraySizeExpression = nullptr;
       
 
   auto onExit = finally([=] {
@@ -1071,22 +1014,19 @@ AnyFXParser::AssignmentExpressionContext* AnyFXParser::VariablesContext::assignm
   return getRuleContext<AnyFXParser::AssignmentExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::VariablesContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::VariablesContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::VariablesContext::getRuleIndex() const {
   return AnyFXParser::RuleVariables;
 }
 
-void AnyFXParser::VariablesContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterVariables(this);
-}
-
-void AnyFXParser::VariablesContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitVariables(this);
-}
 
 AnyFXParser::VariablesContext* AnyFXParser::variables() {
   VariablesContext *_localctx = _tracker.createInstance<VariablesContext>(_ctx, getState());
@@ -1199,17 +1139,6 @@ size_t AnyFXParser::VariableContext::getRuleIndex() const {
   return AnyFXParser::RuleVariable;
 }
 
-void AnyFXParser::VariableContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterVariable(this);
-}
-
-void AnyFXParser::VariableContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitVariable(this);
-}
 
 AnyFXParser::VariableContext* AnyFXParser::variable() {
   VariableContext *_localctx = _tracker.createInstance<VariableContext>(_ctx, getState());
@@ -1296,17 +1225,6 @@ size_t AnyFXParser::StructureDeclarationContext::getRuleIndex() const {
   return AnyFXParser::RuleStructureDeclaration;
 }
 
-void AnyFXParser::StructureDeclarationContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStructureDeclaration(this);
-}
-
-void AnyFXParser::StructureDeclarationContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStructureDeclaration(this);
-}
 
 AnyFXParser::StructureDeclarationContext* AnyFXParser::structureDeclaration() {
   StructureDeclarationContext *_localctx = _tracker.createInstance<StructureDeclarationContext>(_ctx, getState());
@@ -1380,6 +1298,14 @@ AnyFXParser::StructureDeclarationContext* AnyFXParser::StructureContext::structu
   return getRuleContext<AnyFXParser::StructureDeclarationContext>(0);
 }
 
+tree::TerminalNode* AnyFXParser::StructureContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::StructureContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 std::vector<AnyFXParser::VariablesContext *> AnyFXParser::StructureContext::variables() {
   return getRuleContexts<AnyFXParser::VariablesContext>();
 }
@@ -1388,22 +1314,19 @@ AnyFXParser::VariablesContext* AnyFXParser::StructureContext::variables(size_t i
   return getRuleContext<AnyFXParser::VariablesContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::StructureContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::StructureContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
+}
+
 
 size_t AnyFXParser::StructureContext::getRuleIndex() const {
   return AnyFXParser::RuleStructure;
 }
 
-void AnyFXParser::StructureContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStructure(this);
-}
-
-void AnyFXParser::StructureContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStructure(this);
-}
 
 AnyFXParser::StructureContext* AnyFXParser::structure() {
   StructureContext *_localctx = _tracker.createInstance<StructureContext>(_ctx, getState());
@@ -1467,12 +1390,24 @@ AnyFXParser::EnumerationContext::EnumerationContext(ParserRuleContext *parent, s
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::EnumerationContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::EnumerationContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 std::vector<tree::TerminalNode *> AnyFXParser::EnumerationContext::IDENTIFIER() {
   return getTokens(AnyFXParser::IDENTIFIER);
 }
 
 tree::TerminalNode* AnyFXParser::EnumerationContext::IDENTIFIER(size_t i) {
   return getToken(AnyFXParser::IDENTIFIER, i);
+}
+
+tree::TerminalNode* AnyFXParser::EnumerationContext::EQ() {
+  return getToken(AnyFXParser::EQ, 0);
 }
 
 AnyFXParser::ExpressionContext* AnyFXParser::EnumerationContext::expression() {
@@ -1484,17 +1419,6 @@ size_t AnyFXParser::EnumerationContext::getRuleIndex() const {
   return AnyFXParser::RuleEnumeration;
 }
 
-void AnyFXParser::EnumerationContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterEnumeration(this);
-}
-
-void AnyFXParser::EnumerationContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitEnumeration(this);
-}
 
 AnyFXParser::EnumerationContext* AnyFXParser::enumeration() {
   EnumerationContext *_localctx = _tracker.createInstance<EnumerationContext>(_ctx, getState());
@@ -1558,6 +1482,14 @@ AnyFXParser::FunctionDeclarationContext::FunctionDeclarationContext(ParserRuleCo
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::FunctionDeclarationContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::FunctionDeclarationContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 AnyFXParser::TypeDeclarationContext* AnyFXParser::FunctionDeclarationContext::typeDeclaration() {
   return getRuleContext<AnyFXParser::TypeDeclarationContext>(0);
 }
@@ -1582,22 +1514,19 @@ AnyFXParser::VariableContext* AnyFXParser::FunctionDeclarationContext::variable(
   return getRuleContext<AnyFXParser::VariableContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::FunctionDeclarationContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::FunctionDeclarationContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::FunctionDeclarationContext::getRuleIndex() const {
   return AnyFXParser::RuleFunctionDeclaration;
 }
 
-void AnyFXParser::FunctionDeclarationContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFunctionDeclaration(this);
-}
-
-void AnyFXParser::FunctionDeclarationContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFunctionDeclaration(this);
-}
 
 AnyFXParser::FunctionDeclarationContext* AnyFXParser::functionDeclaration() {
   FunctionDeclarationContext *_localctx = _tracker.createInstance<FunctionDeclarationContext>(_ctx, getState());
@@ -1686,6 +1615,14 @@ AnyFXParser::CodeblockContext::CodeblockContext(ParserRuleContext *parent, size_
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::CodeblockContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::CodeblockContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 std::vector<AnyFXParser::CodeblockContext *> AnyFXParser::CodeblockContext::codeblock() {
   return getRuleContexts<AnyFXParser::CodeblockContext>();
 }
@@ -1699,17 +1636,6 @@ size_t AnyFXParser::CodeblockContext::getRuleIndex() const {
   return AnyFXParser::RuleCodeblock;
 }
 
-void AnyFXParser::CodeblockContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterCodeblock(this);
-}
-
-void AnyFXParser::CodeblockContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitCodeblock(this);
-}
 
 AnyFXParser::CodeblockContext* AnyFXParser::codeblock() {
   CodeblockContext *_localctx = _tracker.createInstance<CodeblockContext>(_ctx, getState());
@@ -1953,17 +1879,6 @@ size_t AnyFXParser::FunctionContext::getRuleIndex() const {
   return AnyFXParser::RuleFunction;
 }
 
-void AnyFXParser::FunctionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterFunction(this);
-}
-
-void AnyFXParser::FunctionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitFunction(this);
-}
 
 AnyFXParser::FunctionContext* AnyFXParser::function() {
   FunctionContext *_localctx = _tracker.createInstance<FunctionContext>(_ctx, getState());
@@ -2015,6 +1930,14 @@ AnyFXParser::ProgramContext::ProgramContext(ParserRuleContext *parent, size_t in
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ProgramContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 tree::TerminalNode* AnyFXParser::ProgramContext::IDENTIFIER() {
   return getToken(AnyFXParser::IDENTIFIER, 0);
 }
@@ -2025,6 +1948,14 @@ std::vector<AnyFXParser::AnnotationContext *> AnyFXParser::ProgramContext::annot
 
 AnyFXParser::AnnotationContext* AnyFXParser::ProgramContext::annotation(size_t i) {
   return getRuleContext<AnyFXParser::AnnotationContext>(i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::ProgramContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
 }
 
 std::vector<AnyFXParser::ExpressionContext *> AnyFXParser::ProgramContext::expression() {
@@ -2040,17 +1971,6 @@ size_t AnyFXParser::ProgramContext::getRuleIndex() const {
   return AnyFXParser::RuleProgram;
 }
 
-void AnyFXParser::ProgramContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterProgram(this);
-}
-
-void AnyFXParser::ProgramContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitProgram(this);
-}
 
 AnyFXParser::ProgramContext* AnyFXParser::program() {
   ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
@@ -2145,8 +2065,24 @@ AnyFXParser::StateContext::StateContext(ParserRuleContext *parent, size_t invoki
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::StateContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::StateContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 tree::TerminalNode* AnyFXParser::StateContext::IDENTIFIER() {
   return getToken(AnyFXParser::IDENTIFIER, 0);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::StateContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::StateContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
 }
 
 std::vector<AnyFXParser::ExpressionContext *> AnyFXParser::StateContext::expression() {
@@ -2162,17 +2098,6 @@ size_t AnyFXParser::StateContext::getRuleIndex() const {
   return AnyFXParser::RuleState;
 }
 
-void AnyFXParser::StateContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterState(this);
-}
-
-void AnyFXParser::StateContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitState(this);
-}
 
 AnyFXParser::StateContext* AnyFXParser::state() {
   StateContext *_localctx = _tracker.createInstance<StateContext>(_ctx, getState());
@@ -2302,22 +2227,15 @@ AnyFXParser::ExpressionStatementContext* AnyFXParser::StatementContext::expressi
   return getRuleContext<AnyFXParser::ExpressionStatementContext>(0);
 }
 
+tree::TerminalNode* AnyFXParser::StatementContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 
 size_t AnyFXParser::StatementContext::getRuleIndex() const {
   return AnyFXParser::RuleStatement;
 }
 
-void AnyFXParser::StatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterStatement(this);
-}
-
-void AnyFXParser::StatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitStatement(this);
-}
 
 AnyFXParser::StatementContext* AnyFXParser::statement() {
   StatementContext *_localctx = _tracker.createInstance<StatementContext>(_ctx, getState());
@@ -2426,17 +2344,6 @@ size_t AnyFXParser::ExpressionStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleExpressionStatement;
 }
 
-void AnyFXParser::ExpressionStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterExpressionStatement(this);
-}
-
-void AnyFXParser::ExpressionStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitExpressionStatement(this);
-}
 
 AnyFXParser::ExpressionStatementContext* AnyFXParser::expressionStatement() {
   ExpressionStatementContext *_localctx = _tracker.createInstance<ExpressionStatementContext>(_ctx, getState());
@@ -2473,6 +2380,14 @@ AnyFXParser::IfStatementContext::IfStatementContext(ParserRuleContext *parent, s
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::IfStatementContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::IfStatementContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::IfStatementContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
 }
@@ -2490,17 +2405,6 @@ size_t AnyFXParser::IfStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleIfStatement;
 }
 
-void AnyFXParser::IfStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterIfStatement(this);
-}
-
-void AnyFXParser::IfStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitIfStatement(this);
-}
 
 AnyFXParser::IfStatementContext* AnyFXParser::ifStatement() {
   IfStatementContext *_localctx = _tracker.createInstance<IfStatementContext>(_ctx, getState());
@@ -2566,6 +2470,22 @@ AnyFXParser::ForStatementContext::ForStatementContext(ParserRuleContext *parent,
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ForStatementContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::ForStatementContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::ForStatementContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
+}
+
+tree::TerminalNode* AnyFXParser::ForStatementContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 AnyFXParser::StatementContext* AnyFXParser::ForStatementContext::statement() {
   return getRuleContext<AnyFXParser::StatementContext>(0);
 }
@@ -2587,17 +2507,6 @@ size_t AnyFXParser::ForStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleForStatement;
 }
 
-void AnyFXParser::ForStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterForStatement(this);
-}
-
-void AnyFXParser::ForStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitForStatement(this);
-}
 
 AnyFXParser::ForStatementContext* AnyFXParser::forStatement() {
   ForStatementContext *_localctx = _tracker.createInstance<ForStatementContext>(_ctx, getState());
@@ -2719,6 +2628,18 @@ AnyFXParser::ForRangeStatementContext::ForRangeStatementContext(ParserRuleContex
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ForRangeStatementContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ForRangeStatementContext::COL() {
+  return getToken(AnyFXParser::COL, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ForRangeStatementContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 std::vector<tree::TerminalNode *> AnyFXParser::ForRangeStatementContext::IDENTIFIER() {
   return getTokens(AnyFXParser::IDENTIFIER);
 }
@@ -2736,17 +2657,6 @@ size_t AnyFXParser::ForRangeStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleForRangeStatement;
 }
 
-void AnyFXParser::ForRangeStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterForRangeStatement(this);
-}
-
-void AnyFXParser::ForRangeStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitForRangeStatement(this);
-}
 
 AnyFXParser::ForRangeStatementContext* AnyFXParser::forRangeStatement() {
   ForRangeStatementContext *_localctx = _tracker.createInstance<ForRangeStatementContext>(_ctx, getState());
@@ -2802,6 +2712,14 @@ AnyFXParser::WhileStatementContext::WhileStatementContext(ParserRuleContext *par
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::WhileStatementContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::WhileStatementContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::WhileStatementContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
 }
@@ -2810,22 +2728,15 @@ AnyFXParser::StatementContext* AnyFXParser::WhileStatementContext::statement() {
   return getRuleContext<AnyFXParser::StatementContext>(0);
 }
 
+tree::TerminalNode* AnyFXParser::WhileStatementContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 
 size_t AnyFXParser::WhileStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleWhileStatement;
 }
 
-void AnyFXParser::WhileStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterWhileStatement(this);
-}
-
-void AnyFXParser::WhileStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitWhileStatement(this);
-}
 
 AnyFXParser::WhileStatementContext* AnyFXParser::whileStatement() {
   WhileStatementContext *_localctx = _tracker.createInstance<WhileStatementContext>(_ctx, getState());
@@ -2913,6 +2824,14 @@ AnyFXParser::ScopeStatementContext::ScopeStatementContext(ParserRuleContext *par
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ScopeStatementContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ScopeStatementContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 std::vector<AnyFXParser::StatementContext *> AnyFXParser::ScopeStatementContext::statement() {
   return getRuleContexts<AnyFXParser::StatementContext>();
 }
@@ -2929,22 +2848,19 @@ AnyFXParser::VariablesContext* AnyFXParser::ScopeStatementContext::variables(siz
   return getRuleContext<AnyFXParser::VariablesContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::ScopeStatementContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::ScopeStatementContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
+}
+
 
 size_t AnyFXParser::ScopeStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleScopeStatement;
 }
 
-void AnyFXParser::ScopeStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterScopeStatement(this);
-}
-
-void AnyFXParser::ScopeStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitScopeStatement(this);
-}
 
 AnyFXParser::ScopeStatementContext* AnyFXParser::scopeStatement() {
   ScopeStatementContext *_localctx = _tracker.createInstance<ScopeStatementContext>(_ctx, getState());
@@ -3042,6 +2958,10 @@ AnyFXParser::ReturnStatementContext::ReturnStatementContext(ParserRuleContext *p
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ReturnStatementContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::ReturnStatementContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
 }
@@ -3051,17 +2971,6 @@ size_t AnyFXParser::ReturnStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleReturnStatement;
 }
 
-void AnyFXParser::ReturnStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterReturnStatement(this);
-}
-
-void AnyFXParser::ReturnStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitReturnStatement(this);
-}
 
 AnyFXParser::ReturnStatementContext* AnyFXParser::returnStatement() {
   ReturnStatementContext *_localctx = _tracker.createInstance<ReturnStatementContext>(_ctx, getState());
@@ -3131,22 +3040,15 @@ AnyFXParser::ContinueStatementContext::ContinueStatementContext(ParserRuleContex
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ContinueStatementContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 
 size_t AnyFXParser::ContinueStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleContinueStatement;
 }
 
-void AnyFXParser::ContinueStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterContinueStatement(this);
-}
-
-void AnyFXParser::ContinueStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitContinueStatement(this);
-}
 
 AnyFXParser::ContinueStatementContext* AnyFXParser::continueStatement() {
   ContinueStatementContext *_localctx = _tracker.createInstance<ContinueStatementContext>(_ctx, getState());
@@ -3186,8 +3088,24 @@ AnyFXParser::SwitchStatementContext::SwitchStatementContext(ParserRuleContext *p
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::SwitchStatementContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::SwitchStatementContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
+}
+
+tree::TerminalNode* AnyFXParser::SwitchStatementContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::SwitchStatementContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::SwitchStatementContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
 }
 
 std::vector<tree::TerminalNode *> AnyFXParser::SwitchStatementContext::IDENTIFIER() {
@@ -3196,6 +3114,14 @@ std::vector<tree::TerminalNode *> AnyFXParser::SwitchStatementContext::IDENTIFIE
 
 tree::TerminalNode* AnyFXParser::SwitchStatementContext::IDENTIFIER(size_t i) {
   return getToken(AnyFXParser::IDENTIFIER, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::SwitchStatementContext::COL() {
+  return getTokens(AnyFXParser::COL);
+}
+
+tree::TerminalNode* AnyFXParser::SwitchStatementContext::COL(size_t i) {
+  return getToken(AnyFXParser::COL, i);
 }
 
 std::vector<AnyFXParser::StatementContext *> AnyFXParser::SwitchStatementContext::statement() {
@@ -3211,17 +3137,6 @@ size_t AnyFXParser::SwitchStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleSwitchStatement;
 }
 
-void AnyFXParser::SwitchStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterSwitchStatement(this);
-}
-
-void AnyFXParser::SwitchStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitSwitchStatement(this);
-}
 
 AnyFXParser::SwitchStatementContext* AnyFXParser::switchStatement() {
   SwitchStatementContext *_localctx = _tracker.createInstance<SwitchStatementContext>(_ctx, getState());
@@ -3310,22 +3225,15 @@ AnyFXParser::BreakStatementContext::BreakStatementContext(ParserRuleContext *par
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::BreakStatementContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 
 size_t AnyFXParser::BreakStatementContext::getRuleIndex() const {
   return AnyFXParser::RuleBreakStatement;
 }
 
-void AnyFXParser::BreakStatementContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBreakStatement(this);
-}
-
-void AnyFXParser::BreakStatementContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBreakStatement(this);
-}
 
 AnyFXParser::BreakStatementContext* AnyFXParser::breakStatement() {
   BreakStatementContext *_localctx = _tracker.createInstance<BreakStatementContext>(_ctx, getState());
@@ -3373,17 +3281,6 @@ size_t AnyFXParser::ExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleExpression;
 }
 
-void AnyFXParser::ExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterExpression(this);
-}
-
-void AnyFXParser::ExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitExpression(this);
-}
 
 AnyFXParser::ExpressionContext* AnyFXParser::expression() {
   ExpressionContext *_localctx = _tracker.createInstance<ExpressionContext>(_ctx, getState());
@@ -3425,22 +3322,19 @@ AnyFXParser::AssignmentExpressionContext* AnyFXParser::CommaExpressionContext::a
   return getRuleContext<AnyFXParser::AssignmentExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::CommaExpressionContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::CommaExpressionContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::CommaExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleCommaExpression;
 }
 
-void AnyFXParser::CommaExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterCommaExpression(this);
-}
-
-void AnyFXParser::CommaExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitCommaExpression(this);
-}
 
 AnyFXParser::CommaExpressionContext* AnyFXParser::commaExpression() {
   CommaExpressionContext *_localctx = _tracker.createInstance<CommaExpressionContext>(_ctx, getState());
@@ -3502,6 +3396,22 @@ AnyFXParser::LogicalOrExpressionContext* AnyFXParser::AssignmentExpressionContex
   return getRuleContext<AnyFXParser::LogicalOrExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::AssignmentExpressionContext::QU() {
+  return getTokens(AnyFXParser::QU);
+}
+
+tree::TerminalNode* AnyFXParser::AssignmentExpressionContext::QU(size_t i) {
+  return getToken(AnyFXParser::QU, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AssignmentExpressionContext::COL() {
+  return getTokens(AnyFXParser::COL);
+}
+
+tree::TerminalNode* AnyFXParser::AssignmentExpressionContext::COL(size_t i) {
+  return getToken(AnyFXParser::COL, i);
+}
+
 std::vector<AnyFXParser::ExpressionContext *> AnyFXParser::AssignmentExpressionContext::expression() {
   return getRuleContexts<AnyFXParser::ExpressionContext>();
 }
@@ -3510,22 +3420,43 @@ AnyFXParser::ExpressionContext* AnyFXParser::AssignmentExpressionContext::expres
   return getRuleContext<AnyFXParser::ExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::AssignmentExpressionContext::ANDSET() {
+  return getTokens(AnyFXParser::ANDSET);
+}
+
+tree::TerminalNode* AnyFXParser::AssignmentExpressionContext::ANDSET(size_t i) {
+  return getToken(AnyFXParser::ANDSET, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AssignmentExpressionContext::XORSET() {
+  return getTokens(AnyFXParser::XORSET);
+}
+
+tree::TerminalNode* AnyFXParser::AssignmentExpressionContext::XORSET(size_t i) {
+  return getToken(AnyFXParser::XORSET, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AssignmentExpressionContext::ORSET() {
+  return getTokens(AnyFXParser::ORSET);
+}
+
+tree::TerminalNode* AnyFXParser::AssignmentExpressionContext::ORSET(size_t i) {
+  return getToken(AnyFXParser::ORSET, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AssignmentExpressionContext::EQ() {
+  return getTokens(AnyFXParser::EQ);
+}
+
+tree::TerminalNode* AnyFXParser::AssignmentExpressionContext::EQ(size_t i) {
+  return getToken(AnyFXParser::EQ, i);
+}
+
 
 size_t AnyFXParser::AssignmentExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleAssignmentExpression;
 }
 
-void AnyFXParser::AssignmentExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAssignmentExpression(this);
-}
-
-void AnyFXParser::AssignmentExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAssignmentExpression(this);
-}
 
 AnyFXParser::AssignmentExpressionContext* AnyFXParser::assignmentExpression() {
   AssignmentExpressionContext *_localctx = _tracker.createInstance<AssignmentExpressionContext>(_ctx, getState());
@@ -3644,22 +3575,19 @@ AnyFXParser::LogicalAndExpressionContext* AnyFXParser::LogicalOrExpressionContex
   return getRuleContext<AnyFXParser::LogicalAndExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::LogicalOrExpressionContext::LOGICOR() {
+  return getTokens(AnyFXParser::LOGICOR);
+}
+
+tree::TerminalNode* AnyFXParser::LogicalOrExpressionContext::LOGICOR(size_t i) {
+  return getToken(AnyFXParser::LOGICOR, i);
+}
+
 
 size_t AnyFXParser::LogicalOrExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleLogicalOrExpression;
 }
 
-void AnyFXParser::LogicalOrExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLogicalOrExpression(this);
-}
-
-void AnyFXParser::LogicalOrExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLogicalOrExpression(this);
-}
 
 AnyFXParser::LogicalOrExpressionContext* AnyFXParser::logicalOrExpression() {
   LogicalOrExpressionContext *_localctx = _tracker.createInstance<LogicalOrExpressionContext>(_ctx, getState());
@@ -3721,22 +3649,19 @@ AnyFXParser::OrExpressionContext* AnyFXParser::LogicalAndExpressionContext::orEx
   return getRuleContext<AnyFXParser::OrExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::LogicalAndExpressionContext::LOGICAND() {
+  return getTokens(AnyFXParser::LOGICAND);
+}
+
+tree::TerminalNode* AnyFXParser::LogicalAndExpressionContext::LOGICAND(size_t i) {
+  return getToken(AnyFXParser::LOGICAND, i);
+}
+
 
 size_t AnyFXParser::LogicalAndExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleLogicalAndExpression;
 }
 
-void AnyFXParser::LogicalAndExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterLogicalAndExpression(this);
-}
-
-void AnyFXParser::LogicalAndExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitLogicalAndExpression(this);
-}
 
 AnyFXParser::LogicalAndExpressionContext* AnyFXParser::logicalAndExpression() {
   LogicalAndExpressionContext *_localctx = _tracker.createInstance<LogicalAndExpressionContext>(_ctx, getState());
@@ -3798,22 +3723,19 @@ AnyFXParser::XorExpressionContext* AnyFXParser::OrExpressionContext::xorExpressi
   return getRuleContext<AnyFXParser::XorExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::OrExpressionContext::OR() {
+  return getTokens(AnyFXParser::OR);
+}
+
+tree::TerminalNode* AnyFXParser::OrExpressionContext::OR(size_t i) {
+  return getToken(AnyFXParser::OR, i);
+}
+
 
 size_t AnyFXParser::OrExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleOrExpression;
 }
 
-void AnyFXParser::OrExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterOrExpression(this);
-}
-
-void AnyFXParser::OrExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitOrExpression(this);
-}
 
 AnyFXParser::OrExpressionContext* AnyFXParser::orExpression() {
   OrExpressionContext *_localctx = _tracker.createInstance<OrExpressionContext>(_ctx, getState());
@@ -3875,22 +3797,19 @@ AnyFXParser::AndExpressionContext* AnyFXParser::XorExpressionContext::andExpress
   return getRuleContext<AnyFXParser::AndExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::XorExpressionContext::XOR() {
+  return getTokens(AnyFXParser::XOR);
+}
+
+tree::TerminalNode* AnyFXParser::XorExpressionContext::XOR(size_t i) {
+  return getToken(AnyFXParser::XOR, i);
+}
+
 
 size_t AnyFXParser::XorExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleXorExpression;
 }
 
-void AnyFXParser::XorExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterXorExpression(this);
-}
-
-void AnyFXParser::XorExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitXorExpression(this);
-}
 
 AnyFXParser::XorExpressionContext* AnyFXParser::xorExpression() {
   XorExpressionContext *_localctx = _tracker.createInstance<XorExpressionContext>(_ctx, getState());
@@ -3952,22 +3871,19 @@ AnyFXParser::EquivalencyExpressionContext* AnyFXParser::AndExpressionContext::eq
   return getRuleContext<AnyFXParser::EquivalencyExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::AndExpressionContext::AND() {
+  return getTokens(AnyFXParser::AND);
+}
+
+tree::TerminalNode* AnyFXParser::AndExpressionContext::AND(size_t i) {
+  return getToken(AnyFXParser::AND, i);
+}
+
 
 size_t AnyFXParser::AndExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleAndExpression;
 }
 
-void AnyFXParser::AndExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAndExpression(this);
-}
-
-void AnyFXParser::AndExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAndExpression(this);
-}
 
 AnyFXParser::AndExpressionContext* AnyFXParser::andExpression() {
   AndExpressionContext *_localctx = _tracker.createInstance<AndExpressionContext>(_ctx, getState());
@@ -4029,22 +3945,27 @@ AnyFXParser::RelationalExpressionContext* AnyFXParser::EquivalencyExpressionCont
   return getRuleContext<AnyFXParser::RelationalExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::EquivalencyExpressionContext::LOGICEQ() {
+  return getTokens(AnyFXParser::LOGICEQ);
+}
+
+tree::TerminalNode* AnyFXParser::EquivalencyExpressionContext::LOGICEQ(size_t i) {
+  return getToken(AnyFXParser::LOGICEQ, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::EquivalencyExpressionContext::NOTEQ() {
+  return getTokens(AnyFXParser::NOTEQ);
+}
+
+tree::TerminalNode* AnyFXParser::EquivalencyExpressionContext::NOTEQ(size_t i) {
+  return getToken(AnyFXParser::NOTEQ, i);
+}
+
 
 size_t AnyFXParser::EquivalencyExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleEquivalencyExpression;
 }
 
-void AnyFXParser::EquivalencyExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterEquivalencyExpression(this);
-}
-
-void AnyFXParser::EquivalencyExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitEquivalencyExpression(this);
-}
 
 AnyFXParser::EquivalencyExpressionContext* AnyFXParser::equivalencyExpression() {
   EquivalencyExpressionContext *_localctx = _tracker.createInstance<EquivalencyExpressionContext>(_ctx, getState());
@@ -4117,22 +4038,43 @@ AnyFXParser::ShiftExpressionContext* AnyFXParser::RelationalExpressionContext::s
   return getRuleContext<AnyFXParser::ShiftExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::RelationalExpressionContext::LESS() {
+  return getTokens(AnyFXParser::LESS);
+}
+
+tree::TerminalNode* AnyFXParser::RelationalExpressionContext::LESS(size_t i) {
+  return getToken(AnyFXParser::LESS, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::RelationalExpressionContext::GREATER() {
+  return getTokens(AnyFXParser::GREATER);
+}
+
+tree::TerminalNode* AnyFXParser::RelationalExpressionContext::GREATER(size_t i) {
+  return getToken(AnyFXParser::GREATER, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::RelationalExpressionContext::LESSEQ() {
+  return getTokens(AnyFXParser::LESSEQ);
+}
+
+tree::TerminalNode* AnyFXParser::RelationalExpressionContext::LESSEQ(size_t i) {
+  return getToken(AnyFXParser::LESSEQ, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::RelationalExpressionContext::GREATEREQ() {
+  return getTokens(AnyFXParser::GREATEREQ);
+}
+
+tree::TerminalNode* AnyFXParser::RelationalExpressionContext::GREATEREQ(size_t i) {
+  return getToken(AnyFXParser::GREATEREQ, i);
+}
+
 
 size_t AnyFXParser::RelationalExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleRelationalExpression;
 }
 
-void AnyFXParser::RelationalExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterRelationalExpression(this);
-}
-
-void AnyFXParser::RelationalExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitRelationalExpression(this);
-}
 
 AnyFXParser::RelationalExpressionContext* AnyFXParser::relationalExpression() {
   RelationalExpressionContext *_localctx = _tracker.createInstance<RelationalExpressionContext>(_ctx, getState());
@@ -4212,17 +4154,6 @@ size_t AnyFXParser::ShiftExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleShiftExpression;
 }
 
-void AnyFXParser::ShiftExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterShiftExpression(this);
-}
-
-void AnyFXParser::ShiftExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitShiftExpression(this);
-}
 
 AnyFXParser::ShiftExpressionContext* AnyFXParser::shiftExpression() {
   ShiftExpressionContext *_localctx = _tracker.createInstance<ShiftExpressionContext>(_ctx, getState());
@@ -4295,22 +4226,27 @@ AnyFXParser::MultiplyDivideExpressionContext* AnyFXParser::AddSubtractExpression
   return getRuleContext<AnyFXParser::MultiplyDivideExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::AddSubtractExpressionContext::ADD_OP() {
+  return getTokens(AnyFXParser::ADD_OP);
+}
+
+tree::TerminalNode* AnyFXParser::AddSubtractExpressionContext::ADD_OP(size_t i) {
+  return getToken(AnyFXParser::ADD_OP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AddSubtractExpressionContext::SUB_OP() {
+  return getTokens(AnyFXParser::SUB_OP);
+}
+
+tree::TerminalNode* AnyFXParser::AddSubtractExpressionContext::SUB_OP(size_t i) {
+  return getToken(AnyFXParser::SUB_OP, i);
+}
+
 
 size_t AnyFXParser::AddSubtractExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleAddSubtractExpression;
 }
 
-void AnyFXParser::AddSubtractExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterAddSubtractExpression(this);
-}
-
-void AnyFXParser::AddSubtractExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitAddSubtractExpression(this);
-}
 
 AnyFXParser::AddSubtractExpressionContext* AnyFXParser::addSubtractExpression() {
   AddSubtractExpressionContext *_localctx = _tracker.createInstance<AddSubtractExpressionContext>(_ctx, getState());
@@ -4383,22 +4319,35 @@ AnyFXParser::PrefixExpressionContext* AnyFXParser::MultiplyDivideExpressionConte
   return getRuleContext<AnyFXParser::PrefixExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::MultiplyDivideExpressionContext::MUL_OP() {
+  return getTokens(AnyFXParser::MUL_OP);
+}
+
+tree::TerminalNode* AnyFXParser::MultiplyDivideExpressionContext::MUL_OP(size_t i) {
+  return getToken(AnyFXParser::MUL_OP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::MultiplyDivideExpressionContext::DIV_OP() {
+  return getTokens(AnyFXParser::DIV_OP);
+}
+
+tree::TerminalNode* AnyFXParser::MultiplyDivideExpressionContext::DIV_OP(size_t i) {
+  return getToken(AnyFXParser::DIV_OP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::MultiplyDivideExpressionContext::MOD() {
+  return getTokens(AnyFXParser::MOD);
+}
+
+tree::TerminalNode* AnyFXParser::MultiplyDivideExpressionContext::MOD(size_t i) {
+  return getToken(AnyFXParser::MOD, i);
+}
+
 
 size_t AnyFXParser::MultiplyDivideExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleMultiplyDivideExpression;
 }
 
-void AnyFXParser::MultiplyDivideExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterMultiplyDivideExpression(this);
-}
-
-void AnyFXParser::MultiplyDivideExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitMultiplyDivideExpression(this);
-}
 
 AnyFXParser::MultiplyDivideExpressionContext* AnyFXParser::multiplyDivideExpression() {
   MultiplyDivideExpressionContext *_localctx = _tracker.createInstance<MultiplyDivideExpressionContext>(_ctx, getState());
@@ -4468,22 +4417,51 @@ AnyFXParser::SuffixExpressionContext* AnyFXParser::PrefixExpressionContext::suff
   return getRuleContext<AnyFXParser::SuffixExpressionContext>(0);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::PrefixExpressionContext::SUB_OP() {
+  return getTokens(AnyFXParser::SUB_OP);
+}
+
+tree::TerminalNode* AnyFXParser::PrefixExpressionContext::SUB_OP(size_t i) {
+  return getToken(AnyFXParser::SUB_OP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::PrefixExpressionContext::ADD_OP() {
+  return getTokens(AnyFXParser::ADD_OP);
+}
+
+tree::TerminalNode* AnyFXParser::PrefixExpressionContext::ADD_OP(size_t i) {
+  return getToken(AnyFXParser::ADD_OP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::PrefixExpressionContext::NOT() {
+  return getTokens(AnyFXParser::NOT);
+}
+
+tree::TerminalNode* AnyFXParser::PrefixExpressionContext::NOT(size_t i) {
+  return getToken(AnyFXParser::NOT, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::PrefixExpressionContext::CONNJUGATE() {
+  return getTokens(AnyFXParser::CONNJUGATE);
+}
+
+tree::TerminalNode* AnyFXParser::PrefixExpressionContext::CONNJUGATE(size_t i) {
+  return getToken(AnyFXParser::CONNJUGATE, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::PrefixExpressionContext::MUL_OP() {
+  return getTokens(AnyFXParser::MUL_OP);
+}
+
+tree::TerminalNode* AnyFXParser::PrefixExpressionContext::MUL_OP(size_t i) {
+  return getToken(AnyFXParser::MUL_OP, i);
+}
+
 
 size_t AnyFXParser::PrefixExpressionContext::getRuleIndex() const {
   return AnyFXParser::RulePrefixExpression;
 }
 
-void AnyFXParser::PrefixExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterPrefixExpression(this);
-}
-
-void AnyFXParser::PrefixExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitPrefixExpression(this);
-}
 
 AnyFXParser::PrefixExpressionContext* AnyFXParser::prefixExpression() {
   PrefixExpressionContext *_localctx = _tracker.createInstance<PrefixExpressionContext>(_ctx, getState());
@@ -4565,6 +4543,54 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::SuffixExpressionContext::binarye
   return getRuleContext<AnyFXParser::BinaryexpatomContext>(0);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::LP() {
+  return getTokens(AnyFXParser::LP);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::LP(size_t i) {
+  return getToken(AnyFXParser::LP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::RP() {
+  return getTokens(AnyFXParser::RP);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::RP(size_t i) {
+  return getToken(AnyFXParser::RP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::DOT() {
+  return getTokens(AnyFXParser::DOT);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::DOT(size_t i) {
+  return getToken(AnyFXParser::DOT, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::ARROW() {
+  return getTokens(AnyFXParser::ARROW);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::ARROW(size_t i) {
+  return getToken(AnyFXParser::ARROW, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::LL() {
+  return getTokens(AnyFXParser::LL);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::LL(size_t i) {
+  return getToken(AnyFXParser::LL, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::RR() {
+  return getTokens(AnyFXParser::RR);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::RR(size_t i) {
+  return getToken(AnyFXParser::RR, i);
+}
+
 std::vector<AnyFXParser::ExpressionContext *> AnyFXParser::SuffixExpressionContext::expression() {
   return getRuleContexts<AnyFXParser::ExpressionContext>();
 }
@@ -4573,22 +4599,19 @@ AnyFXParser::ExpressionContext* AnyFXParser::SuffixExpressionContext::expression
   return getRuleContext<AnyFXParser::ExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::SuffixExpressionContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::SuffixExpressionContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::SuffixExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleSuffixExpression;
 }
 
-void AnyFXParser::SuffixExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterSuffixExpression(this);
-}
-
-void AnyFXParser::SuffixExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitSuffixExpression(this);
-}
 
 AnyFXParser::SuffixExpressionContext* AnyFXParser::suffixExpression() {
   SuffixExpressionContext *_localctx = _tracker.createInstance<SuffixExpressionContext>(_ctx, getState());
@@ -4648,7 +4671,6 @@ AnyFXParser::SuffixExpressionContext* AnyFXParser::suffixExpression() {
                   dynamic_cast<SuffixExpressionContext *>(_localctx)->tree =  new UnaryExpression(0x0, ops[i], _localctx->tree);
                   _localctx->tree->location = locations[i];
               }
-
           
       break;
     }
@@ -4858,8 +4880,16 @@ AnyFXParser::InitializerExpressionContext* AnyFXParser::BinaryexpatomContext::in
   return getRuleContext<AnyFXParser::InitializerExpressionContext>(0);
 }
 
+tree::TerminalNode* AnyFXParser::BinaryexpatomContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::BinaryexpatomContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
+}
+
+tree::TerminalNode* AnyFXParser::BinaryexpatomContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
 }
 
 
@@ -4867,17 +4897,6 @@ size_t AnyFXParser::BinaryexpatomContext::getRuleIndex() const {
   return AnyFXParser::RuleBinaryexpatom;
 }
 
-void AnyFXParser::BinaryexpatomContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterBinaryexpatom(this);
-}
-
-void AnyFXParser::BinaryexpatomContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitBinaryexpatom(this);
-}
 
 AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
   BinaryexpatomContext *_localctx = _tracker.createInstance<BinaryexpatomContext>(_ctx, getState());
@@ -4999,6 +5018,14 @@ AnyFXParser::InitializerExpressionContext::InitializerExpressionContext(ParserRu
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::InitializerExpressionContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::InitializerExpressionContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 std::vector<AnyFXParser::AssignmentExpressionContext *> AnyFXParser::InitializerExpressionContext::assignmentExpression() {
   return getRuleContexts<AnyFXParser::AssignmentExpressionContext>();
 }
@@ -5007,22 +5034,19 @@ AnyFXParser::AssignmentExpressionContext* AnyFXParser::InitializerExpressionCont
   return getRuleContext<AnyFXParser::AssignmentExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::InitializerExpressionContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::InitializerExpressionContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::InitializerExpressionContext::getRuleIndex() const {
   return AnyFXParser::RuleInitializerExpression;
 }
 
-void AnyFXParser::InitializerExpressionContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterInitializerExpression(this);
-}
-
-void AnyFXParser::InitializerExpressionContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<AnyFXListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitInitializerExpression(this);
-}
 
 AnyFXParser::InitializerExpressionContext* AnyFXParser::initializerExpression() {
   InitializerExpressionContext *_localctx = _tracker.createInstance<InitializerExpressionContext>(_ctx, getState());

@@ -23,7 +23,7 @@ struct Validator
     Validator();
 
     /// resolve
-    bool Resolve(Compiler* compiler, const std::vector<Symbol*>& symbols);
+    bool Resolve(Compiler* compiler, Symbol* symbol);
 
     /// resolve alias
     bool ResolveAlias(Compiler* compiler, Symbol* symbol);

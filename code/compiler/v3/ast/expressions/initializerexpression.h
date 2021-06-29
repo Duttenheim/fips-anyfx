@@ -18,12 +18,15 @@ struct InitializerExpression : public Expression
 {
     /// constructor
     InitializerExpression(const std::vector<Expression*>& values);
+    /// Destructor
+    virtual ~InitializerExpression();
 
     /// eval type
     bool EvalType(Compiler* compiler, Type::FullType& out) const override;
     /// evaluates expression as a string
     std::string EvalString(Compiler* compiler) const override;
 
+    Expression* sizeExpression;
     std::vector<Expression*> values;
 };
 

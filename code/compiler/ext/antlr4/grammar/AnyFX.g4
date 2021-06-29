@@ -180,7 +180,7 @@ effect
         alias ';'                   { $eff->symbols.push_back($alias.sym); }
         | functionDeclaration ';'   { $eff->symbols.push_back($functionDeclaration.sym); }    
         | function                  { $eff->symbols.push_back($function.sym); }    
-        | variable ';'              { $eff->symbols.push_back($variable.sym); }
+        | variables ';'             { for (Variable* var : $variables.list) { $eff->symbols.push_back(var); } }
         | structure ';'             { $eff->symbols.push_back($structure.sym); }
         | enumeration ';'           { $eff->symbols.push_back($enumeration.sym); }
         | state ';'                 { $eff->symbols.push_back($state.sym); }
@@ -221,9 +221,35 @@ typeDeclaration
     @init
     {
         $type.name = "";
-        Expression* arraySizeExpression = nullptr;
     }:
     IDENTIFIER { $type.name = $IDENTIFIER.text; } 
+    ;
+
+// Variable declaration <annotation>* <attribute>* <type> instance0, .. instanceN
+variables
+    returns[ std::vector<Variable*> list ]
+    @init
+    {
+        std::vector<Annotation> annotations;
+        std::vector<Attribute> attributes;
+        std::vector<Expression*> nameExpressions;
+        Symbol::Location location;
+    }:
+    (annotation { annotations.push_back($annotation.annot); })*
+    (attribute { attributes.push_back($attribute.attr); })*
+    typeDeclaration { location = SetupFile(); } (var0 = assignmentExpression { nameExpressions.push_back($var0.tree); } (',' varN = assignmentExpression { nameExpressions.push_back($varN.tree); })* )
+    {
+        for (Expression* expr : nameExpressions)
+        {
+            Variable* var = new Variable(); 
+            var->type = $typeDeclaration.type; 
+            var->location = location; 
+            var->annotations = annotations; 
+            var->attributes = attributes;
+            var->nameExpression = expr;
+            $list.push_back(var);
+        }
+    }
     ;
 
 variable
@@ -231,19 +257,17 @@ variable
     @init
     {
         $sym = nullptr;
-        std::vector<Annotation> annotations;
         std::vector<Attribute> attributes;
+        std::vector<Expression*> nameExpressions;
         Expression* nameExpression = nullptr;
         Symbol::Location location;
     }:
-    (annotation { annotations.push_back($annotation.annot); })*
     (attribute { attributes.push_back($attribute.attr); })*
     typeDeclaration { location = SetupFile(); } var0 = expression { nameExpression = $var0.tree; }
     {
         $sym = new Variable(); 
         $sym->type = $typeDeclaration.type; 
         $sym->location = location; 
-        $sym->annotations = annotations; 
         $sym->attributes = attributes;
         $sym->nameExpression = nameExpression;
     }
@@ -275,25 +299,28 @@ structure
     @init
     {
         $sym = nullptr;
-        std::vector<Variable*> variables;
+        std::vector<Variable*> members;
         bool isArray = false;
         Expression* arraySizeExpression = nullptr;
         std::string instanceName;
     }:
     structureDeclaration { $sym = $structureDeclaration.sym; }
     '{' 
-        (variable { variables.push_back($variable.sym); } ';')* 
+        (variables { for(Variable* var : $variables.list) { members.push_back(var); }} ';')* 
     '}' 
+    // Disable tail as structs can't be created locally (yet)
     // tail, like } myStruct[];
+    /*
     (
         instanceName = IDENTIFIER { instanceName = $instanceName.text; }
         ( '[' (expression { arraySizeExpression = $expression.tree; })? ']' { isArray = true; } )?
     )?
+    */
     { 
-        $sym->members = variables; 
-        $sym->instanceName = instanceName;
-        $sym->isArray = isArray;
-        $sym->arraySizeExpression = arraySizeExpression;
+        $sym->members = members; 
+        //$sym->instanceName = instanceName;
+        //$sym->isArray = isArray;
+        //$sym->arraySizeExpression = arraySizeExpression;
     }
     ;
 
@@ -472,21 +499,21 @@ forStatement
     @init
     {
         $tree = nullptr;
-        Symbol* declaration;
+        std::vector<Variable*> declarations;
         Expression* conditionExpression = nullptr;
-        Statement* loopStatement;
+        Expression* loopExpression = nullptr;
         Statement* contents = nullptr;
         Symbol::Location location;
     }:
     'for' { location = SetupFile(); }
     '(' 
-        variable { declaration = $variable.sym; } ';'
+        (variables { declarations = $variables.list; })? ';'
         (condition = expression { conditionExpression = $condition.tree; })? ';' 
-        expressionStatement { loopStatement = $expressionStatement.tree; }
+        (loop = expression      { loopExpression = $loop.tree; })?
     ')'
     content = statement { contents = $content.tree; }
     {
-        $tree = new ForStatement(declaration, conditionExpression, loopStatement, contents);
+        $tree = new ForStatement(declarations, conditionExpression, loopExpression, contents);
         $tree->location = location;
     }
     ;
@@ -542,7 +569,7 @@ scopeStatement
     '{' { location = SetupFile(); }
     (
         statement { contents.push_back($statement.tree); }
-        | variable ';' { contents.push_back($variable.sym); }
+        | variables ';' { for(Variable* var : $variables.list) { contents.push_back(var); } }
     )* 
     '}'
     {
@@ -900,7 +927,6 @@ suffixExpression
             $tree = new UnaryExpression(0x0, ops[i], $tree);
             $tree->location = locations[i];
         }
-
     }
     | e1 = binaryexpatom
     {

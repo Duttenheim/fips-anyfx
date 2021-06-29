@@ -15,4 +15,12 @@ ReturnStatement::ReturnStatement(Expression* returnValue)
     this->symbolType = ReturnStatementType;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+ReturnStatement::~ReturnStatement()
+{
+    delete this->returnValue;
+}
+
 } // namespace AnyFX

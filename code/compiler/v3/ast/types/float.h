@@ -27,6 +27,13 @@ struct Float : public Type
     Function multiplicationAssignOperator;
     Function divisionAssignOperator;
 
+    Function ltOperator;
+    Function lteOperator;
+    Function gtOperator;
+    Function gteOperator;
+    Function eOperator;
+    Function neOperator;
+
     Function assignOperator;
 
 };

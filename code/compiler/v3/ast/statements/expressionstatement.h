@@ -16,6 +16,8 @@ struct ExpressionStatement : public Statement
 {
     /// constructor
     ExpressionStatement(Expression* expr);
+    /// destructor
+    virtual ~ExpressionStatement();
 
     Expression* expr;
 };

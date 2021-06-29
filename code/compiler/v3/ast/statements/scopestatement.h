@@ -15,6 +15,8 @@ struct ScopeStatement : public Statement
 {
     /// constructor
     ScopeStatement(const std::vector<Symbol*>& contents);
+    /// destructor
+    virtual ~ScopeStatement();
 
     std::vector<Symbol*> statements;
 };

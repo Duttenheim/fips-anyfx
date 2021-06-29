@@ -17,6 +17,8 @@ struct TernaryExpression : public Expression
 {
     /// constructor
     TernaryExpression(Expression* lhs, Expression* ifExpression, Expression* elseExpression);
+    /// destructor
+    virtual ~TernaryExpression();
 
     /// evaluates expression as a string
     std::string EvalString(Compiler* compiler) const override;

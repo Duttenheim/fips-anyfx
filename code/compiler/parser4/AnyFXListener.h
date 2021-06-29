@@ -94,6 +94,9 @@ public:
   virtual void enterTypeDeclaration(AnyFXParser::TypeDeclarationContext *ctx) = 0;
   virtual void exitTypeDeclaration(AnyFXParser::TypeDeclarationContext *ctx) = 0;
 
+  virtual void enterVariables(AnyFXParser::VariablesContext *ctx) = 0;
+  virtual void exitVariables(AnyFXParser::VariablesContext *ctx) = 0;
+
   virtual void enterVariable(AnyFXParser::VariableContext *ctx) = 0;
   virtual void exitVariable(AnyFXParser::VariableContext *ctx) = 0;
 

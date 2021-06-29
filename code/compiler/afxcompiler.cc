@@ -248,7 +248,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
         Compiler compiler;
         compiler.debugPath = output;
         compiler.debugOutput = true;
-        compiler.Setup(Compiler::Language::GLSL_SPIRV, {}, 1);
+        compiler.Setup(Compiler::Language::SPIRV, {}, 1);
 
         if (compiler.Compile(effect, binaryWriter, headerWriter))
         {

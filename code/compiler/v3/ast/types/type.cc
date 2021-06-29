@@ -282,10 +282,10 @@ std::map<Type::Code, std::vector<std::string>> singleComponentToVectorMap =
 const std::string 
 Type::ToVector(const Type::Code baseType, unsigned members)
 {
-    if (members > 3)
+    if (members > 4)
         return "";
     else
-        return singleComponentToVectorMap[baseType][members + 1];
+        return singleComponentToVectorMap[baseType][members - 1];
 }
 
 //------------------------------------------------------------------------------
@@ -295,6 +295,15 @@ const bool
 Type::IsVector() const
 {
     return this->category == Type::ScalarCategory && this->columnSize > 1 && this->rowSize <= 1;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const bool 
+Type::IsMatrix() const
+{
+    return this->category == Type::ScalarCategory && this->columnSize > 1 && this->rowSize > 1;
 }
 
 //------------------------------------------------------------------------------
@@ -348,13 +357,13 @@ unsigned
 Type::SwizzleMaskComponents(unsigned mask)
 {
     int numComponents = 0;
-    if (mask & 0x000000FF != 0)
+    if ((mask & 0x000000FF) != 0)
         numComponents++;
-    if (mask & 0x0000FF00 != 0)
+    if ((mask & 0x0000FF00) != 0)
         numComponents++;
-    if (mask & 0x00FF0000 != 0)
+    if ((mask & 0x00FF0000) != 0)
         numComponents++;
-    if (mask & 0xFF000000 != 0)
+    if ((mask & 0xFF000000) != 0)
         numComponents++;
     return numComponents;
 }
@@ -366,9 +375,15 @@ Type::SwizzleMaskComponents(unsigned mask)
 unsigned
 Type::SwizzleMaskBiggestComponent(unsigned mask)
 {
-    unsigned ret = max(mask & 0x000000FF, (mask & 0x0000FF00) >> 8);
-    ret = max(ret, (mask & 0x00FF0000) >> 16);
-    ret = max(ret, (mask & 0xFF000000) >> 24);
+    unsigned ret = max(mask & 0x000000FF, ((mask >> 8) & 0x000000FF));
+    ret = max(ret, ((mask >> 16) & 0x000000FF));
+    ret = max(ret, ((mask >> 24) & 0x000000FF));
+
+#if __GNUC__ 
+    ret = __builtin_ctz(ret) + 1;
+#elif _MSC_VER
+    ret = __lzcnt(ret) + 1;
+#endif
     return ret;
 }
 
@@ -379,18 +394,15 @@ std::string
 Type::FullType::ToString(Compiler* compiler)
 {
     std::string modifiers = "";
-    for (int i = 0; i < this->modifiers.size(); i++)
+    for (int i = this->modifiers.size()-1; i >= 0; i--)
     {
-        Expression* sizeExpression = this->modifierExpressions[i];
+        uint32_t size = this->modifierValues[i];
         if (this->modifiers[i] == Type::FullType::Modifier::ArrayLevel)
-            if (sizeExpression == nullptr)
+            if (size == 0)
                 modifiers.append("[]");
             else
             {
-                unsigned u;
-                bool res = sizeExpression->EvalUInt(compiler, u);
-                assert(res);
-                modifiers.append(Format("[%d]", u));
+                modifiers.append(Format("[%d]", size));
             }
         else if (this->modifiers[i] == Type::FullType::Modifier::PointerLevel)
             modifiers.append("*");

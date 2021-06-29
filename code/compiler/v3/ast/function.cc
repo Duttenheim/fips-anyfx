@@ -50,9 +50,6 @@ Function::Function()
 */
 Function::~Function()
 {
-    for (Expression* expr : this->returnType.modifierExpressions)
-        delete expr;
-
     for (Variable* var : this->parameters)
         delete var;
 }

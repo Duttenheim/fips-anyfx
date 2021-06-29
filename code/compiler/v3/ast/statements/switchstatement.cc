@@ -19,4 +19,16 @@ SwitchStatement::SwitchStatement(Expression* switchExpression, const std::vector
     this->symbolType = SwitchStatementType;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+SwitchStatement::~SwitchStatement()
+{
+    delete this->switchExpression;
+    for (Statement* stat : this->caseStatements)
+        delete stat;
+    if (this->defaultStatement != nullptr)
+        delete this->defaultStatement;
+}
+
 } // namespace AnyFX

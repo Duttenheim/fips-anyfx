@@ -113,6 +113,7 @@ FourCCToString(uint32_t fourCC)
         buf[i] = c;
         shift += 8;
     }
+    std::reverse(&buf[0], &buf[usedBytes]);
     return std::string(buf, usedBytes);
 }
 

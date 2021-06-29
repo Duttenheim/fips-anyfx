@@ -42,6 +42,13 @@ UInt::UInt()
     __IMPLEMENT_FUNCTION_1(divisionAssignOperator, operator/=, uint, uint);
     __IMPLEMENT_FUNCTION_1(moduloAssignOperator, operator%=, uint, uint);
 
+    __IMPLEMENT_FUNCTION_1(ltOperator, operator<, bool, uint);
+    __IMPLEMENT_FUNCTION_1(lteOperator, operator<=, bool, uint);
+    __IMPLEMENT_FUNCTION_1(gtOperator, operator>, bool, uint);
+    __IMPLEMENT_FUNCTION_1(gteOperator, operator>=, bool, uint);
+    __IMPLEMENT_FUNCTION_1(eOperator, operator==, bool, uint);
+    __IMPLEMENT_FUNCTION_1(neOperator, operator!=, bool, int);
+
     __IMPLEMENT_FUNCTION_1(assignOperator, operator=, uint, uint);
 }
 

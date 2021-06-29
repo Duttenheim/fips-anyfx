@@ -21,6 +21,16 @@ TernaryExpression::TernaryExpression(Expression* lhs, Expression* ifExpression, 
 //------------------------------------------------------------------------------
 /**
 */
+TernaryExpression::~TernaryExpression()
+{
+    delete this->lhs;
+    delete this->ifExpression;
+    delete this->elseExpression;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 std::string
 TernaryExpression::EvalString(Compiler* compiler) const
 {

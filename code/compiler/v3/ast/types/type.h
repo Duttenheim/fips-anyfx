@@ -90,7 +90,7 @@ struct Type : public Symbol
         InputAttachmentCategory,
         ScalarCategory,
         UserTypeCategory,
-        ConstantStructureCategory,
+        UniformStructureCategory,
         MutableStructureCategory,
         VoidCategory,
         SamplerCategory
@@ -102,8 +102,8 @@ struct Type : public Symbol
         Y_G = 0x2,
         Z_B = 0x4,
         W_A = 0x8,
-        _0 = 0x10,
-        _1 = 0x20,
+        _0  = 0x10,
+        _1  = 0x20,
     };
 
     /// convert string to swizzle mask, returns true if possible swizzle mask
@@ -117,6 +117,8 @@ struct Type : public Symbol
     static const std::string ToVector(const Type::Code baseType, unsigned dimensions);
     /// returns true if type is vector
     const bool IsVector() const;
+    /// returns true if type is matrix
+    const bool IsMatrix() const;
 
     Code baseType;
     uint32_t rowSize;
@@ -135,16 +137,26 @@ struct Type : public Symbol
         };
         
         std::vector<Modifier> modifiers;
-        std::vector<Expression*> modifierExpressions;
+        std::vector<uint32_t> modifierValues;
+
+        static const uint32_t UNSIZED_ARRAY = 0;
 
         bool operator==(const FullType& rhs) const
         {
-            return this->name == rhs.name && this->modifiers == rhs.modifiers;
+            if (this->modifiers != rhs.modifiers)
+                return false;
+            for (size_t i = 0; i < this->modifierValues.size(); i++)
+                if (this->modifierValues[i] != 0                             // 0 means unsized, and thus it accepts anything
+                    && this->modifierValues[i] != rhs.modifierValues[i])
+                    return false;
+            if (this->name != rhs.name)
+                return false;
+            return true;
         }
 
         bool operator!=(const FullType& rhs) const
         {
-            return this->name != rhs.name || this->modifiers != rhs.modifiers;
+            return !(*this == rhs);
         }
 
         std::string ToString(Compiler* compiler);

@@ -28,6 +28,9 @@ struct Bool : public Type
     Function ororOperator;
     Function andandOperator;
 
+    Function eOperator;
+    Function neOperator;
+
     Function assignOperator;
 };
 

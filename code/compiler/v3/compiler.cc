@@ -69,6 +69,8 @@ Compiler::Compiler()
 */
 Compiler::~Compiler()
 {
+    for (Symbol* sym : this->dynamicSymbols)
+        delete sym;
     delete this->validator;
 }
 
@@ -238,8 +240,13 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
 {
     bool ret = true;
 
+    this->symbols = root->symbols;
+
     // resolves parser state and runs validation
-    ret &= this->validator->Resolve(this, root->symbols);
+    for (this->symbolIterator = 0; this->symbolIterator < this->symbols.size(); this->symbolIterator++)
+    {
+        ret &= this->validator->Resolve(this, this->symbols[this->symbolIterator]);
+    }
 
     // if failed, don't proceed to next step
     if (!ret || !this->errors.empty())
@@ -262,11 +269,11 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
     }
 
     // collect programs
-    for (Symbol* symbol : root->symbols)
+    for (Symbol* symbol : this->symbols)
     {
         if (symbol->symbolType == Symbol::ProgramType)
         {
-            ret &= this->generator->Generate(this, static_cast<Program*>(symbol), root->symbols, writeFunction);
+            ret &= this->generator->Generate(this, static_cast<Program*>(symbol), this->symbols, writeFunction);
         }
     }
 
@@ -282,7 +289,7 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
 
         // run binary output step
         Serialize::DynamicLengthBlob blob;
-        for (Symbol* symbol : root->symbols)
+        for (Symbol* symbol : this->symbols)
         {
             this->OutputBinary(symbol, binaryWriter, blob);
         }
@@ -302,7 +309,7 @@ Compiler::Compile(Effect* root, BinWriter& binaryWriter, TextWriter& headerWrite
     // header writing is optional
     if (headerWriter.Open())
     {
-        ret &= this->headerGenerator->Generate(this, nullptr, root->symbols, [&headerWriter](const std::string& name, const std::string& code)
+        ret &= this->headerGenerator->Generate(this, nullptr, this->symbols, [&headerWriter](const std::string& name, const std::string& code)
         {
             headerWriter.WriteString(code);
         });
@@ -673,18 +680,18 @@ Compiler::OutputBinary(Symbol* symbol, BinWriter& writer, Serialize::DynamicLeng
         Structure* structure = static_cast<Structure*>(symbol);
         Structure::__Resolved* resolved = static_cast<Structure::__Resolved*>(symbol->resolved);
         Serialize::Structure output;
-        output.isConst = false;
+        output.isUniform = false;
         output.isMutable = false;
         output.binding = resolved->binding;
         output.group = resolved->group;
         output.nameLength = symbol->name.length();
         output.nameOffset = dynamicDataBlob.Write(symbol->name.c_str(), symbol->name.length());
         output.size = resolved->byteSize;
-        if (resolved->usageFlags.flags.isConstantBuffer)
+        if (resolved->usageFlags.flags.isUniformBuffer)
         {
-            output.isConst = true;
+            output.isUniform = true;
         }
-        else if (resolved->usageFlags.flags.isStorageBuffer)
+        else if (resolved->usageFlags.flags.isMutableBuffer)
         {
             output.isMutable = true;
         }
@@ -704,8 +711,8 @@ Compiler::OutputBinary(Symbol* symbol, BinWriter& writer, Serialize::DynamicLeng
             varOutput.nameOffset = dynamicDataBlob.Write(var->name.c_str(), var->name.length());
             varOutput.byteSize = resolved->byteSize;
             varOutput.structureOffset = resolved->structureOffset;
-            varOutput.isArray = resolved->isArray;
-            varOutput.arraySize = resolved->arraySize;
+            varOutput.arraySizesCount = resolved->type.modifierValues.size();
+            varOutput.arraySizesOffset = dynamicDataBlob.Write(resolved->type.modifierValues.begin(), resolved->type.modifierValues.size());
 
             // write variable
             dynamicDataBlob.WriteReserved(varOutput, offset);
@@ -733,13 +740,12 @@ Compiler::OutputBinary(Symbol* symbol, BinWriter& writer, Serialize::DynamicLeng
         Serialize::Variable output;
         output.binding = resolved->binding;
         output.group = resolved->group;
-        output.isArray = resolved->isArray;
-        output.arraySize = resolved->arraySize;
         output.nameLength = symbol->name.length();
         output.nameOffset = dynamicDataBlob.Write(symbol->name.c_str(), symbol->name.length());
         output.byteSize = resolved->byteSize;
         output.structureOffset = resolved->structureOffset;
-
+        output.arraySizesCount = resolved->type.modifierValues.size();
+        output.arraySizesOffset = dynamicDataBlob.Write(resolved->type.modifierValues.begin(), resolved->type.modifierValues.size());
         output.annotationsOffset = dynamicDataBlob.Reserve<Serialize::Annotation>(var->annotations.size());
         output.annotationsCount = var->annotations.size();
 

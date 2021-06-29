@@ -23,15 +23,6 @@ struct Generator
     /// generate code
     virtual bool Generate(Compiler* compiler, Program* program, const std::vector<Symbol*>& symbols, std::function<void(const std::string&, const std::string&)> writerFunc);
 
-    /// generate function
-    virtual void GenerateFunction(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode);
-    /// generate structure 
-    virtual void GenerateStructure(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode);
-    /// generate variable
-    virtual void GenerateVariable(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode, bool isShaderArgument);
-
-
-
     std::vector<std::string> targetLanguageFiles;
     Function* mainFunction;
 };

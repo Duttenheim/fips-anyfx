@@ -17,6 +17,8 @@ struct ArrayIndexExpression : public Expression
 {
     /// constructor
     ArrayIndexExpression(Expression* left, Expression* right);
+    /// destructor
+    virtual ~ArrayIndexExpression();
 
     /// eval type
     bool EvalType(Compiler* compiler, Type::FullType& out) const override;

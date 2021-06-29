@@ -3,7 +3,7 @@
 //  @copyright (C) 2021 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
-
+const int arr[5][2] = { {1,1},{2,2},{3,3},{4,4},{5,5} };
 const float4 ARRAY_VEC4[] = { float4(1) };
 struct MyConstantBuffer
 {
@@ -12,7 +12,7 @@ struct MyConstantBuffer
 };
 
 @Visibility("CS")
-const MyConstantBuffer* myConstantBuffer;
+uniform MyConstantBuffer* myConstantBuffer;
 
 alias textureHandle as int;
 const textureHandle foobar = 5;
@@ -82,10 +82,10 @@ MegaFunction()
 
     float3 foobar = vecarray[1].xyz;
 
-    if (foo)
+    if (foo > 0)
     {
         int bar = 5;
-        if (foo)
+        if (foo != 0)
             return bar;
         else
             return bar;
@@ -111,7 +111,7 @@ MegaFunction()
     foo = 6;
     for (int i = 0, j = 0; i < foo; i++, ++j)
     {
-        if (i % 2)
+        if ((i % 2) == 0)
             continue;
     }
 

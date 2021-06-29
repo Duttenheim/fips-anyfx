@@ -15,6 +15,8 @@ struct ReturnStatement : public Statement
 {
     /// constructor
     ReturnStatement(Expression* returnValue);
+    /// destructor
+    virtual ~ReturnStatement();
 
     Expression* returnValue;
 };

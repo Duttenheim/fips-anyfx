@@ -41,7 +41,7 @@ UnaryExpression::EvalType(Compiler* compiler, Type::FullType& out) const
         if (type.modifiers.empty())
             return false;
         type.modifiers.pop_back();
-        type.modifierExpressions.pop_back();
+        type.modifierValues.pop_back();
     }
     out = type;
     return true;
@@ -131,7 +131,7 @@ UnaryExpression::EvalString(Compiler* compiler) const
     if (this->op != 0x0)
         return Format("%s%s", FourCCToString(this->op).c_str(), expString.c_str());
     else if (this->postOp != 0x0)
-        return Format("%s%s", expString.c_str(), FourCCToString(this->op).c_str());
+        return Format("%s%s", expString.c_str(), FourCCToString(this->postOp).c_str());
     else
         return Format("%s", expString.c_str());
 }

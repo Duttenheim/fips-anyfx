@@ -27,8 +27,7 @@ Variable::Variable()
     typeResolved->group = __Resolved::NOT_BOUND;
     typeResolved->binding = __Resolved::NOT_BOUND;
     typeResolved->imageFormat = InvalidImageFormat;
-    typeResolved->arraySize = __Resolved::NOT_ARRAY;
-    typeResolved->isArray = false;
+    typeResolved->pointerLevels = 0;
     typeResolved->inBinding = 0xF;
     typeResolved->outBinding = 0xF;
     typeResolved->byteSize = 0;
@@ -43,9 +42,6 @@ Variable::Variable()
 */
 Variable::~Variable()
 {
-    for (Expression* expr : this->type.modifierExpressions)
-        delete expr;
-
     Variable::__Resolved* typeResolved = static_cast<Variable::__Resolved*>(this->resolved);
     for (Variable* sibling : typeResolved->siblings)
         delete sibling;

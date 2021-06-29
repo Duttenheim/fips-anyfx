@@ -151,9 +151,7 @@ HGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbo
 {
     Variable* var = static_cast<Variable*>(symbol);
     Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
-    if (varResolved->usageBits.flags.isStructMember
-        || varResolved->usageBits.flags.isConstantBufferMember
-        || varResolved->usageBits.flags.isStorageBufferMember)
+    if (varResolved->usageBits.flags.isStructMember)
     {        
         // add start padding if any
         if (varResolved->startPadding > 0)
@@ -167,13 +165,13 @@ HGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbo
         // if element padding, we need to split the array into elements where each element is padded
         if (varResolved->elementPadding > 0)
         {
-            for (int i = 0; i < varResolved->arraySize; i++)
+            for (int i = 0; i < varResolved->type.modifierValues.size(); i++)
             {
                 // don't pad the first element
                 if (i > 0)
                     outCode.append(Format("    unsigned int : %d;\n", varResolved->elementPadding));
                 outCode.append(Format("    %s %s_%d%s;", type.c_str(), var->name.c_str(), i, arrayType.c_str()));
-                if (i < varResolved->arraySize - 1)
+                if (i < varResolved->type.modifierValues[i] - 1)
                     outCode.append("\n");
             }
         }
@@ -191,13 +189,15 @@ HGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbo
         GenerateHInitializer(compiler, varResolved->value, initializerStr);
        
         std::string arraySize = "";
-        if (varResolved->arraySize > 1)
+        for (int i = varResolved->type.modifierValues.size() - 1; i >= 0; i--)
         {
-            initializerStr = Format("{ %s }", initializerStr.c_str());
-            arraySize = Format("[%d]", varResolved->arraySize);
+            size_t size = varResolved->type.modifierValues[i];
+            if (size > 0)
+                arraySize.append(Format("[%d]", size));
+            else
+                arraySize.append(Format("[]"));
         }
-        else
-            initializerStr = Format("%s", initializerStr.c_str());
+
         outCode.append(Format("const %s %s%s%s = %s;\n", typeStr.c_str(), var->name.c_str(), arraySize.c_str(), arrayTypeStr.c_str(), initializerStr.c_str()));
     }
 }

@@ -22,6 +22,15 @@ ArrayIndexExpression::ArrayIndexExpression(Expression* left, Expression* right)
 //------------------------------------------------------------------------------
 /**
 */
+ArrayIndexExpression::~ArrayIndexExpression()
+{
+    delete this->left;
+    delete this->right;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool 
 ArrayIndexExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {
@@ -30,7 +39,7 @@ ArrayIndexExpression::EvalType(Compiler* compiler, Type::FullType& out) const
     if (out.modifiers.empty())
         return false;
     out.modifiers.pop_back();
-    out.modifierExpressions.pop_back();
+    out.modifierValues.pop_back();
     return true;
 }
 

@@ -22,6 +22,16 @@ CallExpression::CallExpression(Expression* function, const std::vector<Expressio
 //------------------------------------------------------------------------------
 /**
 */
+CallExpression::~CallExpression()
+{
+    for (Expression* expr : this->args)
+        delete expr;
+    delete this->function;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool
 CallExpression::EvalType(Compiler* compiler, Type::FullType& out) const
 {

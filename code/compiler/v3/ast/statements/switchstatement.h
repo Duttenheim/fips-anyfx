@@ -17,6 +17,8 @@ struct SwitchStatement : public Statement
 {
     /// constructor
     SwitchStatement(Expression* switchExpression, const std::vector<std::string>& caseValues, const std::vector<Statement*>& caseStatements, Statement* defaultStatement);
+    /// destructor
+    virtual ~SwitchStatement();
 
     Expression* switchExpression;
     std::vector<std::string> caseValues;

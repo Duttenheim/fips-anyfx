@@ -16,28 +16,5 @@ Generator::Generate(Compiler* compiler, Program* program, const std::vector<Symb
     return false;
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-Generator::GenerateFunction(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode)
-{
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-Generator::GenerateStructure(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode)
-{
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-Generator::GenerateVariable(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode, bool isShaderArgument)
-{
-}
 
 } // namespace AnyFX

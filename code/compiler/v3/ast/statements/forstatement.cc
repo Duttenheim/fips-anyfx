@@ -9,13 +9,25 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-ForStatement::ForStatement(Symbol* declaration, Expression* condition, Statement* statement, Statement* contents)
-    : declaration(declaration)
+ForStatement::ForStatement(const std::vector<Variable*> declarations, Expression* condition, Expression* loop, Statement* contents)
+    : declarations(declarations)
     , condition(condition)
-    , statement(statement)
+    , loop(loop)
     , contents(contents)
 {
     this->symbolType = ForStatementType;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+ForStatement::~ForStatement()
+{
+    for (Variable* var : this->declarations)
+        delete var;
+    delete this->condition;
+    delete this->loop;
+    delete this->contents;
 }
 
 } // namespace AnyFX

@@ -91,17 +91,15 @@ struct Variable : public Symbol
             struct
             {
                 uint32_t isConst : 1;                   // true if variable is const
+                uint32_t isUniform : 1;
                 uint32_t isMutable : 1;                 // true if variable is mutable
                 uint32_t isParameter : 1;               // true if variable is passed to a function
                 uint32_t isStructMember : 1;            // true if variable is the member of a struct
-                uint32_t isConstantBufferMember : 1;    // true if variable belongs to a struct const
-                uint32_t isStorageBufferMember : 1;     // true if variable belongs to a struct mutable
                 uint32_t isGroupShared : 1;             // true if variable is work group shared memory
             } flags;
             uint32_t bits;
         };
         UsageBits usageBits;
-
         std::vector<Variable*> siblings;
 
         /// type here is the fully qualified (pointer and array) type
@@ -117,9 +115,7 @@ struct Variable : public Symbol
         uint8_t inBinding;      // parameter input binding
         uint8_t outBinding;     // parameter output binding
 
-        static const uint32_t NOT_ARRAY = 0x1;
-        bool isArray;
-        uint32_t arraySize;
+        uint32_t pointerLevels;
 
         uint32_t byteSize;          // size in bytes
         uint32_t structureOffset;   // offset within structure

@@ -96,6 +96,9 @@ public:
   virtual void enterTypeDeclaration(AnyFXParser::TypeDeclarationContext * /*ctx*/) override { }
   virtual void exitTypeDeclaration(AnyFXParser::TypeDeclarationContext * /*ctx*/) override { }
 
+  virtual void enterVariables(AnyFXParser::VariablesContext * /*ctx*/) override { }
+  virtual void exitVariables(AnyFXParser::VariablesContext * /*ctx*/) override { }
+
   virtual void enterVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
   virtual void exitVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
 

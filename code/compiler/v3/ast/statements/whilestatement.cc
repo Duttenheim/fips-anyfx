@@ -17,4 +17,13 @@ WhileStatement::WhileStatement(Expression* condition, Statement* statement, bool
     this->symbolType = WhileStatementType;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+WhileStatement::~WhileStatement()
+{
+    delete this->condition;
+    delete this->statement;
+}
+
 } // namespace AnyFX

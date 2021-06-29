@@ -31,6 +31,9 @@ Bool::Bool()
     __IMPLEMENT_FUNCTION_1(ororOperator, operator&&, bool, bool);
     __IMPLEMENT_FUNCTION_1(andandOperator, operator||, bool, bool);
 
+    __IMPLEMENT_FUNCTION_1(eOperator, operator==, bool, bool);
+    __IMPLEMENT_FUNCTION_1(neOperator, operator!=, bool, bool);
+
     __IMPLEMENT_FUNCTION_1(assignOperator, operator=, bool, bool);
 }
 

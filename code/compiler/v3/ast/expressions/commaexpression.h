@@ -18,6 +18,8 @@ struct CommaExpression : public Expression
 {
     /// constructor
     CommaExpression(Expression* left, Expression* right);
+    /// destructor
+    virtual ~CommaExpression();
 
     /// eval type
     bool EvalType(Compiler* compiler, Type::FullType& out) const override;

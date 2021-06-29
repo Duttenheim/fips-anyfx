@@ -326,8 +326,8 @@ struct Variable : public Bindable
     {
         this->type = VariableType;
     }
-    bool isArray;
-    unsigned int arraySize;
+    size_t arraySizesOffset;
+    size_t arraySizesCount;
 
     uint32_t byteSize;
     uint32_t structureOffset;
@@ -340,7 +340,7 @@ struct Structure : public Bindable
     {
         this->type = StructureType;
     }
-    bool isConst;
+    bool isUniform;
     bool isMutable;
     unsigned int size;
     size_t variablesOffset;
@@ -412,6 +412,16 @@ struct DynamicLengthBlob
     size_t Write(const T& data)
     {
         return this->Write((const char*)&data, sizeof(T));
+    }
+
+    //------------------------------------------------------------------------------
+    /**
+        Write array of type (short hand for writing a block)
+    */
+    template <typename T>
+    size_t Write(const T& data, const size_t count)
+    {
+        return this->Write((const char*)&data, sizeof(T) * count);
     }
 
     //------------------------------------------------------------------------------
@@ -569,8 +579,8 @@ struct SamplerState : public Bindable
 
 struct Variable : public Bindable
 {
-    bool isArray;
-    unsigned int arraySize;
+    const uint32_t* arraySizes;
+    uint32_t arraySizeCount;
 
     uint32_t byteSize;
     uint32_t structureOffset;

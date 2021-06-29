@@ -24,7 +24,8 @@ Loader::~Loader()
 /**
 */
 template<typename T>
-inline const T* ParseAndConsume(const char* data, size_t& offset)
+inline const T* 
+ParseAndConsume(const char* data, size_t& offset)
 {
     const T* ret = reinterpret_cast<const T*>(data + offset);
     offset += sizeof(T);
@@ -35,9 +36,10 @@ inline const T* ParseAndConsume(const char* data, size_t& offset)
 /**
 */
 template<typename T>
-inline T* Parse(const char* data, const size_t offset)
+inline const T* 
+Parse(const char* data, const size_t offset)
 {
-    return reinterpret_cast<T*>(data + offset);
+    return reinterpret_cast<const T*>(data + offset);
 }
 
 //------------------------------------------------------------------------------
@@ -139,8 +141,9 @@ Loader::Load(const char* data, const size_t length)
             deserialized->nameLength = var->nameLength;
             deserialized->binding = var->binding;
             deserialized->group = var->group;
-            deserialized->isArray = var->isArray;
-            deserialized->arraySize = var->arraySize;
+            deserialized->arraySizeCount = var->arraySizesCount;
+            deserialized->arraySizes = Parse<uint32_t>(buf, var->arraySizesOffset);
+
             deserialized->structureOffset = var->structureOffset;
             deserialized->byteSize = var->byteSize;
             
@@ -170,8 +173,8 @@ Loader::Load(const char* data, const size_t length)
 
                 deserializedVar.binding = var->binding;
                 deserializedVar.group = var->group;
-                deserializedVar.isArray = var->isArray;
-                deserializedVar.arraySize = var->arraySize;
+                deserializedVar.arraySizeCount = var->arraySizesCount;
+                deserializedVar.arraySizes = Parse<uint32_t>(buf, var->arraySizesOffset);
                 deserializedVar.structureOffset = var->structureOffset;
                 deserializedVar.byteSize = var->byteSize;
                 deserializedVar.name = Parse<const char>(buf, var->nameOffset);

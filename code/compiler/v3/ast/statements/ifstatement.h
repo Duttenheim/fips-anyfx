@@ -15,6 +15,8 @@ struct IfStatement : public Statement
 {
     /// constructor
     IfStatement(Expression* condition, Statement* ifStatement, Statement* elseStatement);
+    /// destructor
+    virtual ~IfStatement();
 
     Expression* condition;
     Statement* ifStatement;

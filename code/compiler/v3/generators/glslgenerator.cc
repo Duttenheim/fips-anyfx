@@ -10,6 +10,8 @@
 #include "ast/program.h"
 #include "ast/expressions/initializerexpression.h"
 #include "ast/expressions/callexpression.h"
+#include "ast/expressions/accessexpression.h"
+#include "ast/expressions/commaexpression.h"
 
 #include "ast/statements/breakstatement.h"
 #include "ast/statements/continuestatement.h"
@@ -22,6 +24,7 @@
 #include "ast/statements/whilestatement.h"
 
 #include "compiler.h"
+#include <algorithm>
 
 #include "glslang/Include/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
@@ -217,7 +220,7 @@ GLSLGenerator::Generate(Compiler* compiler, Program* program, const std::vector<
 #extension GL_ARB_separate_shader_objects : enable\n\
 #extension GL_ARB_shading_language_420pack : enable\n\
 #extension GL_KHR_shader_subgroup_quad : enable\n\
-#define OPENGL\n";
+#define __OPENGL__\n";
             }
             else if (this->featureSet == VulkanFeatureSet)
             {
@@ -229,7 +232,7 @@ GLSLGenerator::Generate(Compiler* compiler, Program* program, const std::vector<
 #extension GL_ARB_separate_shader_objects : enable\n\
 #extension GL_ARB_shading_language_420pack : enable\n\
 #extension GL_KHR_shader_subgroup_quad : enable\n\
-#define SPIRV\n";
+#define __VULKAN__\n";
             }
 
             glslang::TShader* shaderObject = new glslang::TShader(entryToGlslangShaderMappings.at(it.first));
@@ -248,7 +251,7 @@ GLSLGenerator::Generate(Compiler* compiler, Program* program, const std::vector<
                 shaderObject->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
                 shaderObject->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_2);
             }
-            
+
             if (!shaderObject->parse(&DefaultResources, 460, EProfile::ENoProfile, false, true, messages))
             {
                 std::string message = shaderObject->getInfoLog();
@@ -293,6 +296,7 @@ GLSLGenerator::Generate(Compiler* compiler, Program* program, const std::vector<
         optimizer = new spvtools::Optimizer(SPV_ENV_VULKAN_1_2);
     
     optimizer->RegisterPerformancePasses();
+
 
     for (Program::__Resolved::ProgramEntryType i = Program::__Resolved::VertexShader; i < Program::__Resolved::RayIntersectionShader; i = (Program::__Resolved::ProgramEntryType)((int)i + 1))
     {
@@ -638,7 +642,7 @@ GenerateInitializerExpressionGLSL(Compiler* compiler, Expression* expr, std::str
     for (Expression* expr : initExpression->values)
     {
         if (expr->symbolType == Symbol::InitializerExpressionType)
-            GenerateInitializerExpressionGLSL(compiler, expr, inner);
+            GenerateInitializerExpressionGLSL(compiler, expr, inner);  
         else
         {
             Type::FullType type;
@@ -648,12 +652,44 @@ GenerateInitializerExpressionGLSL(Compiler* compiler, Expression* expr, std::str
             }
 
             GenerateExpressionGLSL(compiler, expr, inner);
-            if (expr != initExpression->values.back())
-                inner.append(",");
         }
+
+        if (expr != initExpression->values.back())
+            inner.append(",");
     }
-    outCode = Format("{ %s }", inner.c_str());
+    outCode.append(Format("{ %s }", inner.c_str()));
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+GenerateAccessExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCode)
+{
+    AccessExpression* accessExpression = static_cast<AccessExpression*>(expr);
+    std::string lhs, rhs;
+    GenerateExpressionGLSL(compiler, accessExpression->left, lhs);
+    GenerateExpressionGLSL(compiler, accessExpression->right, rhs);
+
+    // so the reason why we format this specially for GLSL is because it doesn't support pointers
+    outCode = Format("%s.%s", lhs.c_str(), rhs.c_str());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GenerateCommaExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCode)
+{
+    CommaExpression* commaExpression = static_cast<CommaExpression*>(expr);
+    std::string lhs, rhs;
+    GenerateExpressionGLSL(compiler, commaExpression->left, lhs);
+    GenerateExpressionGLSL(compiler, commaExpression->right, rhs);
+
+    // so the reason why we format this specially for GLSL is because it doesn't support pointers
+    outCode = Format("%s, %s", lhs.c_str(), rhs.c_str());
+}
+
 
 //------------------------------------------------------------------------------
 /**
@@ -670,6 +706,12 @@ GenerateExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCod
         case Symbol::InitializerExpressionType:
             GenerateInitializerExpressionGLSL(compiler, expr, outCode);
             break;
+        case Symbol::AccessExpressionType:
+            GenerateAccessExpressionGLSL(compiler, expr, outCode);
+            break;
+        case Symbol::CommaExpressionType:
+            GenerateCommaExpressionGLSL(compiler, expr, outCode);
+            break;
         default:
             outCode.append(expr->EvalString(compiler));
             break;
@@ -677,30 +719,58 @@ GenerateExpressionGLSL(Compiler* compiler, Expression* expr, std::string& outCod
 }
 
 void GenerateStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode);
+uint32_t IndentationLevel = 0;
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string
+GenerateIndentation()
+{
+    std::string ret;
+    ret.resize(IndentationLevel, '\t');
+    return ret;
+}
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-GenerateVariableGLSL(Compiler* compiler, Variable* var, std::string& outCode)
+GenerateVariableGLSL(Compiler* compiler, Variable* var, std::string& outCode, bool outputType = true)
 {
     Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+    std::string indentation = GenerateIndentation();
+    std::string type = "";
+    if (outputType)
+    {
+        if (varResolved->typeSymbol->symbolType == Symbol::StructureType)
+            type = varResolved->type.name;
+        else
+            type = typeToGlslType[varResolved->type.name];
+    }
 
-    std::string type;
-    if (varResolved->typeSymbol->symbolType == Symbol::StructureType)
-        type = varResolved->type.name;
-    else
-        type = typeToGlslType[varResolved->type.name];
-
+    std::string arrays = "";
+    for (int i = varResolved->type.modifierValues.size() - 1; i >= 0; i--)
+    {
+        size_t size = varResolved->type.modifierValues[i];
+        if (size > 0)
+        {
+            arrays.append(Format("[%d]", size));
+        }
+        else
+        {
+            arrays.append("[]");
+        }
+    }
     if (varResolved->value != nullptr)
     {
         std::string value;
         GenerateExpressionGLSL(compiler, varResolved->value, value);
-        outCode.append(Format("%s %s = %s", type.c_str(), varResolved->name.c_str(), value.c_str()));
+        outCode.append(Format("%s%s %s%s = %s", indentation.c_str(), type.c_str(), varResolved->name.c_str(), arrays.c_str(), value.c_str()));
     }
     else
     {
-        outCode.append(Format("%s %s", type.c_str(), varResolved->name.c_str()));
+        outCode.append(Format("%s%s %s%s", indentation.c_str(), type.c_str(), varResolved->name.c_str(), arrays.c_str()));
     }
 }
 
@@ -711,19 +781,17 @@ void
 GenerateForStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
     ForStatement* forStatement = static_cast<ForStatement*>(statement);
-    Variable* var = static_cast<Variable*>(forStatement->declaration);
+    std::string indentation = GenerateIndentation();
+    uint32_t oldIndentation = IndentationLevel;
+    IndentationLevel = 0;
     std::string declarations;
-    if (var != nullptr)
+    for (Variable* declaration : forStatement->declarations)
     {
-        Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+        Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(declaration->resolved);
 
-        GenerateVariableGLSL(compiler, var, declarations);
-
-        for (Variable* sibling : varResolved->siblings)
-        {
+        GenerateVariableGLSL(compiler, declaration, declarations, declaration == forStatement->declarations.front());
+        if (declaration != forStatement->declarations.back())
             declarations.append(",");
-            GenerateVariableGLSL(compiler, sibling, declarations);
-        }
     }
 
     std::string conditions = "";
@@ -731,13 +799,14 @@ GenerateForStatementGLSL(Compiler* compiler, Statement* statement, std::string& 
         GenerateExpressionGLSL(compiler, forStatement->condition, conditions);
 
     std::string endOfLoopStatement = "";
-    if (forStatement->statement != nullptr)
-        GenerateStatementGLSL(compiler, forStatement->statement, endOfLoopStatement);
+    if (forStatement->loop != nullptr)
+        GenerateExpressionGLSL(compiler, forStatement->loop, endOfLoopStatement);
 
+    IndentationLevel = oldIndentation;
     std::string contents = "";
     GenerateStatementGLSL(compiler, forStatement->contents, contents);
 
-    outCode.append(Format("for (%s;%s;%s)\n{\n\t%s\n}", declarations.c_str(), conditions.c_str(), endOfLoopStatement.c_str(), contents.c_str()));
+    outCode.append(Format("%sfor (%s;%s;%s)\n%s\n", indentation.c_str(), declarations.c_str(), conditions.c_str(), endOfLoopStatement.c_str(), contents.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -747,20 +816,31 @@ void
 GenerateIfStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
     IfStatement* ifStatement = static_cast<IfStatement*>(statement);
+    std::string indentation = GenerateIndentation();
     std::string condition;
     GenerateExpressionGLSL(compiler, ifStatement->condition, condition);
 
     std::string ifBody;
+    if (ifStatement->ifStatement->symbolType != Symbol::ScopeStatementType)
+        IndentationLevel++;
     GenerateStatementGLSL(compiler, ifStatement->ifStatement, ifBody);
+    if (ifStatement->ifStatement->symbolType != Symbol::ScopeStatementType)
+        IndentationLevel--;
 
     std::string elseBody = "";
     if (ifStatement->elseStatement)
     {
-        elseBody = "else";
+        elseBody = Format("%selse", indentation.c_str());
+        if (ifStatement->elseStatement->symbolType != Symbol::ScopeStatementType)
+            IndentationLevel++;
+        if (ifStatement->elseStatement->symbolType != Symbol::IfStatementType)
+            elseBody.append("\n");
         GenerateStatementGLSL(compiler, ifStatement->elseStatement, elseBody);
+        if (ifStatement->elseStatement->symbolType != Symbol::ScopeStatementType)
+            IndentationLevel--;
     }
 
-    outCode.append(Format("if (%s) %s%s", condition.c_str(), ifBody.c_str(), elseBody.c_str()));
+    outCode.append(Format("%sif (%s) \n%s\n%s\n", indentation.c_str(), condition.c_str(), ifBody.c_str(), elseBody.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -770,15 +850,16 @@ void
 GenerateReturnStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
     ReturnStatement* returnStatement = static_cast<ReturnStatement*>(statement);
+    std::string indentation = GenerateIndentation();
     if (returnStatement->returnValue != nullptr)
     {
         std::string val;
         GenerateExpressionGLSL(compiler, returnStatement->returnValue, val);
-        outCode.append(Format("return %s;", val.c_str()));
+        outCode.append(Format("%sreturn %s;", indentation.c_str(), val.c_str()));
     }
     else
     {
-        outCode.append("return;");
+        outCode.append(Format("%sreturn;", indentation.c_str()));
     }
 }
 
@@ -789,15 +870,25 @@ void
 GenerateScopeStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
     ScopeStatement* scope = static_cast<ScopeStatement*>(statement);
+    std::string indentation = GenerateIndentation();
     std::string contents;
+    IndentationLevel++;
     for (Symbol* content : scope->statements)
     {
         if (content->symbolType == Symbol::VariableType)
+        {
             GenerateVariableGLSL(compiler, static_cast<Variable*>(content), contents);
+            contents.append(";\n");
+        }
         else
+        {
             GenerateStatementGLSL(compiler, static_cast<Statement*>(content), contents);
+            contents.append("\n");
+        }
+        
     }
-    outCode.append(Format("{%s}", contents.c_str()));
+    IndentationLevel--;
+    outCode.append(Format("%s{\n%s%s}\n", indentation.c_str(), contents.c_str(), indentation.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -807,9 +898,11 @@ void
 GenerateSwitchStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
     SwitchStatement* switchStatement = static_cast<SwitchStatement*>(statement);
+    std::string indentation = GenerateIndentation();
 
     std::string expr;
     GenerateExpressionGLSL(compiler, switchStatement->switchExpression, expr);
+    IndentationLevel++;
 
     std::string cases;
     for (size_t i = 0; i < switchStatement->caseValues.size(); i++)
@@ -817,17 +910,19 @@ GenerateSwitchStatementGLSL(Compiler* compiler, Statement* statement, std::strin
         std::string caseValue = switchStatement->caseValues[i];
         std::string caseStatement;
         GenerateStatementGLSL(compiler, switchStatement->caseStatements[i], caseStatement);
-        cases.append(Format("case %s:\n%s", caseValue.c_str(), caseStatement.c_str()));
+        std::string indentation = GenerateIndentation();
+        cases.append(Format("%scase %s:\n%s", indentation.c_str(), caseValue.c_str(), caseStatement.c_str()));
     }
 
     if (switchStatement->defaultStatement != nullptr)
     {
         std::string defaultStatement;
         GenerateStatementGLSL(compiler, switchStatement->defaultStatement, defaultStatement);
-        cases.append(Format("default:\n%s", defaultStatement.c_str()));
+        std::string indentation = GenerateIndentation();
+        cases.append(Format("%sdefault:\n%s", indentation.c_str(), defaultStatement.c_str()));
     }
-
-    outCode.append(Format("switch (%s)\n{\n\t%s\n}", expr.c_str(), cases.c_str()));
+    IndentationLevel--;
+    outCode.append(Format("%sswitch (%s)\n{\n%s\n}", indentation.c_str(), expr.c_str(), cases.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -837,6 +932,7 @@ void
 GenerateWhileStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
     WhileStatement* whileStatement = static_cast<WhileStatement*>(statement);
+    std::string indentation = GenerateIndentation();
 
     std::string cond;
     GenerateExpressionGLSL(compiler, whileStatement->condition, cond);
@@ -846,11 +942,11 @@ GenerateWhileStatementGLSL(Compiler* compiler, Statement* statement, std::string
 
     if (whileStatement->isDoWhile)
     {
-        outCode.append(Format("do \n{\n\t%s\n} while (%s)", body.c_str(), cond.c_str()));
+        outCode.append(Format("%sdo \n%s %swhile (%s);\n", indentation.c_str(), body.c_str(), indentation.c_str(), cond.c_str()));
     }
     else
     {
-        outCode.append(Format("while (%s)\n{\n\t%s\n}", cond.c_str(), body.c_str()));
+        outCode.append(Format("%swhile (%s)\n%s", indentation.c_str(), cond.c_str(), body.c_str()));
     }
 }
 
@@ -860,18 +956,22 @@ GenerateWhileStatementGLSL(Compiler* compiler, Statement* statement, std::string
 void
 GenerateStatementGLSL(Compiler* compiler, Statement* statement, std::string& outCode)
 {
+    std::string indentation = GenerateIndentation();
     switch (statement->symbolType)
     {
         case Symbol::BreakStatementType:
-            outCode.append("break;");
+            outCode.append(Format("%sbreak;", indentation.c_str()));
             break;
         case Symbol::ContinueStatementType:
-            outCode.append("continue;");
+            outCode.append(Format("%scontinue;", indentation.c_str()));
             break;
         case Symbol::ExpressionStatementType:
-            GenerateExpressionGLSL(compiler, static_cast<ExpressionStatement*>(statement)->expr, outCode);
-            outCode.append(";");
+        {
+            std::string expr;
+            GenerateExpressionGLSL(compiler, static_cast<ExpressionStatement*>(statement)->expr, expr);
+            outCode.append(Format("%s%s;", indentation.c_str(), expr.c_str()));
             break;
+        }
         case Symbol::ForStatementType:
             GenerateForStatementGLSL(compiler, statement, outCode);
             break;
@@ -920,16 +1020,22 @@ GLSLGenerator::GenerateFunction(Compiler* compiler, Program* program, Symbol* sy
     if (funResolved->isPrototype)
     {
         if (map_contains(progResolved->functionOverrides, fun))
-            body = progResolved->functionOverrides[fun]->body;
+        {
+            GenerateStatementGLSL(compiler, progResolved->functionOverrides[fun]->ast, body);
+            //body = progResolved->functionOverrides[fun]->body;
+        }
         else
         {
+            body = "";
             compiler->Warning(Format("Prototype function '%s' is not bound for program '%s'", fun->name.c_str(), program->name.c_str()), fun);
             return;
         }
     }
     else
     {
-        body = fun->body;
+        //body = fun->body;
+        if (fun->ast != nullptr)
+            GenerateStatementGLSL(compiler, fun->ast, body);
     }
 
     std::string arguments;
@@ -955,44 +1061,54 @@ GLSLGenerator::GenerateFunction(Compiler* compiler, Program* program, Symbol* sy
         outCode.append(Format("%s\n", arguments.c_str()));
         outCode.append(Format("#line %d %s\n", fun->location.line, fun->location.file.c_str()));
         outCode.append(Format("void %s()\
-\n{\n\
-    %s\
-\n}\n\n",
+\n%s\n\n",
         name.c_str(), body.c_str()));
     }
     else
     {
         outCode.append(Format("#line %d %s\n", fun->location.line, fun->location.file.c_str()));
-        outCode.append(Format("%s %s(%s)\
-\n{\n\
-    %s\
-\n}\n\n", 
-       returnType.ToString(compiler).c_str(), name.c_str(), arguments.c_str(), body.c_str()));
+        if (fun->ast != nullptr)
+        {
+            outCode.append(Format("%s %s(%s)\
+\n%s\n\n",
+            returnType.ToString(compiler).c_str(), name.c_str(), arguments.c_str(), body.c_str()));
+        }
+        else
+        {
+            outCode.append(Format("%s %s(%s);\n", returnType.ToString(compiler).c_str(), name.c_str(), arguments.c_str()));
+        }
     }
 }
+
+enum StructureAlignment
+{
+    STD140,
+    STD430
+};
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSLGenerator::GenerateStructure(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode)
+void
+GenerateAlignedVariables(Compiler* compiler, Structure* struc, StructureAlignment structureAlignment, uint32_t& outSize, uint32_t& outAlignment, std::string& outCode)
 {
-    Structure* struc = static_cast<Structure*>(symbol);
-    Structure::__Resolved* strucResolved = static_cast<Structure::__Resolved*>(struc->resolved);
-
-    // format variables
     std::string members;
-    uint32_t maxAlignment = strucResolved->usageFlags.flags.isConstantBuffer ? 16 : 0;
+    uint32_t maxAlignment = structureAlignment == StructureAlignment::STD140 ? 16 : 0;
     uint32_t offset = 0;
+
     for (Variable* var : struc->members)
     {
         Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
+
+        uint32_t totalArraySize = 1;
+        for (uint32_t sizes : varResolved->type.modifierValues)
+            totalArraySize *= sizes;
 
         // calculate GLSL alignment
         uint32_t size;
         uint32_t alignment;
         uint32_t arrayElementPadding;
-        CalculateLayout(compiler, var, varResolved->arraySize, strucResolved->usageFlags.flags.isConstantBuffer ? true : false, size, alignment, arrayElementPadding);
+        CalculateLayout(compiler, var, totalArraySize, structureAlignment == StructureAlignment::STD140 ? true : false, size, alignment, arrayElementPadding);
         maxAlignment = max(alignment, maxAlignment);
 
         varResolved->byteSize = size;
@@ -1013,44 +1129,40 @@ GLSLGenerator::GenerateStructure(Compiler* compiler, Program* program, Symbol* s
         offset += size;
 
         // generate code for variable
-        this->GenerateVariable(compiler, program, var, members, false);
-        if (var != struc->members.back())
-            members.append("\n");
+        members.append("\t");
+        GenerateVariableGLSL(compiler, var, members);
+        members.append(";\n");
     }
 
-    strucResolved->byteSize = offset;
-    strucResolved->baseAlignment = maxAlignment;
+    outSize = offset;
+    outAlignment = maxAlignment;
+    outCode = members;
+}
 
-    if (strucResolved->usageFlags.flags.isConstantBuffer)
-    {
-        outCode.append(Format("layout(std140, set=%d, binding=%d) ", strucResolved->group, strucResolved->binding));
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+GLSLGenerator::GenerateStructure(Compiler* compiler, Program* program, Symbol* symbol, std::string& outCode)
+{
+    Structure* struc = static_cast<Structure*>(symbol);
+    Structure::__Resolved* strucResolved = static_cast<Structure::__Resolved*>(struc->resolved);
 
-        outCode.append(Format("uniform %s \n{\n%s\n};\n\n", struc->name.c_str(), members.c_str()));
-    }
-    else if (strucResolved->usageFlags.flags.isStorageBuffer)
-    {
-        outCode.append(Format("layout(std430, set=%d, binding=%d) ", strucResolved->group, strucResolved->binding));
+    // format variables
+    uint32_t size, alignment;
+    std::string members;
+    GenerateAlignedVariables(compiler, struc, strucResolved->usageFlags.flags.isUniformBuffer ? StructureAlignment::STD140 : StructureAlignment::STD430, size, alignment, members);
 
-        if (strucResolved->accessBits.flags.atomicAccess)
-            outCode.append("coherent ");
-        if (strucResolved->accessBits.flags.volatileAccess)
-            outCode.append("volatile ");
-        if (strucResolved->accessBits.flags.readAccess && strucResolved->accessBits.flags.writeAccess)
-            outCode.append("restrict ");
-        else
-        {
-            if (strucResolved->accessBits.flags.readAccess)
-                outCode.append("readonly ");
-            if (strucResolved->accessBits.flags.writeAccess)
-                outCode.append("writeonly ");
-        }
+    strucResolved->byteSize = size;
+    strucResolved->baseAlignment = alignment;
 
-        outCode.append(Format("buffer %s \n{\n%s\n};\n\n", struc->name.c_str(), members.c_str()));
-    }
+    outCode.append(Format("#line %d %s\n", struc->location.line, struc->location.file.c_str()));
+    if (strucResolved->usageFlags.flags.isUniformBuffer)
+        outCode.append(Format("layout(set=%d, binding=%d) uniform __%s\n{\n%s} %s;\n\n", strucResolved->group, strucResolved->binding, struc->name.c_str(), members.c_str(), struc->name.c_str()));
+    else if (strucResolved->usageFlags.flags.isMutableBuffer)
+        outCode.append(Format("layout(set=%d, binding=%d) buffer __%s\n{\n%s} %s;\n\n", strucResolved->group, strucResolved->binding, struc->name.c_str(), members.c_str(), struc->name.c_str()));
     else
-    {
-        outCode.append(Format("struct %s \n{\n%s\n};\n\n", struc->name.c_str(), members.c_str()));
-    }
+        outCode.append(Format("struct %s \n{\n%s};\n\n", struc->name.c_str(), members.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -1062,6 +1174,10 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
     Variable* var = static_cast<Variable*>(symbol);
     Variable::__Resolved* varResolved = static_cast<Variable::__Resolved*>(var->resolved);
 
+    // Abort if pointer
+    if (varResolved->pointerLevels > 0 && varResolved->typeSymbol->category == Type::Category::UserTypeCategory)
+        return;
+
     Type::FullType type = varResolved->type;
     if (varResolved->typeSymbol->symbolType != Symbol::StructureType)
     {
@@ -1071,17 +1187,17 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
             compiler->Error(Format("INTERNAL ERROR, built-in type '%s' has no GLSL mapping", type.name.c_str()), symbol);
         }
         type.name = it->second.c_str();
-
     }
 
     std::string name = varResolved->name;
     std::string arraySize = "";
-    for (size_t i = 0; i < varResolved->type.modifiers.size(); i++)
+    for (int i = varResolved->type.modifierValues.size()-1; i >= 0; i--)
     {
-        uint32_t size = -1;
-        if (varResolved->type.modifierExpressions[i] != nullptr)
+        if (varResolved->type.modifiers[i] == Type::FullType::Modifier::PointerLevel)
+            continue;
+        size_t size = varResolved->type.modifierValues[i];
+        if (size > 0)
         {
-            varResolved->type.modifierExpressions[i]->EvalUInt(compiler, size);
             arraySize.append(Format("[%d]", size));
         }
         else
@@ -1125,8 +1241,9 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
         GenerateExpressionGLSL(compiler, varResolved->value, initializerStr);
         outCode.append(Format("const %s %s%s = %s;\n", type.name.c_str(), name.c_str(), arraySize.c_str(), initializerStr.c_str()));
     }
-    else if (!varResolved->usageBits.flags.isConstantBufferMember && !varResolved->usageBits.flags.isStorageBufferMember && !varResolved->usageBits.flags.isStructMember)
+    else if (!varResolved->usageBits.flags.isStructMember)
     {
+        
         outCode.append(Format("#line %d %s\n", var->location.line, var->location.file.c_str()));
         if (varResolved->typeSymbol->category == Type::ReadWriteTextureCategory)
         {
@@ -1158,7 +1275,30 @@ GLSLGenerator::GenerateVariable(Compiler* compiler, Program* program, Symbol* sy
         if (varResolved->usageBits.flags.isGroupShared)
             outCode.append("shared ");
 
-        outCode.append(Format("uniform %s %s%s;\n", type.name.c_str(), name.c_str(), arraySize.c_str()));
+        /*
+        if (varResolved->typeSymbol->symbolType == Symbol::StructureType
+            && (varResolved->usageBits.flags.isMutable
+            || varResolved->usageBits.flags.isUniform))
+        {
+            // Type is a structure which is either a glsl 'buffer' or 'uniform'
+            std::string variables;
+            Structure* struc = static_cast<Structure*>(varResolved->typeSymbol);
+
+            StructureAlignment alignment = StructureAlignment::STD430;
+            std::string type = "buffer";
+            if (varResolved->usageBits.flags.isUniform)
+            {
+                alignment = StructureAlignment::STD140;
+                type = "uniform";
+            }
+
+            uint32_t dummy1, dummy2;
+            GenerateAlignedVariables(compiler, struc, alignment, dummy1, dummy2, variables);
+            outCode.append(Format("%s\n{\n%s} %s%s;\n", type.c_str(), variables.c_str(), name.c_str(), arraySize.c_str()));
+        }
+        else
+        */
+            outCode.append(Format("uniform %s %s%s;\n", type.name.c_str(), name.c_str(), arraySize.c_str()));
     }
     else
     {
