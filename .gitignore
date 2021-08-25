@@ -3,11 +3,5 @@
 .fips-*
 *.pyc
 #<fips
-anyfx/compiler/antlr4/grammar/.antlr/AnyFX.interp
-anyfx/compiler/antlr4/grammar/.antlr/AnyFX.tokens
-anyfx/compiler/antlr4/grammar/.antlr/AnyFXLexer.cpp
-anyfx/compiler/antlr4/grammar/.antlr/AnyFXLexer.h
-anyfx/compiler/antlr4/grammar/.antlr/AnyFXLexer.interp
-anyfx/compiler/antlr4/grammar/.antlr/AnyFXLexer.tokens
-anyfx/compiler/antlr4/grammar/.antlr/AnyFXParser.cpp
-anyfx/compiler/antlr4/grammar/.antlr/AnyFXParser.h
+﻿code/compiler/ext/antlr4/grammar/.antlr
+code/test/shaders/output

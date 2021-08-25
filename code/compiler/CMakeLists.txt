@@ -15,6 +15,7 @@ fips_include_directories(
     ${ANYFX_ROOT}/exts/glslang
     ${ANYFX_ROOT}/code/compiler/ext/mcpp
     ${ANYFX_ROOT}/code/compiler/v3
+    ${ANYFX_ROOT}/exts/fips-llvm
     )
 
 fips_files(
@@ -196,6 +197,8 @@ fips_dir(v3/generators)
         hgenerator.h
         hlslgenerator.cc
         hlslgenerator.h
+        llvmgenerator.cc
+        llvmgenerator.h
         spirvgenerator.cc
         spirvgenerator.h
     )
@@ -205,7 +208,8 @@ fips_dir(v3/validators)
         validator.h
     )
 
-fips_deps(anyfx_util antlr4 glslang mcpp)
+fips_deps(anyfx_util antlr4 glslang mcpp LLVM-C)
+fips_include_directories(${CMAKE_BINARY_DIR}/fips-llvm-spirv_llvm/llvm/include/)
 
 IF (MSVC11)
     ADD_DEFINITIONS(-D_XKEYCHECK_H)

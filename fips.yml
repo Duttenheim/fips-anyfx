@@ -5,13 +5,13 @@
 imports:
       fips-llvm-spirv:
         git: https://github.com/Duttenheim/fips-llvm-spirv.git
+        branch: main
       fips-glslang:
         git: https://github.com/gscept/fips-glslang.git
       fips-glew:
         git: https://github.com/gscept/fips-glew.git
       fips-vulkanheaders:
         git: https://github.com/gscept/fips-vulkanheaders      
-
         
 exports:
     header-dirs: 
