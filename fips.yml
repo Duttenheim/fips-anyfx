@@ -5,8 +5,10 @@
 imports:
      fips-glslang:
         git: https://github.com/gscept/fips-glslang.git
+        cond: "BUILD_ANYFXCOMPILER"
      fips-glew:
         git: https://github.com/gscept/fips-glew.git
+        cond: "BUILD_ANYFXCOMPILER"
      fips-vulkanheaders:
         git: https://github.com/gscept/fips-vulkanheaders
         
