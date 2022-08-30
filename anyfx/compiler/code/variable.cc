@@ -182,11 +182,11 @@ Variable::TypeCheck(TypeChecker& typechecker)
         // get the binding location and increment the global counter
         if (typechecker.GetHeader().GetType() == Header::GLSL)
         {
-            if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+            if (this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::SAMPLER_TYPES_END)
             {
                 this->binding = Shader::bindingIndices[2]++;
             }
-            else if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
+            else if (this->type.GetType() >= DataType::IMAGE_TYPES_BEGIN && this->type.GetType() <= DataType::IMAGE_TYPES_END)
             {
                 this->binding = Shader::bindingIndices[3]++;
             }
@@ -194,8 +194,8 @@ Variable::TypeCheck(TypeChecker& typechecker)
         }
         else if (typechecker.GetHeader().GetType() == Header::SPIRV)
         {
-            if ((this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::TextureCubeArray) ||
-                (this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS))
+            if ((this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::TEXTURE_TYPES_END) ||
+                (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END))
             {
                 this->binding = Shader::bindingIndices[this->group]++;
             }
@@ -206,16 +206,16 @@ Variable::TypeCheck(TypeChecker& typechecker)
         // if we already have a binding from an expression, change the binding index to be that value + 1
         if (typechecker.GetHeader().GetType() == Header::GLSL)
         {
-            if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+            if (this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::SAMPLER_TYPES_END)
                 Shader::bindingIndices[2] = std::max(this->binding + 1, Shader::bindingIndices[2]);
-            else if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
+            else if (this->type.GetType() >= DataType::IMAGE_TYPES_BEGIN && this->type.GetType() <= DataType::IMAGE_TYPES_END)
                 Shader::bindingIndices[3] = std::max(this->binding + 1, Shader::bindingIndices[3]);
 
         }
         else if (typechecker.GetHeader().GetType() == Header::SPIRV)
         {
-            if ((this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::TextureCubeArray) || 
-                (this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS))
+            if ((this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::TEXTURE_TYPES_END) || 
+                (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END))
             {
                 Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
             }
@@ -479,6 +479,23 @@ Variable::Compile(BinWriter& writer)
         // write amount of array default variables
         writer.WriteString(valueString);
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Variable::Binding 
+Variable::GetBinding() const
+{
+    Binding ret;
+    if (this->type.GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && this->type.GetType() <= DataType::ALL_TEXTURE_TYPES_END)
+    {
+        ret.type = Binding::Type::Texture;
+        ret.binding.texture = { this->binding };
+        ret.group = this->group;
+        ret.name = this->name;
+    }
+    return ret;
 }
 
 //------------------------------------------------------------------------------

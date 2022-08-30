@@ -49,6 +49,9 @@ public:
     /// compiles var block
     void Compile(BinWriter& writer);
 
+    /// get binding
+    const Variable::Binding GetBinding() const;
+
     /// format variable to fit target language
     std::string Format(const Header& header) const;
 

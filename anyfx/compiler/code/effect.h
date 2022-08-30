@@ -76,6 +76,8 @@ public:
     void SetDebugOutputPath(const std::string& debugOutput);
     /// set name of effect
     void SetName(const std::string& name);
+    /// set resource table name
+    void SetResourceTableName(const unsigned slot, const std::string& name);
 
     /// round to pow 2
     static unsigned RoundToPow2(unsigned number, unsigned power);
@@ -97,6 +99,7 @@ private:
     std::vector<Sampler> samplers;
 
     std::map<std::string, Shader*> shaders;
+    std::map<unsigned, std::string> resourceTableNames;
 
     RenderState placeholderRenderState;
     VarBlock placeholderVarBlock;
@@ -138,6 +141,15 @@ inline void
 Effect::SetName(const std::string & name)
 {
     this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+Effect::SetResourceTableName(const unsigned slot, const std::string& name)
+{
+    this->resourceTableNames[slot] = name;
 }
 
 } // namespace AnyFX

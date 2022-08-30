@@ -7,6 +7,8 @@
 #include "constant.h"
 #include "generator.h"
 #include <algorithm>
+#include <map>
+#include <variant>
 
 #define VERSION_MAJOR 2
 #define VERSION_MINOR 1
@@ -569,11 +571,7 @@ Effect::GenerateHeader(TextWriter& writer)
 
     unsigned i;
 
-    // compile constants for include header
-    for (i = 0; i < this->constants.size(); i++)
-    {
-        writer.WriteString(this->constants[i].Format(this->header));
-    }
+    std::map<int, std::vector<Variable::Binding>> bindings;
 
     // compile structs for include header
     for (i = 0; i < this->structures.size(); i++)
@@ -581,16 +579,65 @@ Effect::GenerateHeader(TextWriter& writer)
         writer.WriteString(this->structures[i].Format(this->header));
     }
 
+    // compile textures
+    for (i = 0; i < this->variables.size(); i++)
+    {
+        const auto variable = this->variables[i];
+        if (variable.GetDataType().GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && variable.GetDataType().GetType() <= DataType::ALL_TEXTURE_TYPES_END)
+        {
+            Variable::Binding binding = variable.GetBinding();
+            bindings[binding.group].push_back(binding);
+        }
+    }
+
+    // compile constants for include header
+    for (i = 0; i < this->constants.size(); i++)
+    {
+        auto constant = this->constants[i];
+
+        writer.WriteString(constant.Format(this->header));
+    }
+
     // compile varblocks for include header
     for (i = 0; i < this->varBlocks.size(); i++)
     {
-        writer.WriteString(this->varBlocks[i].Format(this->header));
+        const auto varblock = this->varBlocks[i];
+        auto binding = varblock.GetBinding();
+        bindings[binding.group].push_back(binding);
+        writer.WriteString(varblock.Format(this->header));
     }
 
     // compile varbuffers for include header
     for (i = 0; i < this->varBuffers.size(); i++)
     {
-        writer.WriteString(this->varBuffers[i].Format(this->header));
+        const auto varbuffer = this->varBuffers[i];
+        auto binding = varbuffer.GetBinding();
+        bindings[binding.group].push_back(binding);
+        writer.WriteString(varbuffer.Format(this->header));
+    }
+
+    // Generate resource table classes
+    auto iter = bindings.begin();
+    while (iter != bindings.end())
+    {
+        std::string tableName = AnyFX::Format("Table_%d", iter->first);
+        auto name = this->resourceTableNames.find(iter->first);
+        if (name != this->resourceTableNames.end())
+            tableName = AnyFX::Format("Table_%s", name->second.c_str());
+        writer.WriteString(AnyFX::Format("struct %s \n{\n\t", tableName.c_str()));
+        for (auto binding : iter->second)
+        {
+            if (binding.type == Variable::Binding::Type::Texture)
+            {
+                writer.WriteString(AnyFX::Format("static const unsigned %s_SLOT = %d;\n\t", binding.name.c_str(), binding.binding.texture.slot));
+            }
+            else
+            {
+                writer.WriteString(AnyFX::Format("struct %s \n\t{\n\t\tstatic const unsigned SLOT = %d;\n\t\tstatic const unsigned SIZE = %d;\n\t};\n\t", binding.name.c_str(), binding.binding.buffer.slot, binding.binding.buffer.size));
+            }
+        }
+        writer.WriteString("\n};\n");
+        iter++;
     }
 
     writer.WriteString("}");

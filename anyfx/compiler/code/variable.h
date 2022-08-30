@@ -90,6 +90,31 @@ public:
 
     };
 
+    struct Binding
+    {
+        enum class Type
+        {
+            Buffer,
+            Texture
+        } type;
+
+        union
+        {
+            struct
+            {
+                unsigned slot, size;
+            } buffer;
+
+            struct
+            {
+                unsigned slot;
+            } texture;
+        } binding;
+
+        std::string name;
+        unsigned group;
+    };
+
     /// constructor
     Variable();
     /// destructor
@@ -135,6 +160,9 @@ public:
     void TypeCheck(TypeChecker& typechecker);
     /// compiles variable
     void Compile(BinWriter& writer);
+
+    /// get binding
+    const Binding GetBinding() const;
 
     /// format variable to fit target language
     std::string Format(const Header& header, bool inVarblock = false) const;

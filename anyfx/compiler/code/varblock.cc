@@ -390,6 +390,21 @@ VarBlock::Compile(BinWriter& writer)
 
 //------------------------------------------------------------------------------
 /**
+*/
+const Variable::Binding 
+VarBlock::GetBinding() const
+{
+    Variable::Binding ret;
+    ret.type = Variable::Binding::Type::Buffer;
+    ret.group = this->group;
+    ret.binding.buffer.slot = this->binding;
+    ret.binding.buffer.size = this->alignedSize;
+    ret.name = this->name;
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
     sort hook for sorting parameters
 */
 bool

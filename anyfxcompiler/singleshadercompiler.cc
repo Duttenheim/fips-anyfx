@@ -110,6 +110,15 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	char buffer[25];
 	snprintf(buffer, 25, "/DEFAULTSET %d", this->defaultSet);
     flags.push_back(std::string(buffer));	// since we want the most frequently switched set as high as possible, we send the default set to 8, must match the NEBULAT_DEFAULT_GROUP in std.fxh and DEFAULT_GROUP in coregraphics/config.h
+    std::vector<std::pair<unsigned, std::string>> resourceTableNames = {
+        std::make_pair(0, "Tick")
+        , std::make_pair(1, "Frame")
+        , std::make_pair(2, "Pass")
+        , std::make_pair(3, "Batch")
+        , std::make_pair(4, "Instance")
+        , std::make_pair(5, "System")
+        , std::make_pair(6, "DynamicOffset")
+    };
 
     // if using debug, output raw shader code
     if (!this->debug)
@@ -130,7 +139,16 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	std::filesystem::path escapedDst(destFile);
 	std::filesystem::path escapedHeader(destHeader);
 
-    bool res = AnyFXCompile(sp.string().c_str(), escapedDst.string().c_str(), escapedHeader.string().c_str(), target.c_str(), "Khronos", defines, flags, &errors);
+    bool res = AnyFXCompile(
+        sp.string().c_str()
+        , escapedDst.string().c_str()
+        , escapedHeader.string().c_str()
+        , target.c_str()
+        , "Khronos"
+        , defines
+        , flags
+        , resourceTableNames
+        , &errors);
     if (!res)
     {
         if (errors)

@@ -306,6 +306,21 @@ VarBuffer::Compile(BinWriter& writer)
 
 //------------------------------------------------------------------------------
 /**
+*/
+const Variable::Binding
+VarBuffer::GetBinding() const
+{
+    Variable::Binding ret;
+    ret.type = Variable::Binding::Type::Buffer;
+    ret.group = this->group;
+    ret.binding.buffer.slot = this->binding;
+    ret.binding.buffer.size = this->alignedSize;
+    ret.name = this->name;
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
     qsort hook for sorting parameters
 */
 bool

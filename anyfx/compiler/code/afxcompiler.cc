@@ -193,7 +193,17 @@ AnyFXGenerateDependencies(const std::string& file, const std::vector<std::string
     @param errorBuffer	Buffer containing errors, created in function but must be deleted manually
 */
 bool
-AnyFXCompile(const std::string& file, const std::string& output, const std::string& header_output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, const std::vector<std::string>& flags, AnyFXErrorBlob** errorBuffer)
+AnyFXCompile(
+    const std::string& file
+    , const std::string& output
+    , const std::string& header_output
+    , const std::string& target
+    , const std::string& vendor
+    , const std::vector<std::string>& defines
+    , const std::vector<std::string>& flags
+    , const std::vector<std::pair<unsigned, std::string>>& resourceTableNames
+    , AnyFXErrorBlob** errorBuffer
+)
 {
 
     bool ret = true;
@@ -297,6 +307,8 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             effect.SetHeader(header);
             effect.SetName(effectName);
             effect.SetFile(file);
+            for (const auto& name : resourceTableNames)
+                effect.SetResourceTableName(name.first, name.second);
             effect.Setup();
 
             // set debug output dump if flag is supplied
