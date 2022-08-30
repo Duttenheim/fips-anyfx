@@ -17,8 +17,10 @@ MACRO(SET_DEFAULT_OUTPUT TargetName)
 ENDMACRO(SET_DEFAULT_OUTPUT)
 
 if(NOT FIPS_IMPORT)
+	SET(BUILD_ANYFXCOMPILER 1)
 	fips_setup()
 	fips_project(fips-anyfx)
+	
 endif()
 
 	get_filename_component(ANYFX_SOURCE_DIR "anyfx" ABSOLUTE)
@@ -96,12 +98,7 @@ endif()
 		fips_src(anyfx/api/lowlevel/loaders/ NO_RECURSE)
 		fips_src(anyfx/api/lowlevel/mtl/ NO_RECURSE)
 		fips_src(anyfx/api/lowlevel/vk/ NO_RECURSE)
-
-		fips_src(anyfx/compiler/code/ NO_RECURSE)
-		fips_src(anyfx/compiler/code/expressions/ NO_RECURSE)
-		fips_src(anyfx/compiler/code/parser4/ NO_RECURSE)
-		fips_src(anyfx/util/code/ NO_RECURSE)
-        
+		
 		IF (MSVC)
 			IF(CMAKE_CL_64)
 				SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")
@@ -114,12 +111,21 @@ endif()
 			ADD_DEFINITIONS(-D__ANYFX_TRANSPOSE_MATRIX__)
 		ENDIF()
 
+		fips_src(anyfx/util/code/ NO_RECURSE)
+
+if (NOT FIPS_IMPORT)
+
+		fips_src(anyfx/compiler/code/ NO_RECURSE)
+		fips_src(anyfx/compiler/code/expressions/ NO_RECURSE)
+		fips_src(anyfx/compiler/code/parser4/ NO_RECURSE)
+
 		IF(ANYFX_BUILD_DEMO)
 			ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/demo)
 			SET_TARGET_PROPERTIES(demo PROPERTIES FOLDER ${ANYFX_FOLDER})
 		ENDIF()
 
 	fips_deps(antlr4 mcpp glslang)
+endif()
 
 	fips_end_lib()
 
@@ -135,12 +141,17 @@ endif()
 
 	FILE(GLOB SRC anyfx/compiler/code/parser4/AnyFXParser.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXLexer.cpp anyfx/compiler/code/parser4/AnyFXBaseListener.cpp anyfx/compiler/code/parser4/AnyFXListener.cpp)
 	SET_SOURCE_FILES_PROPERTIES( ${SRC} PROPERTIES LANGUAGE "CXX" )
-
+if (NOT FIPS_IMPORT)
 	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/mcpp)
 	ADD_SUBDIRECTORY(${ANYFX_SOURCE_DIR}/compiler/antlr4)
 	# set target subdirs
 	SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER Extlibs)
 	SET_TARGET_PROPERTIES(antlr4 PROPERTIES FOLDER Extlibs)
+else()
+# this is exceptionally ugly but does the job
+	target_include_directories(anyfx PUBLIC ${FIPS_ROOT_DIR}/../fips-glslang/glslang/)
+
+endif()
     IF(BUILD_COMPILER)
         fips_add_subdirectory(anyfxcompiler)
     ENDIF()
