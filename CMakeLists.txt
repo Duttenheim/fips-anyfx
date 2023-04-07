@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.21)
+if (NOT FIPS_IMPORT)
+	project(fips-anyfx)
 get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)
 include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
+	SET(BUILD_ANYFXCOMPILER 1)
+endif()
 
 IF(WIN32)
 	SET(OUTPUT_DEFAULT_DIR ${CMAKE_HOME_DIRECTORY}/bin/win32)
@@ -16,12 +20,6 @@ MACRO(SET_DEFAULT_OUTPUT TargetName)
 	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${OUTPUT_DEFAULT_DIR})
 ENDMACRO(SET_DEFAULT_OUTPUT)
 
-if(NOT FIPS_IMPORT)
-	SET(BUILD_ANYFXCOMPILER 1)
-	fips_setup()
-	fips_project(fips-anyfx)
-	
-endif()
 
 	get_filename_component(ANYFX_SOURCE_DIR "anyfx" ABSOLUTE)
 
@@ -81,14 +79,14 @@ endif()
 		#fips_src(anyfx/api/highlevel/internal/ NO_RECURSE)
 		#fips_src(anyfx/api/highlevel/loaders/ NO_RECURSE)
 
-		fips_include_directories(anyfx/api)
-		fips_include_directories(anyfx)
-		fips_include_directories(anyfx/api/lowlevel)
-		fips_include_directories(anyfx/api/highlevel)
-		fips_include_directories(anyfx/compiler/code)
-		fips_include_directories(anyfx/compiler/antlr4/src)
-		fips_include_directories(anyfx/compiler/mcpp)
-		fips_include_directories(anyfx/util/code)
+		target_include_directories(anyfx PRIVATE anyfx/api)
+		target_include_directories(anyfx PRIVATE anyfx)
+		target_include_directories(anyfx PRIVATE anyfx/api/lowlevel)
+		target_include_directories(anyfx PRIVATE anyfx/api/highlevel)
+		target_include_directories(anyfx PRIVATE anyfx/compiler/code)
+		target_include_directories(anyfx PRIVATE anyfx/compiler/antlr4/src)
+		target_include_directories(anyfx PRIVATE anyfx/compiler/mcpp)
+		target_include_directories(anyfx PRIVATE anyfx/util/code)
 
 
 		fips_src(anyfx/api/lowlevel/ NO_RECURSE)
