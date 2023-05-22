@@ -31,6 +31,8 @@ public:
 	void SetDstDir(const std::string& dstDir);
 	/// set output header directory
 	void SetHeaderDir(const std::string& headerDir);
+    /// set the root dir
+    void SetRootDir(const std::string& rootDir);
 			
 	/// set debugging flag
 	void SetDebugFlag(bool b);
@@ -55,6 +57,7 @@ private:
 	std::string platform;	
 	std::string dstDir;
 	std::string headerDir;
+    std::string rootDir;
 	std::string language;
 	bool quiet;
 	bool debug;
@@ -105,6 +108,15 @@ inline void
 SingleShaderCompiler::SetHeaderDir(const std::string& headerDir)
 {
 	this->headerDir = headerDir;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+SingleShaderCompiler::SetRootDir(const std::string& rootDir)
+{
+	this->rootDir = rootDir;
 }
 
 //------------------------------------------------------------------------------

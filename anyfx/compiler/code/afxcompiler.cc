@@ -205,7 +205,6 @@ AnyFXCompile(
     , AnyFXErrorBlob** errorBuffer
 )
 {
-
     bool ret = true;
 #define WARN()\
     *errorBuffer = new AnyFXErrorBlob;\
@@ -358,11 +357,9 @@ AnyFXCompile(
                         // close writer and finish file
                         writer.Close();
 
-                        // output header file
+                        if (!header_output.empty())
                         {
                             TextWriter headerWriter;
-
-                            // the path is going to be .fxb.h, but that's okay, it makes it super clear its generated from a shader
                             headerWriter.SetPath(header_output);
                             if (headerWriter.Open())
                             {

@@ -15,7 +15,7 @@ bool
 ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 {
 	argh::parser args;
-	args.add_params({ "-i", "-o", "-h" });
+	args.add_params({ "-i", "-o", "-r", "-h" });
 	args.parse(argv);
 
 	if (args["--help"])
@@ -29,7 +29,7 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 	this->shaderCompiler.SetDebugFlag(args["debug"]);
 	this->shaderCompiler.SetQuietFlag(args["q"]);
 	std::string buffer;
-	if ((args("o") >> buffer))
+	if (args("o") >> buffer)
 	{
 		this->shaderCompiler.SetDstDir(buffer);
 	}
@@ -39,7 +39,11 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 		this->PrintHelp();
 		return false;
 	}
-	
+
+    if (args("r") >> buffer)
+    {
+        this->shaderCompiler.SetRootDir(buffer);
+    }	
 
 	if (!(args("i") >> buffer))
 	{

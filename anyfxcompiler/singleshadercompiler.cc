@@ -47,9 +47,7 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 		std::filesystem::create_directories(this->headerDir);
 	
 	return this->CompileSPIRV(src);	
-    
 }
-
 
 //------------------------------------------------------------------------------
 /**
@@ -61,6 +59,7 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	AnyFXBeginCompile();
 
 	std::filesystem::path sp(src);
+    
 	std::string file = sp.stem().string();
     std::string folder = sp.parent_path().string();
 	std::string destFile;
@@ -76,15 +75,28 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	else
 	{
 		// format destination
-		destFile = this->dstDir + "/shaders/" + file + ".fxb";
-		destHeader = this->headerDir + "/" + file + ".h";
+        std::string folderName = "";
+        if (!this->rootDir.empty())
+            folderName = std::filesystem::relative(sp.parent_path(), this->rootDir).string();
+        std::string destFolder = this->dstDir + "/shaders/" + folderName;
+        std::filesystem::create_directory(destFolder);
+        destFile = std::filesystem::absolute(destFolder + "/" + file + ".fxb").string();
+
+        if (!this->headerDir.empty())
+        {
+            destFolder = this->headerDir + "/" + folderName;
+            std::filesystem::create_directory(destFolder);
+            destHeader = std::filesystem::absolute(destFolder + "/" + file + ".h").string();
+        }
+
 		std::filesystem::path dest(destFile);
 
 		// compile
 		if (!this->quiet)
 		{
 			fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
-			fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
+            if (!this->headerDir.empty())
+			    fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
 		}
 
 	}
