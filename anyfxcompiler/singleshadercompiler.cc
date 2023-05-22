@@ -194,8 +194,14 @@ SingleShaderCompiler::CreateDependencies(const std::string& src)
 	std::string file = sp.stem().string();
 	std::string folder = sp.parent_path().string();
 
+    std::string folderName = "";
+    if (!this->rootDir.empty())
+        folderName = std::filesystem::relative(sp.parent_path(), this->rootDir).string();
+    std::string destFolder = this->dstDir + "/shaders/" + folderName;
+    std::filesystem::create_directory(destFolder);
+
 	// format destination
-	std::string destFile = this->dstDir + "/shaders/" + file + ".dep";
+	std::string destFile = std::filesystem::absolute(destFolder + "/" + file + ".dep").string();
 
 	// compile
 	if (!this->quiet)

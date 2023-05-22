@@ -2,6 +2,10 @@
 # antlr4
 #-------------------------------------------------------------------------------
 
+
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
+					src)
+
 ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
 FILE(GLOB SRC "src/*.cpp")
 FILE(GLOB HEAD "src/*.h")
