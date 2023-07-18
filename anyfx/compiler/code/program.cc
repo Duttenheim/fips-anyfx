@@ -900,8 +900,14 @@ Program::LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Sha
             glslang::GlslangToSpv(*intermediate, this->binary[i]);
 
             std::vector<unsigned int> optimized;
-            optimizer.Run(this->binary[i].data(), this->binary[i].size(), &optimized);
-        }		
+            if (optimizer.Run(this->binary[i].data(), this->binary[i].size(), &optimized))
+            {
+                if (optimized.size() > 0)
+                {
+                    this->binary[i] = optimized;
+                }
+            }
+        }
     }
     
     delete program;
