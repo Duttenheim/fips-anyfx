@@ -30,7 +30,7 @@ ENDMACRO(SET_DEFAULT_OUTPUT)
 
     fips_begin_lib(anyfx)
 
-		
+		target_precompile_headers(anyfx PRIVATE [["annotable.h"]] [[<iostream>]] [["shadereffect.h"]])
 		#SET(ANYFX_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/anyfx)
 
 		IF(NOT DEFINED ANYFX_FOLDER)
