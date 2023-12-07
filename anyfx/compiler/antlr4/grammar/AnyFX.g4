@@ -277,6 +277,7 @@ type
         else if (typeString == "inputAttachmentIntegerMS") { $ty.SetStyle(DataType::Generic); $ty.SetType(DataType::InputAttachmentIntegerMS); }
         else if (typeString == "inputAttachmentUInteger") { $ty.SetStyle(DataType::Generic); $ty.SetType(DataType::InputAttachmentUInteger); }
         else if (typeString == "inputAttachmentUIntegerMS") { $ty.SetStyle(DataType::Generic); $ty.SetType(DataType::InputAttachmentUIntegerMS); }
+        else if (typeString == "accelerationStructure") { $ty.SetStyle(DataType::Generic); $ty.SetType(DataType::AccelerationStructure); }
 
         // HLSL types
         else if (typeString == "float2") { $ty.SetStyle(DataType::HLSL); $ty.SetType(DataType::Float2); }
@@ -531,45 +532,6 @@ constant
         | '[' asize2 = expression ']' { $cons.SetSizeExpression($asize2.tree); $cons.SetArrayType(Constant::SimpleArray); 
             } '=' '{' valList = valueList '}' { $cons.AddValue($valList.valList); } ';'
     );
-
-// parameter modifiers denotes variables with special use, such as vertex position output, instance id _input etc
-parameterAttribute
-    returns[ Parameter::Attribute attribute ]
-    @init {
-            $attribute = Parameter::NoAttribute;
-        }:
-    '[' IDENTIFIER ']' {
-            std::string identifierString($IDENTIFIER.text);
-
-            if (identifierString == "drawinstanceID") 						{ $attribute = Parameter::DrawInstance; }
-            else if (identifierString == "vertexID") 						{ $attribute = Parameter::Vertex; }
-            else if (identifierString == "primitiveID") 					{ $attribute = Parameter::Primitive; }
-            else if (identifierString == "invocationID") 					{ $attribute = Parameter::Invocation; }
-            else if (identifierString == "viewportID") 						{ $attribute = Parameter::Viewport; }
-            else if (identifierString == "rendertargetID") 					{ $attribute = Parameter::Rendertarget; }
-            else if (identifierString == "innertessellation") 				{ $attribute = Parameter::InnerTessellation; }
-            else if (identifierString == "outertessellation") 				{ $attribute = Parameter::OuterTessellation; }
-            else if (identifierString == "position") 						{ $attribute = Parameter::Position; }
-            else if (identifierString == "pointsize") 						{ $attribute = Parameter::PointSize; }
-            else if (identifierString == "clipdistance") 					{ $attribute = Parameter::ClipDistance; }
-            else if (identifierString == "frontface") 						{ $attribute = Parameter::FrontFace; }
-            else if (identifierString == "coordinate") 						{ $attribute = Parameter::Coordinate; }
-            else if (identifierString == "depth")							{ $attribute = Parameter::Depth; }
-            else if (identifierString == "color0") 							{ $attribute = Parameter::Color0; }
-            else if (identifierString == "color1") 							{ $attribute = Parameter::Color1; }
-            else if (identifierString == "color2") 							{ $attribute = Parameter::Color2; }
-            else if (identifierString == "color3") 							{ $attribute = Parameter::Color3; }
-            else if (identifierString == "color4") 							{ $attribute = Parameter::Color4; }
-            else if (identifierString == "color5") 							{ $attribute = Parameter::Color5; }
-            else if (identifierString == "color6") 							{ $attribute = Parameter::Color6; }
-            else if (identifierString == "color7") 							{ $attribute = Parameter::Color7; }
-            else if (identifierString == "workgroupID")						{ $attribute = Parameter::WorkGroup; }
-            else if (identifierString == "numgroups")						{ $attribute = Parameter::NumGroups; }
-            else if (identifierString == "localID") 						{ $attribute = Parameter::LocalID; }
-            else if (identifierString == "localindex") 						{ $attribute = Parameter::LocalIndex; }
-            else if (identifierString == "globalID") 						{ $attribute = Parameter::GlobalID; }
-            else 															{ $attribute = Parameter::InvalidAttribute; }
-        };
 
 // defines a parameter, parameters have in/out/inout qualifiers which are used in shaders to denote
 // how a variable should be handled default IO for a parameter is _input (as a normal function
