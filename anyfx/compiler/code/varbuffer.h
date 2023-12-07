@@ -72,6 +72,7 @@ private:
 
     unsigned group;
     unsigned binding;
+    unsigned alignment;
     
     bool hasAnnotation;
     Annotation annotation;

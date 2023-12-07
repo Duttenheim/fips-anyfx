@@ -45,6 +45,7 @@ public:
 		LocalSizeY,
 		LocalSizeZ,
 		PixelOrigin,
+        MaxPrimitives,
 
 		NumIntFlags,
 

@@ -38,6 +38,40 @@ ProgramLoader::~ProgramLoader()
 //------------------------------------------------------------------------------
 /**
 */
+void 
+ReadShader(ProgramBase::ShaderDef* shader, int fourcc, std::string& shaderName, BinReader* reader)
+{
+    int magic = reader->ReadInt();
+    assert(magic == fourcc);
+    shaderName = reader->ReadString().c_str();
+    unsigned numSubroutineMappings = reader->ReadUInt();
+    for (unsigned i = 0; i < numSubroutineMappings; i++)
+    {
+        std::string var = reader->ReadString().c_str();
+        std::string imp = reader->ReadString().c_str();
+    }
+    shader->binarySize = reader->ReadUInt();
+    shader->binary = reader->ReadBytes(shader->binarySize);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+BindShader(ProgramBase::ShaderDef* shader, const ShaderEffect* effect, const std::string& shaderName)
+{
+    if (!shaderName.empty())
+    {
+        ShaderBase* shaderBase = effect->GetShader(shaderName);
+        shader->shader = shaderBase;
+        return true;
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 ProgramBase*
 ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
 {
@@ -94,79 +128,19 @@ ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
     bool supportsTransformFeedback = reader->ReadBool();
 	program->supportsTransformFeedback = supportsTransformFeedback;
 
-	int magic;
-    unsigned numSubroutineMappings;
-	magic = reader->ReadInt();
-	assert('VERT' == magic);
-    std::string vs = reader->ReadString().c_str();
-    numSubroutineMappings = reader->ReadUInt();
-    for (i = 0; i < numSubroutineMappings; i++)
-    {
-        std::string var = reader->ReadString().c_str();
-        std::string imp = reader->ReadString().c_str();
-    }
-	program->shaderBlock.vsBinarySize = reader->ReadUInt();
-	program->shaderBlock.vsBinary = reader->ReadBytes(program->shaderBlock.vsBinarySize);
-
-	magic = reader->ReadInt();
-	assert('HULL' == magic);
-    std::string hs = reader->ReadString().c_str();
-    numSubroutineMappings = reader->ReadUInt();
-    for (i = 0; i < numSubroutineMappings; i++)
-    {
-        std::string var = reader->ReadString().c_str();
-        std::string imp = reader->ReadString().c_str();
-    }
-	program->shaderBlock.hsBinarySize = reader->ReadUInt();
-	program->shaderBlock.hsBinary = reader->ReadBytes(program->shaderBlock.hsBinarySize);
-
-	magic = reader->ReadInt();
-	assert('DOMA' == magic);
-    std::string ds = reader->ReadString().c_str();
-    numSubroutineMappings = reader->ReadUInt();
-    for (i = 0; i < numSubroutineMappings; i++)
-    {
-        std::string var = reader->ReadString().c_str();
-        std::string imp = reader->ReadString().c_str();
-    }
-	program->shaderBlock.dsBinarySize = reader->ReadUInt();
-	program->shaderBlock.dsBinary = reader->ReadBytes(program->shaderBlock.dsBinarySize);
-
-	magic = reader->ReadInt();
-	assert('GEOM' == magic);
-    std::string gs = reader->ReadString().c_str();
-    numSubroutineMappings = reader->ReadUInt();
-    for (i = 0; i < numSubroutineMappings; i++)
-    {
-        std::string var = reader->ReadString().c_str();
-        std::string imp = reader->ReadString().c_str();
-    }
-	program->shaderBlock.gsBinarySize = reader->ReadUInt();
-	program->shaderBlock.gsBinary = reader->ReadBytes(program->shaderBlock.gsBinarySize);
-
-	magic = reader->ReadInt();
-	assert('PIXL' == magic);
-	std::string ps = reader->ReadString().c_str();
-	numSubroutineMappings = reader->ReadUInt();
-	for (i = 0; i < numSubroutineMappings; i++)
-	{
-		std::string var = reader->ReadString().c_str();
-		std::string imp = reader->ReadString().c_str();
-	}
-	program->shaderBlock.psBinarySize = reader->ReadUInt();
-	program->shaderBlock.psBinary = reader->ReadBytes(program->shaderBlock.psBinarySize);
-
-	magic = reader->ReadInt();
-	assert('COMP' == magic);
-    std::string cs = reader->ReadString().c_str();
-    numSubroutineMappings = reader->ReadUInt();
-    for (i = 0; i < numSubroutineMappings; i++)
-    {
-        std::string var = reader->ReadString().c_str();
-        std::string imp = reader->ReadString().c_str();
-    }
-	program->shaderBlock.csBinarySize = reader->ReadUInt();
-	program->shaderBlock.csBinary = reader->ReadBytes(program->shaderBlock.csBinarySize);
+    std::string vs, hs, ds, gs, ps, cs, ms, rg, ra, rc, rm, ri;
+    ReadShader(&program->shaderBlock.vs, 'VERT', vs, reader);
+    ReadShader(&program->shaderBlock.hs, 'HULL', hs, reader);
+    ReadShader(&program->shaderBlock.ds, 'DOMA', ds, reader);
+    ReadShader(&program->shaderBlock.gs, 'GEOM', gs, reader);
+    ReadShader(&program->shaderBlock.ps, 'PIXL', ps, reader);
+    ReadShader(&program->shaderBlock.cs, 'COMP', cs, reader);
+    ReadShader(&program->shaderBlock.ms, 'MESH', ms, reader);
+    ReadShader(&program->shaderBlock.rg, 'RAYG', rg, reader);
+    ReadShader(&program->shaderBlock.ra, 'RAYA', ra, reader);
+    ReadShader(&program->shaderBlock.rc, 'RAYC', rc, reader);
+    ReadShader(&program->shaderBlock.rm, 'RAYM', rm, reader);
+    ReadShader(&program->shaderBlock.ri, 'RAYI', ri, reader);
 
 	// read names of active blocks
 	unsigned numActiveBlocks = reader->ReadUInt();
@@ -191,50 +165,65 @@ ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
 		program->variableBlockOffsets[var] = offset;
 	}
 
-	magic = reader->ReadInt();
+	int magic = reader->ReadInt();
 	assert('RSTA' == magic);
     std::string rs = reader->ReadString().c_str();
+
+    if (BindShader(&program->shaderBlock.vs, effect, vs))
+        program->valid = true;
+    if (BindShader(&program->shaderBlock.hs, effect, hs))
+        if (!vs.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.ds, effect, ds))
+        if (!vs.empty() && !hs.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.gs, effect, gs))
+        if (!vs.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.ps, effect, ps))
+        if (!vs.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.cs, effect, cs))
+        program->valid = true;
+    if (BindShader(&program->shaderBlock.ms, effect, ms))
+        program->valid = true;
 
 	// find shaders previously loaded in the effect and attach them to this program
 	if (!vs.empty())
 	{
 		ShaderBase* vertexShader = effect->GetShader(vs);
-		program->shaderBlock.vs = vertexShader;
+		program->shaderBlock.vs.shader = vertexShader;
 		program->valid = true;
 	}
 	
 	if (!ps.empty())
 	{
 		ShaderBase* pixelShader = effect->GetShader(ps);
-		program->shaderBlock.ps = pixelShader;
+		program->shaderBlock.ps.shader = pixelShader;
 		if (!vs.empty()) program->valid = true;
 	}
 	
 	if (!hs.empty())
 	{
 		ShaderBase* hullShader = effect->GetShader(hs);
-		program->shaderBlock.hs = hullShader;
+		program->shaderBlock.hs.shader = hullShader;
 		if (!vs.empty()) program->valid = true;
 	}
 
 	if (!ds.empty())
 	{
 		ShaderBase* domainShader = effect->GetShader(ds);
-		program->shaderBlock.ds = domainShader;
+		program->shaderBlock.ds.shader = domainShader;
 		if (!vs.empty() && !hs.empty()) program->valid = true;
 	}
 
 	if (!gs.empty())
 	{
 		ShaderBase* geometryShader = effect->GetShader(gs);
-		program->shaderBlock.gs = geometryShader;
+		program->shaderBlock.gs.shader = geometryShader;
 		if (!vs.empty()) program->valid = true;
 	}
 
 	if (!cs.empty())
 	{
 		ShaderBase* computeShader = effect->GetShader(cs);
-		program->shaderBlock.cs = computeShader;
+		program->shaderBlock.cs.shader = computeShader;
 		program->valid = true;
 	}
 

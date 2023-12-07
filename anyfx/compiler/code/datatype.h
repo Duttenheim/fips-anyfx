@@ -99,6 +99,7 @@ public:
 		InputAttachmentUIntegerMS,
         INPUT_ATTACHMENT_TYPES_END = InputAttachmentUIntegerMS,
         ALL_TEXTURE_TYPES_END = INPUT_ATTACHMENT_TYPES_END,
+        AccelerationStructure,
 		Void,
 		String,
 		UserType,

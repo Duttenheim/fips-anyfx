@@ -173,7 +173,8 @@ DataType::ToGLSLType(const DataType& type)
 	case ImageHandle:
 	case SamplerHandle:
 		return "uint";
-	
+    case AccelerationStructure:
+        return "accelerationStructureEXT";
 	case Void:
 		return "void";
 	case UserType:

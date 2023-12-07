@@ -122,6 +122,7 @@ Variable::Preprocess()
         else if (qualifier == "groupshared" || qualifier == "group_shared")     this->qualifierFlags |= Variable::GroupShared;
         else if (qualifier == "shared")                                         this->qualifierFlags |= Variable::Shared;
         else if (qualifier == "bindless")                                       this->qualifierFlags |= Variable::Bindless;
+        else if (qualifier == "raypayload")                                     this->qualifierFlags |= Variable::RayPayload;
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -195,7 +196,8 @@ Variable::TypeCheck(TypeChecker& typechecker)
         else if (typechecker.GetHeader().GetType() == Header::SPIRV)
         {
             if ((this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::TEXTURE_TYPES_END) ||
-                (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END))
+                (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END) ||
+                (this->type.GetType() == DataType::AccelerationStructure))
             {
                 this->binding = Shader::bindingIndices[this->group]++;
             }
@@ -203,7 +205,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
     }
     else
     {
-        // if we already have a binding from an expression, change the binding index to be that value + 1
+        // if we already have a binding from an expression, bump all future bindings to the next slot
         if (typechecker.GetHeader().GetType() == Header::GLSL)
         {
             if (this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::SAMPLER_TYPES_END)
@@ -563,8 +565,12 @@ Variable::Format(const Header& header, bool inVarblock) const
         else if (this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS)
         {
             // make sure to only generate input attachments for fragment shaders
-            formattedCode.append("#ifdef FRAGMENT_SHADER\n");
+            formattedCode.append("#ifdef PIXEL_SHADER\n");
             formattedCode.append(AnyFX::Format("layout(input_attachment_index=%d, set=%d, binding=%d) ", this->index, this->group, this->binding));
+        }
+        else if (this->type.GetType() == DataType::AccelerationStructure)
+        {
+            formattedCode.append(AnyFX::Format("layout(set=%d, binding=%d) ", this->group, this->binding));
         }
     }
 
@@ -642,7 +648,7 @@ Variable::Format(const Header& header, bool inVarblock) const
 
     // input attachments are only available in fragment shaders in SPIR-V
     if (header.GetType() == Header::SPIRV && this->type.GetType() >= DataType::InputAttachment && this->type.GetType() <= DataType::InputAttachmentUIntegerMS)
-        formattedCode.append("#endif //FRAGMENT_SHADER\n");
+        formattedCode.append("#endif //PIXEL_SHADER\n");
     return formattedCode;
 }
 

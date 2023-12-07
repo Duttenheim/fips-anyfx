@@ -216,6 +216,15 @@ Shader::Generate(
         this->preamble.append("#extension GL_ARB_separate_shader_objects : enable\n");
         this->preamble.append("#extension GL_ARB_shading_language_420pack : enable\n");
         this->preamble.append("#extension GL_KHR_shader_subgroup_quad : enable\n");
+        this->preamble.append("#extension GL_EXT_buffer_reference : enable\n");
+        this->preamble.append("#extension GL_EXT_buffer_reference2 : enable\n");
+        if (this->shaderType >= ProgramRow::RayGenerationShader && this->shaderType <= ProgramRow::RayIntersectionShader)
+        {
+            this->preamble.append("#extension GL_EXT_ray_tracing : require\n");
+            this->preamble.append("#extension GL_EXT_ray_query : require\n");
+            this->preamble.append("#extension GL_EXT_ray_flags_primitive_culling : require\n");
+        }
+
         this->preamble.append("#define SPIRV\n");
     }
 
@@ -223,11 +232,17 @@ Shader::Generate(
     const std::string shaderDefines[] =
     {
         "#define VERTEX_SHADER 1\n\n",
-        "#define GEOMETRY_SHADER 1\n\n",
         "#define HULL_SHADER 1\n\n",
         "#define DOMAIN_SHADER 1\n\n",
-        "#define FRAGMENT_SHADER 1\n\n",
-        "#define COMPUTE_SHADER 1\n\n"
+        "#define GEOMETRY_SHADER 1\n\n",
+        "#define PIXEL_SHADER 1\n\n",
+        "#define COMPUTE_SHADER 1\n\n",
+        "#define MESH_SHADER 1\n\n",
+        "#define RAYGEN_SHADER 1\n\n",
+        "#define RAYANYHIT_SHADER 1\n\n",
+        "#define RAYCLOSESTHIT_SHADER 1\n\n",
+        "#define RAYMISS_SHADER 1\n\n",
+        "#define RAYINTERSECTION_SHADER 1\n\n"
     };
     this->preamble.append(shaderDefines[this->shaderType]);
 
@@ -345,7 +360,7 @@ Shader::CompileGLSL(const std::string& code, Generator* generator)
         EShLangGeometry,		// only accepted in GLSL3+
         EShLangTessControl,		// only accepted in GLSL4+
         EShLangTessEvaluation,	// only accepted in GLSL4+
-        EShLangCompute			// only accepted in GLSL4.3+
+        EShLangCompute,			// only accepted in GLSL4.3+
     };
 
     // create array of strings
@@ -408,7 +423,13 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
         EShLangTessEvaluation,
         EShLangGeometry,
         EShLangFragment,
-        EShLangCompute
+        EShLangCompute,
+        EShLangMeshNV,
+        EShLangRayGen,
+        EShLangAnyHit,
+        EShLangClosestHit,
+        EShLangMiss,
+        EShLangIntersect
     };
 
     // create array of strings
@@ -438,7 +459,7 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
 
     // perform compilation
     const Header& header = generator->GetHeader();
-    shaderObject->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
+    shaderObject->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_5);
     if (!shaderObject->parse(&DefaultResources, 460, EProfile::ENoProfile, false, true, messages))
     {
         std::string res(shaderObject->getInfoLog());
@@ -538,7 +559,7 @@ Shader::TypeCheck(TypeChecker& typechecker)
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
-    else if (shaderType == ProgramRow::ComputeShader)
+    else if (this->shaderType == ProgramRow::ComputeShader)
     {
         bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
         bool hasLocalY = this->func.HasIntFlag(FunctionAttribute::LocalSizeY);
@@ -548,6 +569,34 @@ Shader::TypeCheck(TypeChecker& typechecker)
         {
             std::string message = Format("Compute shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.LinkError(message, this->GetFile(), this->GetLine());
+        }
+    }
+    else if (this->shaderType == ProgramRow::MeshShader)
+    {
+        bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
+        bool hasOutput = this->func.HasIntFlag(FunctionAttribute::OutputPrimitive);
+        bool hasMaxVerts = this->func.HasIntFlag(FunctionAttribute::MaxVertexCount);
+        bool hasMaxPrims = this->func.HasIntFlag(FunctionAttribute::MaxPrimitives);
+
+        if (!hasLocalX)
+        {
+            std::string message = Format("Mesh shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            typechecker.LinkError(message, this->GetFile(), this->GetLine());
+        }
+        if (!hasOutput)
+        {
+            std::string message = Format("Mesh Shader '%s' needs to define [output_primitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            typechecker.Error(message, this->GetFile(), this->GetLine());
+        }
+        if (!hasMaxVerts)
+        {
+            std::string message = Format("Mesh Shader '%s' needs to define [max_vertex_count], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            typechecker.Error(message, this->GetFile(), this->GetLine());
+        }
+        if (!hasMaxPrims)
+        {
+            std::string message = Format("Mesh Shader '%s' needs to define [max_primitive_count], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
 }

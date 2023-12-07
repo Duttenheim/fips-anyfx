@@ -113,9 +113,6 @@ public:
   virtual void enterConstant(AnyFXParser::ConstantContext * /*ctx*/) override { }
   virtual void exitConstant(AnyFXParser::ConstantContext * /*ctx*/) override { }
 
-  virtual void enterParameterAttribute(AnyFXParser::ParameterAttributeContext * /*ctx*/) override { }
-  virtual void exitParameterAttribute(AnyFXParser::ParameterAttributeContext * /*ctx*/) override { }
-
   virtual void enterParameter(AnyFXParser::ParameterContext * /*ctx*/) override { }
   virtual void exitParameter(AnyFXParser::ParameterContext * /*ctx*/) override { }
 

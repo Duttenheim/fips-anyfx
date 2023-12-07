@@ -67,12 +67,12 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		bool hasOutputSize = this->func.HasIntFlag(FunctionAttribute::OutputVertices);
 		if (!hasOutputSize)
 		{
-			std::string err = Format("Hull shader '%s' requires [outputvertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+			std::string err = Format("Hull shader '%s' requires [output_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 			generator->Error(err);
 		}
 
 		int outputSize = this->func.GetIntFlag(FunctionAttribute::OutputVertices);
-		code.append("layout(vertices = " + Format("%d", outputSize) + ") out;\n");
+		code.append(Format("layout(vertices = %d) out;\n", outputSize));
 	}
 	else if (this->shaderType == ProgramRow::DomainShader)
 	{
@@ -80,7 +80,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		bool hasInputTopology = this->func.HasIntFlag(FunctionAttribute::Topology);
 		if (!hasVertexCount)
 		{
-			std::string err = Format("Domain shader '%s' requires [inputvertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+			std::string err = Format("Domain shader '%s' requires [input_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 			generator->Error(err);
 		}
 		// input topology and spacing is not optional
@@ -100,16 +100,16 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		// write topology
 		switch (inputTopology)
 		{
-		case 0:			// isolines
+		case FunctionAttribute::Triangle:
 			code.append("triangles");
 			break;
-		case 1:			// triangles
+		case FunctionAttribute::Quad:
 			code.append("quads");
 			break;
-		case 2:			// quads
+		case FunctionAttribute::Line:
 			code.append("isolines");
 			break;
-		case 3:			// force points
+		case FunctionAttribute::Point:
 			code.append("point_mode");
 			break;
 		}
@@ -122,13 +122,13 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 			switch (spacing)
 			{
-			case 0:
+			case FunctionAttribute::Integer:
 				code.append("equal_spacing");
 				break;
-			case 1:
+			case FunctionAttribute::Even:
 				code.append("fractional_even_spacing");
 				break;
-			case 2:
+			case FunctionAttribute::Odd:
 				code.append("fractional_odd_spacing");
 				break;
 			case 3:
@@ -148,10 +148,10 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 			switch (winding)
 			{
-			case 0:
+			case FunctionAttribute::CW:
 				code.append("cw");
 				break;
-			case 1:
+			case FunctionAttribute::CCW:
 				code.append("ccw");
 				break;
 			}
@@ -187,19 +187,19 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 			switch (type)
 			{
-			case 0:			// points
+			case FunctionAttribute::IPoints:			// points
 				inLayout.append("points");
 				break;
-			case 1:			// lines
+			case FunctionAttribute::ILines:			// lines
 				inLayout.append("lines");
 				break;
-			case 2:			// lines_adjacency
+			case FunctionAttribute::ILinesAdjacent:			// lines_adjacency
 				inLayout.append("lines_adjacency");
 				break;
-			case 3:			// triangles
+			case FunctionAttribute::ITriangles:			// triangles
 				inLayout.append("triangles");
 				break;
-			case 4:			// triangles_adjacency
+			case FunctionAttribute::ITrianglesAdjacent:			// triangles_adjacency
 				inLayout.append("triangles_adjacency");
 				break;
 			}
@@ -207,9 +207,9 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			// append instances if required
 			if (hasInstances)
 			{
-				inLayout.append(AnyFX::Format(", invocations = %d", this->func.GetIntFlag(FunctionAttribute::Instances)));
+				inLayout.append(Format(", invocations = %d", this->func.GetIntFlag(FunctionAttribute::Instances)));
 			}
-			code.append(AnyFX::Format("layout(%s) in;\n", inLayout.c_str()));
+			code.append(Format("layout(%s) in;\n", inLayout.c_str()));
 		}
 
 		// write output primitive type
@@ -218,14 +218,14 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			int maxVerts = this->func.GetIntFlag(FunctionAttribute::MaxVertexCount);
 			switch (type)
 			{
-			case 0:			// points
-				code.append("layout(points, max_vertices = " + Format("%d", maxVerts) + ") out;\n");
+			case FunctionAttribute::OPoints:			// points
+				code.append(Format("layout(points, max_vertices = %d) out;\n", maxVerts));
 				break;
-			case 1:			// line_strip
-				code.append("layout(line_strip, max_vertices = " + Format("%d", maxVerts) + ") out;\n");
+			case FunctionAttribute::OLineStrip:			// line_strip
+				code.append(Format("layout(line_strip, max_vertices = %d) out;\n", maxVerts));
 				break;
-			case 2:			// triangle_strip
-				code.append("layout(triangle_strip, max_vertices = " + Format("%d", maxVerts) + ") out;\n");
+			case FunctionAttribute::OTriangleStrip:			// triangle_strip
+				code.append(Format("layout(triangle_strip, max_vertices = %d) out;\n", maxVerts));
 				break;
 			}
 		}
@@ -277,6 +277,32 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			code.append(") in;\n");
 		}
 	}
+    else if (this->shaderType == ProgramRow::MeshShader)
+    {
+        bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
+        bool hasOutput = this->func.HasIntFlag(FunctionAttribute::OutputPrimitive);
+        bool hasMaxVerts = this->func.HasIntFlag(FunctionAttribute::MaxVertexCount);
+        bool hasMaxPrims = this->func.HasIntFlag(FunctionAttribute::MaxPrimitives);
+
+        if (hasLocalX && hasOutput && hasMaxVerts && hasMaxPrims)
+        {
+            code.append(Format("layout(local_size_x = %d) in;", this->func.GetIntFlag(FunctionAttribute::LocalSizeX)));
+            int type = this->func.GetIntFlag(FunctionAttribute::OutputPrimitive);
+            int maxVerts = this->func.GetIntFlag(FunctionAttribute::MaxVertexCount);
+            switch (type)
+            {
+                case FunctionAttribute::OPoints:			// points
+                    code.append(Format("layout(points, max_vertices = %d, max_primitives = %d) out;\n", this->func.GetIntFlag(FunctionAttribute::MaxVertexCount), this->func.GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    break;
+                case FunctionAttribute::OLineStrip:			// lines
+                    code.append(Format("layout(lines, max_vertices = %d, max_primitives = %d) out;\n", this->func.GetIntFlag(FunctionAttribute::MaxVertexCount), this->func.GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    break;
+                case FunctionAttribute::OTriangleStrip:		// triangles
+                    code.append(Format("layout(triangles, max_vertices = %d, max_primitives = %d) out;\n", this->func.GetIntFlag(FunctionAttribute::MaxVertexCount), this->func.GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    break;
+            }
+        }
+    }
 
 	unsigned input, output;
 	input = output = 0;
@@ -331,4 +357,4 @@ Shader::GenerateGLSL3(AnyFX::Generator* generator)
 	return "";
 }
 
-}
+} // namespace AnyFX

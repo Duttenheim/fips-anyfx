@@ -224,14 +224,14 @@ RenderState::EvaluateEntries(TypeChecker& typeChecker)
 			const std::string& flag = row.GetExpression()->EvalString(typeChecker);
 			unsigned flagVal = -1;
 
-			if (flag == "Never")							flagVal = RenderStateRow::Never;
-			else if (flag == "Less")						flagVal = RenderStateRow::Less;
-			else if (flag == "Lequal")						flagVal = RenderStateRow::LEqual;
-			else if (flag == "Greater")						flagVal = RenderStateRow::Greater;
-			else if (flag == "Gequal")						flagVal = RenderStateRow::GEqual;
-			else if (flag == "Equal")						flagVal = RenderStateRow::Equal;
-			else if (flag == "Nequal")						flagVal = RenderStateRow::NEqual;
-			else if (flag == "Always")						flagVal = RenderStateRow::Always;
+			if (flag == "Never")									flagVal = RenderStateRow::Never;
+			else if (flag == "Less")								flagVal = RenderStateRow::Less;
+			else if (flag == "Lequal" || flag == "LessEqual")		flagVal = RenderStateRow::LEqual;
+			else if (flag == "Greater")								flagVal = RenderStateRow::Greater;
+			else if (flag == "Gequal" || flag == "GreaterEqual")	flagVal = RenderStateRow::GEqual;
+			else if (flag == "Equal")								flagVal = RenderStateRow::Equal;
+			else if (flag == "Nequal" || flag == "NotEqual")		flagVal = RenderStateRow::NEqual;
+			else if (flag == "Always")								flagVal = RenderStateRow::Always;
 			else
 			{
 				InvalidValueContainer foo = { row.GetFlag(), flag };

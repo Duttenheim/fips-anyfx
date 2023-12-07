@@ -59,6 +59,8 @@ public:
 		LocalID,
 		LocalIndex,
 		GlobalID,
+        RayPayload,
+        RayResult,
 		NoAttribute,
 
 		NumAttributes,

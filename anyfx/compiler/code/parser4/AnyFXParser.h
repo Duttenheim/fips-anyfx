@@ -70,15 +70,15 @@ public:
     T__56 = 57, T__57 = 58, T__58 = 59, T__59 = 60, T__60 = 61, T__61 = 62, 
     T__62 = 63, T__63 = 64, T__64 = 65, T__65 = 66, T__66 = 67, T__67 = 68, 
     T__68 = 69, T__69 = 70, T__70 = 71, T__71 = 72, T__72 = 73, T__73 = 74, 
-    T__74 = 75, SC = 76, CO = 77, COL = 78, LP = 79, RP = 80, LB = 81, RB = 82, 
-    LL = 83, RR = 84, DOT = 85, NOT = 86, EQ = 87, QO = 88, QU = 89, AND = 90, 
-    ANDSET = 91, OR = 92, ORSET = 93, XOR = 94, XORSET = 95, CONNJUGATE = 96, 
-    Q = 97, NU = 98, FORWARDSLASH = 99, LESS = 100, LESSEQ = 101, GREATER = 102, 
-    GREATEREQ = 103, LOGICEQ = 104, NOTEQ = 105, LOGICAND = 106, LOGICOR = 107, 
-    MOD = 108, UNDERSC = 109, ADD_OP = 110, SUB_OP = 111, DIV_OP = 112, 
-    MUL_OP = 113, INTEGERLITERAL = 114, COMMENT = 115, ML_COMMENT = 116, 
-    FLOATLITERAL = 117, EXPONENT = 118, DOUBLELITERAL = 119, HEX = 120, 
-    IDENTIFIER = 121, WS = 122
+    T__74 = 75, T__75 = 76, T__76 = 77, SC = 78, CO = 79, COL = 80, LP = 81, 
+    RP = 82, LB = 83, RB = 84, LL = 85, RR = 86, DOT = 87, NOT = 88, EQ = 89, 
+    QO = 90, QU = 91, AND = 92, ANDSET = 93, OR = 94, ORSET = 95, XOR = 96, 
+    XORSET = 97, CONNJUGATE = 98, Q = 99, NU = 100, FORWARDSLASH = 101, 
+    LESS = 102, LESSEQ = 103, GREATER = 104, GREATEREQ = 105, LOGICEQ = 106, 
+    NOTEQ = 107, LOGICAND = 108, LOGICOR = 109, MOD = 110, UNDERSC = 111, 
+    ADD_OP = 112, SUB_OP = 113, DIV_OP = 114, MUL_OP = 115, INTEGERLITERAL = 116, 
+    COMMENT = 117, ML_COMMENT = 118, FLOATLITERAL = 119, EXPONENT = 120, 
+    DOUBLELITERAL = 121, HEX = 122, IDENTIFIER = 123, WS = 124
   };
 
   enum {
@@ -86,14 +86,13 @@ public:
     RuleEffect = 4, RuleQualifier = 5, RuleQualifierValued = 6, RuleType = 7, 
     RuleQualifierExpression = 8, RuleStructure = 9, RuleVarblock = 10, RuleVarbuffer = 11, 
     RuleSubroutine = 12, RuleValueList = 13, RuleValueSingleList = 14, RuleVariable = 15, 
-    RuleConstant = 16, RuleParameterAttribute = 17, RuleParameter = 18, 
-    RuleParameterList = 19, RuleFunctionAttribute = 20, RuleCodeBlock = 21, 
-    RuleFunction = 22, RuleBlendStateRow = 23, RuleRenderStateRow = 24, 
-    RuleRenderState = 25, RuleSampler = 26, RuleSamplerTextureList = 27, 
-    RuleSamplerRow = 28, RuleProgramRow = 29, RuleAnnotation = 30, RuleProgram = 31, 
-    RuleExpression = 32, RuleBinaryexp7 = 33, RuleBinaryexp6 = 34, RuleBinaryexp5 = 35, 
-    RuleBinaryexp4 = 36, RuleBinaryexp3 = 37, RuleBinaryexp2 = 38, RuleBinaryexp1 = 39, 
-    RuleBinaryexpatom = 40, RuleParantexpression = 41
+    RuleConstant = 16, RuleParameter = 17, RuleParameterList = 18, RuleFunctionAttribute = 19, 
+    RuleCodeBlock = 20, RuleFunction = 21, RuleBlendStateRow = 22, RuleRenderStateRow = 23, 
+    RuleRenderState = 24, RuleSampler = 25, RuleSamplerTextureList = 26, 
+    RuleSamplerRow = 27, RuleProgramRow = 28, RuleAnnotation = 29, RuleProgram = 30, 
+    RuleExpression = 31, RuleBinaryexp7 = 32, RuleBinaryexp6 = 33, RuleBinaryexp5 = 34, 
+    RuleBinaryexp4 = 35, RuleBinaryexp3 = 36, RuleBinaryexp2 = 37, RuleBinaryexp1 = 38, 
+    RuleBinaryexpatom = 39, RuleParantexpression = 40
   };
 
   AnyFXParser(antlr4::TokenStream *input);
@@ -171,7 +170,6 @@ public:
   class ValueSingleListContext;
   class VariableContext;
   class ConstantContext;
-  class ParameterAttributeContext;
   class ParameterContext;
   class ParameterListContext;
   class FunctionAttributeContext;
@@ -569,21 +567,6 @@ public:
   };
 
   ConstantContext* constant();
-
-  class  ParameterAttributeContext : public antlr4::ParserRuleContext {
-  public:
-    Parameter::Attribute attribute;
-    antlr4::Token *identifierToken = nullptr;;
-    ParameterAttributeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENTIFIER();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  ParameterAttributeContext* parameterAttribute();
 
   class  ParameterContext : public antlr4::ParserRuleContext {
   public:

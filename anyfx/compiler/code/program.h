@@ -51,26 +51,26 @@ private:
 
 #pragma region OpenGL
     /// generates GLSL4 target code
-    void LinkGLSL4(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Shader* gs, Shader* ps, Shader* cs);
+    void LinkGLSL4(Generator& generator, Shader* const* shaders, unsigned numShaders);
     /// generates GLSL3 target code
-    void LinkGLSL3(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Shader* gs, Shader* ps, Shader* cs);
+    void LinkGLSL3(Generator& generator, Shader* const* shaders, unsigned numShaders);
 
     /// output AnyFX formatted GLSL problem using the Khronos syntax
     void GLSLProblemKhronos(Generator& generator, std::stringstream& stream);
 #pragma endregion
 
 #pragma region Vulkan
-    /// generates SPIRV target code from GLSL representation
-    void LinkSPIRV(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Shader* gs, Shader* ps, Shader* cs);
+    /// Link with SPIRV
+    void LinkSPIRV(Generator& generator, Shader* const* shaders, unsigned numShaders);
 #pragma endregion
 
 #pragma region DirectX
     /// generates HLSL5 target code
-    void LinkHLSL5(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Shader* gs, Shader* ps, Shader* cs);
+    void LinkHLSL5(Generator& generator, Shader* const* shaders, unsigned numShaders);
     /// generates HLSL4 target code
-    void LinkHLSL4(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Shader* gs, Shader* ps, Shader* cs);
+    void LinkHLSL4(Generator& generator, Shader* const* shaders, unsigned numShaders);
     /// generates HLSL3 target code
-    void LinkHLSL3(Generator& generator, Shader* vs, Shader* hs, Shader* ds, Shader* gs, Shader* ps, Shader* cs);
+    void LinkHLSL3(Generator& generator, Shader* const* shaders, unsigned numShaders);
 #pragma endregion
 
     std::vector<std::string> invalidFlags;

@@ -87,7 +87,7 @@ public:
         GroupShared = 1 << 0,   // group shared means shared within a shader compute group
         Shared = 1 << 1,        // ordinary shared means shared during the application execution
         Bindless = 1 << 2,      // denotes that a texture should be used as bindless
-
+        RayPayload = 1 << 3,    // Variable is passed between raytracing shaders
     };
 
     struct Binding

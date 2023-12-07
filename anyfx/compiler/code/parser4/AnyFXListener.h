@@ -111,9 +111,6 @@ public:
   virtual void enterConstant(AnyFXParser::ConstantContext *ctx) = 0;
   virtual void exitConstant(AnyFXParser::ConstantContext *ctx) = 0;
 
-  virtual void enterParameterAttribute(AnyFXParser::ParameterAttributeContext *ctx) = 0;
-  virtual void exitParameterAttribute(AnyFXParser::ParameterAttributeContext *ctx) = 0;
-
   virtual void enterParameter(AnyFXParser::ParameterContext *ctx) = 0;
   virtual void exitParameter(AnyFXParser::ParameterContext *ctx) = 0;
 

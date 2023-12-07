@@ -90,6 +90,7 @@ enum VariableType
 	InputAttachmentIntegerMS,
 	InputAttachmentUInteger,
 	InputAttachmentUIntegerMS,
+    AccelerationStructure,
 	Void,
 	String,
 	UserType,
@@ -217,6 +218,8 @@ TypeToString(const VariableType& type)
 		return "ic";
 	case ImageCubeArray:
 		return "ica";
+    case AccelerationStructure:
+        return "as";
 	case Void:
 		return "v";
 	case String:

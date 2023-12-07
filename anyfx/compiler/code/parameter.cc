@@ -64,20 +64,24 @@ std::string
 Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 {
 	unsigned shaderType = -1;
-	if (this->parentShader) shaderType = this->parentShader->GetType();
+	if (this->parentShader) 
+        shaderType = this->parentShader->GetType();
 
 	std::string formattedCode;
 	
 	if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
 	{
-		std::string format = "%slayout(%s) %s%s";
+        std::string layoutFormat = "";
+        std::string interpolationFormat = "";
+        std::string qualifierFormat = "";
+        std::string ioFormat = "";
 
-		// first, resolve the layout type, for ordinary variables, this is using location, with transform buffer stuff, this is using xfb_buffer and xfb_offset
+		// resolve the layout type, for ordinary variables, this is using location, with transform buffer stuff, this is using xfb_buffer and xfb_offset
 		if (this->IsTransformFeedback())
 		{
 			if (shaderType != ProgramRow::PixelShader)
 			{
-				format = AnyFX::Format(format.c_str(), "%s", AnyFX::Format("xfb_buffer = %d, xfb_offset = %d", this->feedbackBuffer, this->feedbackOffset).c_str(), "%s", "out ");
+                layoutFormat = AnyFX::Format("xfb_buffer = %d, xfb_offset = %d ", this->feedbackBuffer, this->feedbackOffset);
 			}			
 			else
 			{
@@ -86,19 +90,17 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 		}
 		else
 		{
-			if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)
-			{
-				format = AnyFX::Format(format.c_str(), "%s", AnyFX::Format("location = %d", this->index).c_str(), "%s", "in ");
-			}
-			else if (this->GetIO() == Parameter::Output)
-			{
-				format = AnyFX::Format(format.c_str(), "%s", AnyFX::Format("location = %d", output++).c_str(), "%s", "out ");
-			}
-			else if (this->GetIO() == Parameter::InputOutput)
-			{
-				// format is empty for inout parameters
-				format = "";
-			}
+            // For some reason in GLSL, rayPayload and callableData isn't using in/out qualifiers
+            if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)
+            {
+                ioFormat = "in";
+                layoutFormat += AnyFX::Format("location = %d ", this->index);
+            }
+            else if (this->GetIO() == Parameter::Output)
+            {
+                ioFormat = "out";
+                layoutFormat += AnyFX::Format("location = %d ", output++);
+            }
 		}
 
 		// first handle qualifiers		
@@ -106,62 +108,88 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 		{
 			if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)
 			{
-				if (this->interpolation == Flat)					format = AnyFX::Format(format.c_str(), "flat ", "%s");
-				else if (this->interpolation == NoPerspective)		format = AnyFX::Format(format.c_str(), "noperspective ", "%s");
+				if (this->interpolation == Flat)					interpolationFormat += "flat ";
+				else if (this->interpolation == NoPerspective)		interpolationFormat += "noperspective ";
 			}
 		}
 		else if (shaderType == ProgramRow::VertexShader)
 		{
 			if (this->GetIO() == Parameter::Output || this->GetIO() == Parameter::NoIO)
 			{
-				if (this->interpolation == Flat)					format = AnyFX::Format(format.c_str(), "flat ", "%s");
-				else if (this->interpolation == NoPerspective)		format = AnyFX::Format(format.c_str(), "noperspective ", "%s");
+                if (this->interpolation == Flat)					interpolationFormat += "flat ";
+                else if (this->interpolation == NoPerspective)		interpolationFormat += "noperspective ";
 			}
 		}
 		else if (shaderType == ProgramRow::GeometryShader)
 		{
 			if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)
 			{
-				if (this->interpolation == Flat)				format = AnyFX::Format(format.c_str(), "flat ", "%s");
+                if (this->interpolation == Flat)					interpolationFormat += "flat ";
 			}
 		}
 		else if (shaderType == ProgramRow::HullShader)
 		{
-			if (this->interpolation == Flat)					format = AnyFX::Format(format.c_str(), "flat ", "%s");
+            if (this->interpolation == Flat)					interpolationFormat += "flat ";
 			if (this->GetIO() == Parameter::Output)
 			{
 				if (this->GetPatchParam())
 				{
-					format = AnyFX::Format(format.c_str(), "%s", "patch ");
+                    qualifierFormat += "patch ";
 				}
 			}
 		}
 		else if (shaderType == ProgramRow::DomainShader)
 		{
-			if (this->interpolation == Flat)					format = AnyFX::Format(format.c_str(), "flat ", "%s");
+            if (this->interpolation == Flat)					interpolationFormat += "flat ";
 			if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)
 			{
 				if (this->GetPatchParam())
 				{
-					format = AnyFX::Format(format.c_str(), "%s", "patch ");
+                    qualifierFormat += "patch ";
 				}
 			}
 		}
-		else if (shaderType == -1)
-		{
-			// in this case we have no shader to which this function is bound at all
-			format = "";			
-		}
+        else if (
+            shaderType == ProgramRow::RayGenerationShader 
+            || shaderType == ProgramRow::RayAnyHitShader 
+            || shaderType == ProgramRow::RayClosestHitShader 
+            || shaderType == ProgramRow::RayMissShader 
+            || shaderType == ProgramRow::RayIntersectionShader
+            )
+        {
+            if (this->attribute == Parameter::RayPayload)
+            {
+                // For some reason, GLSL doesn't use the in/out qualifiers for raytracing...
+                ioFormat = "";
+                if (this->GetIO() == Parameter::Input)
+                {
+                    qualifierFormat += "rayPayloadInEXT ";
+                }
+                else
+                {
+                    qualifierFormat += "rayPayloadEXT ";
+                }
+            }
+            else if (this->attribute == Parameter::RayResult)
+            {
+                ioFormat = "";
+                if (this->GetIO() == Parameter::Input)
+                {
+                    qualifierFormat += "callableDataInEXT ";
+                }
+                else
+                {
+                    qualifierFormat += "callableDataEXT ";
+                }
+            }
+        }
 
-		// replace all remaining %s with empty strings
-		size_t location = 0;
-		while ((location = format.find("%s", location)) != std::string::npos)
-		{
-			format.replace(location, 2, "");
-		}
+        std::string decoration = "";
+        if (shaderType != -1)
+            decoration = AnyFX::Format("%slayout(%s) %s%s ", interpolationFormat.c_str(), layoutFormat.c_str(), qualifierFormat.c_str(), ioFormat.c_str());
 
 		formattedCode.append("\t");
-		formattedCode.append(format);
+		formattedCode.append(decoration);
 		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
@@ -281,7 +309,10 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		else if (this->attributeString == "localID") 						{ this->attribute = Parameter::LocalID; }
 		else if (this->attributeString == "localindex") 					{ this->attribute = Parameter::LocalIndex; }
 		else if (this->attributeString == "globalID") 						{ this->attribute = Parameter::GlobalID; }
+        else if (this->attributeString == "ray_payload")                     { this->attribute = Parameter::RayPayload; }
+        else if (this->attributeString == "ray_result")                      { this->attribute = Parameter::RayResult; }
 		else 																{ this->attribute = Parameter::InvalidAttribute; }
+        
 	}
 
 	if (this->sizeExpression)
@@ -486,6 +517,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color5:
 			case Color6:
 			case Color7:
+            case RayPayload:
+            case RayResult:
 			case NoAttribute:
 				break; // accept attribute
 			default:
@@ -493,6 +526,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 					std::string attrString = AttributeToString(this->attribute);
 					std::string message = AnyFX::Format("Parameter attribute type '%s' is not valid for GLSL4, %s\n", attrString.c_str(), this->ErrorSuffix().c_str());
 					typechecker.Error(message, this->GetFile(), this->GetLine());
+                    break;
 				}	
 			}
 		}
@@ -524,6 +558,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color5:
 			case Color6:
 			case Color7:
+            case RayPayload:
+            case RayResult:
 			case NoAttribute:
 				break;	// accept attribute
 			case PointSize:
@@ -549,6 +585,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 					std::string attrString = AttributeToString(this->attribute);
 					std::string message = AnyFX::Format("Parameter qualifier type '%s' is not valid for HLSL, %s\n", attrString.c_str(), this->ErrorSuffix().c_str());
 					typechecker.Error(message, this->GetFile(), this->GetLine());
+                    break;
 				}		
 			}
 		}
@@ -622,6 +659,8 @@ Parameter::FormatAttribute(const Header::Type& type)
 				return "/* Render target 6 */";
 			case Color7:
 				return "/* Render target 7 */";
+            case RayPayload:
+                return "rayPayloadExt";
 			default:
 				return "undefined";
 			}
@@ -893,6 +932,10 @@ Parameter::AttributeToString(const Attribute& attr)
 		return "color6";
 	case Color7:
 		return "color7";
+    case RayPayload:
+        return "ray_payload";
+    case RayResult:
+        return "ray_result";
 	default:
 		return "undefined attribute";
 	}

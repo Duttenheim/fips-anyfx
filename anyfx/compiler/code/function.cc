@@ -289,6 +289,8 @@ Function::EvaluateAttributes(TypeChecker& typeChecker)
         const FunctionAttribute& attr = this->attributes[i];
         if (attr.GetFlag() == "maxvertexcount" || attr.GetFlag() == "max_vertex_count")
             SET_INT_ATTR(FunctionAttribute::MaxVertexCount)
+        else if (attr.GetFlag() == "max_primitive_count")
+            SET_INT_ATTR(FunctionAttribute::MaxPrimitives)
         else if (attr.GetFlag() == "instances") 
             SET_INT_ATTR(FunctionAttribute::Instances)
         else if (attr.GetFlag() == "inputvertices" || attr.GetFlag() == "input_vertices")
@@ -345,9 +347,9 @@ Function::EvaluateAttributes(TypeChecker& typeChecker)
         else if (attr.GetFlag() == "outputprimitive" || attr.GetFlag() == "output_primitive")
         {
             const std::string& value = attr.GetExpression()->EvalString(typeChecker);
-            if (value == "points")				SET_INT_ATTR_VAL(FunctionAttribute::OutputPrimitive, FunctionAttribute::OPoints)
-            else if (value == "line_strip")		SET_INT_ATTR_VAL(FunctionAttribute::OutputPrimitive, FunctionAttribute::OLineStrip)
-            else if (value == "triangle_strip") SET_INT_ATTR_VAL(FunctionAttribute::OutputPrimitive, FunctionAttribute::OTriangleStrip)
+            if (value == "points")				                            SET_INT_ATTR_VAL(FunctionAttribute::OutputPrimitive, FunctionAttribute::OPoints)
+            else if (value == "line_strip" || value == "lines")		        SET_INT_ATTR_VAL(FunctionAttribute::OutputPrimitive, FunctionAttribute::OLineStrip)
+            else if (value == "triangle_strip" || value == "triangles")     SET_INT_ATTR_VAL(FunctionAttribute::OutputPrimitive, FunctionAttribute::OTriangleStrip)
             else this->invalidAttributeValues.push_back(value);
         }
         else if (attr.GetFlag() == "pixelorigin" || attr.GetFlag() == "pixel_origin")

@@ -20,10 +20,12 @@ VarBuffer::VarBuffer() :
     hasAnnotation(false),
     group(0),
     binding(-1),
+    alignment(16),
     accessMode(NoAccess),
     arraySizeExpression(nullptr),
     arrayType(Variable::ArrayType::NoArray),
     arraySize(1)
+
 {
     this->symbolType = Symbol::VarbufferType;
 }
@@ -69,6 +71,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         else if (qualifier == "readwrite" || qualifier == "read_write") this->accessMode |= Access::ReadWrite;
         else if (qualifier == "write")                                  this->accessMode |= Access::Write;
         else if (qualifier == "atomic")                                 this->accessMode |= Access::Atomic;
+        else if (qualifier == "ptr")                                    this->accessMode |= Access::Pointer;
         else if (qualifier == "volatile")                               this->accessMode |= Access::Volatile;
         else
         {
@@ -83,6 +86,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         Expression* expr = this->qualifierExpressions[i].expr;
         if (qualifier == "group") this->group = expr->EvalUInt(typechecker);
         else if (qualifier == "binding") this->binding = expr->EvalUInt(typechecker);
+        else if (qualifier == "alignment") this->alignment = expr->EvalUInt(typechecker);
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -221,7 +225,12 @@ VarBuffer::Format(const Header& header) const
     }
     else if (header.GetType() == Header::SPIRV)
     {
-        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d) %s buffer ", this->group, this->binding, this->FormatBufferAccess(header).c_str());
+        std::string pointerAccess = "";
+        if (this->accessMode & Access::Pointer)
+        {
+            pointerAccess = AnyFX::Format("buffer_reference, buffer_reference_align=%d", this->alignment);
+        }
+        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d %s) %s buffer ", this->group, this->binding, pointerAccess, this->FormatBufferAccess(header).c_str());
         formattedCode.append(layout);
     }
     else if (header.GetType() == Header::C)
