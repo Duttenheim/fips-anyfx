@@ -218,7 +218,7 @@ Shader::Generate(
         this->preamble.append("#extension GL_KHR_shader_subgroup_quad : enable\n");
         this->preamble.append("#extension GL_EXT_buffer_reference : enable\n");
         this->preamble.append("#extension GL_EXT_buffer_reference2 : enable\n");
-        if (this->shaderType >= ProgramRow::RayGenerationShader && this->shaderType <= ProgramRow::RayIntersectionShader)
+        if (this->shaderType >= ProgramRow::RayGenerationShader && this->shaderType <= ProgramRow::CallShader)
         {
             this->preamble.append("#extension GL_EXT_ray_tracing : require\n");
             this->preamble.append("#extension GL_EXT_ray_query : require\n");
@@ -237,12 +237,13 @@ Shader::Generate(
         "#define GEOMETRY_SHADER 1\n\n",
         "#define PIXEL_SHADER 1\n\n",
         "#define COMPUTE_SHADER 1\n\n",
+        "#define TASK_SHADER 1\n\n",
         "#define MESH_SHADER 1\n\n",
-        "#define RAYGEN_SHADER 1\n\n",
-        "#define RAYANYHIT_SHADER 1\n\n",
-        "#define RAYCLOSESTHIT_SHADER 1\n\n",
-        "#define RAYMISS_SHADER 1\n\n",
-        "#define RAYINTERSECTION_SHADER 1\n\n"
+        "#define RAY_GEN_SHADER 1\n\n",
+        "#define RAY_ANYHIT_SHADER 1\n\n",
+        "#define RAY_CLOSESTHIT_SHADER 1\n\n",
+        "#define RAY_MISS_SHADER 1\n\n",
+        "#define RAY_INTERSECTION_SHADER 1\n\n"
     };
     this->preamble.append(shaderDefines[this->shaderType]);
 
@@ -414,9 +415,8 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
     // start compilation
     bool compilationSuccess = false;
 
-    // this seems a bit weird, we attempt to compile when we perform type checking
-    // however, we only perform a test compilation just to see if the formatted GLSL code is syntactically correct
-    const EShLanguage shaderTable[] =
+    // Setup conversion table to map anyfx shader index with glslang
+    static constexpr EShLanguage shaderTable[] =
     {
         EShLangVertex,
         EShLangTessControl,
@@ -424,12 +424,14 @@ Shader::CompileSPIRV(const std::string& code, Generator* generator)
         EShLangGeometry,
         EShLangFragment,
         EShLangCompute,
+        EShLangTaskNV,
         EShLangMeshNV,
         EShLangRayGen,
         EShLangAnyHit,
         EShLangClosestHit,
         EShLangMiss,
-        EShLangIntersect
+        EShLangIntersect,
+        EShLangCallable
     };
 
     // create array of strings

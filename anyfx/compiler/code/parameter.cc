@@ -170,7 +170,7 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
                     qualifierFormat += "rayPayloadEXT ";
                 }
             }
-            else if (this->attribute == Parameter::RayResult)
+            else if (this->attribute == Parameter::CallResult)
             {
                 ioFormat = "";
                 if (this->GetIO() == Parameter::Input)
@@ -282,18 +282,40 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 	// check attribute string
 	if (!this->attributeString.empty())
 	{
-		if (this->attributeString == "drawinstanceID") 						{ this->attribute = Parameter::DrawInstance; }
-		else if (this->attributeString == "vertexID") 						{ this->attribute = Parameter::Vertex; }
-		else if (this->attributeString == "primitiveID") 					{ this->attribute = Parameter::Primitive; }
-		else if (this->attributeString == "invocationID") 					{ this->attribute = Parameter::Invocation; }
-		else if (this->attributeString == "viewportID") 					{ this->attribute = Parameter::Viewport; }
-		else if (this->attributeString == "rendertargetID") 				{ this->attribute = Parameter::Rendertarget; }
-		else if (this->attributeString == "innertessellation") 				{ this->attribute = Parameter::InnerTessellation; }
-		else if (this->attributeString == "outertessellation") 				{ this->attribute = Parameter::OuterTessellation; }
+		if (this->attributeString == "drawinstanceID" ||
+            this->attributeString == "draw-instance_id") 					
+                                                                            { this->attribute = Parameter::DrawInstance; }
+		else if (this->attributeString == "vertexID" || 
+                 this->attributeString == "vertex_id")
+                                                                            { this->attribute = Parameter::Vertex; }
+		else if (this->attributeString == "primitiveID" || 
+                 this->attributeString == "primitive_id") 
+                                                                            { this->attribute = Parameter::Primitive; }
+		else if (this->attributeString == "invocationID" || 
+                 this->attributeString == "invocationID")
+                                                                            { this->attribute = Parameter::Invocation; }
+		else if (this->attributeString == "viewportID" || 
+                 this->attributeString == "viewport_id") 
+                                                                            { this->attribute = Parameter::Viewport; }
+		else if (this->attributeString == "rendertargetID" ||
+                 this->attributeString == "rendertarget_id")
+                                                                            { this->attribute = Parameter::Rendertarget; }
+		else if (this->attributeString == "innertessellation" ||
+                 this->attributeString == "inner_tessellation")
+                                                                            { this->attribute = Parameter::InnerTessellation; }
+		else if (this->attributeString == "outertessellation" ||
+                 this->attributeString == "outer_tessellation")
+                                                                            { this->attribute = Parameter::OuterTessellation; }
 		else if (this->attributeString == "position") 						{ this->attribute = Parameter::Position; }
-		else if (this->attributeString == "pointsize") 						{ this->attribute = Parameter::PointSize; }
-		else if (this->attributeString == "clipdistance") 					{ this->attribute = Parameter::ClipDistance; }
-		else if (this->attributeString == "frontface") 						{ this->attribute = Parameter::FrontFace; }
+		else if (this->attributeString == "pointsize" ||
+                 this->attributeString == "point_size")
+                                                                            { this->attribute = Parameter::PointSize; }
+		else if (this->attributeString == "clipdistance" ||
+                 this->attributeString == "clip_distance")
+                                                                            { this->attribute = Parameter::ClipDistance; }
+		else if (this->attributeString == "frontface" || 
+                 this->attributeString == "front_face")
+                                                                            { this->attribute = Parameter::FrontFace; }
 		else if (this->attributeString == "coordinate") 					{ this->attribute = Parameter::Coordinate; }
 		else if (this->attributeString == "depth")							{ this->attribute = Parameter::Depth; }
 		else if (this->attributeString == "color0") 						{ this->attribute = Parameter::Color0; }
@@ -304,13 +326,21 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		else if (this->attributeString == "color5") 						{ this->attribute = Parameter::Color5; }
 		else if (this->attributeString == "color6") 						{ this->attribute = Parameter::Color6; }
 		else if (this->attributeString == "color7") 						{ this->attribute = Parameter::Color7; }
-		else if (this->attributeString == "workgroupID")					{ this->attribute = Parameter::WorkGroup; }
-		else if (this->attributeString == "numgroups")						{ this->attribute = Parameter::NumGroups; }
-		else if (this->attributeString == "localID") 						{ this->attribute = Parameter::LocalID; }
-		else if (this->attributeString == "localindex") 					{ this->attribute = Parameter::LocalIndex; }
+		else if (this->attributeString == "workgroupID" || 
+                 this->attributeString == "workgroup_id")					
+                                                                            { this->attribute = Parameter::WorkGroup; }
+		else if (this->attributeString == "numgroups" ||
+                 this->attributeString == "num_groups")						
+                                                                            { this->attribute = Parameter::NumGroups; }
+		else if (this->attributeString == "localID" || 
+                 this->attributeString == "local_id") 						
+                                                                            { this->attribute = Parameter::LocalID; }
+		else if (this->attributeString == "localindex" 
+                 || this->attributeString == "local_index") 				
+                                                                            { this->attribute = Parameter::LocalIndex; }
 		else if (this->attributeString == "globalID") 						{ this->attribute = Parameter::GlobalID; }
-        else if (this->attributeString == "ray_payload")                     { this->attribute = Parameter::RayPayload; }
-        else if (this->attributeString == "ray_result")                      { this->attribute = Parameter::RayResult; }
+        else if (this->attributeString == "ray_payload")                    { this->attribute = Parameter::RayPayload; }
+        else if (this->attributeString == "call_result")                    { this->attribute = Parameter::CallResult; }
 		else 																{ this->attribute = Parameter::InvalidAttribute; }
         
 	}
@@ -518,7 +548,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color6:
 			case Color7:
             case RayPayload:
-            case RayResult:
+            case CallResult:
 			case NoAttribute:
 				break; // accept attribute
 			default:
@@ -559,7 +589,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color6:
 			case Color7:
             case RayPayload:
-            case RayResult:
+            case CallResult:
 			case NoAttribute:
 				break;	// accept attribute
 			case PointSize:
@@ -934,7 +964,7 @@ Parameter::AttributeToString(const Attribute& attr)
 		return "color7";
     case RayPayload:
         return "ray_payload";
-    case RayResult:
+    case CallResult:
         return "ray_result";
 	default:
 		return "undefined attribute";

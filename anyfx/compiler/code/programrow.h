@@ -24,12 +24,14 @@ public:
 		GeometryShader,
 		PixelShader,
 		ComputeShader,
+        TaskShader,
         MeshShader,
         RayGenerationShader,
         RayAnyHitShader,
         RayClosestHitShader,
         RayMissShader,
         RayIntersectionShader,
+        CallShader,
 		RenderState,        // ALWAYS KEEP AT THE END!  (necessary in program.cc where we check for subroutine bindings)
 
 		NumProgramRows

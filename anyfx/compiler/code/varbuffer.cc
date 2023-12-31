@@ -230,7 +230,7 @@ VarBuffer::Format(const Header& header) const
         {
             pointerAccess = AnyFX::Format("buffer_reference, buffer_reference_align=%d", this->alignment);
         }
-        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d %s) %s buffer ", this->group, this->binding, pointerAccess, this->FormatBufferAccess(header).c_str());
+        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d %s) %s buffer ", this->group, this->binding, pointerAccess.c_str(), this->FormatBufferAccess(header).c_str());
         formattedCode.append(layout);
     }
     else if (header.GetType() == Header::C)

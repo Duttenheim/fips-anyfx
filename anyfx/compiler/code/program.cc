@@ -56,17 +56,19 @@ void
 Program::ConsumeRow( const ProgramRow& row )
 {
     if (row.GetFlag() == "VertexShader")		        { this->slotNames[ProgramRow::VertexShader] = row.GetString();          this->slotMask[ProgramRow::VertexShader] = true;            this->slotSubroutineMappings[ProgramRow::VertexShader] = row.GetSubroutineMappings(); }
-    else if (row.GetFlag() == "PixelShader")	        { this->slotNames[ProgramRow::PixelShader] = row.GetString();           this->slotMask[ProgramRow::PixelShader] = true;             this->slotSubroutineMappings[ProgramRow::PixelShader] = row.GetSubroutineMappings(); }
-    else if (row.GetFlag() == "GeometryShader")	        { this->slotNames[ProgramRow::GeometryShader] = row.GetString();        this->slotMask[ProgramRow::GeometryShader] = true;          this->slotSubroutineMappings[ProgramRow::GeometryShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "HullShader")		        { this->slotNames[ProgramRow::HullShader] = row.GetString();            this->slotMask[ProgramRow::HullShader] = true;              this->slotSubroutineMappings[ProgramRow::HullShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "DomainShader")	        { this->slotNames[ProgramRow::DomainShader] = row.GetString();          this->slotMask[ProgramRow::DomainShader] = true;            this->slotSubroutineMappings[ProgramRow::DomainShader] = row.GetSubroutineMappings(); }
+    else if (row.GetFlag() == "PixelShader")	        { this->slotNames[ProgramRow::PixelShader] = row.GetString();           this->slotMask[ProgramRow::PixelShader] = true;             this->slotSubroutineMappings[ProgramRow::PixelShader] = row.GetSubroutineMappings(); }
+    else if (row.GetFlag() == "GeometryShader")	        { this->slotNames[ProgramRow::GeometryShader] = row.GetString();        this->slotMask[ProgramRow::GeometryShader] = true;          this->slotSubroutineMappings[ProgramRow::GeometryShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "ComputeShader")	        { this->slotNames[ProgramRow::ComputeShader] = row.GetString();         this->slotMask[ProgramRow::ComputeShader] = true;           this->slotSubroutineMappings[ProgramRow::ComputeShader] = row.GetSubroutineMappings(); }
+    else if (row.GetFlag() == "TaskShader")             { this->slotNames[ProgramRow::TaskShader] = row.GetString();            this->slotMask[ProgramRow::TaskShader] = true;              this->slotSubroutineMappings[ProgramRow::TaskShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "MeshShader")             { this->slotNames[ProgramRow::MeshShader] = row.GetString();            this->slotMask[ProgramRow::MeshShader] = true;              this->slotSubroutineMappings[ProgramRow::MeshShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RayGenerationShader")    { this->slotNames[ProgramRow::RayGenerationShader] = row.GetString();   this->slotMask[ProgramRow::RayGenerationShader] = true;     this->slotSubroutineMappings[ProgramRow::RayGenerationShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RayAnyHitShader")        { this->slotNames[ProgramRow::RayAnyHitShader] = row.GetString();       this->slotMask[ProgramRow::RayAnyHitShader] = true;         this->slotSubroutineMappings[ProgramRow::RayAnyHitShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RayClosestHitShader")    { this->slotNames[ProgramRow::RayClosestHitShader] = row.GetString();   this->slotMask[ProgramRow::RayClosestHitShader] = true;     this->slotSubroutineMappings[ProgramRow::RayClosestHitShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RayMissShader")          { this->slotNames[ProgramRow::RayMissShader] = row.GetString();         this->slotMask[ProgramRow::RayMissShader] = true;           this->slotSubroutineMappings[ProgramRow::RayMissShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RayIntersectionShader")  { this->slotNames[ProgramRow::RayIntersectionShader] = row.GetString(); this->slotMask[ProgramRow::RayIntersectionShader] = true;   this->slotSubroutineMappings[ProgramRow::RayIntersectionShader] = row.GetSubroutineMappings(); }
+    else if (row.GetFlag() == "CallShader")             { this->slotNames[ProgramRow::CallShader] = row.GetString();            this->slotMask[ProgramRow::CallShader] = true;              this->slotSubroutineMappings[ProgramRow::CallShader] = row.GetSubroutineMappings(); }
     else if (row.GetFlag() == "RenderState")	        { this->slotNames[ProgramRow::RenderState] = row.GetString();           this->slotMask[ProgramRow::RenderState] = true; }
     else this->invalidFlags.push_back(row.GetFlag());
 }
@@ -161,12 +163,14 @@ Program::TypeCheck(TypeChecker& typechecker)
     Function* ds = typechecker.HasSymbol(this->slotNames[ProgramRow::DomainShader])		        ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::DomainShader]))		        : nullptr;
     Function* gs = typechecker.HasSymbol(this->slotNames[ProgramRow::GeometryShader])	        ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::GeometryShader]))	        : nullptr;
     Function* cs = typechecker.HasSymbol(this->slotNames[ProgramRow::ComputeShader])	        ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::ComputeShader]))	        : nullptr;
+    Function* ts = typechecker.HasSymbol(this->slotNames[ProgramRow::TaskShader])               ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::TaskShader]))               : nullptr;
     Function* ms = typechecker.HasSymbol(this->slotNames[ProgramRow::MeshShader])               ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::MeshShader]))               : nullptr;
     Function* rg = typechecker.HasSymbol(this->slotNames[ProgramRow::RayGenerationShader])      ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::RayGenerationShader]))      : nullptr;
     Function* ra = typechecker.HasSymbol(this->slotNames[ProgramRow::RayAnyHitShader])          ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::RayAnyHitShader]))          : nullptr;
     Function* rc = typechecker.HasSymbol(this->slotNames[ProgramRow::RayClosestHitShader])      ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::RayClosestHitShader]))      : nullptr;
     Function* rm = typechecker.HasSymbol(this->slotNames[ProgramRow::RayMissShader])            ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::RayMissShader]))            : nullptr;
     Function* ri = typechecker.HasSymbol(this->slotNames[ProgramRow::RayIntersectionShader])    ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::RayIntersectionShader]))    : nullptr;
+    Function* ca = typechecker.HasSymbol(this->slotNames[ProgramRow::CallShader])               ? dynamic_cast<Function*>(typechecker.GetSymbol(this->slotNames[ProgramRow::CallShader]))               : nullptr;
 
     RenderState* renderState = typechecker.HasSymbol(this->slotNames[ProgramRow::RenderState]) ? dynamic_cast<RenderState*>(typechecker.GetSymbol(this->slotNames[ProgramRow::RenderState]))	: nullptr;
     if (!renderState)
@@ -175,66 +179,39 @@ Program::TypeCheck(TypeChecker& typechecker)
         typechecker.Error(message, this->GetFile(), this->GetLine());
     }
 
-    auto validateShader = [this, &typechecker](Function* func)
+    auto validateShader = [this, &typechecker](Function* func, ProgramRow::StringType code, bool* masks)
     {
         if (func && !func->IsShader())
         {
             std::string message = AnyFX::Format("Function '%s' is not qualified with 'shader', %s\n", func->GetName().c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
+
+         // first type check to see our functions truly do exist
+        if (masks[code] && func == 0)
+        {
+            std::string message = Format("Shader with name '%s' is not defined, %s", this->slotNames[code].c_str(), this->ErrorSuffix().c_str());
+            typechecker.Error(message, this->GetFile(), this->GetLine());
+        }
     };
 
     // Validate all shaders
-    validateShader(vs);
-    validateShader(ps);
-    validateShader(hs);
-    validateShader(ds);
-    validateShader(gs);
-    validateShader(cs);
-    validateShader(ms);
-    validateShader(rg);
-    validateShader(ra);
-    validateShader(rc);
-    validateShader(rm);
-    validateShader(ri);
+    validateShader(vs, ProgramRow::VertexShader, slotMask);
+    validateShader(hs, ProgramRow::HullShader, slotMask);
+    validateShader(ds, ProgramRow::DomainShader, slotMask);
+    validateShader(gs, ProgramRow::GeometryShader, slotMask);
+    validateShader(ps, ProgramRow::PixelShader, slotMask);
+    validateShader(cs, ProgramRow::ComputeShader, slotMask);
+    validateShader(ts, ProgramRow::TaskShader, slotMask);
+    validateShader(ms, ProgramRow::MeshShader, slotMask);
+    validateShader(rg, ProgramRow::RayGenerationShader, slotMask);
+    validateShader(ra, ProgramRow::RayAnyHitShader, slotMask);
+    validateShader(rc, ProgramRow::RayClosestHitShader, slotMask);
+    validateShader(rm, ProgramRow::RayMissShader, slotMask);
+    validateShader(ri, ProgramRow::RayIntersectionShader, slotMask);
+    validateShader(ca, ProgramRow::CallShader, slotMask);
 
-    // first type check to see our functions truly do exist
-    if (slotMask[ProgramRow::VertexShader] && vs == 0)
-    {
-        std::string message = Format("Vertex shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::VertexShader].c_str(), this->ErrorSuffix().c_str());
-        typechecker.Error(message, this->GetFile(), this->GetLine());
-    }
-
-    if (slotMask[ProgramRow::PixelShader] && ps == 0)
-    {
-        std::string message = Format("Pixel shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::PixelShader].c_str(), this->ErrorSuffix().c_str());
-        typechecker.Error(message, this->GetFile(), this->GetLine());
-    }
-
-    if (slotMask[ProgramRow::HullShader] && hs == 0)
-    {
-        std::string message = Format("Hull/Control shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::HullShader].c_str(), this->ErrorSuffix().c_str());
-        typechecker.Error(message, this->GetFile(), this->GetLine());
-    }
-
-    if (slotMask[ProgramRow::DomainShader] && ds == 0)
-    {
-        std::string message = Format("Domain/Evaluation shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::DomainShader].c_str(), this->ErrorSuffix().c_str());
-        typechecker.Error(message, this->GetFile(), this->GetLine());
-    }
-
-    if (slotMask[ProgramRow::GeometryShader] && gs == 0)
-    {
-        std::string message = Format("Geometry shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::GeometryShader].c_str(), this->ErrorSuffix().c_str());
-        typechecker.Error(message, this->GetFile(), this->GetLine());
-    }
-
-    if (slotMask[ProgramRow::ComputeShader] && cs == 0)
-    {
-        std::string message = Format("Compute shader with name '%s' is not defined, %s", this->slotNames[ProgramRow::ComputeShader].c_str(), this->ErrorSuffix().c_str());
-        typechecker.Error(message, this->GetFile(), this->GetLine());
-    }
-
+   
     if (hs)
     {
         // get patch size from attributes
@@ -577,12 +554,14 @@ Program::Compile(BinWriter& writer)
     writeShader('GEOM', ProgramRow::GeometryShader);
     writeShader('PIXL', ProgramRow::PixelShader);
     writeShader('COMP', ProgramRow::ComputeShader);
+    writeShader('TASK', ProgramRow::TaskShader);
     writeShader('MESH', ProgramRow::MeshShader);
     writeShader('RAYG', ProgramRow::RayGenerationShader);
     writeShader('RAYA', ProgramRow::RayAnyHitShader);
     writeShader('RAYC', ProgramRow::RayClosestHitShader);
     writeShader('RAYM', ProgramRow::RayMissShader);
     writeShader('RAYI', ProgramRow::RayIntersectionShader);
+    writeShader('CALL', ProgramRow::CallShader);
 
     writer.WriteUInt(this->activeUniformBlocks.size());
     unsigned i;
@@ -819,23 +798,42 @@ Program::LinkSPIRV(Generator& generator, Shader* const* shaders, unsigned numSha
     spvtools::Optimizer optimizer(SPV_ENV_VULKAN_1_2);
     optimizer.RegisterPerformancePasses();
 
+    static constexpr ProgramRow::StringType shaderTable[] =
+    {
+        ProgramRow::VertexShader,
+        ProgramRow::HullShader,
+        ProgramRow::DomainShader,
+        ProgramRow::GeometryShader,
+        ProgramRow::PixelShader,
+        ProgramRow::ComputeShader,
+        ProgramRow::RayGenerationShader,
+        ProgramRow::RayIntersectionShader,
+        ProgramRow::RayAnyHitShader,
+        ProgramRow::RayClosestHitShader,
+        ProgramRow::RayMissShader,
+        ProgramRow::CallShader,
+        ProgramRow::TaskShader,
+        ProgramRow::MeshShader
+    };
+
     // Run optimizations on every shader stage
     for (int i = 0; i < EShLangCount; i++)
     {
         glslang::TIntermediate* intermediate = program->getIntermediate((EShLanguage)i);
         if (intermediate != nullptr)
         {
+            int shaderIndex = shaderTable[i];
             glslang::SpvOptions options;
             options.disableOptimizer = false;
             options.optimizeSize = true;
-            glslang::GlslangToSpv(*intermediate, this->binary[i]);
+            glslang::GlslangToSpv(*intermediate, this->binary[shaderIndex]);
 
             std::vector<unsigned int> optimized;
-            if (optimizer.Run(this->binary[i].data(), this->binary[i].size(), &optimized))
+            if (optimizer.Run(this->binary[shaderIndex].data(), this->binary[shaderIndex].size(), &optimized))
             {
                 if (optimized.size() > 0)
                 {
-                    this->binary[i] = optimized;
+                    this->binary[shaderIndex] = optimized;
                 }
             }
         }

@@ -29,7 +29,7 @@ public:
 
     struct ShaderBlock
     {
-        ShaderDef vs, hs, ds, gs, ps, cs, ms, rg, ra, rc, rm, ri;
+        ShaderDef vs, hs, ds, gs, ps, cs, ts, ms, rg, ra, rc, rm, ri, ca;
     } shaderBlock;
 
     bool supportsTessellation;

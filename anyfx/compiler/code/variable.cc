@@ -217,7 +217,8 @@ Variable::TypeCheck(TypeChecker& typechecker)
         else if (typechecker.GetHeader().GetType() == Header::SPIRV)
         {
             if ((this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::TEXTURE_TYPES_END) || 
-                (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END))
+                (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END) ||
+                this->type.GetType() == DataType::AccelerationStructure)
             {
                 Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
             }
@@ -493,6 +494,13 @@ Variable::GetBinding() const
     if (this->type.GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && this->type.GetType() <= DataType::ALL_TEXTURE_TYPES_END)
     {
         ret.type = Binding::Type::Texture;
+        ret.binding.texture = { this->binding };
+        ret.group = this->group;
+        ret.name = this->name;
+    }
+    else if (this->type.GetType() == DataType::AccelerationStructure)
+    {
+        ret.type = Binding::Type::AccelerationStructure;
         ret.binding.texture = { this->binding };
         ret.group = this->group;
         ret.name = this->name;

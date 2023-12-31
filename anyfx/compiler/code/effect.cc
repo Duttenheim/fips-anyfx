@@ -583,7 +583,8 @@ Effect::GenerateHeader(TextWriter& writer)
     for (i = 0; i < this->variables.size(); i++)
     {
         const auto variable = this->variables[i];
-        if (variable.GetDataType().GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && variable.GetDataType().GetType() <= DataType::ALL_TEXTURE_TYPES_END)
+        if ((variable.GetDataType().GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && variable.GetDataType().GetType() <= DataType::ALL_TEXTURE_TYPES_END)
+            || (variable.GetDataType().GetType() == DataType::AccelerationStructure))
         {
             Variable::Binding binding = variable.GetBinding();
             bindings[binding.group].push_back(binding);
@@ -627,7 +628,8 @@ Effect::GenerateHeader(TextWriter& writer)
         writer.WriteString(AnyFX::Format("struct %s \n{\n\t", tableName.c_str()));
         for (auto binding : iter->second)
         {
-            if (binding.type == Variable::Binding::Type::Texture)
+            if (binding.type == Variable::Binding::Type::Texture ||
+                binding.type == Variable::Binding::Type::AccelerationStructure)
             {
                 writer.WriteString(AnyFX::Format("static const unsigned %s_SLOT = %d;\n\t", binding.name.c_str(), binding.binding.texture.slot));
             }

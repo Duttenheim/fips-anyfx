@@ -95,7 +95,8 @@ public:
         enum class Type
         {
             Buffer,
-            Texture
+            Texture,
+            AccelerationStructure
         } type;
 
         union

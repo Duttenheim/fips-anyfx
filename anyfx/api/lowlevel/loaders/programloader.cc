@@ -128,19 +128,21 @@ ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
     bool supportsTransformFeedback = reader->ReadBool();
 	program->supportsTransformFeedback = supportsTransformFeedback;
 
-    std::string vs, hs, ds, gs, ps, cs, ms, rg, ra, rc, rm, ri;
+    std::string vs, hs, ds, gs, ps, cs, ts, ms, rg, ra, rc, rm, ri, ca;
     ReadShader(&program->shaderBlock.vs, 'VERT', vs, reader);
     ReadShader(&program->shaderBlock.hs, 'HULL', hs, reader);
     ReadShader(&program->shaderBlock.ds, 'DOMA', ds, reader);
     ReadShader(&program->shaderBlock.gs, 'GEOM', gs, reader);
     ReadShader(&program->shaderBlock.ps, 'PIXL', ps, reader);
     ReadShader(&program->shaderBlock.cs, 'COMP', cs, reader);
+    ReadShader(&program->shaderBlock.ts, 'TASK', ts, reader);
     ReadShader(&program->shaderBlock.ms, 'MESH', ms, reader);
     ReadShader(&program->shaderBlock.rg, 'RAYG', rg, reader);
     ReadShader(&program->shaderBlock.ra, 'RAYA', ra, reader);
     ReadShader(&program->shaderBlock.rc, 'RAYC', rc, reader);
     ReadShader(&program->shaderBlock.rm, 'RAYM', rm, reader);
     ReadShader(&program->shaderBlock.ri, 'RAYI', ri, reader);
+    ReadShader(&program->shaderBlock.ca, 'CALL', ca, reader);
 
 	// read names of active blocks
 	unsigned numActiveBlocks = reader->ReadUInt();
@@ -181,51 +183,20 @@ ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
         if (!vs.empty()) program->valid = true;
     if (BindShader(&program->shaderBlock.cs, effect, cs))
         program->valid = true;
+    if (BindShader(&program->shaderBlock.ts, effect, ts))
+        if (!ms.empty()) program->valid = true;
     if (BindShader(&program->shaderBlock.ms, effect, ms))
+        if (!ts.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.rg, effect, rg))
         program->valid = true;
-
-	// find shaders previously loaded in the effect and attach them to this program
-	if (!vs.empty())
-	{
-		ShaderBase* vertexShader = effect->GetShader(vs);
-		program->shaderBlock.vs.shader = vertexShader;
-		program->valid = true;
-	}
-	
-	if (!ps.empty())
-	{
-		ShaderBase* pixelShader = effect->GetShader(ps);
-		program->shaderBlock.ps.shader = pixelShader;
-		if (!vs.empty()) program->valid = true;
-	}
-	
-	if (!hs.empty())
-	{
-		ShaderBase* hullShader = effect->GetShader(hs);
-		program->shaderBlock.hs.shader = hullShader;
-		if (!vs.empty()) program->valid = true;
-	}
-
-	if (!ds.empty())
-	{
-		ShaderBase* domainShader = effect->GetShader(ds);
-		program->shaderBlock.ds.shader = domainShader;
-		if (!vs.empty() && !hs.empty()) program->valid = true;
-	}
-
-	if (!gs.empty())
-	{
-		ShaderBase* geometryShader = effect->GetShader(gs);
-		program->shaderBlock.gs.shader = geometryShader;
-		if (!vs.empty()) program->valid = true;
-	}
-
-	if (!cs.empty())
-	{
-		ShaderBase* computeShader = effect->GetShader(cs);
-		program->shaderBlock.cs.shader = computeShader;
-		program->valid = true;
-	}
+    if (BindShader(&program->shaderBlock.ra, effect, ra))
+        if (!rg.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.rc, effect, rc))
+        if (!rg.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.rm, effect, rm))
+        if (!rg.empty()) program->valid = true;
+    if (BindShader(&program->shaderBlock.ri, effect, ri))
+        if (!rg.empty()) program->valid = true;
 
 	// assert there is a render state
 	assert(!rs.empty());

@@ -60,7 +60,7 @@ public:
 		LocalIndex,
 		GlobalID,
         RayPayload,
-        RayResult,
+        CallResult,
 		NoAttribute,
 
 		NumAttributes,
