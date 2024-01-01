@@ -1,2 +1,2 @@
 #!/bin/sh
-(cd ../;./fips build anyfxcompiler-linux)
+(cd $(dirname $0)/../;./fips build anyfxcompiler-linux)
