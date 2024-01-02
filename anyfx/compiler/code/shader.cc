@@ -220,9 +220,9 @@ Shader::Generate(
         this->preamble.append("#extension GL_EXT_buffer_reference2 : enable\n");
         if (this->shaderType >= ProgramRow::RayGenerationShader && this->shaderType <= ProgramRow::CallShader)
         {
-            this->preamble.append("#extension GL_EXT_ray_tracing : require\n");
-            this->preamble.append("#extension GL_EXT_ray_query : require\n");
-            this->preamble.append("#extension GL_EXT_ray_flags_primitive_culling : require\n");
+            this->preamble.append("#extension GL_EXT_ray_tracing : enable\n");
+            this->preamble.append("#extension GL_EXT_ray_query : enable\n");
+            this->preamble.append("#extension GL_EXT_ray_flags_primitive_culling : enable\n");
         }
 
         this->preamble.append("#define SPIRV\n");
