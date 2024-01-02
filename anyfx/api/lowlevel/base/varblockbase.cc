@@ -25,11 +25,6 @@ VarblockBase::VarblockBase() :
 */
 VarblockBase::~VarblockBase()
 {
-	unsigned i;
-	for (i = 0; i < this->variables.size(); i++)
-	{
-		delete this->variables[i];
-	}
 	this->variables.clear();
 	this->variablesByName.clear();
 }

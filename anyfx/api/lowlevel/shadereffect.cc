@@ -28,6 +28,7 @@ ShaderEffect::~ShaderEffect()
 	for (i = 0; i < this->variablesByIndex.size(); i++) delete this->variablesByIndex[i];
 	for (i = 0; i < this->renderstatesByIndex.size(); i++) delete this->renderstatesByIndex[i];
 	for (i = 0; i < this->subroutinesByIndex.size(); i++) delete this->subroutinesByIndex[i];
+    for (i = 0; i < this->varblocksByIndex.size(); i++) delete this->varblocksByIndex[i];
 	for (i = 0; i < this->varbuffersByIndex.size(); i++) delete this->varbuffersByIndex[i];
 	for (i = 0; i < this->samplersByIndex.size(); i++) delete this->samplersByIndex[i];
 }

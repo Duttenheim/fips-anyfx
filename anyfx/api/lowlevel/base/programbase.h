@@ -25,6 +25,12 @@ public:
         ShaderBase* shader;
         unsigned binarySize;
         char* binary;
+
+        ~ShaderDef()
+        {
+            if (binary != nullptr)
+                delete [] binary;
+        }
     };
 
     struct ShaderBlock
@@ -41,6 +47,9 @@ public:
     std::vector<unsigned> psOutputSlots;
     std::string name;
     bool valid;
+
+    unsigned rayPayloadSize;
+    unsigned hitAttributeSize;
 
     std::unordered_set<std::string> activeVarblockNames;
     std::unordered_set<std::string> activeVariableNames;
