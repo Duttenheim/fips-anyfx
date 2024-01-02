@@ -499,7 +499,7 @@ Program::Compile(BinWriter& writer)
     if (this->hasAnnotation)
     {
         this->annotation.Compile(writer);
-    }	
+    }
 
     // write tessellation boolean and tessellation patch size
     writer.WriteBool(this->slotMask[ProgramRow::HullShader]);
@@ -530,6 +530,69 @@ Program::Compile(BinWriter& writer)
 
     // write geometry shader boolean which tells us we can use transform feedbacks
     writer.WriteBool(this->slotMask[ProgramRow::GeometryShader]);
+
+    if (this->slotMask[ProgramRow::RayGenerationShader] || 
+        this->slotMask[ProgramRow::RayAnyHitShader] || 
+        this->slotMask[ProgramRow::RayClosestHitShader] || 
+        this->slotMask[ProgramRow::RayIntersectionShader]
+        )
+    {
+        unsigned maxRayPayloadSize = 0;
+        unsigned maxHitAttributeSize = 0;
+        std::vector<Parameter> params;
+
+        if (this->slotMask[ProgramRow::RayGenerationShader])
+        {
+            params = this->shaders[ProgramRow::RayGenerationShader]->GetFunction().GetParameters();
+            for (const auto param : params)
+            {
+                 if (param.GetAttribute() == Parameter::RayPayload)
+                    maxRayPayloadSize = std::max(maxRayPayloadSize, DataType::ToByteSize(param.GetDataType()));
+            }
+        }
+
+        if (this->slotMask[ProgramRow::RayAnyHitShader])
+        {
+            params = this->shaders[ProgramRow::RayAnyHitShader]->GetFunction().GetParameters();
+            for (const auto param : params)
+            {
+                if (param.GetAttribute() == Parameter::HitAttribute)
+                    maxHitAttributeSize = std::max(maxHitAttributeSize, DataType::ToByteSize(param.GetDataType()));
+                else if (param.GetAttribute() == Parameter::RayPayload)
+                    maxRayPayloadSize = std::max(maxRayPayloadSize, DataType::ToByteSize(param.GetDataType()));
+            }
+        }
+        
+        if (this->slotMask[ProgramRow::RayClosestHitShader])
+        {
+            params = this->shaders[ProgramRow::RayClosestHitShader]->GetFunction().GetParameters();
+            for (const auto param : params)
+            {
+                if (param.GetAttribute() == Parameter::HitAttribute)
+                    maxHitAttributeSize = std::max(maxHitAttributeSize, DataType::ToByteSize(param.GetDataType()));
+                else if (param.GetAttribute() == Parameter::RayPayload)
+                    maxRayPayloadSize = std::max(maxRayPayloadSize, DataType::ToByteSize(param.GetDataType()));
+            }
+        }
+
+        if (this->slotMask[ProgramRow::RayIntersectionShader])
+        {
+            params = this->shaders[ProgramRow::RayIntersectionShader]->GetFunction().GetParameters();
+            for (const auto param : params)
+            {
+                if (param.GetAttribute() == Parameter::RayPayload)
+                    maxRayPayloadSize = std::max(maxRayPayloadSize, DataType::ToByteSize(param.GetDataType()));
+            }
+        }
+
+        writer.WriteUInt(maxRayPayloadSize);
+        writer.WriteUInt(maxHitAttributeSize);
+    }
+    else
+    {
+        writer.WriteUInt(0);
+        writer.WriteUInt(0);
+    }
 
     // create iterator to iterate over subroutine mappings
     std::map<std::string, std::string>::const_iterator it;

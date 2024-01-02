@@ -410,6 +410,15 @@ Function::GetOutputParameters() const
 //------------------------------------------------------------------------------
 /**
 */
+const std::vector<Parameter>&
+Function::GetParameters() const
+{
+    return this->parameters;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Parameter* 
 Function::GetParameter( unsigned index )
 {

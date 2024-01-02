@@ -85,6 +85,8 @@ public:
 	const std::vector<const Parameter*> GetInputParameters() const;
 	/// constructs a list of only outputs
 	const std::vector<const Parameter*> GetOutputParameters() const;
+    /// Get all parameters
+    const std::vector<Parameter>& GetParameters() const;
 private:
     friend class Subroutine;
 	friend class Effect;

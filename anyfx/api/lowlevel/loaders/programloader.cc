@@ -127,6 +127,9 @@ ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
     // read and set transform feedback support
     bool supportsTransformFeedback = reader->ReadBool();
 	program->supportsTransformFeedback = supportsTransformFeedback;
+    
+    program->rayPayloadSize = reader->ReadUInt();
+    program->hitAttributeSize = reader->ReadUInt();
 
     std::string vs, hs, ds, gs, ps, cs, ts, ms, rg, ra, rc, rm, ri, ca;
     ReadShader(&program->shaderBlock.vs, 'VERT', vs, reader);
