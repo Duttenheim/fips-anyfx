@@ -93,11 +93,11 @@ std::string
 Structure::Format(const Header& header) const
 {
 	std::string formattedCode;
-    
-	formattedCode.append("struct");	
-	formattedCode.append(" ");
-	if (header.GetType() == Header::C)
+
+	formattedCode.append("struct ");	
+    if (header.GetType() == Header::C)
         formattedCode.append("alignas(16) ");
+
 	formattedCode.append(this->GetName());
 	formattedCode.append("\n{\n");
 
