@@ -61,6 +61,7 @@ public:
 		GlobalID,
         RayPayload,
         CallResult,
+        HitAttribute,
 		NoAttribute,
 
 		NumAttributes,

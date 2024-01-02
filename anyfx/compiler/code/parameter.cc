@@ -182,6 +182,11 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
                     qualifierFormat += "callableDataEXT ";
                 }
             }
+            else if (this->attribute == Parameter::HitAttribute)
+            {
+                ioFormat = "";
+                qualifierFormat += "hitAttributeEXT ";
+            }
         }
 
         std::string decoration = "";
@@ -341,8 +346,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		else if (this->attributeString == "globalID") 						{ this->attribute = Parameter::GlobalID; }
         else if (this->attributeString == "ray_payload")                    { this->attribute = Parameter::RayPayload; }
         else if (this->attributeString == "call_result")                    { this->attribute = Parameter::CallResult; }
+        else if (this->attributeString == "hit_attribute")                  { this->attribute = Parameter::HitAttribute; }
 		else 																{ this->attribute = Parameter::InvalidAttribute; }
-        
 	}
 
 	if (this->sizeExpression)
