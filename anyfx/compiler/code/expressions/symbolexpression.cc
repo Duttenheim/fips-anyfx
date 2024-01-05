@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "symbolexpression.h"
 #include "symbol.h"
-#include "constant.h"
+#include "variable.h"
 #include "util.h"
 #include <string>
 
@@ -40,9 +40,9 @@ SymbolExpression::EvalType(TypeChecker& typechecker)
 	{
 		switch (symbol->GetType())
 		{
-		case Symbol::ConstantType:
+		case Symbol::VariableType:
 		{
-			Constant* constant = static_cast<Constant*>(symbol);
+            Variable* constant = static_cast<Variable*>(symbol);
 			type = constant->GetDataType();
 			break;
 		}
@@ -62,9 +62,15 @@ SymbolExpression::EvalInt(TypeChecker& typechecker)
 	{
 		switch (symbol->GetType())
 		{
-		case Symbol::ConstantType:
+		case Symbol::VariableType:
 		{
-			Constant* constant = static_cast<Constant*>(symbol);
+			Variable* constant = static_cast<Variable*>(symbol);
+            if (!constant->IsConst())
+            {
+                std::string msg = AnyFX::Format("Symbol '%s' must be a constant", constant->GetName().c_str());
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
+            }
+
 			unsigned numValues = constant->GetNumValues();
 			if (numValues > 1)
 			{
@@ -97,9 +103,15 @@ SymbolExpression::EvalUInt(TypeChecker& typechecker)
 	{
 		switch (symbol->GetType())
 		{
-		case Symbol::ConstantType:
+		case Symbol::VariableType:
 		{
-			Constant* constant = static_cast<Constant*>(symbol);
+            Variable* constant = static_cast<Variable*>(symbol);
+            if (!constant->IsConst())
+            {
+                std::string msg = AnyFX::Format("Symbol '%s' must be a constant", constant->GetName().c_str());
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
+            }
+
 			unsigned numValues = constant->GetNumValues();
 			if (numValues > 1)
 			{
@@ -132,9 +144,15 @@ SymbolExpression::EvalFloat(TypeChecker& typechecker)
 	{
 		switch (symbol->GetType())
 		{
-		case Symbol::ConstantType:
+		case Symbol::VariableType:
 		{
-			Constant* constant = static_cast<Constant*>(symbol);
+            Variable* constant = static_cast<Variable*>(symbol);
+            if (!constant->IsConst())
+            {
+                std::string msg = AnyFX::Format("Symbol '%s' must be a constant", constant->GetName().c_str());
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
+            }
+
 			unsigned numValues = constant->GetNumValues();
 			if (numValues > 1)
 			{
@@ -167,9 +185,15 @@ SymbolExpression::EvalBool(TypeChecker& typechecker)
 	{
 		switch (symbol->GetType())
 		{
-		case Symbol::ConstantType:
+		case Symbol::VariableType:
 		{
-			Constant* constant = static_cast<Constant*>(symbol);
+            Variable* constant = static_cast<Variable*>(symbol);
+            if (!constant->IsConst())
+            {
+                std::string msg = AnyFX::Format("Symbol '%s' must be a constant", constant->GetName().c_str());
+                typechecker.Error(msg, this->GetFile(), this->GetLine());
+            }
+
 			unsigned numValues = constant->GetNumValues();
 			if (numValues > 1)
 			{

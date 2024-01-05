@@ -44,9 +44,9 @@ public:
     /// gets the shader type
     unsigned GetType() const;
     /// sets the function object which this shader will use as its main entry point
-    void SetFunction(const Function& func);
+    void SetFunction(Function* func);
     /// gets the function
-    const Function& GetFunction() const;
+    Function* GetFunction() const;
     /// sets shader name
     void SetName(const std::string& name);
     /// gets shader name
@@ -66,16 +66,7 @@ public:
     /// sets up shader
     void Setup();
     /// generates code for shader
-    void Generate(
-        Generator& generator,
-        const std::vector<Variable>& vars,
-        const std::vector<Structure>& structures,
-        const std::vector<Constant>& constants,
-        const std::vector<VarBlock>& blocks, 
-        const std::vector<VarBuffer>& buffers,
-        const std::vector<Sampler>& samplers,
-        const std::vector<Subroutine>& subroutines,
-        const std::vector<Function>& functions);
+    void Generate(Generator& generator, const std::vector<Symbol*>& symbols);
 
     /// static function which resets all bindings
     static void ResetBindings();
@@ -131,7 +122,7 @@ private:
     void GenerateHLSL3(Generator& generator);
 #pragma endregion
 
-    Function func;
+    Function* func;
     unsigned shaderType;
     std::string name;
     std::string formattedCode;
@@ -153,15 +144,16 @@ private:
 /**
 */
 inline void
-Shader::SetFunction(const Function& func)
+Shader::SetFunction(Function* func)
 {
-    this->func = func;
+    this->func = new Function();
+    *this->func = *func;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Function& 
+inline Function* 
 Shader::GetFunction() const
 {
     return this->func;
@@ -171,10 +163,10 @@ Shader::GetFunction() const
 /**
 */
 inline void 
-Shader::SetName( const std::string& name )
+Shader::SetName(const std::string& name)
 {
     this->name = name;
-    this->func.SetName(name);
+    this->func->SetName(name);
 }
 
 //------------------------------------------------------------------------------

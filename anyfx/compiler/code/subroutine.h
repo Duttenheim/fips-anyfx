@@ -31,6 +31,9 @@ public:
 	/// destructor
 	virtual ~Subroutine();
 
+    /// Destroy
+    void Destroy() override;
+
     /// set type
     void SetSubroutineType(const SubroutineType& type);
     /// get subroutine type
@@ -54,9 +57,9 @@ public:
     Parameter* GetParameter(unsigned index);
 
     /// sets function
-    void SetFunction(const Function& func);
+    void SetFunction(Function* func);
     /// get function
-    const Function& GetFunction() const;
+    Function* GetFunction() const;
 
     /// rewrite subroutine by replacing function code with subroutine header, and injecting line identifier (only viable on implementation subroutines)
     void UpdateCode(const Header& header, unsigned fileIndex);
@@ -66,14 +69,11 @@ public:
     /// compiles subroutine
     void Compile(BinWriter& writer);
     
-    /// called after type checking is done to ensure no parameter is unused
-    void CheckForOptimization(TypeChecker& typeChecker);
-
     /// return the index of the file, basically, this is used with preprocessors to map a number to an actual physical file
     const int GetFileIndex() const;
 
     /// format subroutine to fit target language
-    std::string Format(const Header& header) const;
+    std::string Format(const Header& header) const override;
 
 private:
     /// tags a parameter as used, only use index
@@ -81,7 +81,7 @@ private:
 
     DataType returnType;
     SubroutineType subroutineType;
-    Function func;
+    Function* func;
     std::vector<Parameter> parameters;
     std::vector<bool> optimizationList;  // contains list of parameters which were optimized away by this subroutine
     std::string signature;
@@ -173,7 +173,7 @@ Subroutine::GetParameter( unsigned index )
 /**
 */
 inline void 
-Subroutine::SetFunction( const Function& func )
+Subroutine::SetFunction(Function* func)
 {
     this->func = func;
 }
@@ -181,7 +181,7 @@ Subroutine::SetFunction( const Function& func )
 //------------------------------------------------------------------------------
 /**
 */
-inline const Function& 
+inline Function* 
 Subroutine::GetFunction() const
 {
     return this->func;

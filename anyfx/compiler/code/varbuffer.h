@@ -24,13 +24,14 @@ public:
     /// destructor
     virtual ~VarBuffer();
 
+    /// destroy
+    void Destroy() override;
+
     /// set annotation
     void SetAnnotation(const Annotation& annotation);
 
     /// add variable
-    void AddVariable(const Variable& var);
-    /// get variables
-    const std::vector<Variable>& GetVariables() const;
+    void AddVariable(Variable* var);
 
     /// set the array size expression
     void SetArrayExpression(Expression* expression);
@@ -40,9 +41,6 @@ public:
 
     /// get if varblock is shared
     bool IsShared() const;
-
-    /// sorts variables in varblock
-    void SortVariables();
 
     /// type checks var block
     void TypeCheck(TypeChecker& typechecker);
@@ -60,7 +58,7 @@ private:
     /// converts access pattern to string based on header
     std::string FormatBufferAccess(const Header& header) const;
     friend class Effect;
-    std::vector<Variable> variables;
+    std::vector<Variable*> variables;
     std::map<std::string, unsigned> offsetsByName;
 
     Variable::ArrayType arrayType;
@@ -97,15 +95,6 @@ inline bool
 VarBuffer::IsShared() const
 {
     return HasFlags(this->qualifierFlags, Qualifiers::Shared);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const std::vector<Variable>& 
-VarBuffer::GetVariables() const
-{
-    return this->variables;
 }
 
 //------------------------------------------------------------------------------

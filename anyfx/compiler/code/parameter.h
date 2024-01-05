@@ -190,6 +190,7 @@ private:
 	Shader* parentShader;
 	std::string name;
 	DataType type;
+    Symbol* userType;
 
 	unsigned padding;
 	unsigned alignedOffset;

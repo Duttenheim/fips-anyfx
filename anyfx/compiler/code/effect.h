@@ -41,25 +41,23 @@ public:
     const Header& GetHeader() const;
 
     /// add program definition
-    void AddProgram(const Program& program);
+    void AddProgram(Program* program);
     /// add variable definition
-    void AddVariable(const Variable& var);
-    /// add constant definition
-    void AddConstant(const Constant& constant);
+    void AddVariable(Variable* var);
     /// add render state
-    void AddRenderState(const RenderState& state);
+    void AddRenderState(RenderState* state);
     /// add function
-    void AddFunction(const Function& function);
+    void AddFunction(Function* function);
     /// add structure
-    void AddStructure(const Structure& structure);
+    void AddStructure(Structure* structure);
     /// add varblock
-    void AddVarBlock(const VarBlock& varBlock);
+    void AddVarBlock(VarBlock* varBlock);
     /// add varbuffer
-    void AddVarBuffer(const VarBuffer& varBuffer);
+    void AddVarBuffer(VarBuffer* varBuffer);
     /// add subroutine
-    void AddSubroutine(const Subroutine& subroutine);
+    void AddSubroutine(Subroutine* subroutine);
     /// add sampler
-    void AddSampler(const Sampler& sampler);
+    void AddSampler(Sampler* sampler);
 
     /// sets up effect using given header
     void Setup();
@@ -87,22 +85,15 @@ public:
 private:
     Header header;
     std::string name;
-    std::vector<Program> programs;
-    std::vector<Variable> variables;
-    std::vector<Constant> constants;
-    std::vector<RenderState> renderStates;
-    std::vector<Function> functions;
-    std::vector<Structure> structures;
-    std::vector<VarBlock> varBlocks;
-    std::vector<VarBuffer> varBuffers;
-    std::vector<Subroutine> subroutines;
-    std::vector<Sampler> samplers;
+    std::vector<Symbol*> symbols;
+    std::vector<Symbol*> subroutinesToDelete;
+    std::vector<Symbol*> functionsToDelete;
 
     std::map<std::string, Shader*> shaders;
     std::map<unsigned, std::string> resourceTableNames;
 
-    RenderState placeholderRenderState;
-    VarBlock placeholderVarBlock;
+    RenderState* placeholderRenderState;
+    VarBlock* placeholderVarBlock;
 
     std::string debugOutput;
 }; 

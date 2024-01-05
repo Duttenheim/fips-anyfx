@@ -32,6 +32,135 @@ DataType::~DataType()
 //------------------------------------------------------------------------------
 /**
 */
+DataType 
+DataType::FromString(const std::string& str)
+{
+    DataType ret;
+    if (str == "float") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::Float); }
+    else if (str == "int") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::Integer); }
+    else if (str == "bool") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::Bool); }
+    else if (str == "uint") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::UInteger); }
+    else if (str == "short") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::Short); }
+    else if (str == "string") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::String); }
+    else if (str == "void") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::Void); }
+    else if (str == "textureHandle") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::TextureHandle); }
+    else if (str == "imageHandle") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::ImageHandle); }
+    else if (str == "samplerHandle") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::SamplerHandle); }
+    else if (str == "inputAttachment") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::InputAttachment); }
+    else if (str == "inputAttachmentMS") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::InputAttachmentMS); }
+    else if (str == "inputAttachmentInteger") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::InputAttachmentInteger); }
+    else if (str == "inputAttachmentIntegerMS") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::InputAttachmentIntegerMS); }
+    else if (str == "inputAttachmentUInteger") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::InputAttachmentUInteger); }
+    else if (str == "inputAttachmentUIntegerMS") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::InputAttachmentUIntegerMS); }
+    else if (str == "accelerationStructure") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::AccelerationStructure); }
+    else if (str == "sampler") { ret.SetStyle(DataType::Generic); ret.SetType(DataType::SamplerState); }
+
+    // HLSL types
+    else if (str == "float2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Float2); }
+    else if (str == "float3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Float3); }
+    else if (str == "float4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Float4); }
+    else if (str == "int2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Integer2); }
+    else if (str == "int3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Integer3); }
+    else if (str == "int4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Integer4); }
+    else if (str == "uint2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::UInteger2); }
+    else if (str == "uint3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::UInteger3); }
+    else if (str == "uint4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::UInteger4); }
+    else if (str == "short2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Short2); }
+    else if (str == "short3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Short3); }
+    else if (str == "short4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Short4); }
+    else if (str == "bool2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Bool2); }
+    else if (str == "bool3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Bool3); }
+    else if (str == "bool4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Bool4); }
+    else if (str == "float2x2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix2x2); }
+    else if (str == "float2x3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix2x3); }
+    else if (str == "float2x4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix2x4); }
+    else if (str == "float3x2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix3x2); }
+    else if (str == "float3x3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix3x3); }
+    else if (str == "float3x4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix3x4); }
+    else if (str == "float4x2") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix4x2); }
+    else if (str == "float4x3") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix4x3); }
+    else if (str == "float4x4") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Matrix4x4); }
+    else if (str == "Texture1D") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler1D); }
+    else if (str == "Texture1DArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler1DArray); }
+    else if (str == "Texture2D") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler2D); }
+    else if (str == "Texture2DArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler2DArray); }
+    else if (str == "Texture2DMS") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler2DMS); }
+    else if (str == "Texture2DMSArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler2DMSArray); }
+    else if (str == "Texture3D") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Sampler3D); }
+    else if (str == "TextureCube") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::SamplerCube); }
+    else if (str == "TextureCubeArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::SamplerCubeArray); }
+    else if (str == "RWTexture1D") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image1D); }
+    else if (str == "RWTexture1DArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image1DArray); }
+    else if (str == "RWTexture2D") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image2D); }
+    else if (str == "RWTexture2DArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image2DArray); }
+    else if (str == "RWTexture2DMS") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image2DMS); }
+    else if (str == "RWTexture2DMSArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image2DMSArray); }
+    else if (str == "RWTexture3D") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::Image3D); }
+    else if (str == "RWTextureCube") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::ImageCube); }
+    else if (str == "RWTextureCubeArray") { ret.SetStyle(DataType::HLSL); ret.SetType(DataType::ImageCubeArray); }
+
+    // GLSL types
+    else if (str == "vec2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Float2); }
+    else if (str == "vec3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Float3); }
+    else if (str == "vec4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Float4); }
+    else if (str == "ivec2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Integer2); }
+    else if (str == "ivec3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Integer3); }
+    else if (str == "ivec4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Integer4); }
+    else if (str == "uvec2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::UInteger2); }
+    else if (str == "uvec3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::UInteger3); }
+    else if (str == "uvec4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::UInteger4); }
+    else if (str == "svec2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Short2); }
+    else if (str == "svec3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Short3); }
+    else if (str == "svec4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Short4); }
+    else if (str == "bvec2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Bool2); }
+    else if (str == "bvec3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Bool3); }
+    else if (str == "bvec4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Bool4); }
+    else if (str == "mat2x2" || str == "mat2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix2x2); }
+    else if (str == "mat2x3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix2x3); }
+    else if (str == "mat2x4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix2x4); }
+    else if (str == "mat3x2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix3x2); }
+    else if (str == "mat3x3" || str == "mat3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix3x3); }
+    else if (str == "mat3x4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix3x4); }
+    else if (str == "mat4x2") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix4x2); }
+    else if (str == "mat4x3") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix4x3); }
+    else if (str == "mat4x4" || str == "mat4") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Matrix4x4); }
+    else if (str == "sampler1D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler1D); }
+    else if (str == "sampler1DArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler1DArray); }
+    else if (str == "sampler2D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler2D); }
+    else if (str == "sampler2DArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler2DArray); }
+    else if (str == "sampler2DMS") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler2DMS); }
+    else if (str == "sampler2DMSArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler2DMSArray); }
+    else if (str == "sampler3D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Sampler3D); }
+    else if (str == "samplerCube") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::SamplerCube); }
+    else if (str == "samplerCubeArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::SamplerCubeArray); }
+    else if (str == "image1D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image1D); }
+    else if (str == "image1DArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image1DArray); }
+    else if (str == "image2D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image2D); }
+    else if (str == "image2DArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image2DArray); }
+    else if (str == "image2DMS") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image2DMS); }
+    else if (str == "image2DMSArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image2DMSArray); }
+    else if (str == "image3D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Image3D); }
+    else if (str == "imageCube") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::ImageCube); }
+    else if (str == "imageCubeArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::ImageCubeArray); }
+    else if (str == "texture1D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture1D); }
+    else if (str == "texture1DArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture1DArray); }
+    else if (str == "texture2D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture2D); }
+    else if (str == "texture2DArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture2DArray); }
+    else if (str == "texture2DMS") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture2DMS); }
+    else if (str == "texture2DMSArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture2DMSArray); }
+    else if (str == "texture3D") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::Texture3D); }
+    else if (str == "textureCube") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::TextureCube); }
+    else if (str == "textureCubeArray") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::TextureCubeArray); }
+    else if (str == "atomic_uint") { ret.SetStyle(DataType::GLSL); ret.SetType(DataType::AtomicCounter); }
+
+    // user defined type detected
+    else { ret.SetStyle(DataType::Generic); ret.SetType(DataType::UserType); ret.SetName(str); }
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 std::string
 DataType::ToGLSLType(const DataType& type)
 {
@@ -103,6 +232,8 @@ DataType::ToGLSLType(const DataType& type)
 		return "mat4x3";
 	case Matrix4x4:
 		return "mat4x4";
+    case SamplerState:
+        return "sampler";
 	case Sampler1D:
 		return "sampler1D";
 	case Sampler1DArray:
@@ -259,6 +390,8 @@ DataType::ToHLSLType(const DataType& type)
 		return "float4x3";
 	case Matrix4x4:
 		return "float4x4";
+    case SamplerState:
+        return "SamplerState";
 	case Sampler1D:
 		return "Texture1D";
 	case Sampler1DArray:
@@ -391,6 +524,8 @@ DataType::ToCType(const DataType & type)
 		return "float";
 	case Matrix4x4:
 		return "float";
+    case SamplerState:
+        return "void*";
 	case Sampler1D:
 		return "void*";
 	case Sampler1DArray:
@@ -544,6 +679,8 @@ DataType::ToSignature(const DataType& type)
 		return "m43";
 	case Matrix4x4:
 		return "m44";
+    case SamplerState:
+        return "sam";
 	case Sampler1D:
 		return "sam1d";
 	case Sampler1DArray:
@@ -682,6 +819,8 @@ DataType::ToString(const DataType& type)
 		return "matrix [4x3]";
 	case Matrix4x4:
 		return "matrix [4x4]";
+    case SamplerState:
+        return "sampler state";
 	case Sampler1D:
 		return "texture sampler [1D]";
 	case Sampler1DArray:
@@ -849,6 +988,11 @@ DataType::ToByteSize(const DataType& type)
                 {
                     Structure* struc = (Structure*)sym;
                     return struc->CalculateSize();
+                }
+                else if (sym->GetType() == Symbol::VarbufferType)
+                {
+                    // Reference to a Varbuffer
+                    return 8;
                 }
                 
             }    

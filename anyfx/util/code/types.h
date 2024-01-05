@@ -41,8 +41,7 @@ enum Access
     Write       = 0x2,
     ReadWrite   = 0x4,
     Atomic      = 0x8,
-    Pointer     = 0x10,
-    Volatile    = 0x20
+    Volatile    = 0x10
 };
 typedef unsigned int AccessFlags;
 ENUM_OPERATORS(Access)

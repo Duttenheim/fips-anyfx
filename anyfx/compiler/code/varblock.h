@@ -24,13 +24,14 @@ public:
     /// destructor
     virtual ~VarBlock();
 
+    /// Destroy
+    void Destroy() override;
+
     /// set annotation
     void SetAnnotation(const Annotation& annotation);
 
     /// add variable
-    void AddVariable(const Variable& var);
-    /// get variables
-    const std::vector<Variable>& GetVariables() const;
+    void AddVariable(Variable* var);
     
     /// set the array size expression
     void SetArrayExpression(Expression* expression);
@@ -58,7 +59,7 @@ public:
 private:
 
     friend class Effect;
-    std::vector<Variable> variables;
+    std::vector<Variable*> variables;
     std::map<std::string, unsigned> offsetsByName;
 
     Variable::ArrayType arrayType;
@@ -92,15 +93,6 @@ inline bool
 VarBlock::IsShared() const
 {
     return HasFlags(this->qualifierFlags, Qualifiers::Shared);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const std::vector<Variable>& 
-VarBlock::GetVariables() const
-{
-    return this->variables;
 }
 
 //------------------------------------------------------------------------------

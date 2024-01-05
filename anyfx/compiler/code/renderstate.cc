@@ -111,13 +111,13 @@ RenderState::TypeCheck(TypeChecker& typechecker)
 	unsigned i;
 	for (i = 0; i < this->invalidExpressionFlags.size(); i++)
 	{
-		std::string msg = Format("Render state field '%s' is invalid, %s\n", this->invalidExpressionFlags[i].c_str(), this->ErrorSuffix().c_str());
+		std::string msg = AnyFX::Format("Render state field '%s' is invalid, %s\n", this->invalidExpressionFlags[i].c_str(), this->ErrorSuffix().c_str());
 		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
 	for (i = 0; i < this->invalidStringFlags.size(); i++)
 	{
-		std::string msg = Format("Render state field '%s' is invalid, %s\n", this->invalidStringFlags[i].c_str(), this->ErrorSuffix().c_str());
+		std::string msg = AnyFX::Format("Render state field '%s' is invalid, %s\n", this->invalidStringFlags[i].c_str(), this->ErrorSuffix().c_str());
 		typechecker.Error(msg, this->GetFile(), this->GetLine());
 	}
 
@@ -136,7 +136,7 @@ RenderState::TypeCheck(TypeChecker& typechecker)
 	// fail type checking if the name of this render state is placeholder
 	if (this->name == "placeholder")
 	{
-		std::string message = Format("Type error: Render state with name 'placeholder' is not allowed, %s", this->ErrorSuffix().c_str());
+		std::string message = AnyFX::Format("Type error: Render state with name 'placeholder' is not allowed, %s", this->ErrorSuffix().c_str());
 		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
 }

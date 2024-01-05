@@ -5,6 +5,7 @@
 #include "variable.h"
 #include "typechecker.h"
 #include "util.h"
+#include "structure.h"
 #include "shader.h"
 
 namespace AnyFX
@@ -18,11 +19,14 @@ Variable::Variable() :
     isSubroutine(false),
     arrayType(NoArray),
     arraySize(1),
+    userType(nullptr),
     format(NoFormat),
     accessMode(Access::NoAccess),
     qualifierFlags(NoQualifiers),
     isUniform(true),
     hasAnnotation(false),
+    isConst(false),
+    inVarblock(false),
     group(0),
     binding(-1),
     index(0)
@@ -123,6 +127,7 @@ Variable::Preprocess()
         else if (qualifier == "shared")                                         this->qualifierFlags |= Variable::Shared;
         else if (qualifier == "bindless")                                       this->qualifierFlags |= Variable::Bindless;
         else if (qualifier == "raypayload")                                     this->qualifierFlags |= Variable::RayPayload;
+        else if (qualifier == "const")                                          { this->isConst = true; this->isUniform = false; }
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -144,13 +149,9 @@ void
 Variable::TypeCheck(TypeChecker& typechecker)
 {
     // if type is user defined, check if symbol is defined
-    if (this->GetDataType().GetType() == DataType::UserType)
+    if (this->GetDataType() == DataType::UserType)
     {
-        if (!typechecker.HasSymbol(this->GetDataType().GetName()))
-        {
-            std::string msg = AnyFX::Format("Undefined type '%s', %s\n", this->GetDataType().GetName().c_str(), this->ErrorSuffix().c_str());
-            typechecker.Error(msg, this->GetFile(), this->GetLine());
-        }
+        this->userType = typechecker.GetSymbol(this->GetDataType().GetName());
     }
 
     // add variable, if failed we must have a redefinition
@@ -229,17 +230,21 @@ Variable::TypeCheck(TypeChecker& typechecker)
     if (this->type.GetType() == DataType::UserType)
     {
         // check that usertype is valid
-        Symbol* sym = typechecker.GetSymbol(this->type.GetName());
-        if (0 != sym)
+        if (this->userType != nullptr)
         {
-            if (sym->GetType() != Symbol::StructureType && sym->GetType() != Symbol::SubroutineType)
+            if (this->userType->GetType() != Symbol::StructureType && this->userType->GetType() != Symbol::SubroutineType)
             {
                 std::string msg = AnyFX::Format("Type '%s' must be either a struct or a subroutine prototype, %s\n", this->type.GetName().c_str(), this->ErrorSuffix().c_str());
                 typechecker.Error(msg, this->GetFile(), this->GetLine());
             }
 
-            if (sym->GetType() == Symbol::SubroutineType)
+            if (this->userType->GetType() == Symbol::SubroutineType)
             {
+                if (this->isConst)
+                {
+                    std::string msg = AnyFX::Format("'const' is not an allowed qualifier to be used for a subroutine prototype, %s\n", this->type.GetName().c_str(), this->ErrorSuffix().c_str());
+                    typechecker.Error(msg, this->GetFile(), this->GetLine());
+                }
                 this->isSubroutine = true;
             }
         }
@@ -290,10 +295,16 @@ Variable::TypeCheck(TypeChecker& typechecker)
         }
     }
 
+    if (this->qualifierFlags & Variable::GroupShared && this->isConst)
+    {
+        std::string message = AnyFX::Format("Qualifier 'groupshared' is not allowed with 'const', %s\n", this->ErrorSuffix().c_str());
+        typechecker.Error(message, this->GetFile(), this->GetLine());
+    }
+
     // evaluate type correctness of array initializers
     if (this->arrayType != ArrayType::NoArray)
     {
-        if (this->valueTable.size() != 0)
+        if (this->valueTable.size() > 0 && this->valueTable.size() != this->arraySize)
         {
             // if we have an int-array, float-array, bool-array...
             if (this->arrayType == SimpleArray)
@@ -314,8 +325,10 @@ Variable::TypeCheck(TypeChecker& typechecker)
             {
                 std::string message = AnyFX::Format("Wrong amount of initializers for array, got %d initializers, expected %d, %s\n", this->valueTable.size(), this->arraySizes[0], this->ErrorSuffix().c_str());
                 typechecker.Error(message, this->GetFile(), this->GetLine());
-            }	
-
+            }
+        }
+        else
+        {
             unsigned i;
             for (i = 0; i < this->valueTable.size(); i++)
             {
@@ -513,7 +526,7 @@ Variable::GetBinding() const
     Format variable code, this is pretty generic and is only dependent on how to format the types
 */
 std::string
-Variable::Format(const Header& header, bool inVarblock) const
+Variable::Format(const Header& header) const
 {
     std::string formattedCode;
 
@@ -538,7 +551,7 @@ Variable::Format(const Header& header, bool inVarblock) const
             else								 formattedCode.append(AnyFX::Format("layout(binding=%d) ", this->binding));
         }
 
-        else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4 && inVarblock)
+        else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4 && this->inVarblock)
         {
             formattedCode.append("layout(column_major) ");
         }
@@ -566,7 +579,7 @@ Variable::Format(const Header& header, bool inVarblock) const
         {
             formattedCode.append(AnyFX::Format("layout(set=%d, binding=%d) ", this->group, this->binding));
         }
-        else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4 && inVarblock)
+        else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4 && this->inVarblock)
         {
             formattedCode.append("layout(column_major) ");
         }
@@ -583,11 +596,18 @@ Variable::Format(const Header& header, bool inVarblock) const
     }
 
     // add GLSL uniform qualifier
-    if ((header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV) && !inVarblock)
+    if ((header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV) && !this->inVarblock)
     {
-        if (this->isSubroutine)                 formattedCode.append("subroutine ");
-        if (this->qualifierFlags & GroupShared) formattedCode.append("shared ");
-        else                                    formattedCode.append("uniform ");
+        if (!this->isConst)
+        {
+            if (this->isSubroutine)                 formattedCode.append("subroutine ");
+            if (this->qualifierFlags & GroupShared) formattedCode.append("shared ");
+            else                                    formattedCode.append("uniform ");
+        }
+        else
+        {
+            formattedCode.append("const ");
+        }
     }
 
     // get name without parents
@@ -597,9 +617,28 @@ Variable::Format(const Header& header, bool inVarblock) const
     // if c, an unsized struct is just a pointer to it...
     if (header.GetType() == Header::C)
     {
+        if (this->isConst)
+        {
+            formattedCode.append("const ");
+        }
         DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
-        formattedCode.append("\t");
-        formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        if (this->userType)
+        {
+            if (this->userType->GetType() == StructureType)
+            {
+                Structure* struc = (Structure*)this->userType;
+                if (struc->isPointer)
+                {
+                    formattedCode.append("buffer_ptr");
+                }
+                else
+                    formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+            }
+            else
+                formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        }
+        else
+            formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 
         if (this->arrayType != ArrayType::NoArray)
         {
@@ -633,6 +672,41 @@ Variable::Format(const Header& header, bool inVarblock) const
             else
                 formattedCode.append(AnyFX::Format("[%d]", dims.x * dims.y));
         }
+
+        if (this->isConst)
+        {
+            std::string valueString;
+            if (this->arraySize > 1)
+            {
+                valueString.append("{");
+                if (this->valueTable.size() != this->arraySize)
+                {
+                    valueString.append(this->valueTable[0].second.GetString());
+                }
+                else
+                {
+                    unsigned i;
+                    for (i = 0; i < this->valueTable.size(); i++)
+                    {
+                        if (i > 0)
+                        {
+                            valueString.append(", ");
+                        }
+                        valueString.append(AnyFX::Format("{%s}", this->valueTable[i].second.GetString().c_str()));
+                    }
+                }
+                valueString.append("}");
+            }
+            else if (dims.x > 1 || dims.y > 1)
+            {
+                valueString.append(AnyFX::Format("{%s}", this->valueTable[0].second.GetString().c_str()));
+            }
+            else
+            {
+                valueString.append(AnyFX::Format("%s", this->valueTable[0].second.GetString().c_str()));
+            }
+            formattedCode.append(AnyFX::Format(" = %s", valueString.c_str()));
+        }
     }
     else
     { 
@@ -648,6 +722,45 @@ Variable::Format(const Header& header, bool inVarblock) const
                     formattedCode.append("[]");
                 else
                     formattedCode.append(AnyFX::Format("[%d]", this->arraySizes[i]));
+            }
+        }
+
+        if (this->isConst)
+        {
+            formattedCode.append(" = ");
+            formattedCode.append(DataType::ToProfileType(this->type, header.GetType()));
+            if (this->arraySize > 1)
+            {
+                std::string arraySize = AnyFX::Format("[%d]", this->arraySize);
+                formattedCode.append(arraySize);
+                formattedCode.append("(");
+
+                if (this->valueTable.size() != this->arraySize)
+                {
+                    formattedCode.append(this->valueTable[0].second.GetString());
+                }
+                else
+                {
+                    unsigned i;
+                    for (i = 0; i < this->valueTable.size(); i++)
+                    {
+                        if (i > 0)
+                        {
+                            formattedCode.append(", ");
+                        }
+                        formattedCode.append(DataType::ToProfileType(this->type, header.GetType()));
+                        formattedCode.append("(");
+                        formattedCode.append(this->valueTable[i].second.GetString());
+                        formattedCode.append(")");
+                    }
+                }
+                formattedCode.append(")");
+            }
+            else
+            {
+                formattedCode.append("(");
+                formattedCode.append(this->valueTable[0].second.GetString());
+                formattedCode.append(")");
             }
         }
     }
@@ -818,11 +931,6 @@ Variable::EvaluateArraySize(TypeChecker& typechecker)
     {
         this->arraySizes.push_back(this->valueTable[0].second.GetNumValues());
         this->arraySize = this->valueTable[0].second.GetNumValues();
-    }
-    else if (this->arrayType == TypedArray)
-    {
-        this->arraySizes.push_back(this->valueTable.size());
-        this->arraySize = this->valueTable.size();
     }
     else if (this->arrayType == UnsizedArray)
     {

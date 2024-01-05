@@ -7,6 +7,7 @@
 #include "programrow.h"
 #include "datatype.h"
 #include "shader.h"
+#include "structure.h"
 #include "util.h"
 namespace AnyFX
 {
@@ -19,19 +20,20 @@ Parameter::Parameter() :
 	ioMode(NoIO),
 	interpolation(Smooth),
 	attribute(NoAttribute),
-	feedbackBufferExpression(NULL),
-	feedbackOffsetExpression(NULL),
+	feedbackBufferExpression(nullptr),
+	feedbackOffsetExpression(nullptr),
 	feedbackBuffer(-1),
 	feedbackOffset(0),
-    slotExpression(NULL),
+    slotExpression(nullptr),
     index(-1),
     explicitSlot(false),
 	patchParam(false),
 	isConst(false),
-	sizeExpression(NULL),
+	sizeExpression(nullptr),
 	isArray(false),
 	arraySize(1),
-	parentShader(NULL),
+	parentShader(nullptr),
+    userType(nullptr),
 	padding(0),
 	alignedOffset(0)
 {
@@ -195,7 +197,25 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 
 		formattedCode.append("\t");
 		formattedCode.append(decoration);
-		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        if (this->userType)
+        {
+            if (this->userType->GetType() == StructureType)
+            {
+                Structure* struc = (Structure*)this->userType;
+                if (struc->isPointer)
+                    formattedCode.append("buffer_ptr");
+                else
+                    formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+            }
+            else
+            {
+                formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+            }
+        }
+        else
+        {
+            formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        }
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
 
@@ -219,8 +239,6 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 	else if (header.GetType() == Header::C)
 	{
 		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
-		formattedCode.append("\t");
-
 		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
@@ -264,6 +282,9 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 		std::string message = AnyFX::Format("Type of parameter '%s' is undefined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 		typechecker.Error(message, this->GetFile(), this->GetLine());
 	}
+
+    if (this->GetDataType() == DataType::UserType)
+        this->userType = typechecker.GetSymbol(this->GetDataType().GetName());
 
 	unsigned i;
 	for (i = 0; i < this->qualifiers.size(); i++)

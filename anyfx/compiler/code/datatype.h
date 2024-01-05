@@ -56,6 +56,7 @@ public:
 		TextureHandle,
 		ImageHandle,
 		SamplerHandle,
+        SamplerState,
         ALL_TEXTURE_TYPES_BEGIN,
         SAMPLER_TYPES_BEGIN = ALL_TEXTURE_TYPES_BEGIN,
 		Sampler1D = ALL_TEXTURE_TYPES_BEGIN,
@@ -127,6 +128,8 @@ public:
 	DataType();
 	/// destructor
 	virtual ~DataType();
+
+    static DataType FromString(const std::string& str);
 
 	/// equality operator
 	bool operator==(const DataType& type) const;

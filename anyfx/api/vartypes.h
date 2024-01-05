@@ -57,6 +57,7 @@ enum VariableType
 	TextureHandle,
 	ImageHandle,
 	SamplerHandle,
+    SamplerState,
 	Sampler1D,
 	Sampler1DArray,
 	Sampler2D,

@@ -22,7 +22,6 @@
 #include "../../code/samplerrow.h"
 #include "../../code/sampler.h"
 #include "../../code/structure.h"
-#include "../../code/constant.h"
 #include "../../code/blendstaterow.h"
 #include "../../code/renderstaterow.h"
 #include "../../code/renderstate.h"

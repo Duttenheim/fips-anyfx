@@ -142,6 +142,11 @@ public:
     /// adds a value-type for basic types
     void AddValue(const ValueList& value);
 
+    /// gets number of values in this constant
+    unsigned GetNumValues() const;
+    /// gets value at index
+    const ValueList& GetValue(unsigned i) const;
+
     /// returns true if default value exists
     bool HasDefaultValue() const;
 
@@ -149,6 +154,8 @@ public:
     bool IsSubroutine() const;
     /// returns true if variable is a uniform (it is not shader local)
     bool IsUniform() const;
+    /// returns true if variable is const
+    bool IsConst() const;
 
     /// sets the type of a variable
     void SetDataType(const DataType& type);
@@ -166,7 +173,7 @@ public:
     const Binding GetBinding() const;
 
     /// format variable to fit target language
-    std::string Format(const Header& header, bool inVarblock = false) const;
+    std::string Format(const Header& header) const override;
 
 private:
     friend class VarBlock;
@@ -186,10 +193,12 @@ private:
     std::string defaultValue;
     std::vector<std::pair<DataType, ValueList> > valueTable;
     DataType type;
+    Symbol* userType;
     ImageFormat format;
     unsigned accessMode;
     int qualifierFlags;
     bool isUniform;
+    bool inVarblock;
 
     ArrayType arrayType;
     bool isSubroutine;
@@ -206,6 +215,7 @@ private:
     // the binding unit for this variable
     unsigned group;
     unsigned binding;
+    bool isConst;
 
     // index used if variable is an input attachment
     unsigned index;
@@ -273,6 +283,24 @@ Variable::HasDefaultValue() const
 //------------------------------------------------------------------------------
 /**
 */
+inline unsigned
+Variable::GetNumValues() const
+{
+    return this->valueTable.size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const ValueList&
+Variable::GetValue(unsigned i) const
+{
+    return this->valueTable[i].second;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline bool 
 Variable::IsSubroutine() const
 {
@@ -286,6 +314,15 @@ inline bool
 Variable::IsUniform() const
 {
     return this->isUniform;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool 
+Variable::IsConst() const
+{
+    return this->isConst;
 }
 
 //------------------------------------------------------------------------------

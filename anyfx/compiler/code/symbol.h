@@ -13,6 +13,7 @@
 #include <string>
 namespace AnyFX
 {
+class Header;
 class Symbol : public Compileable
 {
 public:
@@ -52,7 +53,7 @@ public:
     /// get signature of symbol
     const std::string& GetSignature() const;
 
-        /// add qualifier to varblock
+    /// add qualifier to varblock
     void AddQualifier(const std::string& qualifier);
     /// get number of qualifiers
     const size_t GetNumQualifiers() const;
@@ -65,6 +66,9 @@ public:
     const size_t GetNumQualifierExpressions() const;
     /// get name of expression qualifier
     const QualifierExpression& GetQualifierExpression(unsigned i) const;
+
+    /// format symbol to fit target language
+    virtual std::string Format(const Header& header) const;
 
 protected:
 
@@ -188,6 +192,14 @@ Symbol::GetQualifierExpression(unsigned i) const
     return this->qualifierExpressions[i];
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline std::string 
+Symbol::Format(const Header& header) const
+{
+    return "";
+}
 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

@@ -43,13 +43,13 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	}
 	else if (this->shaderType == ProgramRow::PixelShader)
 	{
-		if (this->func.HasBoolFlag(FunctionAttribute::EarlyDepth))
+		if (this->func->HasBoolFlag(FunctionAttribute::EarlyDepth))
 		{
 			code.append("layout(early_fragment_tests) in;\n");
 		}
-		if (this->func.HasIntFlag(FunctionAttribute::PixelOrigin))
+		if (this->func->HasIntFlag(FunctionAttribute::PixelOrigin))
 		{
-			int pixelOrigin = this->func.GetIntFlag(FunctionAttribute::PixelOrigin);
+			int pixelOrigin = this->func->GetIntFlag(FunctionAttribute::PixelOrigin);
 			switch (pixelOrigin)
 			{
 			case FunctionAttribute::PCenter:
@@ -64,20 +64,20 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	}
 	else if (this->shaderType == ProgramRow::HullShader)
 	{
-		bool hasOutputSize = this->func.HasIntFlag(FunctionAttribute::OutputVertices);
+		bool hasOutputSize = this->func->HasIntFlag(FunctionAttribute::OutputVertices);
 		if (!hasOutputSize)
 		{
 			std::string err = Format("Hull shader '%s' requires [output_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 			generator->Error(err);
 		}
 
-		int outputSize = this->func.GetIntFlag(FunctionAttribute::OutputVertices);
+		int outputSize = this->func->GetIntFlag(FunctionAttribute::OutputVertices);
 		code.append(Format("layout(vertices = %d) out;\n", outputSize));
 	}
 	else if (this->shaderType == ProgramRow::DomainShader)
 	{
-		bool hasVertexCount = this->func.HasIntFlag(FunctionAttribute::InputVertices);
-		bool hasInputTopology = this->func.HasIntFlag(FunctionAttribute::Topology);
+		bool hasVertexCount = this->func->HasIntFlag(FunctionAttribute::InputVertices);
+		bool hasInputTopology = this->func->HasIntFlag(FunctionAttribute::Topology);
 		if (!hasVertexCount)
 		{
 			std::string err = Format("Domain shader '%s' requires [input_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
@@ -90,10 +90,10 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			generator->Error(err);
 		}
 
-		int vertexCount = this->func.GetIntFlag(FunctionAttribute::InputVertices);
-		int inputTopology = this->func.GetIntFlag(FunctionAttribute::Topology);
-		bool hasSpacing = this->func.HasIntFlag(FunctionAttribute::PartitionMethod);
-		bool hasWindingOrder = this->func.HasIntFlag(FunctionAttribute::WindingOrder);
+		int vertexCount = this->func->GetIntFlag(FunctionAttribute::InputVertices);
+		int inputTopology = this->func->GetIntFlag(FunctionAttribute::Topology);
+		bool hasSpacing = this->func->HasIntFlag(FunctionAttribute::PartitionMethod);
+		bool hasWindingOrder = this->func->HasIntFlag(FunctionAttribute::WindingOrder);
 
 		code.append("layout(");
 
@@ -118,7 +118,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		{
 			// add comma for spacing method
 			code.append(", ");
-			int spacing = this->func.GetIntFlag(FunctionAttribute::PartitionMethod);
+			int spacing = this->func->GetIntFlag(FunctionAttribute::PartitionMethod);
 
 			switch (spacing)
 			{
@@ -144,7 +144,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		{
 			// add comma for winding order
 			code.append(", ");
-			int winding = this->func.GetIntFlag(FunctionAttribute::WindingOrder);
+			int winding = this->func->GetIntFlag(FunctionAttribute::WindingOrder);
 
 			switch (winding)
 			{
@@ -162,10 +162,10 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	}
 	else if (this->shaderType == ProgramRow::GeometryShader)
 	{
-		bool hasInput = this->func.HasIntFlag(FunctionAttribute::InputPrimitive);
-		bool hasOutput = this->func.HasIntFlag(FunctionAttribute::OutputPrimitive);
-		bool hasMaxVerts = this->func.HasIntFlag(FunctionAttribute::MaxVertexCount);
-		bool hasInstances = this->func.HasIntFlag(FunctionAttribute::Instances);
+		bool hasInput = this->func->HasIntFlag(FunctionAttribute::InputPrimitive);
+		bool hasOutput = this->func->HasIntFlag(FunctionAttribute::OutputPrimitive);
+		bool hasMaxVerts = this->func->HasIntFlag(FunctionAttribute::MaxVertexCount);
+		bool hasInstances = this->func->HasIntFlag(FunctionAttribute::Instances);
 
 		if (!hasInput)
 		{
@@ -182,7 +182,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 		// write input primitive type
 		{
-			int type = this->func.GetIntFlag(FunctionAttribute::InputPrimitive);
+			int type = this->func->GetIntFlag(FunctionAttribute::InputPrimitive);
 			std::string inLayout;
 
 			switch (type)
@@ -207,15 +207,15 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			// append instances if required
 			if (hasInstances)
 			{
-				inLayout.append(Format(", invocations = %d", this->func.GetIntFlag(FunctionAttribute::Instances)));
+				inLayout.append(Format(", invocations = %d", this->func->GetIntFlag(FunctionAttribute::Instances)));
 			}
 			code.append(Format("layout(%s) in;\n", inLayout.c_str()));
 		}
 
 		// write output primitive type
 		{
-			int type = this->func.GetIntFlag(FunctionAttribute::OutputPrimitive);
-			int maxVerts = this->func.GetIntFlag(FunctionAttribute::MaxVertexCount);
+			int type = this->func->GetIntFlag(FunctionAttribute::OutputPrimitive);
+			int maxVerts = this->func->GetIntFlag(FunctionAttribute::MaxVertexCount);
 			switch (type)
 			{
 			case FunctionAttribute::OPoints:			// points
@@ -232,16 +232,16 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	}
 	else if (this->shaderType == ProgramRow::ComputeShader)
 	{
-		bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
-		bool hasLocalY = this->func.HasIntFlag(FunctionAttribute::LocalSizeY);
-		bool hasLocalZ = this->func.HasIntFlag(FunctionAttribute::LocalSizeZ);
+		bool hasLocalX = this->func->HasIntFlag(FunctionAttribute::LocalSizeX);
+		bool hasLocalY = this->func->HasIntFlag(FunctionAttribute::LocalSizeY);
+		bool hasLocalZ = this->func->HasIntFlag(FunctionAttribute::LocalSizeZ);
 
 		if (hasLocalX || hasLocalY || hasLocalZ)
 		{
 			code.append("layout(local_size_x = ");
 			if (hasLocalX)
 			{
-				std::string number = AnyFX::Format("%d", this->func.GetIntFlag(FunctionAttribute::LocalSizeX));
+				std::string number = AnyFX::Format("%d", this->func->GetIntFlag(FunctionAttribute::LocalSizeX));
 				code.append(number);
 			}
 			else
@@ -254,7 +254,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 			if (hasLocalY)
 			{
-				std::string number = AnyFX::Format("%d", this->func.GetIntFlag(FunctionAttribute::LocalSizeY));
+				std::string number = AnyFX::Format("%d", this->func->GetIntFlag(FunctionAttribute::LocalSizeY));
 				code.append(number);
 			}
 			else
@@ -267,7 +267,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 			if (hasLocalZ)
 			{
-				std::string number = AnyFX::Format("%d", this->func.GetIntFlag(FunctionAttribute::LocalSizeZ));
+				std::string number = AnyFX::Format("%d", this->func->GetIntFlag(FunctionAttribute::LocalSizeZ));
 				code.append(number);
 			}
 			else
@@ -279,26 +279,26 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	}
     else if (this->shaderType == ProgramRow::MeshShader)
     {
-        bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
-        bool hasOutput = this->func.HasIntFlag(FunctionAttribute::OutputPrimitive);
-        bool hasMaxVerts = this->func.HasIntFlag(FunctionAttribute::MaxVertexCount);
-        bool hasMaxPrims = this->func.HasIntFlag(FunctionAttribute::MaxPrimitives);
+        bool hasLocalX = this->func->HasIntFlag(FunctionAttribute::LocalSizeX);
+        bool hasOutput = this->func->HasIntFlag(FunctionAttribute::OutputPrimitive);
+        bool hasMaxVerts = this->func->HasIntFlag(FunctionAttribute::MaxVertexCount);
+        bool hasMaxPrims = this->func->HasIntFlag(FunctionAttribute::MaxPrimitives);
 
         if (hasLocalX && hasOutput && hasMaxVerts && hasMaxPrims)
         {
-            code.append(Format("layout(local_size_x = %d) in;", this->func.GetIntFlag(FunctionAttribute::LocalSizeX)));
-            int type = this->func.GetIntFlag(FunctionAttribute::OutputPrimitive);
-            int maxVerts = this->func.GetIntFlag(FunctionAttribute::MaxVertexCount);
+            code.append(Format("layout(local_size_x = %d) in;", this->func->GetIntFlag(FunctionAttribute::LocalSizeX)));
+            int type = this->func->GetIntFlag(FunctionAttribute::OutputPrimitive);
+            int maxVerts = this->func->GetIntFlag(FunctionAttribute::MaxVertexCount);
             switch (type)
             {
                 case FunctionAttribute::OPoints:			// points
-                    code.append(Format("layout(points, max_vertices = %d, max_primitives = %d) out;\n", this->func.GetIntFlag(FunctionAttribute::MaxVertexCount), this->func.GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    code.append(Format("layout(points, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
                     break;
                 case FunctionAttribute::OLineStrip:			// lines
-                    code.append(Format("layout(lines, max_vertices = %d, max_primitives = %d) out;\n", this->func.GetIntFlag(FunctionAttribute::MaxVertexCount), this->func.GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    code.append(Format("layout(lines, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
                     break;
                 case FunctionAttribute::OTriangleStrip:		// triangles
-                    code.append(Format("layout(triangles, max_vertices = %d, max_primitives = %d) out;\n", this->func.GetIntFlag(FunctionAttribute::MaxVertexCount), this->func.GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    code.append(Format("layout(triangles, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
                     break;
             }
         }
@@ -308,22 +308,22 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 	input = output = 0;
 
 	unsigned i;
-	const unsigned numParams = this->func.GetNumParameters();
+	const unsigned numParams = this->func->GetNumParameters();
 	for (i = 0; i < numParams; i++)
 	{
-		const Parameter* param = this->func.GetParameter(i);
+		const Parameter* param = this->func->GetParameter(i);
 
 		// format parameter and add it to the code
 		code.append(param->Format(header, input, output));
 	}
 
 	// add function header
-	std::string returnType = DataType::ToProfileType(this->func.GetReturnType(), header.GetType());
-	std::string line = Format("#line %d %s\n", this->func.GetFunctionLine(), this->func.GetFile().c_str());
+	std::string returnType = DataType::ToProfileType(this->func->GetReturnType(), header.GetType());
+	std::string line = Format("#line %d %s\n", this->func->GetFunctionLine(), this->func->GetFile().c_str());
 	code.append(line);
 	code.append(returnType);
 	code.append("\nmain()\n{\n");
-	code.append(func.GetCode());
+	code.append(this->func->GetCode());
 	code.append("\n}\n");
 
 	// if we don't have subroutines, find and replace names of subroutines with generated functions

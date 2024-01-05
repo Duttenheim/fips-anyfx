@@ -115,19 +115,19 @@ Function::TypeCheck(TypeChecker& typechecker)
 
     if (this->returnType.GetType() == DataType::Undefined)
     {
-        std::string message = Format("Return type of function '%s' is undefined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+        std::string message = AnyFX::Format("Return type of function '%s' is undefined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
         typechecker.Error(message, this->GetFile(), this->GetLine());
     }
 
     for (int i = 0; i < this->invalidAttributes.size(); i++)
     {
-        std::string message = Format("Invalid function attribute '%s', %s\n", this->invalidAttributes[i].c_str(), this->ErrorSuffix().c_str());
+        std::string message = AnyFX::Format("Invalid function attribute '%s', %s\n", this->invalidAttributes[i].c_str(), this->ErrorSuffix().c_str());
         typechecker.Error(message, this->GetFile(), this->GetLine());
     }
 
     for (int i = 0; i < this->invalidAttributeValues.size(); i++)
     {
-        std::string message = Format("Invalid function attribute value '%s', %s\n", this->invalidAttributeValues[i].c_str(), this->ErrorSuffix().c_str());
+        std::string message = AnyFX::Format("Invalid function attribute value '%s', %s\n", this->invalidAttributeValues[i].c_str(), this->ErrorSuffix().c_str());
         typechecker.Error(message, this->GetFile(), this->GetLine());
     }
 
@@ -142,7 +142,7 @@ Function::TypeCheck(TypeChecker& typechecker)
         if (this->IsShader() &&
             (param.GetIO() == Parameter::NoIO || param.GetIO() == Parameter::InputOutput))
         {
-            std::string message = Format("Shader parameter '%s' must be either declared with 'out' or 'in', %s\n", param.GetName().c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Shader parameter '%s' must be either declared with 'out' or 'in', %s\n", param.GetName().c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
@@ -176,7 +176,7 @@ Function::TypeCheck(TypeChecker& typechecker)
                     {
                         std::string firstAttr = Parameter::AttributeToString(firstParam.GetAttribute());
                         std::string secondAttr = Parameter::AttributeToString(secondParam.GetAttribute());
-                        std::string message = Format("Parameters '%s' (%s) and '%s' (%s) may not have the same qualifiers, %s\n", 
+                        std::string message = AnyFX::Format("Parameters '%s' (%s) and '%s' (%s) may not have the same qualifiers, %s\n",
                             firstParam.GetName().c_str(), 
                             firstAttr.c_str(),
                             secondParam.GetName().c_str(),
@@ -188,7 +188,7 @@ Function::TypeCheck(TypeChecker& typechecker)
             }
             if (firstParam.GetSlot() == secondParam.GetSlot() && firstParam.GetIO() == secondParam.GetIO())
             {
-                std::string msg = Format("Parameters '%s' and '%s' share the same binding slot '%d' in shader function '%s'. Probably due to one or both of them having an explicit slot defined, %s\n",
+                std::string msg = AnyFX::Format("Parameters '%s' and '%s' share the same binding slot '%d' in shader function '%s'. Probably due to one or both of them having an explicit slot defined, %s\n",
                     firstParam.GetName().c_str(),
                     secondParam.GetName().c_str(),
                     firstParam.GetSlot(),
@@ -212,7 +212,7 @@ Function::Restore(const Header& header, int index)
     const Header::Type& type = header.GetType();
 
     // restore return value and name
-    std::string line = Format("#line %d %s\n", this->functionLine, this->file.c_str());
+    std::string line = AnyFX::Format("#line %d %s\n", this->functionLine, this->file.c_str());
     restoredCode.append(line);
     restoredCode.append(DataType::ToProfileType(this->returnType, type));
     restoredCode.append("\n");
@@ -250,7 +250,7 @@ Function::Restore(const Header& header, int index)
 
         if (param.IsArray())
         {
-            std::string arrayString = Format("[%d]", param.GetArraySize());
+            std::string arrayString = AnyFX::Format("[%d]", param.GetArraySize());
             restoredCode.append(arrayString);
         }
 
@@ -262,7 +262,7 @@ Function::Restore(const Header& header, int index)
 
     // finalize by closing parameter list and append the code
     restoredCode.append(")\n{\n");
-    line = Format("#line %d %s\n", this->codeLine, this->file.c_str());
+    line = AnyFX::Format("#line %d %s\n", this->codeLine, this->file.c_str());
     restoredCode.append(line);
     restoredCode.append(this->code);
     restoredCode.append("\n}\n\n");
@@ -414,6 +414,15 @@ const std::vector<Parameter>&
 Function::GetParameters() const
 {
     return this->parameters;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+std::string 
+Function::Format(const Header& header) const
+{
+    return this->GetCode();
 }
 
 //------------------------------------------------------------------------------

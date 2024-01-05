@@ -86,7 +86,8 @@ TypeChecker::HasSymbol(const std::string& name)
 Symbol*
 TypeChecker::GetSymbol(const std::string& name)
 {
-	if (this->symbols.find(name) == this->symbols.end())
+    auto it = this->symbols.find(name);
+	if (it == this->symbols.end())
 	{
 		std::string err = Format("Symbol '%s' is not defined\n", name.c_str());
 		this->errorBuffer += err;
@@ -95,8 +96,21 @@ TypeChecker::GetSymbol(const std::string& name)
 	}
 	else
 	{
-		return this->symbols[name];
+        return (*it).second;
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+TypeChecker::ReplaceSymbol(Symbol* symbol)
+{
+    auto& it = this->symbols.find(symbol->GetName());
+    if (it != this->symbols.end())
+    {
+        it->second = symbol;
+    }
 }
 
 //------------------------------------------------------------------------------

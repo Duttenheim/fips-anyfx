@@ -56,6 +56,8 @@ public:
 
 private:
 	friend class Effect;
+    friend class Parameter;
+    friend class Variable;
 
     /// check if structure contains type
     bool IsRecursive(TypeChecker& typeChecker);
@@ -65,6 +67,9 @@ private:
 	unsigned alignment;
 	unsigned padding;
 	Usage usage;
+
+    bool isPointer;
+    unsigned pointerAlignment;
 }; 
 
 

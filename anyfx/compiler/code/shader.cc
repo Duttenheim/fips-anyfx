@@ -147,6 +147,7 @@ Shader::Shader() :
 */
 Shader::~Shader()
 {
+    delete this->func;
     if (this->glslShader) delete this->glslShader;
     if (this->hlslShader) delete this->hlslShader;
     if (binary) delete[] binary;
@@ -159,16 +160,16 @@ void
 Shader::Setup()
 {
     // get line and row from function
-    this->line = this->func.GetLine();
-    this->row = this->func.GetPosition();
-    this->file = this->func.GetFile();
+    this->line = this->func->GetLine();
+    this->row = this->func->GetPosition();
+    this->file = this->func->GetFile();
 
     // inform all parameters which shader they belong to
-    const unsigned numParams = this->func.GetNumParameters();
+    const unsigned numParams = this->func->GetNumParameters();
     unsigned i;
     for (i = 0; i < numParams; i++)
     {
-        Parameter* param = this->func.GetParameter(i);
+        Parameter* param = this->func->GetParameter(i);
         param->SetShader(this);
     }
 
@@ -179,16 +180,7 @@ Shader::Setup()
 /**
 */
 void 
-Shader::Generate( 
-                 Generator& generator, 
-                 const std::vector<Variable>& vars, 
-                 const std::vector<Structure>& structures, 
-                 const std::vector<Constant>& constants,
-                 const std::vector<VarBlock>& blocks,
-                 const std::vector<VarBuffer>& buffers,
-                 const std::vector<Sampler>& samplers,
-                 const std::vector<Subroutine>& subroutines,
-                 const std::vector<Function>& functions)
+Shader::Generate(Generator& generator, const std::vector<Symbol*>& symbols)
 {
     // clear formatted code
     this->preamble.clear();
@@ -256,6 +248,23 @@ Shader::Generate(
     }
 
     unsigned i;
+    for (i = 0; i < symbols.size(); i++)
+    {
+        Symbol* sym = symbols[i];
+        this->preamble.append(sym->Format(header));
+
+        if (sym->GetType() == Symbol::FunctionType)
+        {
+            Function* func = (Function*)sym;
+            this->indexToFileMap[func->GetFileIndex()] = std::pair<std::string, std::string>(func->GetName(), func->GetFile());
+        }
+        else if (sym->GetType() == Symbol::SubroutineType)
+        {
+            Subroutine* subroutine = (Subroutine*)sym;
+            this->indexToFileMap[subroutine->GetFileIndex()] = std::pair<std::string, std::string>(subroutine->GetName(), subroutine->GetFile());
+        }
+    }
+    /*
     for (i = 0; i < structures.size(); i++)
     {
         const Structure& structure = structures[i];
@@ -291,12 +300,6 @@ Shader::Generate(
         this->preamble.append(buffer.Format(header));
     }
 
-    for (i = 0; i < constants.size(); i++)
-    {
-        const Constant& constant = constants[i];
-        this->preamble.append(constant.Format(header));
-    }
-
     for (i = 0; i < functions.size(); i++)
     {
         const Function& func = functions[i];
@@ -321,6 +324,7 @@ Shader::Generate(
             this->preamble.append(var.Format(header));
         }
     }
+    */
 
     switch (header.GetType())
     {
@@ -491,9 +495,9 @@ Shader::Compile(BinWriter& writer)
 
     if (this->shaderType == ProgramRow::ComputeShader)
     {
-        writer.WriteInt(max(1, this->func.GetIntFlag(FunctionAttribute::LocalSizeX)));
-        writer.WriteInt(max(1, this->func.GetIntFlag(FunctionAttribute::LocalSizeY)));
-        writer.WriteInt(max(1, this->func.GetIntFlag(FunctionAttribute::LocalSizeZ)));
+        writer.WriteInt(max(1, this->func->GetIntFlag(FunctionAttribute::LocalSizeX)));
+        writer.WriteInt(max(1, this->func->GetIntFlag(FunctionAttribute::LocalSizeY)));
+        writer.WriteInt(max(1, this->func->GetIntFlag(FunctionAttribute::LocalSizeZ)));
     }
 }
 
@@ -504,18 +508,18 @@ void
 Shader::TypeCheck(TypeChecker& typechecker)
 {
     // type check function, this will make sure the function is properly formatted
-    this->func.TypeCheck(typechecker);
+    this->func->TypeCheck(typechecker);
 
     if (this->shaderType == ProgramRow::HullShader)
     {
-        bool hasInputSize = this->func.HasIntFlag(FunctionAttribute::InputVertices);
+        bool hasInputSize = this->func->HasIntFlag(FunctionAttribute::InputVertices);
         if (!hasInputSize)
         {
             std::string message = Format("Tessellation Control Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
-        bool hasOutputSize = this->func.HasIntFlag(FunctionAttribute::OutputVertices);
+        bool hasOutputSize = this->func->HasIntFlag(FunctionAttribute::OutputVertices);
         if (!hasOutputSize)
         {
             std::string message = Format("Tessellation Control Shader: '%s' needs to define [outputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
@@ -524,8 +528,8 @@ Shader::TypeCheck(TypeChecker& typechecker)
     }
     else if (this->shaderType == ProgramRow::DomainShader)
     {
-        bool hasInputVertices = this->func.HasIntFlag(FunctionAttribute::InputVertices);
-        bool hasInputTopology = this->func.HasIntFlag(FunctionAttribute::Topology);
+        bool hasInputVertices = this->func->HasIntFlag(FunctionAttribute::InputVertices);
+        bool hasInputTopology = this->func->HasIntFlag(FunctionAttribute::Topology);
         if (!hasInputVertices)
         {
             std::string message = Format("Tessellation Evaluation Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
@@ -541,9 +545,9 @@ Shader::TypeCheck(TypeChecker& typechecker)
     }
     else if (this->shaderType == ProgramRow::GeometryShader)
     {
-        bool hasInput = this->func.HasIntFlag(FunctionAttribute::InputPrimitive);
-        bool hasOutput = this->func.HasIntFlag(FunctionAttribute::OutputPrimitive);
-        bool hasMaxVerts = this->func.HasIntFlag(FunctionAttribute::MaxVertexCount);
+        bool hasInput = this->func->HasIntFlag(FunctionAttribute::InputPrimitive);
+        bool hasOutput = this->func->HasIntFlag(FunctionAttribute::OutputPrimitive);
+        bool hasMaxVerts = this->func->HasIntFlag(FunctionAttribute::MaxVertexCount);
 
         if (!hasInput)
         {
@@ -563,9 +567,9 @@ Shader::TypeCheck(TypeChecker& typechecker)
     }
     else if (this->shaderType == ProgramRow::ComputeShader)
     {
-        bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
-        bool hasLocalY = this->func.HasIntFlag(FunctionAttribute::LocalSizeY);
-        bool hasLocalZ = this->func.HasIntFlag(FunctionAttribute::LocalSizeZ);
+        bool hasLocalX = this->func->HasIntFlag(FunctionAttribute::LocalSizeX);
+        bool hasLocalY = this->func->HasIntFlag(FunctionAttribute::LocalSizeY);
+        bool hasLocalZ = this->func->HasIntFlag(FunctionAttribute::LocalSizeZ);
 
         if (!(hasLocalX || hasLocalY || hasLocalZ))
         {
@@ -575,10 +579,10 @@ Shader::TypeCheck(TypeChecker& typechecker)
     }
     else if (this->shaderType == ProgramRow::MeshShader)
     {
-        bool hasLocalX = this->func.HasIntFlag(FunctionAttribute::LocalSizeX);
-        bool hasOutput = this->func.HasIntFlag(FunctionAttribute::OutputPrimitive);
-        bool hasMaxVerts = this->func.HasIntFlag(FunctionAttribute::MaxVertexCount);
-        bool hasMaxPrims = this->func.HasIntFlag(FunctionAttribute::MaxPrimitives);
+        bool hasLocalX = this->func->HasIntFlag(FunctionAttribute::LocalSizeX);
+        bool hasOutput = this->func->HasIntFlag(FunctionAttribute::OutputPrimitive);
+        bool hasMaxVerts = this->func->HasIntFlag(FunctionAttribute::MaxVertexCount);
+        bool hasMaxPrims = this->func->HasIntFlag(FunctionAttribute::MaxPrimitives);
 
         if (!hasLocalX)
         {

@@ -22,7 +22,6 @@
 #include "../../code/samplerrow.h"
 #include "../../code/sampler.h"
 #include "../../code/structure.h"
-#include "../../code/constant.h"
 #include "../../code/blendstaterow.h"
 #include "../../code/renderstaterow.h"
 #include "../../code/renderstate.h"
@@ -77,12 +76,6 @@ public:
   virtual void enterEffect(AnyFXParser::EffectContext * /*ctx*/) override { }
   virtual void exitEffect(AnyFXParser::EffectContext * /*ctx*/) override { }
 
-  virtual void enterQualifier(AnyFXParser::QualifierContext * /*ctx*/) override { }
-  virtual void exitQualifier(AnyFXParser::QualifierContext * /*ctx*/) override { }
-
-  virtual void enterQualifierValued(AnyFXParser::QualifierValuedContext * /*ctx*/) override { }
-  virtual void exitQualifierValued(AnyFXParser::QualifierValuedContext * /*ctx*/) override { }
-
   virtual void enterType(AnyFXParser::TypeContext * /*ctx*/) override { }
   virtual void exitType(AnyFXParser::TypeContext * /*ctx*/) override { }
 
@@ -109,9 +102,6 @@ public:
 
   virtual void enterVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
   virtual void exitVariable(AnyFXParser::VariableContext * /*ctx*/) override { }
-
-  virtual void enterConstant(AnyFXParser::ConstantContext * /*ctx*/) override { }
-  virtual void exitConstant(AnyFXParser::ConstantContext * /*ctx*/) override { }
 
   virtual void enterParameter(AnyFXParser::ParameterContext * /*ctx*/) override { }
   virtual void exitParameter(AnyFXParser::ParameterContext * /*ctx*/) override { }

@@ -87,6 +87,9 @@ public:
 	const std::vector<const Parameter*> GetOutputParameters() const;
     /// Get all parameters
     const std::vector<Parameter>& GetParameters() const;
+
+    /// format function to fit target language
+    std::string Format(const Header& header) const override;
 private:
     friend class Subroutine;
 	friend class Effect;

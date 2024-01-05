@@ -22,7 +22,6 @@
 #include "../../code/samplerrow.h"
 #include "../../code/sampler.h"
 #include "../../code/structure.h"
-#include "../../code/constant.h"
 #include "../../code/blendstaterow.h"
 #include "../../code/renderstaterow.h"
 #include "../../code/renderstate.h"
@@ -60,39 +59,27 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
-    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, T__37 = 38, 
-    T__38 = 39, T__39 = 40, T__40 = 41, T__41 = 42, T__42 = 43, T__43 = 44, 
-    T__44 = 45, T__45 = 46, T__46 = 47, T__47 = 48, T__48 = 49, T__49 = 50, 
-    T__50 = 51, T__51 = 52, T__52 = 53, T__53 = 54, T__54 = 55, T__55 = 56, 
-    T__56 = 57, T__57 = 58, T__58 = 59, T__59 = 60, T__60 = 61, T__61 = 62, 
-    T__62 = 63, T__63 = 64, T__64 = 65, T__65 = 66, T__66 = 67, T__67 = 68, 
-    T__68 = 69, T__69 = 70, T__70 = 71, T__71 = 72, T__72 = 73, T__73 = 74, 
-    T__74 = 75, T__75 = 76, T__76 = 77, SC = 78, CO = 79, COL = 80, LP = 81, 
-    RP = 82, LB = 83, RB = 84, LL = 85, RR = 86, DOT = 87, NOT = 88, EQ = 89, 
-    QO = 90, QU = 91, AND = 92, ANDSET = 93, OR = 94, ORSET = 95, XOR = 96, 
-    XORSET = 97, CONNJUGATE = 98, Q = 99, NU = 100, FORWARDSLASH = 101, 
-    LESS = 102, LESSEQ = 103, GREATER = 104, GREATEREQ = 105, LOGICEQ = 106, 
-    NOTEQ = 107, LOGICAND = 108, LOGICOR = 109, MOD = 110, UNDERSC = 111, 
-    ADD_OP = 112, SUB_OP = 113, DIV_OP = 114, MUL_OP = 115, INTEGERLITERAL = 116, 
-    COMMENT = 117, ML_COMMENT = 118, FLOATLITERAL = 119, EXPONENT = 120, 
-    DOUBLELITERAL = 121, HEX = 122, IDENTIFIER = 123, WS = 124
+    T__14 = 15, SC = 16, CO = 17, COL = 18, LP = 19, RP = 20, LB = 21, RB = 22, 
+    LL = 23, RR = 24, DOT = 25, NOT = 26, EQ = 27, QO = 28, QU = 29, AND = 30, 
+    ANDSET = 31, OR = 32, ORSET = 33, XOR = 34, XORSET = 35, CONNJUGATE = 36, 
+    Q = 37, NU = 38, FORWARDSLASH = 39, LESS = 40, LESSEQ = 41, GREATER = 42, 
+    GREATEREQ = 43, LOGICEQ = 44, NOTEQ = 45, LOGICAND = 46, LOGICOR = 47, 
+    MOD = 48, UNDERSC = 49, ADD_OP = 50, SUB_OP = 51, DIV_OP = 52, MUL_OP = 53, 
+    INTEGERLITERAL = 54, COMMENT = 55, ML_COMMENT = 56, FLOATLITERAL = 57, 
+    EXPONENT = 58, DOUBLELITERAL = 59, HEX = 60, IDENTIFIER = 61, WS = 62
   };
 
   enum {
     RuleString = 0, RuleBoolean = 1, RulePreprocess = 2, RuleEntry = 3, 
-    RuleEffect = 4, RuleQualifier = 5, RuleQualifierValued = 6, RuleType = 7, 
-    RuleQualifierExpression = 8, RuleStructure = 9, RuleVarblock = 10, RuleVarbuffer = 11, 
-    RuleSubroutine = 12, RuleValueList = 13, RuleValueSingleList = 14, RuleVariable = 15, 
-    RuleConstant = 16, RuleParameter = 17, RuleParameterList = 18, RuleFunctionAttribute = 19, 
-    RuleCodeBlock = 20, RuleFunction = 21, RuleBlendStateRow = 22, RuleRenderStateRow = 23, 
-    RuleRenderState = 24, RuleSampler = 25, RuleSamplerTextureList = 26, 
-    RuleSamplerRow = 27, RuleProgramRow = 28, RuleAnnotation = 29, RuleProgram = 30, 
-    RuleExpression = 31, RuleBinaryexp7 = 32, RuleBinaryexp6 = 33, RuleBinaryexp5 = 34, 
-    RuleBinaryexp4 = 35, RuleBinaryexp3 = 36, RuleBinaryexp2 = 37, RuleBinaryexp1 = 38, 
-    RuleBinaryexpatom = 39, RuleParantexpression = 40
+    RuleEffect = 4, RuleType = 5, RuleQualifierExpression = 6, RuleStructure = 7, 
+    RuleVarblock = 8, RuleVarbuffer = 9, RuleSubroutine = 10, RuleValueList = 11, 
+    RuleValueSingleList = 12, RuleVariable = 13, RuleParameter = 14, RuleParameterList = 15, 
+    RuleFunctionAttribute = 16, RuleCodeBlock = 17, RuleFunction = 18, RuleBlendStateRow = 19, 
+    RuleRenderStateRow = 20, RuleRenderState = 21, RuleSampler = 22, RuleSamplerTextureList = 23, 
+    RuleSamplerRow = 24, RuleProgramRow = 25, RuleAnnotation = 26, RuleProgram = 27, 
+    RuleExpression = 28, RuleBinaryexp7 = 29, RuleBinaryexp6 = 30, RuleBinaryexp5 = 31, 
+    RuleBinaryexp4 = 32, RuleBinaryexp3 = 33, RuleBinaryexp2 = 34, RuleBinaryexp1 = 35, 
+    RuleBinaryexpatom = 36, RuleParantexpression = 37
   };
 
   AnyFXParser(antlr4::TokenStream *input);
@@ -158,8 +145,6 @@ public:
   class PreprocessContext;
   class EntryContext;
   class EffectContext;
-  class QualifierContext;
-  class QualifierValuedContext;
   class TypeContext;
   class QualifierExpressionContext;
   class StructureContext;
@@ -169,7 +154,6 @@ public:
   class ValueListContext;
   class ValueSingleListContext;
   class VariableContext;
-  class ConstantContext;
   class ParameterContext;
   class ParameterListContext;
   class FunctionAttributeContext;
@@ -247,7 +231,7 @@ public:
 
   class  EntryContext : public antlr4::ParserRuleContext {
   public:
-    Effect returnEffect;
+    Effect* returnEffect;
     AnyFXParser::EffectContext *effectContext = nullptr;;
     EntryContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -263,8 +247,7 @@ public:
 
   class  EffectContext : public antlr4::ParserRuleContext {
   public:
-    Effect eff;
-    AnyFXParser::ConstantContext *constantContext = nullptr;;
+    Effect* eff;
     AnyFXParser::VariableContext *variableContext = nullptr;;
     AnyFXParser::RenderStateContext *renderStateContext = nullptr;;
     AnyFXParser::FunctionContext *functionContext = nullptr;;
@@ -276,8 +259,6 @@ public:
     AnyFXParser::SamplerContext *samplerContext = nullptr;;
     EffectContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<ConstantContext *> constant();
-    ConstantContext* constant(size_t i);
     std::vector<VariableContext *> variable();
     VariableContext* variable(size_t i);
     std::vector<RenderStateContext *> renderState();
@@ -304,32 +285,6 @@ public:
 
   EffectContext* effect();
 
-  class  QualifierContext : public antlr4::ParserRuleContext {
-  public:
-    std::string str;
-    QualifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  QualifierContext* qualifier();
-
-  class  QualifierValuedContext : public antlr4::ParserRuleContext {
-  public:
-    std::string str;
-    QualifierValuedContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  QualifierValuedContext* qualifierValued();
-
   class  TypeContext : public antlr4::ParserRuleContext {
   public:
     DataType ty;
@@ -348,12 +303,12 @@ public:
   class  QualifierExpressionContext : public antlr4::ParserRuleContext {
   public:
     QualifierExpression q;
-    AnyFXParser::QualifierValuedContext *base = nullptr;;
+    antlr4::Token *name = nullptr;;
     AnyFXParser::ParantexpressionContext *parantexpressionContext = nullptr;;
     QualifierExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ParantexpressionContext *parantexpression();
-    QualifierValuedContext *qualifierValued();
+    antlr4::tree::TerminalNode *IDENTIFIER();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -364,12 +319,17 @@ public:
 
   class  StructureContext : public antlr4::ParserRuleContext {
   public:
-    Structure struc;
-    antlr4::Token *identifierToken = nullptr;;
+    Structure* struc;
+    antlr4::Token *qual = nullptr;;
+    AnyFXParser::QualifierExpressionContext *qualifierExpressionContext = nullptr;;
+    antlr4::Token *name = nullptr;;
     AnyFXParser::ParameterContext *parameterContext = nullptr;;
     StructureContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENTIFIER();
+    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
+    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+    std::vector<QualifierExpressionContext *> qualifierExpression();
+    QualifierExpressionContext* qualifierExpression(size_t i);
     std::vector<ParameterContext *> parameter();
     ParameterContext* parameter(size_t i);
 
@@ -382,8 +342,8 @@ public:
 
   class  VarblockContext : public antlr4::ParserRuleContext {
   public:
-    VarBlock block;
-    AnyFXParser::QualifierContext *qualifierContext = nullptr;;
+    VarBlock* block;
+    antlr4::Token *qual = nullptr;;
     AnyFXParser::QualifierExpressionContext *qualifierExpressionContext = nullptr;;
     antlr4::Token *name = nullptr;;
     AnyFXParser::AnnotationContext *annotationContext = nullptr;;
@@ -394,8 +354,6 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
-    std::vector<QualifierContext *> qualifier();
-    QualifierContext* qualifier(size_t i);
     std::vector<QualifierExpressionContext *> qualifierExpression();
     QualifierExpressionContext* qualifierExpression(size_t i);
     AnnotationContext *annotation();
@@ -412,8 +370,8 @@ public:
 
   class  VarbufferContext : public antlr4::ParserRuleContext {
   public:
-    VarBuffer buffer;
-    AnyFXParser::QualifierContext *qualifierContext = nullptr;;
+    VarBuffer* buffer;
+    antlr4::Token *qual = nullptr;;
     AnyFXParser::QualifierExpressionContext *qualifierExpressionContext = nullptr;;
     antlr4::Token *name = nullptr;;
     AnyFXParser::AnnotationContext *annotationContext = nullptr;;
@@ -424,8 +382,6 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
-    std::vector<QualifierContext *> qualifier();
-    QualifierContext* qualifier(size_t i);
     std::vector<QualifierExpressionContext *> qualifierExpression();
     QualifierExpressionContext* qualifierExpression(size_t i);
     AnnotationContext *annotation();
@@ -442,7 +398,7 @@ public:
 
   class  SubroutineContext : public antlr4::ParserRuleContext {
   public:
-    Subroutine subrout;
+    Subroutine* subrout;
     AnyFXParser::TypeContext *retval = nullptr;;
     antlr4::Token *name = nullptr;;
     AnyFXParser::ParameterListContext *parameterListContext = nullptr;;
@@ -496,8 +452,8 @@ public:
 
   class  VariableContext : public antlr4::ParserRuleContext {
   public:
-    Variable var;
-    AnyFXParser::QualifierContext *qualifierContext = nullptr;;
+    Variable* var;
+    antlr4::Token *qual = nullptr;;
     AnyFXParser::QualifierExpressionContext *qualifierExpressionContext = nullptr;;
     AnyFXParser::TypeContext *declType = nullptr;;
     antlr4::Token *name = nullptr;;
@@ -507,7 +463,6 @@ public:
     AnyFXParser::ValueListContext *cntValue = nullptr;;
     AnyFXParser::ValueListContext *valList = nullptr;;
     AnyFXParser::ExpressionContext *asize0 = nullptr;;
-    AnyFXParser::ExpressionContext *asize1 = nullptr;;
     AnyFXParser::ExpressionContext *asize2 = nullptr;;
     AnyFXParser::TypeContext *defType = nullptr;;
     AnyFXParser::ValueListContext *list2 = nullptr;;
@@ -517,9 +472,8 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<TypeContext *> type();
     TypeContext* type(size_t i);
-    antlr4::tree::TerminalNode *IDENTIFIER();
-    std::vector<QualifierContext *> qualifier();
-    QualifierContext* qualifier(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
+    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
     std::vector<QualifierExpressionContext *> qualifierExpression();
     QualifierExpressionContext* qualifierExpression(size_t i);
     AnnotationContext *annotation();
@@ -536,38 +490,6 @@ public:
 
   VariableContext* variable();
 
-  class  ConstantContext : public antlr4::ParserRuleContext {
-  public:
-    Constant cons;
-    AnyFXParser::TypeContext *declType = nullptr;;
-    antlr4::Token *identifierToken = nullptr;;
-    AnyFXParser::TypeContext *defType = nullptr;;
-    AnyFXParser::ValueListContext *sinVal1 = nullptr;;
-    AnyFXParser::ValueSingleListContext *sinVal2 = nullptr;;
-    AnyFXParser::TypeContext *fstType = nullptr;;
-    AnyFXParser::ValueListContext *fstValue = nullptr;;
-    AnyFXParser::TypeContext *cntType = nullptr;;
-    AnyFXParser::ValueListContext *cntValue = nullptr;;
-    AnyFXParser::ValueListContext *valList = nullptr;;
-    AnyFXParser::ExpressionContext *asize1 = nullptr;;
-    AnyFXParser::ExpressionContext *asize2 = nullptr;;
-    ConstantContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENTIFIER();
-    std::vector<TypeContext *> type();
-    TypeContext* type(size_t i);
-    std::vector<ValueListContext *> valueList();
-    ValueListContext* valueList(size_t i);
-    ValueSingleListContext *valueSingleList();
-    ExpressionContext *expression();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  ConstantContext* constant();
-
   class  ParameterContext : public antlr4::ParserRuleContext {
   public:
     Parameter param;
@@ -575,7 +497,7 @@ public:
     AnyFXParser::ExpressionContext *feedbackBuffer = nullptr;;
     AnyFXParser::ExpressionContext *feedbackOffset = nullptr;;
     AnyFXParser::ExpressionContext *slotExpression = nullptr;;
-    AnyFXParser::QualifierContext *qualifierContext = nullptr;;
+    antlr4::Token *qualifier = nullptr;;
     AnyFXParser::TypeContext *typeContext = nullptr;;
     antlr4::Token *name = nullptr;;
     AnyFXParser::ExpressionContext *size = nullptr;;
@@ -584,8 +506,6 @@ public:
     TypeContext *type();
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
     antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
-    std::vector<QualifierContext *> qualifier();
-    QualifierContext* qualifier(size_t i);
     std::vector<ExpressionContext *> expression();
     ExpressionContext* expression(size_t i);
 
@@ -647,17 +567,17 @@ public:
 
   class  FunctionContext : public antlr4::ParserRuleContext {
   public:
-    Function func;
+    Function* func;
     AnyFXParser::FunctionAttributeContext *functionAttributeContext = nullptr;;
     AnyFXParser::TypeContext *typeContext = nullptr;;
-    antlr4::Token *identifierToken = nullptr;;
+    antlr4::Token *name = nullptr;;
     AnyFXParser::ParameterListContext *parameterListContext = nullptr;;
     FunctionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     TypeContext *type();
-    antlr4::tree::TerminalNode *IDENTIFIER();
     ParameterListContext *parameterList();
     CodeBlockContext *codeBlock();
+    antlr4::tree::TerminalNode *IDENTIFIER();
     std::vector<FunctionAttributeContext *> functionAttribute();
     FunctionAttributeContext* functionAttribute(size_t i);
 
@@ -706,8 +626,8 @@ public:
 
   class  RenderStateContext : public antlr4::ParserRuleContext {
   public:
-    RenderState state;
-    antlr4::Token *identifierToken = nullptr;;
+    RenderState* state;
+    antlr4::Token *name = nullptr;;
     AnyFXParser::RenderStateRowContext *renderStateRowContext = nullptr;;
     AnyFXParser::BlendStateRowContext *blendStateRowContext = nullptr;;
     RenderStateContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -727,16 +647,15 @@ public:
 
   class  SamplerContext : public antlr4::ParserRuleContext {
   public:
-    Sampler samp;
-    AnyFXParser::QualifierContext *qualifierContext = nullptr;;
+    Sampler* samp;
+    antlr4::Token *qual = nullptr;;
     AnyFXParser::QualifierExpressionContext *qualifierExpressionContext = nullptr;;
     antlr4::Token *name = nullptr;;
     AnyFXParser::SamplerRowContext *samplerRowContext = nullptr;;
     SamplerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENTIFIER();
-    std::vector<QualifierContext *> qualifier();
-    QualifierContext* qualifier(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
+    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
     std::vector<QualifierExpressionContext *> qualifierExpression();
     QualifierExpressionContext* qualifierExpression(size_t i);
     std::vector<SamplerRowContext *> samplerRow();
@@ -798,7 +717,6 @@ public:
     antlr4::Token *implementation = nullptr;;
     antlr4::Token *var2 = nullptr;;
     antlr4::Token *implementation2 = nullptr;;
-    antlr4::Token *identifierToken = nullptr;;
     ProgramRowContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
@@ -815,7 +733,7 @@ public:
   public:
     Annotation annot;
     AnyFXParser::TypeContext *typeContext = nullptr;;
-    antlr4::Token *identifierToken = nullptr;;
+    antlr4::Token *name = nullptr;;
     AnyFXParser::StringContext *stringContext = nullptr;;
     AnyFXParser::ExpressionContext *expressionContext = nullptr;;
     AnnotationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -838,8 +756,8 @@ public:
 
   class  ProgramContext : public antlr4::ParserRuleContext {
   public:
-    Program prog;
-    antlr4::Token *identifierToken = nullptr;;
+    Program* prog;
+    antlr4::Token *name = nullptr;;
     AnyFXParser::AnnotationContext *annotationContext = nullptr;;
     AnyFXParser::ProgramRowContext *programRowContext = nullptr;;
     ProgramContext(antlr4::ParserRuleContext *parent, size_t invokingState);

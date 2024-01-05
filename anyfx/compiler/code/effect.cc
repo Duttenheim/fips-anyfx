@@ -31,57 +31,6 @@ Effect::Effect()
 */
 Effect::~Effect()
 {
-    unsigned i;
-    for (i = 0; i < programs.size(); i++)
-    {
-        this->programs[i].Destroy();
-    }
-
-    for (i = 0; i < variables.size(); i++)
-    {
-        this->variables[i].Destroy();
-    }
-
-    for (i = 0; i < constants.size(); i++)
-    {
-        this->constants[i].Destroy();
-    }
-
-    for (i = 0; i < renderStates.size(); i++)
-    {
-        this->renderStates[i].Destroy();
-    }
-
-    for (i = 0; i < functions.size(); i++)
-    {
-        this->functions[i].Destroy();
-    }
-
-    for (i = 0; i < structures.size(); i++)
-    {
-        this->structures[i].Destroy();
-    }
-
-    for (i = 0; i < varBlocks.size(); i++)
-    {
-        this->varBlocks[i].Destroy();
-    }
-
-    for (i = 0; i < this->varBuffers.size(); i++)
-    {
-        this->varBuffers[i].Destroy();
-    }
-
-    for (i = 0; i < this->subroutines.size(); i++)
-    {
-        this->subroutines[i].Destroy();
-    }
-
-    for (i = 0; i < this->samplers.size(); i++)
-    {
-        this->samplers[i].Destroy();
-    }
-
     // delete shaders
     std::map<std::string, Shader*>::iterator it;
     for (it = this->shaders.begin(); it != this->shaders.end(); it++)
@@ -89,106 +38,108 @@ Effect::~Effect()
         delete it->second;
     }
     this->shaders.clear();
-    this->programs.clear();
-    this->variables.clear();
-    this->constants.clear();
-    this->renderStates.clear();
-    this->functions.clear();
-    this->structures.clear();
-    this->varBlocks.clear();
-    this->varBuffers.clear();
-    this->subroutines.clear();
-    this->samplers.clear();
+    
+    for (auto symbol : this->symbols)
+    {
+        symbol->Destroy();
+        delete symbol;
+    }
+    this->symbols.clear();
+
+    for (auto symbol : this->subroutinesToDelete)
+    {
+        symbol->Destroy();
+        delete symbol;
+    }
+    this->subroutinesToDelete.clear();
+
+    for (auto symbol : this->functionsToDelete)
+    {
+        symbol->Destroy();
+        delete symbol;
+    }
+    this->functionsToDelete.clear();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddProgram(const Program& program)
+Effect::AddProgram(Program* program)
 {
-    this->programs.push_back(program);
+    this->symbols.push_back(program);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddVariable(const Variable& var)
+Effect::AddVariable(Variable* var)
 {
-    this->variables.push_back(var);
+    this->symbols.push_back(var);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddConstant(const Constant& constant)
+Effect::AddRenderState(RenderState* state)
 {
-    this->constants.push_back(constant);
+    this->symbols.push_back(state);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddRenderState(const RenderState& state)
+Effect::AddFunction(Function* function)
 {
-    this->renderStates.push_back(state);
+    this->symbols.push_back(function);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddFunction(const Function& function)
+Effect::AddStructure(Structure* structure)
 {
-    this->functions.push_back(function);
+    this->symbols.push_back(structure);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddStructure(const Structure& structure)
+Effect::AddVarBlock(VarBlock* varBlock)
 {
-    this->structures.push_back(structure);
+    this->symbols.push_back(varBlock);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddVarBlock(const VarBlock& varBlock)
+Effect::AddVarBuffer(VarBuffer* varBuffer)
 {
-    this->varBlocks.push_back(varBlock);
+    this->symbols.push_back(varBuffer);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddVarBuffer(const VarBuffer& varBuffer)
+Effect::AddSubroutine(Subroutine* subroutine)
 {
-    this->varBuffers.push_back(varBuffer);
+    this->symbols.push_back(subroutine);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Effect::AddSubroutine(const Subroutine& subroutine)
+Effect::AddSampler(Sampler* sampler)
 {
-    this->subroutines.push_back(subroutine);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-Effect::AddSampler(const Sampler& sampler)
-{
-    this->samplers.push_back(sampler);
+    this->symbols.push_back(sampler);
 }
 
 //------------------------------------------------------------------------------
@@ -202,59 +153,87 @@ Effect::Setup()
     // reset static states
     Shader::ResetBindings();
 
-    // build shaders, this will make sure we have all the shader programs we need, although they are not complete yet
+    std::vector<Function*> functions;
+    std::vector<Program*> programs;
     unsigned i;
-    for (i = 0; i < this->programs.size(); i++)
+    for (i = 0; i < this->symbols.size(); i++)
     {
-        this->programs[i].BuildShaders(this->header, this->functions, this->shaders);
+        Symbol* sym = this->symbols[i];
+        if (sym->GetType() == Symbol::FunctionType)
+            functions.push_back((Function*)sym);
+        else if (sym->GetType() == Symbol::ProgramType)
+            programs.push_back((Program*)sym);
     }
 
-    // now, remove all functions which are not bound as shaders
-    for (i = 0; i < this->functions.size(); i++)
+    // build shaders, this will make sure we have all the shader programs we need, although they are not complete yet
+    for (i = 0; i < programs.size(); i++)
     {
-        // get function
-        const Function& func = this->functions[i];
+        programs[i]->BuildShaders(this->header, functions, this->shaders);
+    }
 
-        if (func.IsShader())
+    // Erase all functions marked as shader, they are already picked up and saved 
+    // in the shaders variable above
+    for (i = 0; i < this->symbols.size(); i++)
+    {
+        Symbol* sym = this->symbols[i];
+        if (sym->GetType() == Symbol::FunctionType)
         {
-            this->functions.erase(this->functions.begin() + i);
-            i--;
+            // get function
+            Function* func = (Function*)sym;
+
+            if (func->IsShader())
+            {
+                this->functionsToDelete.push_back(sym);
+                this->symbols.erase(this->symbols.begin() + i);
+                i--;
+            }
         }
     }
 
     // create a placeholder render state, which will be used for programs where no render state is explicitly assigned
-    this->placeholderRenderState.SetName("PlaceholderState");
-    this->placeholderRenderState.SetReserved(true);
-    this->renderStates.insert(this->renderStates.begin(), this->placeholderRenderState);
+    this->placeholderRenderState = new RenderState;
+    this->placeholderRenderState->SetName("PlaceholderState");
+    this->placeholderRenderState->SetReserved(true);
+    this->symbols.insert(this->symbols.begin(), this->placeholderRenderState);
 
     if (header.GetFlags() & Header::PutGlobalVariablesInBlock)
     {
-        this->placeholderVarBlock.SetName("GlobalBlock");
-        this->placeholderVarBlock.SetReserved(true);
-        this->placeholderVarBlock.AddQualifier("shared");
-
-        for (i = 0; i < this->variables.size(); i++)
+        if (!this->symbols.empty())
         {
-            AnyFX::Variable& var = this->variables[i];
-            var.Preprocess();
-            if (var.GetDataType().GetType() < DataType::Sampler1D && var.IsUniform())
-            {
-                this->placeholderVarBlock.AddVariable(var);
-                this->variables.erase(this->variables.begin() + i);
-                i--;
-            }
-        }
+            this->placeholderVarBlock = new VarBlock();
+            this->placeholderVarBlock->SetName("GlobalBlock");
+            this->placeholderVarBlock->SetReserved(true);
+            this->placeholderVarBlock->AddQualifier("shared");
+            this->symbols.insert(this->symbols.begin(), this->placeholderVarBlock);
 
-        // sort variables, since we can't handle the alignment manually here
-        this->placeholderVarBlock.SortVariables();
-        this->varBlocks.insert(this->varBlocks.begin(), this->placeholderVarBlock);
+            for (i = 0; i < this->symbols.size(); i++)
+            {
+                if (this->symbols[i]->GetType() == Symbol::VariableType)
+                {
+                    Variable* var = (Variable*)this->symbols[i];
+                    var->Preprocess();
+                    if (var->GetDataType().GetType() < DataType::Sampler1D && var->IsUniform())
+                    {
+                        this->placeholderVarBlock->AddVariable(var);
+                        this->symbols.erase(this->symbols.begin() + i);
+                        i--;
+                    }
+                }
+            }
+
+            // sort variables, since we can't handle the alignment manually here
+            this->placeholderVarBlock->SortVariables();
+        }
     }
     else
     {
-        for (i = 0; i < this->variables.size(); i++)
+        for (i = 0; i < this->symbols.size(); i++)
         {
-            AnyFX::Variable& var = this->variables[i];
-            var.Preprocess();
+            if (this->symbols[i]->GetType() == Symbol::VariableType)
+            {
+                Variable* var = (Variable*)this->symbols[i];
+                var->Preprocess();
+            }
         }
     }
 
@@ -265,28 +244,28 @@ Effect::Setup()
     {
         defaultSetIdx = std::stoi(defaultSet);
     }
+
+    for (i = 0; i < this->symbols.size(); i++)
+    {
+        switch (this->symbols[i]->GetType())
+        {
+            case Symbol::VarblockType:
+                static_cast<VarBlock*>(this->symbols[i])->group = defaultSetIdx;
+                break;
+            case Symbol::VarbufferType:
+                static_cast<VarBuffer*>(this->symbols[i])->group = defaultSetIdx;
+                break;
+            case Symbol::SamplerType:
+                static_cast<Sampler*>(this->symbols[i])->group = defaultSetIdx;
+                break;
+            case Symbol::VariableType:
+                static_cast<Variable*>(this->symbols[i])->group = defaultSetIdx;
+                break;
+            default:
+                continue;
+        }
+    }
     
-    // sort all variables in varblocks
-    for (i = 0; i < this->varBlocks.size(); i++)
-    {
-        this->varBlocks[i].group = defaultSetIdx;
-    }
-
-    for (i = 0; i < this->variables.size(); i++)
-    {
-        this->variables[i].group = defaultSetIdx;
-    }
-
-    for (i = 0; i < this->samplers.size(); i++)
-    {
-        this->samplers[i].group = defaultSetIdx;
-    }
-
-    for (i = 0; i < this->varBuffers.size(); i++)
-    {
-        this->varBuffers[i].group = defaultSetIdx;
-    }
-
     // now, finalize all shaders, this adds all structures, varblocks and functions into all shaders, making sure they compile properly
     // we let the target compiler optimize unnecessary variables and functions away
     std::map<std::string, Shader*>::iterator it;
@@ -316,72 +295,35 @@ Effect::TypeCheck(TypeChecker& typechecker)
     unsigned i;
     unsigned j = 0;
 
-    for (i = 0; i < this->constants.size(); i++)
+    for (i = 0; i < this->symbols.size(); i++)
     {
-        this->constants[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->structures.size(); i++)
-    {
-        this->structures[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->subroutines.size(); i++)
-    {
-        this->subroutines[i].TypeCheck(typechecker);
-        this->subroutines[i].UpdateCode(this->header, j++);
-    }
-
-    // go through subroutines a second time to check for variables which may have been removed due to optimization
-    for (i = 0; i < this->subroutines.size(); i++)
-    {
-        this->subroutines[i].CheckForOptimization(typechecker);
-    }
-
-    for (i = 0; i < this->variables.size(); i++)
-    {
-        this->variables[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->samplers.size(); i++)
-    {
-        this->samplers[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->renderStates.size(); i++)
-    {
-        this->renderStates[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->functions.size(); i++)
-    {
-        this->functions[i].TypeCheck(typechecker);
-        this->functions[i].Restore(this->header, j++);
-    }
-
-    for (i = 0; i < this->varBlocks.size(); i++)
-    {
-        //this->varBlocks[i].SortVariables();
-        this->varBlocks[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->varBuffers.size(); i++)
-    {
-        this->varBuffers[i].TypeCheck(typechecker);
-    }
-
-    for (i = 0; i < this->programs.size(); i++)
-    {
-        this->programs[i].TypeCheck(typechecker);
+        Symbol* sym = this->symbols[i];
+        sym->TypeCheck(typechecker);
+        if (sym->GetType() == Symbol::SubroutineType)
+        {
+            Subroutine* subroutine = (Subroutine*)sym;
+            subroutine->UpdateCode(this->header, j++);
+        }
+        else if (sym->GetType() == Symbol::FunctionType)
+        {
+            Function* func = (Function*)sym;
+            func->Restore(this->header, j++);
+        }
     }
 
     // remove variables used as subroutines
-    for (i = 0; i < this->variables.size(); i++)
+    for (i = 0; i < this->symbols.size(); i++)
     {
-        if (this->header.GetFlags() & Header::NoSubroutines && this->variables[i].IsSubroutine())
+        Symbol* sym = this->symbols[i];
+        if (sym->GetType() == Symbol::VariableType)
         {
-            this->variables.erase(this->variables.begin() + i);
-            i--;
+            Variable* var = (Variable*)sym;
+            if (this->header.GetFlags() & Header::NoSubroutines && var->IsSubroutine())
+            {
+                this->subroutinesToDelete.push_back(sym);
+                this->symbols.erase(this->symbols.begin() + i);
+                i--;
+            }
         }
     }
 }
@@ -400,7 +342,7 @@ Effect::Generate(Generator& generator)
         Shader* shader = it->second;
 
         // generate code for shaders
-        shader->Generate(generator, this->variables, this->structures, this->constants, this->varBlocks, this->varBuffers, this->samplers, this->subroutines, this->functions);
+        shader->Generate(generator, this->symbols);
 
         // output generated code if we flag it
         if (this->header.GetFlags() & Header::OutputGeneratedShaders)
@@ -414,25 +356,30 @@ Effect::Generate(Generator& generator)
         }
     }
 
-    if (generator.GetStatus() == Generator::Success) for (i = 0; i < this->programs.size(); i++)
-    {
-        Program& prog = this->programs[i];
-        prog.Generate(generator);
-
-        if (this->header.GetFlags() & Header::OutputGeneratedShaders)
+    if (generator.GetStatus() == Generator::Success) 
+        for (i = 0; i < this->symbols.size(); i++)
         {
-            unsigned j;
-            for (j = 0; j < ProgramRow::NumProgramRows - 1; j++)
+            Symbol* sym = this->symbols[i];
+            if (sym->GetType() == Symbol::ProgramType)
             {
-                BinWriter out;
-                out.SetPath(AnyFX::Format("%s_%s_%d%s", this->debugOutput.c_str(), prog.GetName().c_str(), j, "_debug.bin"));
-                out.Open();
-                const std::vector<unsigned> bin = prog.GetBinary(j); 
-                prog.WriteBinary(bin, out);
-                out.Close();
+                Program* prog = (Program*)sym;
+                prog->Generate(generator);
+
+                if (this->header.GetFlags() & Header::OutputGeneratedShaders)
+                {
+                    unsigned j;
+                    for (j = 0; j < ProgramRow::NumProgramRows - 1; j++)
+                    {
+                        BinWriter out;
+                        out.SetPath(AnyFX::Format("%s_%s_%d%s", this->debugOutput.c_str(), prog->GetName().c_str(), j, "_debug.bin"));
+                        out.Open();
+                        const std::vector<unsigned> bin = prog->GetBinary(j);
+                        prog->WriteBinary(bin, out);
+                        out.Close();
+                    }
+                }
             }
         }
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -448,10 +395,46 @@ Effect::Compile(BinWriter& writer)
     writer.WriteInt(VERSION_MAJOR);
     writer.WriteInt(VERSION_MINOR);
 
+    std::vector<RenderState*> renderStates;
+    std::vector<Subroutine*> subroutines;
+    std::vector<Program*> programs;
+    std::vector<Variable*> variables;
+    std::vector<Sampler*> samplers;
+    std::vector<VarBlock*> varblocks;
+    std::vector<VarBuffer*> varbuffers;
+    unsigned i;
+    for (i = 0; i < this->symbols.size(); i++)
+    {
+        Symbol* sym = this->symbols[i];
+        switch (sym->GetType())
+        {
+            case Symbol::RenderStateType:
+                renderStates.push_back((RenderState*)sym);
+                break;
+            case Symbol::SubroutineType:
+                subroutines.push_back((Subroutine*)sym);
+                break;
+            case Symbol::ProgramType:
+                programs.push_back((Program*)sym);
+                break;
+            case Symbol::VariableType:
+                variables.push_back((Variable*)sym);
+                break;
+            case Symbol::SamplerType:
+                samplers.push_back((Sampler*)sym);
+                break;
+            case Symbol::VarblockType:
+                varblocks.push_back((VarBlock*)sym);
+                break;
+            case Symbol::VarbufferType:
+                varbuffers.push_back((VarBuffer*)sym);
+                break;
+        }
+    }
+
     // write header, vital!
     this->header.Compile(writer);
 
-    unsigned i;
     
     // write FourCC code for shaders
     writer.WriteInt('SHAD');
@@ -473,83 +456,82 @@ Effect::Compile(BinWriter& writer)
     writer.WriteInt('RENS');
 
     // write amount of render states
-    writer.WriteInt(this->renderStates.size());
+    writer.WriteInt(renderStates.size());
 
     // compile render states for runtime
-    for (i = 0; i < this->renderStates.size(); i++)
+    for (i = 0; i < renderStates.size(); i++)
     {
-        this->renderStates[i].Compile(writer);
+        renderStates[i]->Compile(writer);
     }
 
     // write FourCC code for subroutines
     writer.WriteInt('SUBR');
 
     // write amount of subroutines
-    writer.WriteInt(this->subroutines.size());
+    writer.WriteInt(subroutines.size());
 
     // compile subroutines for runtime
-    for (i = 0; i < this->subroutines.size(); i++)
+    for (i = 0; i < subroutines.size(); i++)
     {
-        this->subroutines[i].Compile(writer);
+        subroutines[i]->Compile(writer);
     }
 
     // write FourCC code for programs
     writer.WriteInt('PROG');
 
     // write amount of programs
-    writer.WriteInt(this->programs.size());
+    writer.WriteInt(programs.size());
 
     // compile programs for runtime
-    for (i = 0; i < this->programs.size(); i++)
+    for (i = 0; i < programs.size(); i++)
     {
-        this->programs[i].Compile(writer);
-    }
+        programs[i]->Compile(writer);    }
 
     // write FourCC code for variables
     writer.WriteInt('VARI');
 
     // write amount of variables
-    writer.WriteInt(this->variables.size());
+    writer.WriteInt(variables.size());
 
     // compile variables for runtime
-    for (i = 0; i < this->variables.size(); i++)
+    for (i = 0; i < variables.size(); i++)
     {
-        this->variables[i].Compile(writer);
+        variables[i]->Compile(writer);
     }
 
     // write FourCC code for samplers
     writer.WriteInt('SAMP');
 
     // write amount of samplers
-    writer.WriteInt(this->samplers.size());
+    writer.WriteInt(samplers.size());
 
-    for (i = 0; i < this->samplers.size(); i++)
+    for (i = 0; i < samplers.size(); i++)
     {
-        this->samplers[i].Compile(writer);
+        samplers[i]->Compile(writer);
     }
 
     // write FourCC code for varblocks
     writer.WriteInt('VARB');
 
     // write amount of varblocks
-    writer.WriteInt(this->varBlocks.size());
+    writer.WriteInt(varblocks.size());
 
     // compile varblocks for runtime
-    for (i = 0; i < this->varBlocks.size(); i++)
+    for (i = 0; i < varblocks.size(); i++)
     {
-        this->varBlocks[i].Compile(writer);
+        varblocks[i]->Compile(writer);
     }
 
     // write FourCC code for varbuffers
     writer.WriteInt('VRBF');
 
     // write amount of varbuffers
-    writer.WriteInt(this->varBuffers.size());
+    writer.WriteInt(varbuffers.size());
 
     // compile varbuffers for runtime
-    for (i = 0; i < this->varBuffers.size(); i++)
+    for (i = 0; i < varbuffers.size(); i++)
     {
-        this->varBuffers[i].Compile(writer);
+        varbuffers[i]->Compile(writer);
     }
 }
 
@@ -565,56 +547,52 @@ Effect::GenerateHeader(TextWriter& writer)
 /** \n	Generated from shader '%s' \n\n\
     DO NOT MODIFY HERE!!! \n \
 */\
+\n#include <map>\
+\n#include <string>\
+\n#include <cstdint>\
+\ntypedef uint64_t buffer_ptr;\
+\ntypedef uint32_t uint;\
 \n\nnamespace %s\n{\n\n", 
         this->file.c_str(), this->name.c_str());
     writer.WriteString(output);
 
     unsigned i;
 
-    std::map<int, std::vector<Variable::Binding>> bindings;
+    std::map<int, std::vector<Variable::Binding>> bindings; 
 
-    // compile structs for include header
-    for (i = 0; i < this->structures.size(); i++)
+    for (i = 0; i < this->symbols.size(); i++)
     {
-        writer.WriteString(this->structures[i].Format(this->header));
-    }
-
-    // compile textures
-    for (i = 0; i < this->variables.size(); i++)
-    {
-        const auto variable = this->variables[i];
-        if ((variable.GetDataType().GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && variable.GetDataType().GetType() <= DataType::ALL_TEXTURE_TYPES_END)
-            || (variable.GetDataType().GetType() == DataType::AccelerationStructure))
+        Symbol* sym = this->symbols[i];
+        if (sym->GetType() == Symbol::StructureType
+            || sym->GetType() == Symbol::VariableType
+            || sym->GetType() == Symbol::VarblockType
+            || sym->GetType() == Symbol::VarbufferType)
         {
-            Variable::Binding binding = variable.GetBinding();
-            bindings[binding.group].push_back(binding);
+            if (sym->GetType() == Symbol::VariableType)
+            {
+                Variable* variable = (Variable*)sym;
+                if ((variable->GetDataType().GetType() >= DataType::ALL_TEXTURE_TYPES_BEGIN && variable->GetDataType().GetType() <= DataType::ALL_TEXTURE_TYPES_END)
+                    || (variable->GetDataType().GetType() == DataType::AccelerationStructure))
+                {
+                    Variable::Binding binding = variable->GetBinding();
+                    bindings[binding.group].push_back(binding);
+                    continue;
+                }
+            }
+            else if (sym->GetType() == Symbol::VarblockType)
+            {
+                VarBlock* varblock = (VarBlock*)sym;
+                auto binding = varblock->GetBinding();
+                bindings[binding.group].push_back(binding);
+            }
+            else if (sym->GetType() == Symbol::VarbufferType)
+            {
+                VarBuffer* varbuffer = (VarBuffer*)sym;
+                auto binding = varbuffer->GetBinding();
+                bindings[binding.group].push_back(binding);
+            }
+            writer.WriteString(sym->Format(this->header));
         }
-    }
-
-    // compile constants for include header
-    for (i = 0; i < this->constants.size(); i++)
-    {
-        auto constant = this->constants[i];
-
-        writer.WriteString(constant.Format(this->header));
-    }
-
-    // compile varblocks for include header
-    for (i = 0; i < this->varBlocks.size(); i++)
-    {
-        const auto varblock = this->varBlocks[i];
-        auto binding = varblock.GetBinding();
-        bindings[binding.group].push_back(binding);
-        writer.WriteString(varblock.Format(this->header));
-    }
-
-    // compile varbuffers for include header
-    for (i = 0; i < this->varBuffers.size(); i++)
-    {
-        const auto varbuffer = this->varBuffers[i];
-        auto binding = varbuffer.GetBinding();
-        bindings[binding.group].push_back(binding);
-        writer.WriteString(varbuffer.Format(this->header));
     }
 
     // Generate resource table classes
@@ -729,17 +707,26 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& siz
     }
     else if (type.GetType() == DataType::UserType)  // if structure
     {
-        Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-        if (!structure)
+        Symbol* sym = typechecker.GetSymbol(type.GetName());
+        if (sym->GetType() == Symbol::StructureType)
         {
-            size = 0;
-            alignment = vec4alignment;
+            Structure* structure = (Structure*)sym;
+            if (structure->isPointer)
+            {
+                size = 8;
+                alignment = 8;
+            }
+            else
+            {
+                structure->UpdateAlignmentAndSize(typechecker);
+                size = structure->alignedSize;
+                alignment = structure->alignment;
+            }
         }
         else
         {
-            structure->UpdateAlignmentAndSize(typechecker);
-            size = structure->alignedSize;
-            alignment = structure->alignment;
+            size = 0;
+            alignment = vec4alignment;
         }
     }
     else if (dims.y > 1) // if matrix

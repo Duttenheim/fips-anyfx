@@ -41,8 +41,19 @@ VarBuffer::~VarBuffer()
 //------------------------------------------------------------------------------
 /**
 */
+void 
+VarBuffer::Destroy()
+{
+    for (auto var : this->variables)
+        delete var;
+    this->variables.clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
-VarBuffer::AddVariable(const Variable& var)
+VarBuffer::AddVariable(Variable* var)
 {
     this->variables.push_back(var);
 }
@@ -53,8 +64,9 @@ VarBuffer::AddVariable(const Variable& var)
 void
 VarBuffer::TypeCheck(TypeChecker& typechecker)
 {
-    // add varblock, if failed we must have a redefinition
-    if (!typechecker.AddSymbol(this)) return;
+    // Find potentially forward declared symbol of same name
+    if (!typechecker.AddSymbol(this))
+        return;
 
     // type check annotation
     if (this->hasAnnotation)
@@ -71,7 +83,6 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         else if (qualifier == "readwrite" || qualifier == "read_write") this->accessMode |= Access::ReadWrite;
         else if (qualifier == "write")                                  this->accessMode |= Access::Write;
         else if (qualifier == "atomic")                                 this->accessMode |= Access::Atomic;
-        else if (qualifier == "ptr")                                    this->accessMode |= Access::Pointer;
         else if (qualifier == "volatile")                               this->accessMode |= Access::Volatile;
         else
         {
@@ -84,9 +95,14 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
     {
         const std::string& qualifier = this->qualifierExpressions[i].name;
         Expression* expr = this->qualifierExpressions[i].expr;
-        if (qualifier == "group") this->group = expr->EvalUInt(typechecker);
-        else if (qualifier == "binding") this->binding = expr->EvalUInt(typechecker);
-        else if (qualifier == "alignment") this->alignment = expr->EvalUInt(typechecker);
+        if (qualifier == "group")
+            this->group = expr->EvalUInt(typechecker);
+        else if (qualifier == "binding")
+            this->binding = expr->EvalUInt(typechecker);
+        else if (qualifier == "alignment")
+        {
+            this->alignment = expr->EvalUInt(typechecker);
+        }
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -145,61 +161,70 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
     unsigned i;
     for (i = 0; i < this->variables.size(); i++)
     {
-        Variable& var = this->variables[i];
+        Variable* var = this->variables[i];
 
-        std::string internalName = var.name;
+        std::string internalName = var->name;
         if (!this->structName.empty())
-            var.name = AnyFX::Format("%s.%s", this->structName.c_str(), var.name.c_str());
+            var->name = AnyFX::Format("%s.%s", this->structName.c_str(), var->name.c_str());
 
-        if (var.GetArrayType() == Variable::UnsizedArray && i < this->variables.size() - 1)
+        if (var->GetArrayType() == Variable::UnsizedArray && i < this->variables.size() - 1)
         {
-            std::string message = AnyFX::Format("Varbuffers can only have its last member as an unsized array, %s\n", var.GetName().c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Varbuffers can only have its last member as an unsized array, %s\n", var->GetName().c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         // if we have a struct, we need to unroll it, and calculate the offsets
-        const DataType& type = var.GetDataType();
+        const DataType& type = var->GetDataType();
 
         // avoid adding actual struct
         if (type.GetType() == DataType::UserType)
         {
             // unroll structures to generate variables with proper names, they should come in the same order as the suboffsets
-            Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-            if (structure->GetUsage() == Structure::VarblockStorage)
-                typechecker.Error(AnyFX::Format("struct %s is used in a varblock, but is elsewhere used in a varbuffer", structure->GetName().c_str()), this->GetFile(), this->GetLine());
-            structure->SetUsage(Structure::VarbufferStorage);
-            structure->UpdateAlignmentAndSize(typechecker);
+            Symbol* sym = typechecker.GetSymbol(type.GetName());
+            if (sym->GetType() == StructureType)
+            {
+                Structure* structure = (Structure*)sym;
+                if (structure->GetUsage() == Structure::VarblockStorage)
+                    typechecker.Error(AnyFX::Format("struct %s is used in a varblock, but is elsewhere used in a varbuffer", sym->GetName().c_str()), this->GetFile(), this->GetLine());
+                structure->SetUsage(Structure::VarbufferStorage);
+                structure->UpdateAlignmentAndSize(typechecker);
+            }
         }
 
-        var.TypeCheck(typechecker);
+        // Add variable as a global symbol if this is not a pointer block
+        var->TypeCheck(typechecker);
 
         // handle offset later, now we know array size
         unsigned size = 0;
         unsigned alignment = 0;
         if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
-            Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), size, alignment, false, false, typechecker);
+            Effect::GetAlignmentGLSL(var->GetDataType(), var->GetArraySize(), size, alignment, false, false, typechecker);
 
         // align offset with current alignment
         if (offset % alignment > 0)
         {
-            var.padding = alignment - (offset % alignment);
+            var->padding = alignment - (offset % alignment);
             offset = offset + alignment - (offset % alignment);
         }
         else
-            var.padding = 0;
-        var.alignedOffset = offset;
+            var->padding = 0;
+        var->alignedOffset = offset;
 
         // avoid adding actual struct
         if (type.GetType() == DataType::UserType)
         {
-            // unroll structures to generate variables with proper names, they should come in the same order as the suboffsets
-            Structure* structure = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-            structure->ResolveOffsets(typechecker, this->offsetsByName);
+            Symbol* sym = typechecker.GetSymbol(type.GetName());
+            if (sym->GetType() == StructureType)
+            {
+                // unroll structures to generate variables with proper names, they should come in the same order as the suboffsets
+                Structure* structure = (Structure*)sym;
+                structure->ResolveOffsets(typechecker, this->offsetsByName);
+            }
         }
         else
         {
             // add offset to list
-            this->offsetsByName[var.GetName()] = offset;
+            this->offsetsByName[var->GetName()] = offset;
         }
 
         // offset should be size of struct, round of
@@ -225,17 +250,12 @@ VarBuffer::Format(const Header& header) const
     }
     else if (header.GetType() == Header::SPIRV)
     {
-        std::string pointerAccess = "";
-        if (this->accessMode & Access::Pointer)
-        {
-            pointerAccess = AnyFX::Format("buffer_reference, buffer_reference_align=%d", this->alignment);
-        }
-        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d %s) %s buffer ", this->group, this->binding, pointerAccess.c_str(), this->FormatBufferAccess(header).c_str());
+        std::string layout = AnyFX::Format("layout(std430, set=%d, binding=%d) %s buffer ", this->group, this->binding, this->FormatBufferAccess(header).c_str());
         formattedCode.append(layout);
     }
     else if (header.GetType() == Header::C)
     {
-        formattedCode.append("struct ");
+        formattedCode.append("struct alignas(16) ");
     }
     
     formattedCode.append(this->GetName());
@@ -244,32 +264,58 @@ VarBuffer::Format(const Header& header) const
     unsigned i;
     for (i = 0; i < this->variables.size(); i++)
     {
-        const Variable& var = this->variables[i];
+        Variable* var = this->variables[i];
 
         // add padding member if we have a positive padding
-        if (header.GetType() == Header::C && var.padding > 0)
+        if (header.GetType() == Header::C && var->padding > 0)
         {
-            int pads = var.padding / 4;
-            int remainder = var.padding % 4;
+            int pads = var->padding / 4;
+            int remainder = var->padding % 4;
             unsigned j;
             for (j = 0; j < pads; j++)
                 formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
 
             if (remainder > 0)
                 formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
-            
+
         }
 
         // write variable offset, in most languages, every float4 boundary must be 16 bit aligned
-        formattedCode.append(AnyFX::Format("/* Offset:%d */", var.alignedOffset));
+        formattedCode.append(AnyFX::Format("/* Offset:%d */\t\t", var->alignedOffset));
 
         // format code and add to code
-        formattedCode.append(var.Format(header, true));
+        var->inVarblock = true;
+        formattedCode.append(var->Format(header));
     }
-    
+
     // finalize and return
     if (this->structName.empty())
-        formattedCode.append("};\n\n");
+    {
+        if (header.GetType() == Header::C)
+        {
+            formattedCode.append(AnyFX::Format("static const int Alignment = %d;\n", this->alignment));
+        }
+
+        formattedCode.append("};\n");
+
+        if (header.GetType() == Header::C)
+        {
+            formattedCode.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
+            for (i = 0; i < this->variables.size(); i++)
+            {
+                Variable* var = this->variables[i];
+                if (i > 0)
+                    formattedCode.append(", ");
+                formattedCode.append(AnyFX::Format("{ \"%s\", %d }", var->name.c_str(), var->alignedOffset));
+
+            }
+            formattedCode.append("};\n\n");
+        }
+        else
+        {
+            formattedCode.append("\n");
+        }
+    }
     else
     {
         std::string fullStructName = this->structName;
@@ -277,8 +323,10 @@ VarBuffer::Format(const Header& header) const
             fullStructName.append("[]");
         else if (this->arrayType == Variable::ArrayType::SimpleArray)
             fullStructName.append(AnyFX::Format("[%d]", this->arraySize));
-        formattedCode.append(AnyFX::Format("} %s;\n\n", fullStructName.c_str()));
+        formattedCode.append(AnyFX::Format("} %s;", fullStructName.c_str()));
     }
+
+    formattedCode.append("\n");
     return formattedCode;
 }
 
@@ -326,28 +374,6 @@ VarBuffer::GetBinding() const
     ret.binding.buffer.size = this->alignedSize;
     ret.name = this->name;
     return ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-    qsort hook for sorting parameters
-*/
-bool
-VarbufferParamCompare(const Variable& v1, const Variable& v2)
-{
-    return v1.GetByteSize() * v1.GetArraySize() > v2.GetByteSize() * v1.GetArraySize();
-}
-
-//------------------------------------------------------------------------------
-/**
-    sort variables based on type size in decreasing order, meaning the first value has the biggest size
-    (this only needs to be here because there seems to be some bug with uniform buffers (GLSL) on ATI cards)
-    but it's always good practice to properly pack your data ;)
-*/
-void 
-VarBuffer::SortVariables()
-{
-    std::sort(this->variables.begin(), this->variables.end(), VarbufferParamCompare);
 }
 
 //------------------------------------------------------------------------------

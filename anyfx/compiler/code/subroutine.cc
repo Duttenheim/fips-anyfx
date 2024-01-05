@@ -12,7 +12,8 @@ namespace AnyFX
 /**
 */
 Subroutine::Subroutine() :
-    fileIndex(-1)
+    fileIndex(-1),
+    func(nullptr)
 {
     this->symbolType = Symbol::SubroutineType;
 }
@@ -23,6 +24,15 @@ Subroutine::Subroutine() :
 Subroutine::~Subroutine()
 {
 	// empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Subroutine::Destroy()
+{
+    delete this->func;
 }
 
 //------------------------------------------------------------------------------
@@ -59,15 +69,15 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
         }
 
         // make sure our return type matches that of the signature
-        if (this->func.GetReturnType() != signatureRoutine->GetReturnType())
+        if (this->func->GetReturnType() != signatureRoutine->GetReturnType())
         {
             std::string message = AnyFX::Format("Subroutine implementation doesn't match the return type from signature, %s\n", this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
-        if (signatureRoutine->GetNumParameters() != this->func.GetNumParameters())
+        if (signatureRoutine->GetNumParameters() != this->func->GetNumParameters())
         {
-            std::string message = AnyFX::Format("Subroutine implementation and prototype does not have a matching amount of parameters, got %d expected %d, %s\n", this->func.GetNumParameters(), signatureRoutine->GetNumParameters(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Subroutine implementation and prototype does not have a matching amount of parameters, got %d expected %d, %s\n", this->func->GetNumParameters(), signatureRoutine->GetNumParameters(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         else
@@ -77,15 +87,15 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
             for (i = 0; i < numParams; i++)
             {
                 const Parameter* param = signatureRoutine->GetParameter(i);
-                if (param->GetDataType() != this->func.GetParameter(i)->GetDataType())
+                if (param->GetDataType() != this->func->GetParameter(i)->GetDataType())
                 {
-                    std::string message = AnyFX::Format("Subroutine implementation doesn't match prototype signature, argument %d is of type '%s', expected '%s', %s\n", i, DataType::ToString(this->func.GetParameter(i)->GetDataType()).c_str(), DataType::ToString(param->GetDataType()).c_str(), this->ErrorSuffix().c_str());
+                    std::string message = AnyFX::Format("Subroutine implementation doesn't match prototype signature, argument %d is of type '%s', expected '%s', %s\n", i, DataType::ToString(this->func->GetParameter(i)->GetDataType()).c_str(), DataType::ToString(param->GetDataType()).c_str(), this->ErrorSuffix().c_str());
                     typechecker.Error(message, this->GetFile(), this->GetLine());
                 }
                 else
                 {
-                    const std::string& code = this->func.GetCode();
-                    if (code.find(this->func.GetParameter(i)->GetName()) != std::string::npos)
+                    const std::string& code = this->func->GetCode();
+                    if (code.find(this->func->GetParameter(i)->GetName()) != std::string::npos)
                     {
                         signatureRoutine->ParameterUsed(i);
                     }
@@ -108,6 +118,21 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
         this->optimizationList.resize(this->parameters.size(), false);
     }
 
+    /*
+    if (this->subroutineType == Subroutine::Signature)
+    {
+        unsigned i;
+        for (i = 0; i < this->optimizationList.size(); i++)
+        {
+            if (optimizationList[i] == false)
+            {
+                std::string message = AnyFX::Format("Parameter '%s' is not used by any subroutine implementation, this may cause compilation errors, %s\n", this->parameters[i].GetName().c_str(), this->ErrorSuffix().c_str());
+                typechecker.Warning(message, this->GetFile(), this->GetLine());
+            }
+        }
+    }
+    */
+
     // type check parameters
     unsigned i;
     for (i = 0; i < this->parameters.size(); i++)
@@ -116,10 +141,13 @@ Subroutine::TypeCheck(TypeChecker& typechecker)
     }
 
 	// type check function
-	for (i = 0; i < this->func.parameters.size(); i++)
-	{
-		this->func.parameters[i].TypeCheck(typechecker);
-	}	
+    if (this->subroutineType == Implementation)
+    {
+        for (i = 0; i < this->func->parameters.size(); i++)
+        {
+            this->func->parameters[i].TypeCheck(typechecker);
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -130,26 +158,6 @@ Subroutine::Compile(BinWriter& writer)
 {
     writer.WriteString(this->name);
     writer.WriteInt(this->subroutineType);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-Subroutine::CheckForOptimization(TypeChecker& typeChecker)
-{
-    if (this->subroutineType == Subroutine::Signature)
-    {
-        unsigned i;
-        for (i = 0; i < this->optimizationList.size(); i++)
-        {
-            if (optimizationList[i] == false)
-            {
-                std::string message = AnyFX::Format("Parameter '%s' is not used by any subroutine implementation, this may cause compilation errors, %s\n", this->parameters[i].GetName().c_str(), this->ErrorSuffix().c_str());
-                typeChecker.Warning(message, this->GetFile(), this->GetLine());
-            }
-        }
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -168,7 +176,7 @@ Subroutine::Format(const Header& header) const
 			// having no subroutines means the just become functions
 			if (this->subroutineType == Subroutine::Implementation)
 			{
-				formattedCode.append(this->func.GetCode());
+				formattedCode.append(this->func->GetCode());
 			}
 		}
 		else
@@ -207,7 +215,7 @@ Subroutine::Format(const Header& header) const
 				formattedCode.append(" (");
 				formattedCode.append(this->signature);
 				formattedCode.append(") ");
-				formattedCode.append(this->func.GetCode());
+				formattedCode.append(this->func->GetCode());
 			}
 		}
     }
@@ -223,8 +231,11 @@ void
 Subroutine::UpdateCode(const Header& header, unsigned fileIndex)
 {
     // format function code with file index as input
-    this->fileIndex = fileIndex;
-    this->func.Restore(header, fileIndex);
+    if (this->subroutineType == Implementation)
+    {
+        this->fileIndex = fileIndex;
+        this->func->Restore(header, fileIndex);
+    }
 }
 
 //------------------------------------------------------------------------------

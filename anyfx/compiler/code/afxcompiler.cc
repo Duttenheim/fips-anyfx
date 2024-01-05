@@ -284,7 +284,7 @@ AnyFXCompile(
         parser.addErrorListener(&parserErrorHandler);
 
         // create new effect
-        Effect effect = parser.entry()->returnEffect;
+        Effect* effect = parser.entry()->returnEffect;
 
         // stop the process if lexing or parsing fails
         if (!lexerErrorHandler.hasError && !parserErrorHandler.hasError)
@@ -303,17 +303,17 @@ AnyFXCompile(
             header.SetFlags(flags);
 
             // set effect header and setup effect
-            effect.SetHeader(header);
-            effect.SetName(effectName);
-            effect.SetFile(file);
+            effect->SetHeader(header);
+            effect->SetName(effectName);
+            effect->SetFile(file);
             for (const auto& name : resourceTableNames)
-                effect.SetResourceTableName(name.first, name.second);
-            effect.Setup();
+                effect->SetResourceTableName(name.first, name.second);
+            effect->Setup();
 
             // set debug output dump if flag is supplied
             if (header.GetFlags() & Header::OutputGeneratedShaders)
             {
-                effect.SetDebugOutputPath(output);
+                effect->SetDebugOutputPath(output);
             }
 
             // create type checker
@@ -321,7 +321,7 @@ AnyFXCompile(
 
             // type check effect
             typeChecker.SetHeader(header);
-            effect.TypeCheck(typeChecker);
+            effect->TypeCheck(typeChecker);
 
             // compile effect
             int typeCheckerStatus = typeChecker.GetStatus();
@@ -332,7 +332,7 @@ AnyFXCompile(
 
                 // generate code for effect
                 generator.SetHeader(header);
-                effect.Generate(generator);
+                effect->Generate(generator);
 
                 // set warnings as 'error' buffer
                 if (typeCheckerStatus == TypeChecker::Warnings)
@@ -352,7 +352,7 @@ AnyFXCompile(
                     if (writer.Open())
                     {
                         // compile and write to binary writer
-                        effect.Compile(writer);
+                        effect->Compile(writer);
 
                         // close writer and finish file
                         writer.Close();
@@ -365,17 +365,18 @@ AnyFXCompile(
                             {
                                 // call the effect to generate a header
                                 header.SetProfile("c");
-                                effect.SetHeader(header);
-                                effect.GenerateHeader(headerWriter);
+                                effect->SetHeader(header);
+                                effect->GenerateHeader(headerWriter);
                                 headerWriter.Close();
                             }
                         }
-
+                        delete effect;
                         SUCCESS()
                     }
                     else
                     {
                         std::string errorMessage = Format("File '%s' could not be opened for writing\n", output.c_str());
+                        delete effect;
                         FAIL()
                     }
                 }
@@ -386,6 +387,7 @@ AnyFXCompile(
                     std::string errorMessage;
                     errorMessage = generator.GetErrorBuffer();
                     errorMessage = errorMessage + Format("Code generation failed with %d errors and %d warnings\n", errors, warnings);
+                    delete effect;
 
                     FAIL()
                 }
@@ -397,6 +399,7 @@ AnyFXCompile(
                 std::string errorMessage;
                 errorMessage = typeChecker.GetErrorBuffer();
                 errorMessage = errorMessage + Format("Type checking failed with %d errors and %d warnings\n", errors, warnings);
+                delete effect;
 
                 FAIL()
             }
@@ -406,6 +409,7 @@ AnyFXCompile(
             std::string errorMessage;
             errorMessage.append(lexerErrorHandler.errorBuffer);
             errorMessage.append(parserErrorHandler.errorBuffer);
+            delete effect;
 
             FAIL()
         }

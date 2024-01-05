@@ -25,16 +25,12 @@ Program::Program() :
     this->symbolType = Symbol::ProgramType;
     this->slotNames.resize(ProgramRow::NumProgramRows);
 
-    auto initShader = [this](unsigned i)
+
+    for (unsigned i = 0; i < ProgramRow::RenderState; i++)
     {
         this->slotNames[i] = "";
         this->slotMask[i] = false;
         this->shaders[i] = nullptr;
-    };
-
-    for (unsigned i = 0; i < ProgramRow::RenderState; i++)
-    {
-        initShader(i);
     }
 
     this->slotNames[ProgramRow::RenderState] = "PlaceholderState";
@@ -92,7 +88,7 @@ Program::TypeCheck(TypeChecker& typechecker)
     unsigned i;
     for (i = 0; i < this->invalidFlags.size(); i++)
     {
-        std::string msg = Format("Invalid program flag '%s', %s\n", this->invalidFlags[i].c_str(), this->ErrorSuffix().c_str());
+        std::string msg = AnyFX::Format("Invalid program flag '%s', %s\n", this->invalidFlags[i].c_str(), this->ErrorSuffix().c_str());
         typechecker.Error(msg, this->GetFile(), this->GetLine());
     }
 
@@ -190,7 +186,7 @@ Program::TypeCheck(TypeChecker& typechecker)
          // first type check to see our functions truly do exist
         if (masks[code] && func == 0)
         {
-            std::string message = Format("Shader with name '%s' is not defined, %s", this->slotNames[code].c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Shader with name '%s' is not defined, %s", this->slotNames[code].c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     };
@@ -504,15 +500,15 @@ Program::Compile(BinWriter& writer)
     // write tessellation boolean and tessellation patch size
     writer.WriteBool(this->slotMask[ProgramRow::HullShader]);
     writer.WriteUInt(this->patchSize);
-    if (this->slotMask[ProgramRow::VertexShader]) writer.WriteUInt(this->shaders[ProgramRow::VertexShader]->GetFunction().GetInputParameters().size());
+    if (this->slotMask[ProgramRow::VertexShader]) writer.WriteUInt(this->shaders[ProgramRow::VertexShader]->GetFunction()->GetInputParameters().size());
     else										  writer.WriteUInt(0);
 
-    if (this->slotMask[ProgramRow::PixelShader])  writer.WriteUInt(this->shaders[ProgramRow::PixelShader]->GetFunction().GetOutputParameters().size());
+    if (this->slotMask[ProgramRow::PixelShader])  writer.WriteUInt(this->shaders[ProgramRow::PixelShader]->GetFunction()->GetOutputParameters().size());
     else										  writer.WriteUInt(0);
 
     if (this->slotMask[ProgramRow::VertexShader])
     {
-        const std::vector<const Parameter*> inputs = this->shaders[ProgramRow::VertexShader]->GetFunction().GetInputParameters();
+        const std::vector<const Parameter*> inputs = this->shaders[ProgramRow::VertexShader]->GetFunction()->GetInputParameters();
         for (unsigned i = 0; i < inputs.size(); i++)
         {
             writer.WriteUInt(inputs[i]->GetSlot());
@@ -521,7 +517,7 @@ Program::Compile(BinWriter& writer)
 
     if (this->slotMask[ProgramRow::PixelShader])
     {
-        const std::vector<const Parameter*> outputs = this->shaders[ProgramRow::PixelShader]->GetFunction().GetOutputParameters();
+        const std::vector<const Parameter*> outputs = this->shaders[ProgramRow::PixelShader]->GetFunction()->GetOutputParameters();
         for (unsigned i = 0; i < outputs.size(); i++)
         {
             writer.WriteUInt(outputs[i]->GetAttribute() - Parameter::Color0);
@@ -543,7 +539,7 @@ Program::Compile(BinWriter& writer)
 
         if (this->slotMask[ProgramRow::RayGenerationShader])
         {
-            params = this->shaders[ProgramRow::RayGenerationShader]->GetFunction().GetParameters();
+            params = this->shaders[ProgramRow::RayGenerationShader]->GetFunction()->GetParameters();
             for (const auto param : params)
             {
                  if (param.GetAttribute() == Parameter::RayPayload)
@@ -553,7 +549,7 @@ Program::Compile(BinWriter& writer)
 
         if (this->slotMask[ProgramRow::RayAnyHitShader])
         {
-            params = this->shaders[ProgramRow::RayAnyHitShader]->GetFunction().GetParameters();
+            params = this->shaders[ProgramRow::RayAnyHitShader]->GetFunction()->GetParameters();
             for (const auto param : params)
             {
                 if (param.GetAttribute() == Parameter::HitAttribute)
@@ -565,7 +561,7 @@ Program::Compile(BinWriter& writer)
         
         if (this->slotMask[ProgramRow::RayClosestHitShader])
         {
-            params = this->shaders[ProgramRow::RayClosestHitShader]->GetFunction().GetParameters();
+            params = this->shaders[ProgramRow::RayClosestHitShader]->GetFunction()->GetParameters();
             for (const auto param : params)
             {
                 if (param.GetAttribute() == Parameter::HitAttribute)
@@ -577,7 +573,7 @@ Program::Compile(BinWriter& writer)
 
         if (this->slotMask[ProgramRow::RayIntersectionShader])
         {
-            params = this->shaders[ProgramRow::RayIntersectionShader]->GetFunction().GetParameters();
+            params = this->shaders[ProgramRow::RayIntersectionShader]->GetFunction()->GetParameters();
             for (const auto param : params)
             {
                 if (param.GetAttribute() == Parameter::RayPayload)
@@ -664,7 +660,7 @@ Program::GetBinary(unsigned shader)
 /**
 */
 void
-Program::BuildShaders(const Header& header, const std::vector<Function>& functions, std::map<std::string, Shader*>& shaders)
+Program::BuildShaders(const Header& header, const std::vector<Function*>& functions, std::map<std::string, Shader*>& shaders)
 {
     unsigned i;
     for (i = 0; i < ProgramRow::NumProgramRows; i++)
@@ -678,10 +674,10 @@ Program::BuildShaders(const Header& header, const std::vector<Function>& functio
             unsigned j;
             for (j = 0; j < functions.size(); j++)
             {
-                const Function& func = functions[j];
+                Function* func = functions[j];
 
                 // ok, we have a matching function
-                if (func.GetName() == functionName && func.IsShader())
+                if (func->GetName() == functionName && func->IsShader())
                 {
                     // create string which is the function name merged with its compile flags
                     std::string functionNameWithDefines = functionName;

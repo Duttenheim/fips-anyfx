@@ -22,7 +22,6 @@
 #include "../../code/samplerrow.h"
 #include "../../code/sampler.h"
 #include "../../code/structure.h"
-#include "../../code/constant.h"
 #include "../../code/blendstaterow.h"
 #include "../../code/renderstaterow.h"
 #include "../../code/renderstate.h"
@@ -75,12 +74,6 @@ public:
   virtual void enterEffect(AnyFXParser::EffectContext *ctx) = 0;
   virtual void exitEffect(AnyFXParser::EffectContext *ctx) = 0;
 
-  virtual void enterQualifier(AnyFXParser::QualifierContext *ctx) = 0;
-  virtual void exitQualifier(AnyFXParser::QualifierContext *ctx) = 0;
-
-  virtual void enterQualifierValued(AnyFXParser::QualifierValuedContext *ctx) = 0;
-  virtual void exitQualifierValued(AnyFXParser::QualifierValuedContext *ctx) = 0;
-
   virtual void enterType(AnyFXParser::TypeContext *ctx) = 0;
   virtual void exitType(AnyFXParser::TypeContext *ctx) = 0;
 
@@ -107,9 +100,6 @@ public:
 
   virtual void enterVariable(AnyFXParser::VariableContext *ctx) = 0;
   virtual void exitVariable(AnyFXParser::VariableContext *ctx) = 0;
-
-  virtual void enterConstant(AnyFXParser::ConstantContext *ctx) = 0;
-  virtual void exitConstant(AnyFXParser::ConstantContext *ctx) = 0;
 
   virtual void enterParameter(AnyFXParser::ParameterContext *ctx) = 0;
   virtual void exitParameter(AnyFXParser::ParameterContext *ctx) = 0;

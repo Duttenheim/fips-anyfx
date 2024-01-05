@@ -16,7 +16,9 @@ namespace AnyFX
 Structure::Structure() :
 	alignedSize(0),
 	padding(0),
-	usage(Ordinary)
+	usage(Ordinary),
+    isPointer(false),
+    pointerAlignment(16)
 {
 	this->symbolType = Symbol::StructureType;
 }
@@ -94,7 +96,15 @@ Structure::Format(const Header& header) const
 {
 	std::string formattedCode;
 
-	formattedCode.append("struct ");	
+    if (header.GetType() == Header::SPIRV)
+    {
+        if (this->isPointer)
+            formattedCode.append(AnyFX::Format("layout(std430, buffer_reference, buffer_reference_align=%d) buffer ", this->pointerAlignment));
+        else
+            formattedCode.append("struct ");
+    }
+    else
+        formattedCode.append("struct ");
     if (header.GetType() == Header::C)
         formattedCode.append("alignas(16) ");
 
@@ -122,25 +132,47 @@ Structure::Format(const Header& header) const
 		}
 
 		// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
-		formattedCode.append(AnyFX::Format("/* Offset:%d */", param.alignedOffset));
+		formattedCode.append(AnyFX::Format("/* Offset:%d */\t\t", param.alignedOffset));
 
 		// generate parameter with a seemingly invalid shader, since 
 		formattedCode.append(param.Format(header, input, output));
 	}
 
-	if (header.GetType() == Header::C && this->padding > 0)
+	if (header.GetType() == Header::C)
 	{
-		int pads = this->padding / 4;
-		int remainder = this->padding % 4;
-		for (i = 0; i < pads; i++)
-			formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", 32));
+        if (this->padding > 0)
+        {
+            int pads = this->padding / 4;
+            int remainder = this->padding % 4;
+            for (i = 0; i < pads; i++)
+                formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", 32));
 
-		if (remainder > 0)
-			formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", remainder * 8));
+            if (remainder > 0)
+                formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", remainder * 8));
+        }
+        formattedCode.append(AnyFX::Format("static const int Alignment = %d;\n", this->alignment));
 	}
-		
 
-	formattedCode.append("};\n\n");
+	formattedCode.append("};\n");
+
+    if (header.GetType() == Header::C)
+    {
+        formattedCode.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
+        for (i = 0; i < this->parameters.size(); i++)
+        {
+            const Parameter& param = this->parameters[i];
+            if (i > 0)
+                formattedCode.append(", ");
+            formattedCode.append(AnyFX::Format("{ \"%s\", %d }", param.name.c_str(), param.alignedOffset));
+
+        }
+        formattedCode.append("};\n\n");
+    }
+    else
+    {
+        formattedCode.append("\n");
+    }
+
 	return formattedCode;
 }
 
@@ -210,17 +242,18 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 
 		offset += size;
 	}
-	this->alignedSize = offset;
-	this->alignment = maxAlignment;
 
-	// calculate structure alignment
-	if (this->alignedSize % maxAlignment > 0)
-	{
-		this->padding = maxAlignment - (this->alignedSize % maxAlignment);
-		this->alignedSize = this->alignedSize + maxAlignment - (this->alignedSize % maxAlignment);
-	}
-	else
-		this->padding = 0;
+    this->alignedSize = offset;
+    this->alignment = maxAlignment;
+
+    // calculate structure alignment
+    if (this->alignedSize % maxAlignment > 0)
+    {
+        this->padding = maxAlignment - (this->alignedSize % maxAlignment);
+        this->alignedSize = this->alignedSize + maxAlignment - (this->alignedSize % maxAlignment);
+    }
+    else
+        this->padding = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -232,6 +265,31 @@ Structure::TypeCheck(TypeChecker& typechecker)
 	// attempt to add structure, if this fails, we must stop type checking for this structure
 	if (!typechecker.AddSymbol(this)) return;
 
+    // evaluate qualifiers
+    for (unsigned i = 0; i < this->qualifiers.size(); i++)
+    {
+        const std::string& qualifier = this->qualifiers[i];
+        if (qualifier == "ptr")                                    this->isPointer = true;
+        else
+        {
+            std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
+            typechecker.Error(message, this->GetFile(), this->GetLine());
+        }
+    }
+
+    for (unsigned i = 0; i < this->qualifierExpressions.size(); i++)
+    {
+        const std::string& qualifier = this->qualifierExpressions[i].name;
+        Expression* expr = this->qualifierExpressions[i].expr;
+        if (qualifier == "alignment")                   this->pointerAlignment = expr->EvalUInt(typechecker);
+        else
+        {
+            std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
+            typechecker.Error(message, this->GetFile(), this->GetLine());
+        }
+        delete expr;
+    }
+
     // also make sure no two structures are recursively included within eachother
     if (this->IsRecursive(typechecker))
     {
@@ -239,15 +297,42 @@ Structure::TypeCheck(TypeChecker& typechecker)
         typechecker.Error(msg, this->GetFile(), this->GetLine());
     }
 
-	this->alignedSize = 0;
-	unsigned i;
-	for (i = 0; i < this->parameters.size(); i++)
-	{
-		Parameter& param = this->parameters[i];
-		param.TypeCheck(typechecker);
 
-		this->alignedSize += DataType::ToByteSize(param.GetDataType());
-	}
+    // If is pointer, treat as an std430 style buffer
+    if (this->isPointer)
+    {
+        this->usage = VarbufferStorage;
+        this->UpdateAlignmentAndSize(typechecker);
+    }
+    else
+    {
+        // Setup base alignment
+        unsigned i;
+        unsigned offset = 0;
+        for (i = 0; i < this->parameters.size(); i++)
+        {
+            Parameter& param = this->parameters[i];
+            param.alignedOffset = offset;
+            offset += DataType::ToByteSize(param.GetDataType());
+        }
+    }
+
+    if (!this->isPointer)
+    {
+        this->alignedSize = 0;
+        unsigned i;
+        for (i = 0; i < this->parameters.size(); i++)
+        {
+            Parameter& param = this->parameters[i];
+            param.TypeCheck(typechecker);
+
+            this->alignedSize += DataType::ToByteSize(param.GetDataType());
+        }
+    }
+    else
+    {
+        this->alignedSize = 8;
+    }
 }
 
 } // namespace AnyFX

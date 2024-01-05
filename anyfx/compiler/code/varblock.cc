@@ -38,8 +38,19 @@ VarBlock::~VarBlock()
 //------------------------------------------------------------------------------
 /**
 */
+void 
+VarBlock::Destroy()
+{
+    for (auto var : this->variables)
+        delete var;
+    this->variables.clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
-VarBlock::AddVariable(const Variable& var)
+VarBlock::AddVariable(Variable* var)
 {
     this->variables.push_back(var);
 }
@@ -124,19 +135,19 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
     unsigned i;
     for (i = 0; i < this->variables.size(); i++)
     {
-        Variable& var = this->variables[i];
+        Variable* var = this->variables[i];
         if (!this->structName.empty())
-            var.name = AnyFX::Format("%s.%s", this->structName.c_str(), var.name.c_str());
+            var->name = AnyFX::Format("%s.%s", this->structName.c_str(), var->name.c_str());
 
-        var.group = this->group;
-        if (var.GetArrayType() == Variable::UnsizedArray)
+        var->group = this->group;
+        if (var->GetArrayType() == Variable::UnsizedArray)
         {
-            std::string message = AnyFX::Format("Varblocks cannot contain variables of unsized type! (%s), %s\n", var.GetName().c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Varblocks cannot contain variables of unsized type! (%s), %s\n", var->GetName().c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         // if we have a struct, we need to unroll it, and calculate the offsets
-        const DataType& type = var.GetDataType();
+        const DataType& type = var->GetDataType();
 
         // avoid adding actual struct
         if (type.GetType() == DataType::UserType)
@@ -150,7 +161,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
         }
 
         // since TypeCheck might modify the variable, we must replace the old one. 
-        var.TypeCheck(typechecker);
+        var->TypeCheck(typechecker);
 
         // handle offset later, now we know array size
         unsigned size = 0;
@@ -159,20 +170,20 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
         {
             // if we have a push constant, use std430, otherwise std140
             if (HasFlags(this->qualifierFlags, Qualifiers::Push))
-                Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), size, alignment, false, false, typechecker);
+                Effect::GetAlignmentGLSL(var->GetDataType(), var->GetArraySize(), size, alignment, false, false, typechecker);
             else
-                Effect::GetAlignmentGLSL(var.GetDataType(), var.GetArraySize(), size, alignment, true, false, typechecker);
+                Effect::GetAlignmentGLSL(var->GetDataType(), var->GetArraySize(), size, alignment, true, false, typechecker);
         }
 
         // align offset with current alignment
         if (offset % alignment > 0)
         {
-            var.padding = alignment - (offset % alignment);
+            var->padding = alignment - (offset % alignment);
             offset = offset + alignment - (offset % alignment);
         }
         else
-            var.padding = 0;
-        var.alignedOffset = offset;
+            var->padding = 0;
+        var->alignedOffset = offset;
 
         // avoid adding actual struct
         if (type.GetType() == DataType::UserType)
@@ -184,7 +195,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
         else
         {
             // add offset to list
-            this->offsetsByName[var.GetName()] = offset;
+            this->offsetsByName[var->GetName()] = offset;
         }
 
         // offset should be size of struct, round of
@@ -248,7 +259,7 @@ VarBlock::Format(const Header& header) const
         else if (header.GetType() == Header::HLSL) 
             formattedCode.append("shared cbuffer ");
         else if (header.GetType() == Header::C)
-            formattedCode.append("struct ");
+            formattedCode.append("struct alignas(16) ");
     }
     else
     {
@@ -275,7 +286,7 @@ VarBlock::Format(const Header& header) const
         else if (header.GetType() == Header::HLSL) 
             formattedCode.append("cbuffer ");
         else if (header.GetType() == Header::C)
-            formattedCode.append("struct ");
+            formattedCode.append("struct alignas(16) ");
     }
     
     // hmm, if this is a push constant range, setup as a single instance struct
@@ -287,10 +298,11 @@ VarBlock::Format(const Header& header) const
         unsigned i;
         for (i = 0; i < this->variables.size(); i++)
         {
-            const Variable& var = this->variables[i];
+            Variable* var = this->variables[i];
 
             // format code and add to code
-            formattedCode.append(var.Format(header, true));
+            var->inVarblock = true;
+            formattedCode.append(var->Format(header));
             formattedCode.append("\n");
         }
 
@@ -308,13 +320,13 @@ VarBlock::Format(const Header& header) const
         unsigned i;
         for (i = 0; i < this->variables.size(); i++)
         {
-            const Variable& var = this->variables[i];
+            Variable* var = this->variables[i];
 
             // add padding member if we have a positive padding
-            if (header.GetType() == Header::C && var.padding > 0)
+            if (header.GetType() == Header::C && var->padding > 0)
             {
-                int pads = var.padding / 4;
-                int remainder = var.padding % 4;
+                int pads = var->padding / 4;
+                int remainder = var->padding % 4;
                 unsigned j;
                 for (j = 0; j < pads; j++)
                     formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
@@ -324,15 +336,36 @@ VarBlock::Format(const Header& header) const
             }
 
             // write variable offset, in most languages, every float4 boundary must be 16 bit aligned
-            formattedCode.append(AnyFX::Format("/* Offset:%d */", var.alignedOffset));
+            formattedCode.append(AnyFX::Format("/* Offset:%d */\t\t", var->alignedOffset));
 
             // format code and add to code
-            formattedCode.append(var.Format(header, true));
+            var->inVarblock = true;
+            formattedCode.append(var->Format(header));
         }
     
         // finalize and return
         if (this->structName.empty())
-            formattedCode.append("};\n\n");
+        {
+            formattedCode.append("};\n");
+
+            if (header.GetType() == Header::C)
+            {
+                formattedCode.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
+                for (i = 0; i < this->variables.size(); i++)
+                {
+                    Variable* var = this->variables[i];
+                    if (i > 0)
+                        formattedCode.append(", ");
+                    formattedCode.append(AnyFX::Format("{ \"%s\", %d }", var->name.c_str(), var->alignedOffset));
+
+                }
+                formattedCode.append("};\n\n");
+            }
+            else
+            {
+                formattedCode.append("\n");
+            }
+        }
         else
         {
             std::string fullStructName = this->structName;
@@ -340,9 +373,10 @@ VarBlock::Format(const Header& header) const
                 fullStructName.append("[]");
             else if (this->arrayType == Variable::ArrayType::SimpleArray)
                 fullStructName.append(AnyFX::Format("[%d]", this->arraySize));
-            formattedCode.append(AnyFX::Format("} %s;\n\n", fullStructName.c_str()));
+            formattedCode.append(AnyFX::Format("} %s;\n", fullStructName.c_str()));
         }
     }
+    formattedCode.append("\n");
     return formattedCode;
 }
 
@@ -375,7 +409,7 @@ VarBlock::Compile(BinWriter& writer)
     unsigned i;
     for (i = 0; i < this->variables.size(); i++)
     {
-        this->variables[i].Compile(writer);
+        this->variables[i]->Compile(writer);
     }
 
     // write offsets
@@ -408,9 +442,9 @@ VarBlock::GetBinding() const
     sort hook for sorting parameters
 */
 bool
-VarblockParamCompare(const Variable& v1, const Variable& v2)
+VarblockParamCompare(const Variable* v1, const Variable* v2)
 {
-    return v1.GetByteSize() * v1.GetArraySize() < v2.GetByteSize() * v1.GetArraySize();
+    return v1->GetByteSize() * v1->GetArraySize() < v2->GetByteSize() * v1->GetArraySize();
 }
 
 //------------------------------------------------------------------------------
@@ -424,4 +458,5 @@ VarBlock::SortVariables()
 {
     std::sort(this->variables.begin(), this->variables.end(), VarblockParamCompare);
 }
+
 } // namespace AnyFX
