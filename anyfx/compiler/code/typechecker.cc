@@ -100,18 +100,6 @@ TypeChecker::GetSymbol(const std::string& name)
 	}
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-TypeChecker::ReplaceSymbol(Symbol* symbol)
-{
-    auto& it = this->symbols.find(symbol->GetName());
-    if (it != this->symbols.end())
-    {
-        it->second = symbol;
-    }
-}
 
 //------------------------------------------------------------------------------
 /**

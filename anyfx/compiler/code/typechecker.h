@@ -44,8 +44,6 @@ public:
 	bool HasSymbol(const std::string& name);
 	/// gets symbol from type checker
 	Symbol* GetSymbol(const std::string& name);
-    /// Replace symbol
-    void ReplaceSymbol(Symbol* symbol);
 
 	/// posts a type error
 	void Error(const std::string& message, const std::string& file, const unsigned line);
