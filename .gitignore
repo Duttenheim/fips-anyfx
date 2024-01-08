@@ -11,3 +11,4 @@ anyfx/compiler/antlr4/grammar/.antlr/AnyFXLexer.interp
 anyfx/compiler/antlr4/grammar/.antlr/AnyFXLexer.tokens
 anyfx/compiler/antlr4/grammar/.antlr/AnyFXParser.cpp
 anyfx/compiler/antlr4/grammar/.antlr/AnyFXParser.h
+CMakeUserPresets.json
