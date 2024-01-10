@@ -32,7 +32,6 @@ Subroutine::~Subroutine()
 void 
 Subroutine::Destroy()
 {
-    delete this->func;
 }
 
 //------------------------------------------------------------------------------

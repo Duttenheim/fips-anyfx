@@ -180,7 +180,7 @@ Constant::TypeCheck(TypeChecker& typechecker)
 		{
 			// evaluate constant array size
 			this->arraySize = this->sizeExpression->EvalInt(typechecker);
-			delete this->sizeExpression;
+			this->sizeExpression;
 		}
 		else if (this->arrayType == SimpleArray)
 		{
@@ -207,7 +207,7 @@ Constant::TypeCheck(TypeChecker& typechecker)
 		for (j = 0; j < valueList.GetNumValues(); j++)
 		{
 			if (valueList.GetValue(j)) 
-				delete valueList.GetValue(j);
+				valueList.GetValue(j);
 		}		
 	}
 

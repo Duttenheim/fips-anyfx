@@ -31,32 +31,23 @@ Effect::Effect()
 */
 Effect::~Effect()
 {
-    // delete shaders
-    std::map<std::string, Shader*>::iterator it;
-    for (it = this->shaders.begin(); it != this->shaders.end(); it++)
-    {
-        delete it->second;
-    }
     this->shaders.clear();
     
     for (auto symbol : this->symbols)
     {
         symbol->Destroy();
-        delete symbol;
     }
     this->symbols.clear();
 
     for (auto symbol : this->subroutinesToDelete)
     {
         symbol->Destroy();
-        delete symbol;
     }
     this->subroutinesToDelete.clear();
 
     for (auto symbol : this->functionsToDelete)
     {
         symbol->Destroy();
-        delete symbol;
     }
     this->functionsToDelete.clear();
 }
@@ -191,7 +182,7 @@ Effect::Setup()
     }
 
     // create a placeholder render state, which will be used for programs where no render state is explicitly assigned
-    this->placeholderRenderState = new RenderState;
+    this->placeholderRenderState = this->alloc.Alloc<RenderState>();
     this->placeholderRenderState->SetName("PlaceholderState");
     this->placeholderRenderState->SetReserved(true);
     this->symbols.insert(this->symbols.begin(), this->placeholderRenderState);
@@ -200,7 +191,7 @@ Effect::Setup()
     {
         if (!this->symbols.empty())
         {
-            this->placeholderVarBlock = new VarBlock();
+            this->placeholderVarBlock = this->alloc.Alloc<VarBlock>();
             this->placeholderVarBlock->SetName("GlobalBlock");
             this->placeholderVarBlock->SetReserved(true);
             this->placeholderVarBlock->AddQualifier("shared");

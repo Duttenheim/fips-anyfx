@@ -287,7 +287,6 @@ Structure::TypeCheck(TypeChecker& typechecker)
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
-        delete expr;
     }
 
     // also make sure no two structures are recursively included within eachother

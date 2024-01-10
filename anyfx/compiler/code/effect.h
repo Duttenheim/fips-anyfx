@@ -22,7 +22,7 @@
 #include "compileable.h"
 #include "sampler.h"
 #include "util/code/textwriter.h"
-
+#include "allocator.h"
 namespace AnyFX
 {
 
@@ -94,6 +94,8 @@ private:
 
     RenderState* placeholderRenderState;
     VarBlock* placeholderVarBlock;
+
+    Allocator alloc;
 
     std::string debugOutput;
 }; 

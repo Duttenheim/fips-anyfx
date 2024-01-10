@@ -23,14 +23,23 @@ ShaderEffect::ShaderEffect()
 ShaderEffect::~ShaderEffect()
 {
 	unsigned i;
-	for (i = 0; i < this->programsByIndex.size(); i++) delete this->programsByIndex[i];
-	for (i = 0; i < this->shadersByIndex.size(); i++) delete this->shadersByIndex[i];
-	for (i = 0; i < this->variablesByIndex.size(); i++) delete this->variablesByIndex[i];
-	for (i = 0; i < this->renderstatesByIndex.size(); i++) delete this->renderstatesByIndex[i];
-	for (i = 0; i < this->subroutinesByIndex.size(); i++) delete this->subroutinesByIndex[i];
-    for (i = 0; i < this->varblocksByIndex.size(); i++) delete this->varblocksByIndex[i];
-	for (i = 0; i < this->varbuffersByIndex.size(); i++) delete this->varbuffersByIndex[i];
-	for (i = 0; i < this->samplersByIndex.size(); i++) delete this->samplersByIndex[i];
+	for (i = 0; i < this->programsByIndex.size(); i++) this->programsByIndex[i]->~ProgramBase();
+	for (i = 0; i < this->shadersByIndex.size(); i++) this->shadersByIndex[i]->~ShaderBase();
+	for (i = 0; i < this->variablesByIndex.size(); i++) this->variablesByIndex[i]->~VariableBase();
+	for (i = 0; i < this->renderstatesByIndex.size(); i++) this->renderstatesByIndex[i]->~RenderStateBase();
+	for (i = 0; i < this->subroutinesByIndex.size(); i++) this->subroutinesByIndex[i]->~SubroutineBase();
+    for (i = 0; i < this->varblocksByIndex.size(); i++) this->varblocksByIndex[i]->~VarblockBase();
+	for (i = 0; i < this->varbuffersByIndex.size(); i++) this->varbuffersByIndex[i]->~VarbufferBase();
+	for (i = 0; i < this->samplersByIndex.size(); i++) this->samplersByIndex[i]->~SamplerBase();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Allocator& 
+ShaderEffect::GetAlloc()
+{
+    return this->alloc;
 }
 
 //------------------------------------------------------------------------------

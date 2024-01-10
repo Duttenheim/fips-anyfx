@@ -9,6 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include "binreader.h"
+#include "allocator.h"
 namespace AnyFX
 {
 class ShaderEffect;
@@ -17,7 +18,7 @@ class ShaderLoader
 {
 public:
 	/// constructor
-	ShaderLoader();
+    ShaderLoader();
 	/// destructor
 	virtual ~ShaderLoader();
 

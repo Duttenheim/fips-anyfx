@@ -41,15 +41,15 @@ RenderStateLoader::Load(BinReader* reader, ShaderEffect* effect)
 	// we should create our implementation back-end first
 	if (effect->header == Implementation::GLSL)
 	{
-		if (effect->major == 4) renderState = new GL4RenderState;
+		if (effect->major == 4) renderState = effect->GetAlloc().Alloc<GL4RenderState>();
 	}
 	else if (effect->header == Implementation::SPIRV)
 	{
-		renderState = new VkRenderState;
+		renderState = effect->GetAlloc().Alloc<VkRenderState>();
 	}
 	else
 	{
-		renderState = new RenderStateBase;
+		renderState = effect->GetAlloc().Alloc<RenderStateBase>();
 	}
 
 	// get name

@@ -14,8 +14,9 @@ namespace AnyFX
 */
 BinReader::BinReader() :
 	isOpen(false),
-	inputFile(NULL),
-	inputString(NULL)
+	inputFile(nullptr),
+	inputString(nullptr),
+    alloc(nullptr)
 {
 	// empty
 }
@@ -160,7 +161,7 @@ BinReader::ReadString()
 	unsigned len = this->ReadUInt();
 
 	// create buffer
-	char* buf = new char[len];
+    char* buf = this->alloc->Alloc(len);
 
 	// finally read to string
 	if (this->inputFile) this->inputFile->read(buf, len);
@@ -174,7 +175,6 @@ BinReader::ReadString()
 	}
 
 	std::string result(buf, len);
-	delete [] buf;
 	return result;
 }
 
@@ -199,7 +199,7 @@ BinReader::ReadBytes(unsigned numbytes)
 {
 	if (numbytes > 0)
 	{
-		char* value = new char[numbytes];
+		char* value = this->alloc->Alloc(numbytes);
 		if (this->inputFile) this->inputFile->read(value, numbytes);
 		else this->inputString->read(value, numbytes);
 		return value;

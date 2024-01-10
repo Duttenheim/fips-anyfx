@@ -638,7 +638,7 @@ RenderState::EvaluateEntries(TypeChecker& typeChecker)
 		else this->invalidExpressionFlags.push_back(row.GetFlag());
 
 		// delete expression
-		delete row.GetExpression();
+		row.GetExpression();
 	}
 
 	for (int i = 0; i < this->blendStateRows.size(); i++)
@@ -862,7 +862,7 @@ RenderState::EvaluateEntries(TypeChecker& typeChecker)
 		else
 			this->invalidExpressionFlags.push_back(row.GetFlag());
 
-		delete row.GetExpression();
+		row.GetExpression();
 	}
 	this->blendStateRows.clear();
 }

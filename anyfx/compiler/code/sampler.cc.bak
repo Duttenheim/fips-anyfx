@@ -231,7 +231,7 @@ Sampler::TypeCheck( TypeChecker& typechecker )
 		if (this->floatExpressions[i])
 		{
 			this->floatFlags[i] = this->floatExpressions[i]->EvalFloat(typechecker);
-			delete this->floatExpressions[i];
+			this->floatExpressions[i];
 		}
 	}
 
@@ -240,7 +240,7 @@ Sampler::TypeCheck( TypeChecker& typechecker )
 		if (this->boolExpressions[i])
 		{
 			this->boolFlags[i] = this->boolExpressions[i]->EvalBool(typechecker);
-			delete this->boolExpressions[i];
+			this->boolExpressions[i];
 		}
 	}
 
@@ -256,10 +256,10 @@ Sampler::TypeCheck( TypeChecker& typechecker )
 			this->float4Flags[i].v[2] = this->float4Expressions[i].v[2]->EvalFloat(typechecker);
 			this->float4Flags[i].v[3] = this->float4Expressions[i].v[3]->EvalFloat(typechecker);
 
-			delete this->float4Expressions[i].v[0];
-			delete this->float4Expressions[i].v[1];
-			delete this->float4Expressions[i].v[2];
-			delete this->float4Expressions[i].v[3];
+			this->float4Expressions[i].v[0];
+			this->float4Expressions[i].v[1];
+			this->float4Expressions[i].v[2];
+			this->float4Expressions[i].v[3];
 		}
 	}
 

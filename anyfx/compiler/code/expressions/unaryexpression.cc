@@ -22,7 +22,6 @@ UnaryExpression::UnaryExpression(char op, Expression* expr) :
 */
 UnaryExpression::~UnaryExpression()
 {
-	delete this->expr;
 }
 
 //------------------------------------------------------------------------------

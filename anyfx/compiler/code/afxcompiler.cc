@@ -370,13 +370,11 @@ AnyFXCompile(
                                 headerWriter.Close();
                             }
                         }
-                        delete effect;
                         SUCCESS()
                     }
                     else
                     {
                         std::string errorMessage = Format("File '%s' could not be opened for writing\n", output.c_str());
-                        delete effect;
                         FAIL()
                     }
                 }
@@ -387,7 +385,6 @@ AnyFXCompile(
                     std::string errorMessage;
                     errorMessage = generator.GetErrorBuffer();
                     errorMessage = errorMessage + Format("Code generation failed with %d errors and %d warnings\n", errors, warnings);
-                    delete effect;
 
                     FAIL()
                 }
@@ -399,7 +396,6 @@ AnyFXCompile(
                 std::string errorMessage;
                 errorMessage = typeChecker.GetErrorBuffer();
                 errorMessage = errorMessage + Format("Type checking failed with %d errors and %d warnings\n", errors, warnings);
-                delete effect;
 
                 FAIL()
             }
@@ -409,7 +405,6 @@ AnyFXCompile(
             std::string errorMessage;
             errorMessage.append(lexerErrorHandler.errorBuffer);
             errorMessage.append(parserErrorHandler.errorBuffer);
-            delete effect;
 
             FAIL()
         }

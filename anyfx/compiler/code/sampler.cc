@@ -233,7 +233,7 @@ Sampler::TypeCheck(TypeChecker& typechecker)
         if (this->floatExpressions[i])
         {
             this->floatFlags[i] = this->floatExpressions[i]->EvalFloat(typechecker);
-            delete this->floatExpressions[i];
+            this->floatExpressions[i];
         }
     }
 
@@ -242,7 +242,7 @@ Sampler::TypeCheck(TypeChecker& typechecker)
         if (this->boolExpressions[i])
         {
             this->boolFlags[i] = this->boolExpressions[i]->EvalBool(typechecker);
-            delete this->boolExpressions[i];
+            this->boolExpressions[i];
         }
     }
 
@@ -257,7 +257,6 @@ Sampler::TypeCheck(TypeChecker& typechecker)
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
             AnyFX::Emit(message.c_str());
         }
-        delete expr;
     }
 
     unsigned numTextures = this->textureList.GetNumTextures();

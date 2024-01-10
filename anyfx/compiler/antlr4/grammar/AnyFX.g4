@@ -76,6 +76,8 @@ void UpdateLine(antlr4::TokenStream* stream, int index = -1)
 int currentLine = 0;
 int lineOffset = 0;
 std::vector<std::tuple<int, int, int, int, std::string>> lines;
+
+Allocator alloc;
 }
 
 // parser includes
@@ -90,37 +92,38 @@ std::vector<std::tuple<int, int, int, int, std::string>> lines;
 #include <tuple>
 
 #include "anyfxtoken.h"
-#include "../../code/qualifierexpression.h"
-#include "../../code/compileable.h"
-#include "../../code/effect.h"
-#include "../../code/header.h"
-#include "../../code/datatype.h"
-#include "../../code/parameter.h"
-#include "../../code/annotation.h"
-#include "../../code/programrow.h"
-#include "../../code/program.h"
-#include "../../code/samplertexturelist.h"
-#include "../../code/samplerrow.h"
-#include "../../code/sampler.h"
-#include "../../code/structure.h"
-#include "../../code/blendstaterow.h"
-#include "../../code/renderstaterow.h"
-#include "../../code/renderstate.h"
-#include "../../code/function.h"
-#include "../../code/valuelist.h"
-#include "../../code/functionattribute.h"
-#include "../../code/variable.h"
-#include "../../code/varblock.h"
-#include "../../code/varbuffer.h"
-#include "../../code/subroutine.h"
-#include "../../code/preprocessor.h"
-#include "../../code/expressions/expression.h"
-#include "../../code/expressions/binaryexpression.h"
-#include "../../code/expressions/unaryexpression.h"
-#include "../../code/expressions/intexpression.h"
-#include "../../code/expressions/boolexpression.h"
-#include "../../code/expressions/floatexpression.h"
-#include "../../code/expressions/symbolexpression.h"
+#include "qualifierexpression.h"
+#include "compileable.h"
+#include "effect.h"
+#include "header.h"
+#include "datatype.h"
+#include "parameter.h"
+#include "annotation.h"
+#include "programrow.h"
+#include "program.h"
+#include "samplertexturelist.h"
+#include "samplerrow.h"
+#include "sampler.h"
+#include "structure.h"
+#include "blendstaterow.h"
+#include "renderstaterow.h"
+#include "renderstate.h"
+#include "function.h"
+#include "valuelist.h"
+#include "functionattribute.h"
+#include "variable.h"
+#include "varblock.h"
+#include "varbuffer.h"
+#include "subroutine.h"
+#include "preprocessor.h"
+#include "expressions/expression.h"
+#include "expressions/binaryexpression.h"
+#include "expressions/unaryexpression.h"
+#include "expressions/intexpression.h"
+#include "expressions/boolexpression.h"
+#include "expressions/floatexpression.h"
+#include "expressions/symbolexpression.h"
+#include "allocator.h"
 using namespace AnyFX;
 
 }
@@ -157,7 +160,7 @@ entry
 effect
     returns[ Effect* eff ] 
     @init {
-        $eff = new Effect();
+        $eff = alloc.Alloc<Effect>();
     }:
     (
         variable { $eff->AddVariable($variable.var); }
@@ -189,7 +192,7 @@ qualifierExpression
 structure
     returns[ Structure* struc ]    
     @init {
-        $struc = new Structure();
+        $struc = alloc.Alloc<Structure>();
     }:
     (
         qual = IDENTIFIER { $struc->AddQualifier($qual.text); }
@@ -212,7 +215,7 @@ structure
 varblock
     returns[ VarBlock* block ]
     @init {
-        $block = new VarBlock();
+        $block = alloc.Alloc<VarBlock>();
     }:
     (
         qual = IDENTIFIER { $block->AddQualifier($qual.text); }
@@ -232,7 +235,7 @@ varblock
 varbuffer
     returns[ VarBuffer* buffer ]
     @init {
-        $buffer = new VarBuffer();
+        $buffer = alloc.Alloc<VarBuffer>();
     }:
     (
         qual = IDENTIFIER { $buffer->AddQualifier($qual.text); }
@@ -257,7 +260,7 @@ varbuffer
 subroutine
     returns[ Subroutine* subrout ]
     @init {
-        $subrout = new Subroutine();
+        $subrout = alloc.Alloc<Subroutine>();
     }:
     'prototype' retval = type name = IDENTIFIER { SetupFile($subrout, _input); } 
     parameterList ';' 
@@ -291,7 +294,7 @@ valueSingleList
 variable
     returns[ Variable* var ]
     @init {
-        $var = new Variable();
+        $var = alloc.Alloc<Variable>();
     }:
     (
         qual = IDENTIFIER { $var->AddQualifier($qual.text); }
@@ -397,7 +400,7 @@ codeBlock: '{' (codeBlock)* '}' | ~('{' | '}');
 function
     returns[ Function* func ]
     @init {
-            $func = new Function();
+            $func = alloc.Alloc<Function>();
             Token* startToken = nullptr;
             Token* endToken = nullptr;
         }: (
@@ -448,7 +451,7 @@ renderStateRow
 renderState
     returns[ RenderState* state ]
     @init {
-        $state = new RenderState();
+        $state = alloc.Alloc<RenderState>();
     }
     : ('render_state') name = IDENTIFIER { SetupFile($state, _input); } ';' { $state->SetName($name.text); 
         }
@@ -462,7 +465,7 @@ renderState
 sampler
     returns[ Sampler* samp ]
     @init {
-        $samp = new Sampler();
+        $samp = alloc.Alloc<Sampler>();
     }
     : (
         qual = IDENTIFIER { $samp->AddQualifier($qual.text); }
@@ -530,7 +533,7 @@ annotation
 program
     returns[ Program* prog ]
     @init {
-        $prog = new Program();
+        $prog = alloc.Alloc<Program>();
     }
     :
     'program' name = IDENTIFIER { SetupFile($prog, _input); } (
@@ -560,11 +563,11 @@ binaryexp7
 
                         if (prev)
                         {
-                            lhs = new BinaryExpression("||", prev, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>("||", prev, $e2.tree);
                         }
                         else
                         {
-                            lhs = new BinaryExpression("||", $e1.tree, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>("||", $e1.tree, $e2.tree);
                         }
 
                         SetupFile(lhs, _input);
@@ -587,11 +590,11 @@ binaryexp6
 
                         if (prev)
                         {
-                            lhs = new BinaryExpression("&&", prev, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>("&&", prev, $e2.tree);
                         }
                         else
                         {
-                            lhs = new BinaryExpression("&&", $e1.tree, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>("&&", $e1.tree, $e2.tree);
                         }
 
                         SetupFile(lhs, _input);
@@ -614,11 +617,11 @@ binaryexp5
 
                         if (prev)
                         {
-                            lhs = new BinaryExpression($op.text, prev, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, prev, $e2.tree);
                         }
                         else
                         {
-                            lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, $e1.tree, $e2.tree);
                         }
 
                         SetupFile(lhs, _input);
@@ -641,11 +644,11 @@ binaryexp4
 
                         if (prev)
                         {
-                            lhs = new BinaryExpression($op.text, prev, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, prev, $e2.tree);
                         }
                         else
                         {
-                            lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, $e1.tree, $e2.tree);
                         }
 
                         SetupFile(lhs, _input);
@@ -668,11 +671,11 @@ binaryexp3
 
                         if (prev)
                         {
-                            lhs = new BinaryExpression($op.text, prev, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, prev, $e2.tree);
                         }
                         else
                         {
-                            lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, $e1.tree, $e2.tree);
                         }
 
                         SetupFile(lhs, _input);
@@ -695,11 +698,11 @@ binaryexp2
 
                         if (prev)
                         {
-                            lhs = new BinaryExpression($op.text, prev, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, prev, $e2.tree);
                         }
                         else
                         {
-                            lhs = new BinaryExpression($op.text, $e1.tree, $e2.tree);
+                            lhs = alloc.Alloc<BinaryExpression>($op.text, $e1.tree, $e2.tree);
                         }
 
                         SetupFile(lhs, _input);
@@ -721,7 +724,7 @@ binaryexp1
                         if ($op != 0)
                         {
                             operat = $op.text.c_str()[0];
-                            rhs = new UnaryExpression(operat, rhs);
+                            rhs = alloc.Alloc<UnaryExpression>(operat, rhs);
                         }
 
                         SetupFile(rhs, _input);
@@ -735,18 +738,18 @@ binaryexpatom
     @init {
                         $tree = nullptr;
                     }:
-    INTEGERLITERAL { $tree = new IntExpression(atoi($INTEGERLITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    INTEGERLITERAL { $tree = alloc.Alloc<IntExpression>(atoi($INTEGERLITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
         }
-    | FLOATLITERAL { $tree = new FloatExpression(atof($FLOATLITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    | FLOATLITERAL { $tree = alloc.Alloc<FloatExpression>(atof($FLOATLITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
         }
-    | DOUBLELITERAL { $tree = new FloatExpression(atof($DOUBLELITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+    | DOUBLELITERAL { $tree = alloc.Alloc<FloatExpression>(atof($DOUBLELITERAL.text.c_str())); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
         }
-    | HEX { $tree = new IntExpression(strtoul($HEX.text.c_str(), nullptr, 16)); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+    | HEX { $tree = alloc.Alloc<IntExpression>(strtoul($HEX.text.c_str(), nullptr, 16)); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
         }
-    | IDENTIFIER { $tree = new SymbolExpression($IDENTIFIER.text); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+    | IDENTIFIER { $tree = alloc.Alloc<SymbolExpression>($IDENTIFIER.text); $tree->SetLine(_input->LT(1)->getLine()); $tree->SetPosition(_input->LT(1)->getCharPositionInLine());
         }
     | boolean {
-                        $tree = new BoolExpression($boolean.val);
+                        $tree = alloc.Alloc<BoolExpression>($boolean.val);
                         SetupFile($tree, _input);
                     }
     | parantexpression { $tree = $parantexpression.tree; };

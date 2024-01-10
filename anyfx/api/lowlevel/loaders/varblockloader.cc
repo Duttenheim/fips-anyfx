@@ -41,15 +41,15 @@ VarblockLoader::Load(BinReader* reader, ShaderEffect* effect, std::vector<Variab
 	// we should create our implementation back-end first
 	if (effect->header == Implementation::GLSL)
 	{
-		if (effect->major == 4) varblock = new GL4Varblock;
+		if (effect->major == 4) varblock = effect->GetAlloc().Alloc<GL4Varblock>();
 	}
 	else if (effect->header == Implementation::SPIRV)
 	{
-		varblock = new VkVarblock;
+		varblock = effect->GetAlloc().Alloc<VkVarblock>();
 	}
 	else
 	{
-		varblock = new VarblockBase;
+		varblock = effect->GetAlloc().Alloc<VarblockBase>();
 	}
 
 	std::string name = reader->ReadString().c_str();
