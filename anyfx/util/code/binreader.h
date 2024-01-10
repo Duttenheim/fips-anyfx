@@ -16,11 +16,13 @@
 
 namespace AnyFX
 {
+
+class Allocator;
 class BinReader
 {
 public:
 	/// constructor
-	BinReader(Allocator* alloc);
+	BinReader();
 	/// destructor
 	virtual ~BinReader();
 	
@@ -36,6 +38,9 @@ public:
 	bool IsOpen() const;
 	/// returns true if writer is at the end of the file
 	bool Eof() const;
+
+	/// Set allocator
+	void SetAllocator(Allocator* alloc);
 
 	/// reads integer
 	int ReadInt();
@@ -94,6 +99,16 @@ BinReader::Eof() const
 	assert(this->isOpen);
 	if (this->inputFile) return this->inputFile->eof();
 	else return this->inputString->eof();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+BinReader::SetAllocator(Allocator* alloc)
+{
+	assert(this->alloc == nullptr);
+	this->alloc = alloc;
 }
 
 } // namespace AnyFX

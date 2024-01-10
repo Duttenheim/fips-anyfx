@@ -36,28 +36,8 @@ public:
     /// Allocate object
     template <typename T, typename... ARGS> T* Alloc(ARGS... args)
     {
-        if (sizeof(T) > this->blockSize)
-        {
-            T* buf = new T();
-            this->retiredChunks.push_back(buf);
-            this->currentChunk = nullptr;
-            this->NewChunk();
-            return buf;
-        }
-        else
-        {
-            if (this->iterator == nullptr)
-                this->NewChunk();
-            else
-            {
-                unsigned remainder = this->blockSize - unsigned(this->iterator - this->currentChunk);
-                if (remainder < sizeof(T))
-                    this->NewChunk();
-            }
-        }
-
-        T* ret = new (this->iterator) T(args...);
-        this->iterator += sizeof(T);
+        char* buf = this->Alloc(sizeof(T));
+        T* ret = new (buf) T(args...);
         return ret;
     }
 
@@ -66,10 +46,8 @@ public:
     {
         if (size > this->blockSize)
         {
-            char* buf = new char[size];
+            char* buf = (char*)malloc(size);
             this->retiredChunks.push_back(buf);
-            this->currentChunk = nullptr;
-            this->NewChunk();
             return buf;
         }
         else
@@ -82,10 +60,11 @@ public:
                 if (remainder < size)
                     this->NewChunk();
             }
-        }
 
-        this->iterator += size;
-        return this->iterator;
+            char* ret = this->iterator;
+            this->iterator += size;
+            return ret;
+        }
     }
 
     void NewChunk()

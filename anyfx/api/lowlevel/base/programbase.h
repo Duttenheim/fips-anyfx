@@ -25,12 +25,6 @@ public:
         ShaderBase* shader;
         unsigned binarySize;
         char* binary;
-
-        ~ShaderDef()
-        {
-            if (binary != nullptr)
-                delete [] binary;
-        }
     };
 
     struct ShaderBlock

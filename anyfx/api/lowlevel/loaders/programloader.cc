@@ -80,15 +80,15 @@ ProgramLoader::Load(BinReader* reader, ShaderEffect* effect)
 	// we should create our implementation back-end first
 	if (effect->header == Implementation::GLSL)
 	{
-		if (effect->major == 4) program = new GL4Program;
+		if (effect->major == 4) program = effect->GetAlloc().Alloc<GL4Program>();
 	}
 	else if (effect->header == Implementation::SPIRV)
 	{
-		program = new VkProgram;
+		program = effect->GetAlloc().Alloc<VkProgram>();
 	}
 	else
 	{
-		program = new ProgramBase;
+		program = effect->GetAlloc().Alloc<ProgramBase>();
 	}
 	
     std::string name = reader->ReadString().c_str();

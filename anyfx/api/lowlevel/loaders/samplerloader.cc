@@ -39,15 +39,15 @@ SamplerLoader::Load(BinReader* reader, ShaderEffect* effect)
 	// get sampler
 	if (effect->header == Implementation::GLSL)
 	{
-		if (effect->major == 4) sampler = new GL4Sampler;
+		if (effect->major == 4) sampler = effect->GetAlloc().Alloc<GL4Sampler>();
 	}
 	else if (effect->header == Implementation::SPIRV)
 	{
-		sampler = new VkSampler;
+		sampler = effect->GetAlloc().Alloc<VkSampler>();
 	}
 	else
 	{
-		sampler = new SamplerBase;
+		sampler = effect->GetAlloc().Alloc<SamplerBase>();
 	}
 	
 	// get name

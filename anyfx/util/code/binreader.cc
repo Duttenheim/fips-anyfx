@@ -12,11 +12,11 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-BinReader::BinReader(Allocator* alloc) :
+BinReader::BinReader() :
 	isOpen(false),
 	inputFile(nullptr),
 	inputString(nullptr),
-    alloc(alloc)
+    alloc(nullptr)
 {
 	// empty
 }

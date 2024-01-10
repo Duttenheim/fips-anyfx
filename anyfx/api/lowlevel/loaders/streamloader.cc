@@ -63,8 +63,8 @@ StreamLoader::Load()
 		int minor = this->reader->ReadInt();
 
 		// create new effect
-
 		ShaderEffect* effect = new ShaderEffect();
+		this->reader->SetAllocator(&effect->GetAlloc());
 		effect->header = (Implementation)profile;
 		effect->major = major;
 		effect->minor = minor;

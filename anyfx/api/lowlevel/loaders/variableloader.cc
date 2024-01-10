@@ -40,15 +40,15 @@ VariableLoader::Load(BinReader* reader, ShaderEffect* effect, VarblockBase* varb
     // we should create our implementation back-end first
     if (effect->header == Implementation::GLSL)
     {
-        if (effect->major == 4) var = new GL4Variable;
+        if (effect->major == 4) var = effect->GetAlloc().Alloc<GL4Variable>();
     }
     else if (effect->header == Implementation::SPIRV)
     {
-        var = new VkVariable;
+        var = effect->GetAlloc().Alloc<VkVariable>();
     }
     else
     {
-        var = new VariableBase;
+        var = effect->GetAlloc().Alloc<VariableBase>();
     }
 
     std::string name = reader->ReadString().c_str();

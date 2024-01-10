@@ -29,7 +29,7 @@ public:
 	virtual ~ShaderEffect();
 
     /// Get allocator
-    Allocator& GetAlloc() const;
+    Allocator& GetAlloc();
 
 	/// returns number of programs
 	unsigned GetNumPrograms() const;

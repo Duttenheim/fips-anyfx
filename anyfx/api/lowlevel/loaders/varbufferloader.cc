@@ -39,15 +39,15 @@ VarbufferLoader::Load(BinReader* reader, ShaderEffect* effect)
 
 	if (effect->header == Implementation::GLSL)
     {
-		if (effect->major == 4) varbuffer = new GL4Varbuffer;
+		if (effect->major == 4) varbuffer = effect->GetAlloc().Alloc<GL4Varbuffer>();
     }
 	else if (effect->header == Implementation::SPIRV)
 	{
-		varbuffer = new VkVarbuffer;
+		varbuffer = effect->GetAlloc().Alloc<VkVarbuffer>();
 	}
 	else
 	{
-		varbuffer = new VarbufferBase;
+		varbuffer = effect->GetAlloc().Alloc<VarbufferBase>();
 	}
 
 	// start loading
