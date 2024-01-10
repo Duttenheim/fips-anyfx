@@ -20,7 +20,7 @@ class BinReader
 {
 public:
 	/// constructor
-	BinReader();
+	BinReader(Allocator* alloc);
 	/// destructor
 	virtual ~BinReader();
 	
@@ -62,6 +62,7 @@ private:
 	std::string path;
 	std::ifstream* inputFile;
 	std::istringstream* inputString;
+    Allocator* alloc;
 	bool isOpen;
 }; 
 

@@ -584,7 +584,7 @@ RenderState::TypeCheck( TypeChecker& typechecker )
 		{
 			this->blendEnumFlags[index][flag] = value;
 		}		
-		delete this->blendEnumIndexExpressions[i];
+		this->blendEnumIndexExpressions[i];
 	}
 
 	for (i = 0; i < this->blendBoolIndexExpressions.size(); i++)
@@ -602,8 +602,8 @@ RenderState::TypeCheck( TypeChecker& typechecker )
 		{
 			this->blendBoolFlags[index][flag] = value;
 		}
-		delete this->blendBoolIndexExpressions[i];
-		delete this->blendBoolPairs[i].first;
+		this->blendBoolIndexExpressions[i];
+		this->blendBoolPairs[i].first;
 	}
 
 
@@ -612,7 +612,7 @@ RenderState::TypeCheck( TypeChecker& typechecker )
 		if (this->drawIntExpressions[i])
 		{
 			this->drawIntFlags[i] = this->drawIntExpressions[i]->EvalInt(typechecker);
-			delete this->drawIntExpressions[i];
+			this->drawIntExpressions[i];
 		}
 	}
 
@@ -621,7 +621,7 @@ RenderState::TypeCheck( TypeChecker& typechecker )
 		if (this->drawBoolExpressions[i])
 		{
 			this->drawBoolFlags[i] = this->drawBoolExpressions[i]->EvalBool(typechecker);
-			delete this->drawBoolExpressions[i];
+			this->drawBoolExpressions[i];
 		}
 	}
 

@@ -374,7 +374,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 	if (this->sizeExpression)
 	{
 		this->arraySize = this->sizeExpression->EvalInt(typechecker);
-		delete this->sizeExpression;
+		this->sizeExpression;
 	}
 
 	Header::Type type = typechecker.GetHeader().GetType();
@@ -398,7 +398,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
             {
                 this->index = this->slotExpression->EvalUInt(typechecker);
             }            
-			delete this->slotExpression;
+			this->slotExpression;
         }
 		else if (type == Header::SPIRV && shaderType == ProgramRow::VertexShader && (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::InputOutput))
 		{
@@ -527,8 +527,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			}
 			this->feedbackBuffer = this->feedbackBufferExpression->EvalInt(typechecker);
 			this->feedbackOffset = this->feedbackOffsetExpression->EvalUInt(typechecker);
-			delete this->feedbackOffsetExpression;
-			delete this->feedbackBufferExpression;
+			this->feedbackOffsetExpression;
+			this->feedbackBufferExpression;
 
 			// make sure the offset is valid
 			if (this->feedbackOffset % DataType::ToByteSize(DataType::ToPrimitiveType(this->type)) != 0)

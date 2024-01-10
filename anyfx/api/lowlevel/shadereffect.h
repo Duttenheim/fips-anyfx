@@ -17,6 +17,7 @@
 #include "base/varbufferbase.h"
 #include "base/samplerbase.h"
 #include "base/subroutinebase.h"
+#include "allocator.h"
 namespace AnyFX
 {
 class ShaderEffect
@@ -26,6 +27,9 @@ public:
 	ShaderEffect();
 	/// destructor
 	virtual ~ShaderEffect();
+
+    /// Get allocator
+    Allocator& GetAlloc() const;
 
 	/// returns number of programs
 	unsigned GetNumPrograms() const;
@@ -180,5 +184,7 @@ private:
 
 	std::map<std::string, SamplerBase*> samplers;
 	std::vector<SamplerBase*> samplersByIndex;
+
+    Allocator alloc;
 };
 } // namespace AnyFX

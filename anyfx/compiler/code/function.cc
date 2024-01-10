@@ -362,7 +362,7 @@ Function::EvaluateAttributes(TypeChecker& typeChecker)
         else
             this->invalidAttributes.push_back(attr.GetFlag());
 
-        delete attr.GetExpression();
+        attr.GetExpression();
     }
 
     // clear attributes

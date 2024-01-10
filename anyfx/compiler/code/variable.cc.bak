@@ -91,7 +91,6 @@ Variable::TypeCheck( TypeChecker& typechecker )
 		{
 			// evaluate constant array size
 			this->arraySize = this->sizeExpression->EvalInt(typechecker);
-			delete this->sizeExpression;
 		}
 		else if (this->arrayType == SimpleArray)
 		{
@@ -110,16 +109,6 @@ Variable::TypeCheck( TypeChecker& typechecker )
 	for (i = 0; i < this->valueTable.size(); i++)
 	{
 		this->valueTable[i].second.ConvertToString(this->valueTable[i].first, typechecker);
-	}
-
-	// delete expressions
-	for (i = 0; i < this->valueTable.size(); i++)
-	{
-		const ValueList& valueList = this->valueTable[i].second;
-		for (j = 0; j < valueList.GetNumValues(); j++)
-		{
-			if (valueList.GetValue(j)) delete valueList.GetValue(j);
-		}		
 	}
 
 	// evauluate qualifiers

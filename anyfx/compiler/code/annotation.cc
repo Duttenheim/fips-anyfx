@@ -96,7 +96,7 @@ Annotation::TypeCheck(TypeChecker& typechecker)
 				if (this->values[i].stringValue == NULL) typechecker.Error(AnyFX::Format("Annotation type 'string' doesn't match value, at %s\n", this->ErrorSuffix().c_str()), this->GetFile(), this->GetLine());
 				continue;
 			}
-			delete this->values[i].expr;
+			this->values[i].expr;
 			this->values[i].expr = NULL;
 		}
 	}
@@ -149,7 +149,7 @@ Annotation::Compile(BinWriter& writer)
 			break;
 		case DataType::String:
 			writer.WriteString(*this->values[i].stringValue);
-			delete this->values[i].stringValue;
+			this->values[i].stringValue;
 			break;
 		}
 		

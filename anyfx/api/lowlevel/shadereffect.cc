@@ -36,6 +36,15 @@ ShaderEffect::~ShaderEffect()
 //------------------------------------------------------------------------------
 /**
 */
+Allocator& 
+ShaderEffect::GetAlloc() const
+{
+    return this->alloc;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned
 ShaderEffect::GetNumPrograms() const
 {

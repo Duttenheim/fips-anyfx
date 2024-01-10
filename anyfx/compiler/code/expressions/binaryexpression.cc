@@ -25,8 +25,6 @@ BinaryExpression::BinaryExpression(const std::string& op, Expression* left, Expr
 */
 BinaryExpression::~BinaryExpression()
 {
-	delete this->left;
-	delete this->right;
 }
 
 //------------------------------------------------------------------------------

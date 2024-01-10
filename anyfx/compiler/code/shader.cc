@@ -147,7 +147,6 @@ Shader::Shader() :
 */
 Shader::~Shader()
 {
-    delete this->func;
     if (this->glslShader) delete this->glslShader;
     if (this->hlslShader) delete this->hlslShader;
     if (binary) delete[] binary;

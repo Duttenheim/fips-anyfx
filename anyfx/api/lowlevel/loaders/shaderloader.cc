@@ -39,15 +39,15 @@ ShaderLoader::Load(BinReader* reader, ShaderEffect* effect)
 	// we should create our implementation back-end first
 	if (effect->header == Implementation::GLSL)
 	{
-		if (effect->major == 4) shader = new GL4Shader;
+		if (effect->major == 4) shader = effect->GetAlloc().Alloc<GL4Shader>();
 	}
 	else if (effect->header == Implementation::SPIRV)
 	{
-		shader = new VkShader;
+		shader = effect->GetAlloc().Alloc<VkShader>();
 	}
 	else
 	{
-		shader = new ShaderBase;
+		shader = effect->GetAlloc().Alloc<ShaderBase>();
 	}
 
 	// get data

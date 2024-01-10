@@ -14,6 +14,7 @@
 #include "base/subroutinebase.h"
 #include <assert.h>
 #include <string.h>
+#include "allocator.h"
 
 
 namespace AnyFX
@@ -62,7 +63,8 @@ StreamLoader::Load()
 		int minor = this->reader->ReadInt();
 
 		// create new effect
-		ShaderEffect* effect = new ShaderEffect;
+
+		ShaderEffect* effect = new ShaderEffect();
 		effect->header = (Implementation)profile;
 		effect->major = major;
 		effect->minor = minor;
