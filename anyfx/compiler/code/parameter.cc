@@ -197,25 +197,7 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 
 		formattedCode.append("\t");
 		formattedCode.append(decoration);
-        if (this->userType)
-        {
-            if (this->userType->GetType() == StructureType)
-            {
-                Structure* struc = (Structure*)this->userType;
-                if (struc->isPointer)
-                    formattedCode.append("buffer_ptr");
-                else
-                    formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-            }
-            else
-            {
-                formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-            }
-        }
-        else
-        {
-            formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-        }
+        formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
 
@@ -239,7 +221,18 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 	else if (header.GetType() == Header::C)
 	{
 		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
-		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        if (this->userType != nullptr && this->userType->GetType() == StructureType)
+        {
+            Structure* struc = (Structure*)this->userType;
+            if (struc->isPointer)
+                formattedCode.append("buffer_ptr");
+            else
+                formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        }
+        else
+        {
+            formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        }
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
 

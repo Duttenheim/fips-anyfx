@@ -201,7 +201,7 @@ Shader::Generate(Generator& generator, const std::vector<Symbol*>& symbols)
         this->preamble.append(version);
 
         // add SPIR-V specific remaps and define flag
-        this->preamble.append("#define gl_InstanceID gl_InstanceIndex\n");
+        //this->preamble.append("#define gl_InstanceID gl_InstanceIndex\n");
         this->preamble.append("#define gl_VertexID gl_VertexIndex\n");
         this->preamble.append("#extension GL_GOOGLE_cpp_style_line_directive : enable\n");
         this->preamble.append("#extension GL_ARB_separate_shader_objects : enable\n");
