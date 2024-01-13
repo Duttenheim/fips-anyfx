@@ -186,14 +186,18 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
             }
             else if (this->attribute == Parameter::HitAttribute)
             {
+                layoutFormat = "";
                 ioFormat = "";
                 qualifierFormat += "hitAttributeEXT ";
             }
         }
 
         std::string decoration = "";
+        std::string layout = "";
+        if (!layoutFormat.empty())
+            layout = AnyFX::Format("layout(%s)", layoutFormat.c_str());
         if (shaderType != -1)
-            decoration = AnyFX::Format("%slayout(%s) %s%s ", interpolationFormat.c_str(), layoutFormat.c_str(), qualifierFormat.c_str(), ioFormat.c_str());
+            decoration = AnyFX::Format("%s %s %s%s ", interpolationFormat.c_str(), layout.c_str(), qualifierFormat.c_str(), ioFormat.c_str());
 
 		formattedCode.append("\t");
 		formattedCode.append(decoration);
@@ -568,6 +572,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color7:
             case RayPayload:
             case CallResult:
+            case HitAttribute:
 			case NoAttribute:
 				break; // accept attribute
 			default:
@@ -578,6 +583,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
                     break;
 				}	
 			}
+            break;
 		}
 	case Header::HLSL:
 		{
@@ -609,6 +615,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color7:
             case RayPayload:
             case CallResult:
+            case HitAttribute:
 			case NoAttribute:
 				break;	// accept attribute
 			case PointSize:
@@ -637,6 +644,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
                     break;
 				}		
 			}
+            break;
 		}
 	}
 }
@@ -710,6 +718,10 @@ Parameter::FormatAttribute(const Header::Type& type)
 				return "/* Render target 7 */";
             case RayPayload:
                 return "rayPayloadExt";
+            case CallResult:
+                return "callbackResultEXT";
+            case HitAttribute:
+                return "hitAttributeEXT";
 			default:
 				return "undefined";
 			}
@@ -985,6 +997,8 @@ Parameter::AttributeToString(const Attribute& attr)
         return "ray_payload";
     case CallResult:
         return "ray_result";
+    case HitAttribute:
+        return "hit_attribute";
 	default:
 		return "undefined attribute";
 	}

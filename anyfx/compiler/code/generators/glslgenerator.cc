@@ -67,12 +67,12 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		bool hasOutputSize = this->func->HasIntFlag(FunctionAttribute::OutputVertices);
 		if (!hasOutputSize)
 		{
-			std::string err = Format("Hull shader '%s' requires [output_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+			std::string err = AnyFX::Format("Hull shader '%s' requires [output_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 			generator->Error(err);
 		}
 
 		int outputSize = this->func->GetIntFlag(FunctionAttribute::OutputVertices);
-		code.append(Format("layout(vertices = %d) out;\n", outputSize));
+		code.append(AnyFX::Format("layout(vertices = %d) out;\n", outputSize));
 	}
 	else if (this->shaderType == ProgramRow::DomainShader)
 	{
@@ -80,13 +80,13 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 		bool hasInputTopology = this->func->HasIntFlag(FunctionAttribute::Topology);
 		if (!hasVertexCount)
 		{
-			std::string err = Format("Domain shader '%s' requires [input_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+			std::string err = AnyFX::Format("Domain shader '%s' requires [input_vertices] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 			generator->Error(err);
 		}
 		// input topology and spacing is not optional
 		if (!hasInputTopology)
 		{
-			std::string err = Format("Domain shader '%s' requires [topology] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+			std::string err = AnyFX::Format("Domain shader '%s' requires [topology] to be defined, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
 			generator->Error(err);
 		}
 
@@ -133,7 +133,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 				break;
 			case 3:
 			{
-				std::string message = Format("Tessellation Evaluation Shader '%s' does not define partitioning method 'pow' for GLSL4, %d:%d\n", this->name.c_str(), this->line, this->row);
+				std::string message = AnyFX::Format("Tessellation Evaluation Shader '%s' does not define partitioning method 'pow' for GLSL4, %d:%d\n", this->name.c_str(), this->line, this->row);
 				generator->Error(message);
 				break;
 			}
@@ -207,9 +207,9 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			// append instances if required
 			if (hasInstances)
 			{
-				inLayout.append(Format(", invocations = %d", this->func->GetIntFlag(FunctionAttribute::Instances)));
+				inLayout.append(AnyFX::Format(", invocations = %d", this->func->GetIntFlag(FunctionAttribute::Instances)));
 			}
-			code.append(Format("layout(%s) in;\n", inLayout.c_str()));
+			code.append(AnyFX::Format("layout(%s) in;\n", inLayout.c_str()));
 		}
 
 		// write output primitive type
@@ -219,13 +219,13 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 			switch (type)
 			{
 			case FunctionAttribute::OPoints:			// points
-				code.append(Format("layout(points, max_vertices = %d) out;\n", maxVerts));
+				code.append(AnyFX::Format("layout(points, max_vertices = %d) out;\n", maxVerts));
 				break;
 			case FunctionAttribute::OLineStrip:			// line_strip
-				code.append(Format("layout(line_strip, max_vertices = %d) out;\n", maxVerts));
+				code.append(AnyFX::Format("layout(line_strip, max_vertices = %d) out;\n", maxVerts));
 				break;
 			case FunctionAttribute::OTriangleStrip:			// triangle_strip
-				code.append(Format("layout(triangle_strip, max_vertices = %d) out;\n", maxVerts));
+				code.append(AnyFX::Format("layout(triangle_strip, max_vertices = %d) out;\n", maxVerts));
 				break;
 			}
 		}
@@ -286,19 +286,19 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
         if (hasLocalX && hasOutput && hasMaxVerts && hasMaxPrims)
         {
-            code.append(Format("layout(local_size_x = %d) in;", this->func->GetIntFlag(FunctionAttribute::LocalSizeX)));
+            code.append(AnyFX::Format("layout(local_size_x = %d) in;", this->func->GetIntFlag(FunctionAttribute::LocalSizeX)));
             int type = this->func->GetIntFlag(FunctionAttribute::OutputPrimitive);
             int maxVerts = this->func->GetIntFlag(FunctionAttribute::MaxVertexCount);
             switch (type)
             {
                 case FunctionAttribute::OPoints:			// points
-                    code.append(Format("layout(points, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    code.append(AnyFX::Format("layout(points, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
                     break;
                 case FunctionAttribute::OLineStrip:			// lines
-                    code.append(Format("layout(lines, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    code.append(AnyFX::Format("layout(lines, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
                     break;
                 case FunctionAttribute::OTriangleStrip:		// triangles
-                    code.append(Format("layout(triangles, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
+                    code.append(AnyFX::Format("layout(triangles, max_vertices = %d, max_primitives = %d) out;\n", this->func->GetIntFlag(FunctionAttribute::MaxVertexCount), this->func->GetIntFlag(FunctionAttribute::MaxPrimitives)));
                     break;
             }
         }
@@ -319,7 +319,7 @@ Shader::GenerateGLSL4(AnyFX::Generator* generator)
 
 	// add function header
 	std::string returnType = DataType::ToProfileType(this->func->GetReturnType(), header.GetType());
-	std::string line = Format("#line %d %s\n", this->func->GetFunctionLine(), this->func->GetFile().c_str());
+	std::string line = AnyFX::Format("#line %d %s\n", this->func->GetFunctionLine(), this->func->GetFile().c_str());
 	code.append(line);
 	code.append(returnType);
 	code.append("\nmain()\n{\n");

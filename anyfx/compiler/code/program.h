@@ -45,7 +45,13 @@ private:
     friend class Effect;
 
     /// constructs a shader function using the given functions
-    void BuildShaders(const Header& header, const std::vector<Function*>& functions, std::map<std::string, Shader*>& shaders);
+    void BuildShaders(
+        const Header& header
+        , Allocator& alloc
+        , unsigned& programIndex
+        , const std::vector<Function*>& functions
+        , std::vector<Symbol*>& symbols
+        , std::map<std::string, Shader*>& shaders);
     /// writes binary to file
     void WriteBinary(const std::vector<unsigned>& binary, BinWriter& writer);
 

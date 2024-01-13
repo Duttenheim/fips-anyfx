@@ -44,12 +44,6 @@ Effect::~Effect()
         symbol->Destroy();
     }
     this->subroutinesToDelete.clear();
-
-    for (auto symbol : this->functionsToDelete)
-    {
-        symbol->Destroy();
-    }
-    this->functionsToDelete.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -145,7 +139,9 @@ Effect::Setup()
     Shader::ResetBindings();
 
     std::vector<Function*> functions;
+    std::vector<unsigned> programIndexes;
     std::vector<Program*> programs;
+    unsigned indexOfFirstProgram = 0xFFFFFFFF;
     unsigned i;
     for (i = 0; i < this->symbols.size(); i++)
     {
@@ -153,13 +149,19 @@ Effect::Setup()
         if (sym->GetType() == Symbol::FunctionType)
             functions.push_back((Function*)sym);
         else if (sym->GetType() == Symbol::ProgramType)
+        {
             programs.push_back((Program*)sym);
+            programIndexes.push_back(i);
+        }
     }
 
-    // build shaders, this will make sure we have all the shader programs we need, although they are not complete yet
+    // Go through programs and build shaders. This will effectively 
+    unsigned numAddedShaders = 0;
     for (i = 0; i < programs.size(); i++)
     {
-        programs[i]->BuildShaders(this->header, functions, this->shaders);
+        unsigned originalIndex = programIndexes[i] + numAddedShaders, newIndex = programIndexes[i] + numAddedShaders;
+        programs[i]->BuildShaders(this->header, this->alloc, newIndex, functions, this->symbols, this->shaders);
+        numAddedShaders += newIndex - originalIndex;
     }
 
     // Erase all functions marked as shader, they are already picked up and saved 
@@ -274,14 +276,6 @@ void
 Effect::TypeCheck(TypeChecker& typechecker)
 {
     this->header.TypeCheck(typechecker);
-
-    // typecheck all shaders
-    std::map<std::string, Shader*>::iterator it;
-    for (it = this->shaders.begin(); it != this->shaders.end(); it++)
-    {
-        Shader* shader = it->second;
-        shader->TypeCheck(typechecker);
-    }
 
     unsigned i;
     unsigned j = 0;
