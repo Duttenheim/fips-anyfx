@@ -31,7 +31,7 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 	std::string buffer;
 	if (args("o") >> buffer)
 	{
-		this->shaderCompiler.SetDstDir(buffer);
+		this->shaderCompiler.SetDstBinary(buffer);
 	}
 	else if (this->mode)
 	{
@@ -55,7 +55,7 @@ ShaderCompilerApp::ParseCmdLineArgs(const char ** argv)
 	this->src = buffer;
 	if (args("h") >> buffer)
 	{
-		this->shaderCompiler.SetHeaderDir(buffer);
+		this->shaderCompiler.SetDstHeader(buffer);
 	}
 
     // find include dir args

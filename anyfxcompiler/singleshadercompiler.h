@@ -28,9 +28,9 @@ public:
 	/// set source directory for base shaders
 	void AddIncludeDir(const std::string& incDir);    
 	/// set destination directory
-	void SetDstDir(const std::string& dstDir);
+	void SetDstBinary(const std::string& dstBinary);
 	/// set output header directory
-	void SetHeaderDir(const std::string& headerDir);
+	void SetDstHeader(const std::string& dstHeader);
     /// set the root dir
     void SetRootDir(const std::string& rootDir);
 			
@@ -55,8 +55,8 @@ private:
 	bool CompileSPIRV(const std::string& src);
 	int defaultSet;
 	std::string platform;	
-	std::string dstDir;
-	std::string headerDir;
+	std::string dstBinary;
+	std::string dstHeader;
     std::string rootDir;
 	std::string language;
 	bool quiet;
@@ -96,18 +96,18 @@ SingleShaderCompiler::SetLanguage( const std::string& lang )
 /**
 */
 inline void
-SingleShaderCompiler::SetDstDir(const std::string& d)
+SingleShaderCompiler::SetDstBinary(const std::string& d)
 {
-	this->dstDir = d;
+	this->dstBinary = d;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void 
-SingleShaderCompiler::SetHeaderDir(const std::string& headerDir)
+SingleShaderCompiler::SetDstHeader(const std::string& dstHeader)
 {
-	this->headerDir = headerDir;
+	this->dstHeader = dstHeader;
 }
 
 //------------------------------------------------------------------------------

@@ -41,11 +41,16 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 	}
 
 	// make sure the target directory exists
-	if (!this->dstDir.empty())
-		std::filesystem::create_directories(this->dstDir + "/shaders");
-	if (!this->headerDir.empty())
-		std::filesystem::create_directories(this->headerDir);
-	
+	if (!this->dstBinary.empty())
+    {
+    	std::filesystem::path sp(this->dstBinary);
+		std::filesystem::create_directories(sp.parent_path());
+    }
+	if (!this->dstHeader.empty())
+    {
+        std::filesystem::path sp(this->dstHeader);
+		std::filesystem::create_directories(sp.parent_path());
+    }
 	return this->CompileSPIRV(src);	
 }
 
@@ -62,10 +67,8 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
     
 	std::string file = sp.stem().string();
     std::string folder = sp.parent_path().string();
-	std::string destFile;
-	std::string destHeader;
 	
-	if (this->dstDir.empty())
+	if (this->dstBinary.empty())
 	{
 		if (!this->quiet)
 		{
@@ -74,29 +77,12 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	}
 	else
 	{
-		// format destination
-        std::string folderName = "";
-        if (!this->rootDir.empty())
-            folderName = std::filesystem::relative(sp.parent_path(), this->rootDir).string();
-        std::string destFolder = this->dstDir + "/shaders/" + folderName;
-        std::filesystem::create_directory(destFolder);
-        destFile = std::filesystem::absolute(destFolder + "/" + file + ".fxb").string();
-
-        if (!this->headerDir.empty())
-        {
-            destFolder = this->headerDir + "/" + folderName;
-            std::filesystem::create_directory(destFolder);
-            destHeader = std::filesystem::absolute(destFolder + "/" + file + ".h").string();
-        }
-
-		std::filesystem::path dest(destFile);
-
 		// compile
 		if (!this->quiet)
 		{
-			fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), destFile.c_str());
-            if (!this->headerDir.empty())
-			    fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), destHeader.c_str());
+			fprintf(stderr, "[anyfxcompiler] \n Compiling:\n   %s -> %s", src.c_str(), this->dstBinary.c_str());
+            if (!this->dstHeader.empty())
+			    fprintf(stderr,"          \n Generating:\n   %s -> %s\n", src.c_str(), this->dstHeader.c_str());
 		}
 
 	}
@@ -148,8 +134,8 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
     snprintf(buffer,25,"spv%d%d", major, minor);
 	target = buffer;
 
-	std::filesystem::path escapedDst(destFile);
-	std::filesystem::path escapedHeader(destHeader);
+	std::filesystem::path escapedDst(this->dstBinary);
+	std::filesystem::path escapedHeader(this->dstHeader);
 
     bool res = AnyFXCompile(
         sp.string().c_str()
@@ -190,18 +176,18 @@ bool
 SingleShaderCompiler::CreateDependencies(const std::string& src)
 {
 
+    if (!this->dstBinary.empty())
+    {
+    	std::filesystem::path sp(this->dstBinary);
+		std::filesystem::create_directories(sp.parent_path());
+    }
+
 	std::filesystem::path sp(src);
 	std::string file = sp.stem().string();
 	std::string folder = sp.parent_path().string();
 
-    std::string folderName = "";
-    if (!this->rootDir.empty())
-        folderName = std::filesystem::relative(sp.parent_path(), this->rootDir).string();
-    std::string destFolder = this->dstDir + "/shaders/" + folderName;
-    std::filesystem::create_directory(destFolder);
-
 	// format destination
-	std::string destFile = std::filesystem::absolute(destFolder + "/" + file + ".dep").string();
+	std::string destFile = std::filesystem::absolute(folder + "/" + file + ".dep").string();
 
 	// compile
 	if (!this->quiet)
@@ -224,10 +210,8 @@ SingleShaderCompiler::CreateDependencies(const std::string& src)
 		defines.push_back(define);
 	}
 
-	std::filesystem::path destDir(this->dstDir);
-	std::filesystem::create_directories(destDir);
 #pragma warning (disable:4996)
-	FILE * output = fopen(destFile.c_str(), "w");
+	FILE * output = fopen(this->dstBinary.c_str(), "w");
 	if(output)
 	{
 		std::vector<std::string> deps = AnyFXGenerateDependencies(sp.string().c_str(), defines);
