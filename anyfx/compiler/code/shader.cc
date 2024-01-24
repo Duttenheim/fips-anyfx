@@ -139,7 +139,7 @@ Shader::Shader() :
     binarySize(0),
     binaryValid(false)
 {
-    // empty
+    this->symbolType = ShaderType;
 }
 
 //------------------------------------------------------------------------------
@@ -147,10 +147,19 @@ Shader::Shader() :
 */
 Shader::~Shader()
 {
-    delete this->func;
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Shader::Destroy()
+{
     if (this->glslShader) delete this->glslShader;
     if (this->hlslShader) delete this->hlslShader;
     if (binary) delete[] binary;
+    this->func->Destroy();
 }
 
 //------------------------------------------------------------------------------
@@ -190,7 +199,7 @@ Shader::Generate(Generator& generator, const std::vector<Symbol*>& symbols)
 
     if (header.GetType() == Header::GLSL)
     {
-        std::string version = Format("#version %d%d%d\n", header.GetMajor(), header.GetMinor(), header.GetMinor() > 10 ? header.GetMinor() % 10 : 0);
+        std::string version = AnyFX::Format("#version %d%d%d\n", header.GetMajor(), header.GetMinor(), header.GetMinor() > 10 ? header.GetMinor() % 10 : 0);
         this->preamble.append(version);
 
         this->preamble.append("#extension GL_GOOGLE_cpp_style_line_directive : enable\n");
@@ -198,11 +207,11 @@ Shader::Generate(Generator& generator, const std::vector<Symbol*>& symbols)
     }
     else if (header.GetType() == Header::SPIRV)
     {
-        std::string version = Format("#version 460 core\n");
+        std::string version = AnyFX::Format("#version 460 core\n");
         this->preamble.append(version);
 
         // add SPIR-V specific remaps and define flag
-        this->preamble.append("#define gl_InstanceID gl_InstanceIndex\n");
+        //this->preamble.append("#define gl_InstanceID gl_InstanceIndex\n");
         this->preamble.append("#define gl_VertexID gl_VertexIndex\n");
         this->preamble.append("#extension GL_GOOGLE_cpp_style_line_directive : enable\n");
         this->preamble.append("#extension GL_ARB_separate_shader_objects : enable\n");
@@ -515,14 +524,14 @@ Shader::TypeCheck(TypeChecker& typechecker)
         bool hasInputSize = this->func->HasIntFlag(FunctionAttribute::InputVertices);
         if (!hasInputSize)
         {
-            std::string message = Format("Tessellation Control Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Tessellation Control Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
 
         bool hasOutputSize = this->func->HasIntFlag(FunctionAttribute::OutputVertices);
         if (!hasOutputSize)
         {
-            std::string message = Format("Tessellation Control Shader: '%s' needs to define [outputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Tessellation Control Shader: '%s' needs to define [outputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
@@ -532,14 +541,14 @@ Shader::TypeCheck(TypeChecker& typechecker)
         bool hasInputTopology = this->func->HasIntFlag(FunctionAttribute::Topology);
         if (!hasInputVertices)
         {
-            std::string message = Format("Tessellation Evaluation Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Tessellation Evaluation Shader: '%s' needs to define [inputvertices], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }		
         
         // input topology and spacing is not optional
         if (!hasInputTopology)
         {
-            std::string message = Format("Tessellation Evaluation Shader '%s' needs to define [topology], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Tessellation Evaluation Shader '%s' needs to define [topology], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
@@ -551,17 +560,17 @@ Shader::TypeCheck(TypeChecker& typechecker)
 
         if (!hasInput)
         {
-            std::string message = Format("Geometry Shader '%s' needs to define [inputprimitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Geometry Shader '%s' needs to define [inputprimitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         if (!hasOutput)
         {
-            std::string message = Format("Geometry Shader '%s' needs to define [outputprimitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Geometry Shader '%s' needs to define [outputprimitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         if (!hasMaxVerts)
         {
-            std::string message = Format("Geometry Shader '%s' needs to define [maxvertexcount], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Geometry Shader '%s' needs to define [maxvertexcount], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }
@@ -573,7 +582,7 @@ Shader::TypeCheck(TypeChecker& typechecker)
 
         if (!(hasLocalX || hasLocalY || hasLocalZ))
         {
-            std::string message = Format("Compute shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Compute shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.LinkError(message, this->GetFile(), this->GetLine());
         }
     }
@@ -586,22 +595,22 @@ Shader::TypeCheck(TypeChecker& typechecker)
 
         if (!hasLocalX)
         {
-            std::string message = Format("Mesh shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Mesh shader '%s' doesn't define any local size, %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.LinkError(message, this->GetFile(), this->GetLine());
         }
         if (!hasOutput)
         {
-            std::string message = Format("Mesh Shader '%s' needs to define [output_primitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Mesh Shader '%s' needs to define [output_primitive], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         if (!hasMaxVerts)
         {
-            std::string message = Format("Mesh Shader '%s' needs to define [max_vertex_count], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Mesh Shader '%s' needs to define [max_vertex_count], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
         if (!hasMaxPrims)
         {
-            std::string message = Format("Mesh Shader '%s' needs to define [max_primitive_count], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
+            std::string message = AnyFX::Format("Mesh Shader '%s' needs to define [max_primitive_count], %s\n", this->name.c_str(), this->ErrorSuffix().c_str());
             typechecker.Error(message, this->GetFile(), this->GetLine());
         }
     }

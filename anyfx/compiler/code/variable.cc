@@ -175,7 +175,6 @@ Variable::TypeCheck(TypeChecker& typechecker)
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
             AnyFX::Emit(message.c_str());
         }
-        delete expr;
     }
 
     // if binding is invalid, automatically resolve binding
@@ -273,16 +272,6 @@ Variable::TypeCheck(TypeChecker& typechecker)
     for (i = 0; i < this->valueTable.size(); i++)
     {
         this->valueTable[i].second.ConvertToString(this->valueTable[i].first, typechecker);
-    }
-
-    // delete expressions in value list
-    for (i = 0; i < this->valueTable.size(); i++)
-    {
-        const ValueList& valueList = this->valueTable[i].second;
-        for (j = 0; j < valueList.GetNumValues(); j++)
-        {
-            if (valueList.GetValue(j)) delete valueList.GetValue(j);
-        }		
     }
 
     // groupshared is not valid on textures or images
@@ -923,7 +912,6 @@ Variable::EvaluateArraySize(TypeChecker& typechecker)
     {
         this->arraySizes.push_back(this->sizeExpressions[i]->EvalInt(typechecker));
         this->arraySize *= this->arraySizes.back();        
-        delete this->sizeExpressions[i];
     }
     this->sizeExpressions.clear();
 

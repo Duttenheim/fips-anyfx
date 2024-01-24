@@ -28,6 +28,7 @@ public:
         VarbufferType,
         SubroutineType,
         FunctionType,
+        ShaderType,
         ConstantType,
         StructureType,
 

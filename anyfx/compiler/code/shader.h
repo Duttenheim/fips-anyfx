@@ -17,6 +17,7 @@
 #include "function.h"
 #include "variable.h"
 #include "header.h"
+#include "symbol.h"
 #include "glslang/Public/ShaderLang.h"
 
 
@@ -30,7 +31,7 @@ class Constant;
 class VarBuffer;
 class Subroutine;
 class Sampler;
-class Shader : public Compileable
+class Shader : public Symbol
 {
 public:
     
@@ -38,6 +39,9 @@ public:
     Shader();
     /// destructor
     virtual ~Shader();
+
+    /// Destroy
+    void Destroy() override;
 
     /// sets the shader type
     void SetType(const unsigned type);

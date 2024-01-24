@@ -9,37 +9,38 @@
 #include <tuple>
 
 #include "anyfxtoken.h"
-#include "../../code/qualifierexpression.h"
-#include "../../code/compileable.h"
-#include "../../code/effect.h"
-#include "../../code/header.h"
-#include "../../code/datatype.h"
-#include "../../code/parameter.h"
-#include "../../code/annotation.h"
-#include "../../code/programrow.h"
-#include "../../code/program.h"
-#include "../../code/samplertexturelist.h"
-#include "../../code/samplerrow.h"
-#include "../../code/sampler.h"
-#include "../../code/structure.h"
-#include "../../code/blendstaterow.h"
-#include "../../code/renderstaterow.h"
-#include "../../code/renderstate.h"
-#include "../../code/function.h"
-#include "../../code/valuelist.h"
-#include "../../code/functionattribute.h"
-#include "../../code/variable.h"
-#include "../../code/varblock.h"
-#include "../../code/varbuffer.h"
-#include "../../code/subroutine.h"
-#include "../../code/preprocessor.h"
-#include "../../code/expressions/expression.h"
-#include "../../code/expressions/binaryexpression.h"
-#include "../../code/expressions/unaryexpression.h"
-#include "../../code/expressions/intexpression.h"
-#include "../../code/expressions/boolexpression.h"
-#include "../../code/expressions/floatexpression.h"
-#include "../../code/expressions/symbolexpression.h"
+#include "qualifierexpression.h"
+#include "compileable.h"
+#include "effect.h"
+#include "header.h"
+#include "datatype.h"
+#include "parameter.h"
+#include "annotation.h"
+#include "programrow.h"
+#include "program.h"
+#include "samplertexturelist.h"
+#include "samplerrow.h"
+#include "sampler.h"
+#include "structure.h"
+#include "blendstaterow.h"
+#include "renderstaterow.h"
+#include "renderstate.h"
+#include "function.h"
+#include "valuelist.h"
+#include "functionattribute.h"
+#include "variable.h"
+#include "varblock.h"
+#include "varbuffer.h"
+#include "subroutine.h"
+#include "preprocessor.h"
+#include "expressions/expression.h"
+#include "expressions/binaryexpression.h"
+#include "expressions/unaryexpression.h"
+#include "expressions/intexpression.h"
+#include "expressions/boolexpression.h"
+#include "expressions/floatexpression.h"
+#include "expressions/symbolexpression.h"
+#include "allocator.h"
 using namespace AnyFX;
 
 
@@ -644,7 +645,7 @@ AnyFXParser::EffectContext* AnyFXParser::effect() {
   EffectContext *_localctx = _tracker.createInstance<EffectContext>(_ctx, getState());
   enterRule(_localctx, 8, AnyFXParser::RuleEffect);
 
-          dynamic_cast<EffectContext *>(_localctx)->eff =  new Effect();
+          dynamic_cast<EffectContext *>(_localctx)->eff =  alloc.Alloc<Effect>();
       
 
   auto onExit = finally([=] {
@@ -901,7 +902,7 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
   StructureContext *_localctx = _tracker.createInstance<StructureContext>(_ctx, getState());
   enterRule(_localctx, 14, AnyFXParser::RuleStructure);
 
-          dynamic_cast<StructureContext *>(_localctx)->struc =  new Structure();
+          dynamic_cast<StructureContext *>(_localctx)->struc =  alloc.Alloc<Structure>();
       
   size_t _la = 0;
 
@@ -1039,7 +1040,7 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
   VarblockContext *_localctx = _tracker.createInstance<VarblockContext>(_ctx, getState());
   enterRule(_localctx, 16, AnyFXParser::RuleVarblock);
 
-          dynamic_cast<VarblockContext *>(_localctx)->block =  new VarBlock();
+          dynamic_cast<VarblockContext *>(_localctx)->block =  alloc.Alloc<VarBlock>();
       
   size_t _la = 0;
 
@@ -1210,7 +1211,7 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
   VarbufferContext *_localctx = _tracker.createInstance<VarbufferContext>(_ctx, getState());
   enterRule(_localctx, 18, AnyFXParser::RuleVarbuffer);
 
-          dynamic_cast<VarbufferContext *>(_localctx)->buffer =  new VarBuffer();
+          dynamic_cast<VarbufferContext *>(_localctx)->buffer =  alloc.Alloc<VarBuffer>();
       
   size_t _la = 0;
 
@@ -1365,7 +1366,7 @@ AnyFXParser::SubroutineContext* AnyFXParser::subroutine() {
   SubroutineContext *_localctx = _tracker.createInstance<SubroutineContext>(_ctx, getState());
   enterRule(_localctx, 20, AnyFXParser::RuleSubroutine);
 
-          dynamic_cast<SubroutineContext *>(_localctx)->subrout =  new Subroutine();
+          dynamic_cast<SubroutineContext *>(_localctx)->subrout =  alloc.Alloc<Subroutine>();
       
 
   auto onExit = finally([=] {
@@ -1626,7 +1627,7 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
   VariableContext *_localctx = _tracker.createInstance<VariableContext>(_ctx, getState());
   enterRule(_localctx, 26, AnyFXParser::RuleVariable);
 
-          dynamic_cast<VariableContext *>(_localctx)->var =  new Variable();
+          dynamic_cast<VariableContext *>(_localctx)->var =  alloc.Alloc<Variable>();
       
   size_t _la = 0;
 
@@ -2499,7 +2500,7 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
   FunctionContext *_localctx = _tracker.createInstance<FunctionContext>(_ctx, getState());
   enterRule(_localctx, 36, AnyFXParser::RuleFunction);
 
-              dynamic_cast<FunctionContext *>(_localctx)->func =  new Function();
+              dynamic_cast<FunctionContext *>(_localctx)->func =  alloc.Alloc<Function>();
               Token* startToken = nullptr;
               Token* endToken = nullptr;
           
@@ -2757,7 +2758,7 @@ AnyFXParser::RenderStateContext* AnyFXParser::renderState() {
   RenderStateContext *_localctx = _tracker.createInstance<RenderStateContext>(_ctx, getState());
   enterRule(_localctx, 42, AnyFXParser::RuleRenderState);
 
-          dynamic_cast<RenderStateContext *>(_localctx)->state =  new RenderState();
+          dynamic_cast<RenderStateContext *>(_localctx)->state =  alloc.Alloc<RenderState>();
       
   size_t _la = 0;
 
@@ -2889,7 +2890,7 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
   SamplerContext *_localctx = _tracker.createInstance<SamplerContext>(_ctx, getState());
   enterRule(_localctx, 44, AnyFXParser::RuleSampler);
 
-          dynamic_cast<SamplerContext *>(_localctx)->samp =  new Sampler();
+          dynamic_cast<SamplerContext *>(_localctx)->samp =  alloc.Alloc<Sampler>();
       
   size_t _la = 0;
 
@@ -3493,7 +3494,7 @@ AnyFXParser::ProgramContext* AnyFXParser::program() {
   ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
   enterRule(_localctx, 54, AnyFXParser::RuleProgram);
 
-          dynamic_cast<ProgramContext *>(_localctx)->prog =  new Program();
+          dynamic_cast<ProgramContext *>(_localctx)->prog =  alloc.Alloc<Program>();
       
   size_t _la = 0;
 
@@ -3662,11 +3663,11 @@ AnyFXParser::Binaryexp7Context* AnyFXParser::binaryexp7() {
 
                               if (prev)
                               {
-                                  lhs = new BinaryExpression("||", prev, dynamic_cast<Binaryexp7Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("||", prev, dynamic_cast<Binaryexp7Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = new BinaryExpression("||", dynamic_cast<Binaryexp7Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp7Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("||", dynamic_cast<Binaryexp7Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp7Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
@@ -3750,11 +3751,11 @@ AnyFXParser::Binaryexp6Context* AnyFXParser::binaryexp6() {
 
                               if (prev)
                               {
-                                  lhs = new BinaryExpression("&&", prev, dynamic_cast<Binaryexp6Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("&&", prev, dynamic_cast<Binaryexp6Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = new BinaryExpression("&&", dynamic_cast<Binaryexp6Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp6Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("&&", dynamic_cast<Binaryexp6Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp6Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
@@ -3850,11 +3851,11 @@ AnyFXParser::Binaryexp5Context* AnyFXParser::binaryexp5() {
 
                               if (prev)
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp5Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp5Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp5Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp5Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp5Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp5Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp5Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp5Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp5Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp5Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp5Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp5Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp5Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp5Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
@@ -3954,11 +3955,11 @@ AnyFXParser::Binaryexp4Context* AnyFXParser::binaryexp4() {
 
                               if (prev)
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp4Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp4Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp4Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp4Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp4Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp4Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp4Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp4Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp4Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp4Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp4Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp4Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp4Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp4Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
@@ -4054,11 +4055,11 @@ AnyFXParser::Binaryexp3Context* AnyFXParser::binaryexp3() {
 
                               if (prev)
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp3Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp3Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp3Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp3Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp3Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp3Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp3Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp3Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp3Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp3Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp3Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp3Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp3Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp3Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
@@ -4170,11 +4171,11 @@ AnyFXParser::Binaryexp2Context* AnyFXParser::binaryexp2() {
 
                               if (prev)
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp2Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp2Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp2Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp2Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp2Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp2Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = new BinaryExpression((dynamic_cast<Binaryexp2Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp2Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp2Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp2Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp2Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp2Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp2Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp2Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
@@ -4273,7 +4274,7 @@ AnyFXParser::Binaryexp1Context* AnyFXParser::binaryexp1() {
                             if (dynamic_cast<Binaryexp1Context *>(_localctx)->op != 0)
                             {
                                 operat = (dynamic_cast<Binaryexp1Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp1Context *>(_localctx)->op->getText() : "").c_str()[0];
-                                rhs = new UnaryExpression(operat, rhs);
+                                rhs = alloc.Alloc<UnaryExpression>(operat, rhs);
                             }
 
                             SetupFile(rhs, _input);
@@ -4360,7 +4361,7 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
         enterOuterAlt(_localctx, 1);
         setState(791);
         dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken = match(AnyFXParser::INTEGERLITERAL);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  new IntExpression(atoi((dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<IntExpression>(atoi((dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
                 
         break;
       }
@@ -4369,7 +4370,7 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
         enterOuterAlt(_localctx, 2);
         setState(793);
         dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken = match(AnyFXParser::FLOATLITERAL);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  new FloatExpression(atof((dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<FloatExpression>(atof((dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
                 
         break;
       }
@@ -4378,7 +4379,7 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
         enterOuterAlt(_localctx, 3);
         setState(795);
         dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken = match(AnyFXParser::DOUBLELITERAL);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  new FloatExpression(atof((dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<FloatExpression>(atof((dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
                 
         break;
       }
@@ -4387,7 +4388,7 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
         enterOuterAlt(_localctx, 4);
         setState(797);
         dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken = match(AnyFXParser::HEX);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  new IntExpression(strtoul((dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken->getText() : "").c_str(), nullptr, 16)); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<IntExpression>(strtoul((dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken->getText() : "").c_str(), nullptr, 16)); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
                 
         break;
       }
@@ -4396,7 +4397,7 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
         enterOuterAlt(_localctx, 5);
         setState(799);
         dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken = match(AnyFXParser::IDENTIFIER);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  new SymbolExpression((dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken->getText() : "")); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<SymbolExpression>((dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken->getText() : "")); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
                 
         break;
       }
@@ -4407,7 +4408,7 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
         setState(801);
         dynamic_cast<BinaryexpatomContext *>(_localctx)->booleanContext = boolean();
 
-                                dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  new BoolExpression(dynamic_cast<BinaryexpatomContext *>(_localctx)->booleanContext->val);
+                                dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<BoolExpression>(dynamic_cast<BinaryexpatomContext *>(_localctx)->booleanContext->val);
                                 SetupFile(_localctx->tree, _input);
                             
         break;

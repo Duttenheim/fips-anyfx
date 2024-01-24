@@ -31,7 +31,7 @@ SubroutineLoader::~SubroutineLoader()
 SubroutineBase*
 SubroutineLoader::Load(BinReader* reader, ShaderEffect* effect)
 {
-	SubroutineBase* subroutine = new SubroutineBase;
+	SubroutineBase* subroutine = effect->GetAlloc().Alloc<SubroutineBase>();
 
     // read data from string
     std::string name = reader->ReadString().c_str();

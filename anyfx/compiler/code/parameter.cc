@@ -186,36 +186,22 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
             }
             else if (this->attribute == Parameter::HitAttribute)
             {
+                layoutFormat = "";
                 ioFormat = "";
                 qualifierFormat += "hitAttributeEXT ";
             }
         }
 
         std::string decoration = "";
+        std::string layout = "";
+        if (!layoutFormat.empty())
+            layout = AnyFX::Format("layout(%s)", layoutFormat.c_str());
         if (shaderType != -1)
-            decoration = AnyFX::Format("%slayout(%s) %s%s ", interpolationFormat.c_str(), layoutFormat.c_str(), qualifierFormat.c_str(), ioFormat.c_str());
+            decoration = AnyFX::Format("%s %s %s%s ", interpolationFormat.c_str(), layout.c_str(), qualifierFormat.c_str(), ioFormat.c_str());
 
 		formattedCode.append("\t");
 		formattedCode.append(decoration);
-        if (this->userType)
-        {
-            if (this->userType->GetType() == StructureType)
-            {
-                Structure* struc = (Structure*)this->userType;
-                if (struc->isPointer)
-                    formattedCode.append("buffer_ptr");
-                else
-                    formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-            }
-            else
-            {
-                formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-            }
-        }
-        else
-        {
-            formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
-        }
+        formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
 
@@ -239,7 +225,18 @@ Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 	else if (header.GetType() == Header::C)
 	{
 		DataType::Dimensions dims = DataType::ToDimensions(this->GetDataType());
-		formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        if (this->userType != nullptr && this->userType->GetType() == StructureType)
+        {
+            Structure* struc = (Structure*)this->userType;
+            if (struc->isPointer)
+                formattedCode.append("buffer_ptr");
+            else
+                formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        }
+        else
+        {
+            formattedCode.append(DataType::ToProfileType(this->GetDataType(), header.GetType()));
+        }
 		formattedCode.append(" ");
 		formattedCode.append(this->GetName());
 
@@ -374,7 +371,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 	if (this->sizeExpression)
 	{
 		this->arraySize = this->sizeExpression->EvalInt(typechecker);
-		delete this->sizeExpression;
+		this->sizeExpression;
 	}
 
 	Header::Type type = typechecker.GetHeader().GetType();
@@ -398,7 +395,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
             {
                 this->index = this->slotExpression->EvalUInt(typechecker);
             }            
-			delete this->slotExpression;
+			this->slotExpression;
         }
 		else if (type == Header::SPIRV && shaderType == ProgramRow::VertexShader && (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::InputOutput))
 		{
@@ -527,8 +524,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			}
 			this->feedbackBuffer = this->feedbackBufferExpression->EvalInt(typechecker);
 			this->feedbackOffset = this->feedbackOffsetExpression->EvalUInt(typechecker);
-			delete this->feedbackOffsetExpression;
-			delete this->feedbackBufferExpression;
+			this->feedbackOffsetExpression;
+			this->feedbackBufferExpression;
 
 			// make sure the offset is valid
 			if (this->feedbackOffset % DataType::ToByteSize(DataType::ToPrimitiveType(this->type)) != 0)
@@ -575,6 +572,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color7:
             case RayPayload:
             case CallResult:
+            case HitAttribute:
 			case NoAttribute:
 				break; // accept attribute
 			default:
@@ -585,6 +583,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
                     break;
 				}	
 			}
+            break;
 		}
 	case Header::HLSL:
 		{
@@ -616,6 +615,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 			case Color7:
             case RayPayload:
             case CallResult:
+            case HitAttribute:
 			case NoAttribute:
 				break;	// accept attribute
 			case PointSize:
@@ -644,6 +644,7 @@ Parameter::TypeCheck(TypeChecker& typechecker)
                     break;
 				}		
 			}
+            break;
 		}
 	}
 }
@@ -717,6 +718,10 @@ Parameter::FormatAttribute(const Header::Type& type)
 				return "/* Render target 7 */";
             case RayPayload:
                 return "rayPayloadExt";
+            case CallResult:
+                return "callbackResultEXT";
+            case HitAttribute:
+                return "hitAttributeEXT";
 			default:
 				return "undefined";
 			}
@@ -992,6 +997,8 @@ Parameter::AttributeToString(const Attribute& attr)
         return "ray_payload";
     case CallResult:
         return "ray_result";
+    case HitAttribute:
+        return "hit_attribute";
 	default:
 		return "undefined attribute";
 	}

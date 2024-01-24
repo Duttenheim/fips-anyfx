@@ -660,7 +660,13 @@ Program::GetBinary(unsigned shader)
 /**
 */
 void
-Program::BuildShaders(const Header& header, const std::vector<Function*>& functions, std::map<std::string, Shader*>& shaders)
+Program::BuildShaders(
+    const Header& header
+    , Allocator& alloc
+    , unsigned& programIndex
+    , const std::vector<Function*>& functions
+    , std::vector<Symbol*>& symbols
+    , std::map<std::string, Shader*>& shaders)
 {
     unsigned i;
     for (i = 0; i < ProgramRow::NumProgramRows; i++)
@@ -707,12 +713,13 @@ Program::BuildShaders(const Header& header, const std::vector<Function*>& functi
                     // if the shader has not been created yet, create it
                     if (shaders.find(functionNameWithDefines) == shaders.end())
                     {
-                        Shader* shader = new Shader;
+                        Shader* shader = alloc.Alloc<Shader>();
                         shader->SetFunction(func);
                         shader->SetType(i);
                         shader->SetName(functionNameWithDefines);
                         shader->SetSubroutineMappings(subroutineMappings);
                         shaders[functionNameWithDefines] = shader;
+                        symbols.insert(symbols.begin() + programIndex++, shader);
                         this->shaders[i] = shader;
                     }
                     else
