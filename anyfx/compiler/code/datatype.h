@@ -39,6 +39,18 @@ public:
 		Short2,
 		Short3,
 		Short4,
+        UShort,
+        UShort2,
+        UShort3,
+        UShort4,
+        Byte,
+        Byte2,
+        Byte3,
+        Byte4,
+        UByte,
+        UByte2,
+        UByte3,
+        UByte4,
 		Bool,
 		Bool2,
 		Bool3,
@@ -126,6 +138,8 @@ public:
 
 	/// constructor
 	DataType();
+    /// constructor from style and type
+    DataType(Style style, Type type);
 	/// destructor
 	virtual ~DataType();
 

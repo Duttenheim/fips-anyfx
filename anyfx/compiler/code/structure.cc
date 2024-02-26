@@ -14,13 +14,14 @@ namespace AnyFX
 /**
 */
 Structure::Structure() :
-	alignedSize(0),
-	padding(0),
-	usage(Ordinary),
+    alignedSize(0),
+    padding(0),
+    usage(Ordinary),
     isPointer(false),
-    pointerAlignment(16)
+    pointerAlignment(16),
+    alignment(16)
 {
-	this->symbolType = Symbol::StructureType;
+    this->symbolType = Symbol::StructureType;
 }
 
 //------------------------------------------------------------------------------
@@ -28,7 +29,7 @@ Structure::Structure() :
 */
 Structure::~Structure()
 {
-	// empty
+    // empty
 }
 
 //------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ Structure::~Structure()
 void
 Structure::AddParameter(const Parameter& param)
 {
-	this->parameters.push_back(param);
+    this->parameters.push_back(param);
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ Structure::AddParameter(const Parameter& param)
 const std::vector<Parameter>& 
 Structure::GetParameters() const
 {
-	return this->parameters;
+    return this->parameters;
 }
 
 //------------------------------------------------------------------------------
@@ -94,7 +95,7 @@ Structure::IsRecursive(TypeChecker& typeChecker)
 std::string
 Structure::Format(const Header& header) const
 {
-	std::string formattedCode;
+    std::string formattedCode;
 
     if (header.GetType() == Header::SPIRV)
     {
@@ -106,40 +107,43 @@ Structure::Format(const Header& header) const
     else
         formattedCode.append("struct ");
     if (header.GetType() == Header::C)
-        formattedCode.append("alignas(16) ");
+        if (this->isPointer)
+            formattedCode.append(AnyFX::Format("alignas(%d) ", this->pointerAlignment));
+        else
+            formattedCode.append(AnyFX::Format("alignas(%d) ", this->alignment));
 
-	formattedCode.append(this->GetName());
-	formattedCode.append("\n{\n");
+    formattedCode.append(this->GetName());
+    formattedCode.append("\n{\n");
 
-	unsigned input, output;
-	input = output = 0;
-	unsigned i;
-	for (i = 0; i < this->parameters.size(); i++)
-	{
-		const Parameter& param = this->parameters[i];
+    unsigned input, output;
+    input = output = 0;
+    unsigned i;
+    for (i = 0; i < this->parameters.size(); i++)
+    {
+        const Parameter& param = this->parameters[i];
 
-		// add padding member if we have a positive padding
-		if (header.GetType() == Header::C && param.padding > 0)
-		{
-			int pads = param.padding / 4;
-			int remainder = param.padding % 4;
-			unsigned j;
-			for (j = 0; j < pads; j++)
-				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
+        // add padding member if we have a positive padding
+        if (header.GetType() == Header::C && param.padding > 0)
+        {
+            int pads = param.padding / 4;
+            int remainder = param.padding % 4;
+            unsigned j;
+            for (j = 0; j < pads; j++)
+                formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", 32));
 
-			if (remainder > 0)
-				formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
-		}
+            if (remainder > 0)
+                formattedCode.append(AnyFX::Format("/* Padding */ unsigned int : %d;\n", remainder * 8));
+        }
 
-		// write variable offset, in most languages, every float4 boundary must be 16 bit aligned
-		formattedCode.append(AnyFX::Format("/* Offset:%d */\t\t", param.alignedOffset));
+        // write variable offset, in most languages, every float4 boundary must be 16 bit aligned
+        formattedCode.append(AnyFX::Format("/* Offset:%d */\t\t", param.alignedOffset));
 
-		// generate parameter with a seemingly invalid shader, since 
-		formattedCode.append(param.Format(header, input, output));
-	}
+        // generate parameter with a seemingly invalid shader, since 
+        formattedCode.append(param.Format(header, input, output));
+    }
 
-	if (header.GetType() == Header::C)
-	{
+    if (header.GetType() == Header::C)
+    {
         if (this->padding > 0)
         {
             int pads = this->padding / 4;
@@ -151,9 +155,9 @@ Structure::Format(const Header& header) const
                 formattedCode.append(AnyFX::Format("/* Structure Padding */ unsigned int : %d;\n", remainder * 8));
         }
         formattedCode.append(AnyFX::Format("static const int Alignment = %d;\n", this->alignment));
-	}
+    }
 
-	formattedCode.append("};\n");
+    formattedCode.append("};\n");
 
     if (header.GetType() == Header::C)
     {
@@ -173,7 +177,7 @@ Structure::Format(const Header& header) const
         formattedCode.append("\n");
     }
 
-	return formattedCode;
+    return formattedCode;
 }
 
 //------------------------------------------------------------------------------
@@ -182,26 +186,26 @@ Structure::Format(const Header& header) const
 void 
 Structure::ResolveOffsets(TypeChecker& typechecker, std::map<std::string, unsigned>& offsets)
 {
-	unsigned i;
-	for (i = 0; i < this->parameters.size(); i++)
-	{
-		const Parameter& param = this->parameters[i];
+    unsigned i;
+    for (i = 0; i < this->parameters.size(); i++)
+    {
+        const Parameter& param = this->parameters[i];
 
-		// if we have a struct in struct, unroll inner struct (recursively)
-		const DataType& type = param.GetDataType();
+        // if we have a struct in struct, unroll inner struct (recursively)
+        const DataType& type = param.GetDataType();
 
-		// unroll if struct
-		if (type.GetType() == DataType::UserType)
-		{
-			Structure* str = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
-			if (str)
-				str->ResolveOffsets(typechecker, offsets);
-		}
-		else
-		{
-			offsets[param.name] = param.alignedOffset;
-		}
-	}
+        // unroll if struct
+        if (type.GetType() == DataType::UserType)
+        {
+            Structure* str = dynamic_cast<Structure*>(typechecker.GetSymbol(type.GetName()));
+            if (str)
+                str->ResolveOffsets(typechecker, offsets);
+        }
+        else
+        {
+            offsets[param.name] = param.alignedOffset;
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -210,47 +214,50 @@ Structure::ResolveOffsets(TypeChecker& typechecker, std::map<std::string, unsign
 void 
 Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 {
-	const Header& header = typechecker.GetHeader();
+    const Header& header = typechecker.GetHeader();
 
-	unsigned offset = 0;
-	unsigned i;
-	unsigned maxAlignment = this->usage == VarblockStorage ? 16 : 0;
-	for (i = 0; i < this->parameters.size(); i++)
-	{
-		Parameter& param = this->parameters[i];
+    unsigned offset = 0;
+    unsigned i;
+    unsigned maxAlignment = this->usage == VarblockStorage ? 16 : 0;
+    for (i = 0; i < this->parameters.size(); i++)
+    {
+        Parameter& param = this->parameters[i];
 
-		// handle offset later, now we know array size
-		unsigned size = 0;
-		unsigned alignment = 0;
-		if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
-		{
-			Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), size, alignment, this->usage != VarbufferStorage, true, typechecker);
-		}
+        // handle offset later, now we know array size
+        unsigned size = 0;
+        unsigned alignment = 0;
+        if (header.GetType() == Header::GLSL || header.GetType() == Header::SPIRV)
+        {
+            Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), size, alignment, this->usage != VarbufferStorage, true, typechecker);
+        }
 
-		maxAlignment = std::max(alignment, maxAlignment);
-		//size = Effect::RoundToPow2(size, alignment);
-		
-		// align offset with current alignment
-		if (offset % alignment > 0)
-		{
-			param.padding = alignment - (offset % alignment);
-			offset = offset + alignment - (offset % alignment);
-		}
-		else
-			param.padding = 0;
-		param.alignedOffset = offset;
+        maxAlignment = std::max(alignment, maxAlignment);
+        //size = Effect::RoundToPow2(size, alignment);
+        
+        // align offset with current alignment
+        if (offset % alignment > 0)
+        {
+            param.padding = alignment - (offset % alignment);
+            offset = offset + alignment - (offset % alignment);
+        }
+        else
+            param.padding = 0;
+        param.alignedOffset = offset;
 
-		offset += size;
-	}
+        offset += size;
+    }
 
     this->alignedSize = offset;
-    this->alignment = maxAlignment;
+    if (this->isPointer)
+        this->alignment = this->pointerAlignment;
+    else
+        this->alignment = maxAlignment;
 
     // calculate structure alignment
-    if (this->alignedSize % maxAlignment > 0)
+    if (this->alignedSize % this->alignment > 0)
     {
-        this->padding = maxAlignment - (this->alignedSize % maxAlignment);
-        this->alignedSize = this->alignedSize + maxAlignment - (this->alignedSize % maxAlignment);
+        this->padding = this->alignment - (this->alignedSize % this->alignment);
+        this->alignedSize = this->alignedSize + this->alignment - (this->alignedSize % this->alignment);
     }
     else
         this->padding = 0;
@@ -262,8 +269,8 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
 void
 Structure::TypeCheck(TypeChecker& typechecker)
 {
-	// attempt to add structure, if this fails, we must stop type checking for this structure
-	if (!typechecker.AddSymbol(this)) return;
+    // attempt to add structure, if this fails, we must stop type checking for this structure
+    if (!typechecker.AddSymbol(this)) return;
 
     // evaluate qualifiers
     for (unsigned i = 0; i < this->qualifiers.size(); i++)

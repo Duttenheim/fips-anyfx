@@ -212,8 +212,6 @@ Function::Restore(const Header& header, int index)
     const Header::Type& type = header.GetType();
 
     // restore return value and name
-    std::string line = AnyFX::Format("#line %d %s\n", this->functionLine, this->file.c_str());
-    restoredCode.append(line);
     restoredCode.append(DataType::ToProfileType(this->returnType, type));
     restoredCode.append("\n");
     restoredCode.append(this->name);
@@ -262,8 +260,7 @@ Function::Restore(const Header& header, int index)
 
     // finalize by closing parameter list and append the code
     restoredCode.append(")\n{\n");
-    line = AnyFX::Format("#line %d %s\n", this->codeLine, this->file.c_str());
-    restoredCode.append(line);
+    restoredCode.append(AnyFX::Format("#line %d %s\n", this->codeLine, this->file.c_str()));
     restoredCode.append(this->code);
     restoredCode.append("\n}\n\n");
 

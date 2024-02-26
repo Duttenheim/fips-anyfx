@@ -598,7 +598,7 @@ Effect::GenerateHeader(TextWriter& writer)
             }
             else
             {
-                writer.WriteString(AnyFX::Format("struct %s \n\t{\n\t\tstatic const unsigned SLOT = %d;\n\t\tstatic const unsigned SIZE = %d;\n\t};\n\t", binding.name.c_str(), binding.binding.buffer.slot, binding.binding.buffer.size));
+                writer.WriteString(AnyFX::Format("static const unsigned %s_SLOT = %d;\n\t", binding.name.c_str(), binding.binding.buffer.slot));
             }
         }
         writer.WriteString("\n};\n");

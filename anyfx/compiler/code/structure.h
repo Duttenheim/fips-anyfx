@@ -50,6 +50,8 @@ public:
 	void SetUsage(const Usage usage);
 	/// get the usage
 	const Usage GetUsage() const;
+    /// Get pointer usage
+    const bool IsPointer() const { return this->isPointer; }
 
 	/// type checks structure
 	void TypeCheck(TypeChecker& typechecker);

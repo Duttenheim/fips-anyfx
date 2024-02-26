@@ -219,6 +219,7 @@ Shader::Generate(Generator& generator, const std::vector<Symbol*>& symbols)
         this->preamble.append("#extension GL_KHR_shader_subgroup_quad : enable\n");
         this->preamble.append("#extension GL_EXT_buffer_reference : enable\n");
         this->preamble.append("#extension GL_EXT_buffer_reference2 : enable\n");
+        this->preamble.append("#extension GL_EXT_shader_16bit_storage : enable\n");
         if (this->shaderType >= ProgramRow::RayGenerationShader && this->shaderType <= ProgramRow::CallShader)
         {
             this->preamble.append("#extension GL_EXT_ray_tracing : enable\n");
