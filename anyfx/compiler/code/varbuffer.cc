@@ -97,10 +97,6 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
             this->group = expr->EvalUInt(typechecker);
         else if (qualifier == "binding")
             this->binding = expr->EvalUInt(typechecker);
-        else if (qualifier == "alignment")
-        {
-            this->alignment = expr->EvalUInt(typechecker);
-        }
         else
         {
             std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -155,6 +151,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
 
     unsigned offset = 0;
     unsigned i;
+    this->alignment = 0;
     for (i = 0; i < this->variables.size(); i++)
     {
         Variable* var = this->variables[i];
@@ -205,6 +202,7 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         else
             var->padding = 0;
         var->alignedOffset = offset;
+        this->alignment = std::max(this->alignment, alignment);
 
         // avoid adding actual struct
         if (type.GetType() == DataType::UserType)
@@ -251,7 +249,10 @@ VarBuffer::Format(const Header& header) const
     }
     else if (header.GetType() == Header::C)
     {
-        formattedCode.append("struct alignas(16) ");
+        if (this->alignment >= 16)
+            formattedCode.append(AnyFX::Format("struct alignas(%d) ", this->alignment));
+        else
+            formattedCode.append("struct ");
     }
     
     formattedCode.append(this->GetName());

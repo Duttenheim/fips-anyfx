@@ -231,6 +231,12 @@ Structure::UpdateAlignmentAndSize(TypeChecker& typechecker)
             Effect::GetAlignmentGLSL(param.GetDataType(), param.GetArraySize(), size, alignment, this->usage != VarbufferStorage, true, typechecker);
         }
 
+        if (size == 0)
+        {
+            typechecker.Error(AnyFX::Format(" Member '%s' in struct '%s' has type '%s' which is not allowed in struct", param.GetName().c_str(), this->GetName().c_str(), DataType::ToString(param.GetDataType()).c_str()), this->GetFile(), this->GetLine());
+            return;
+        }
+
         maxAlignment = std::max(alignment, maxAlignment);
         //size = Effect::RoundToPow2(size, alignment);
         

@@ -152,6 +152,8 @@ Variable::TypeCheck(TypeChecker& typechecker)
     if (this->GetDataType() == DataType::UserType)
     {
         this->userType = typechecker.GetSymbol(this->GetDataType().GetName());
+        if (this->userType == nullptr)
+            return;
     }
 
     // add variable, if failed we must have a redefinition

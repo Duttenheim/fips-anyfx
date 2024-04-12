@@ -693,24 +693,32 @@ Effect::GetAlignmentGLSL(const DataType& type, unsigned arraySize, unsigned& siz
     else if (type.GetType() == DataType::UserType)  // if structure
     {
         Symbol* sym = typechecker.GetSymbol(type.GetName());
-        if (sym->GetType() == Symbol::StructureType)
+        if (sym != nullptr)
         {
-            Structure* structure = (Structure*)sym;
-            if (structure->isPointer)
+            if (sym->GetType() == Symbol::StructureType)
             {
-                size = 8;
-                alignment = 8;
+                Structure* structure = (Structure*)sym;
+                if (structure->isPointer)
+                {
+                    size = 8;
+                    alignment = 8;
+                }
+                else
+                {
+                    structure->UpdateAlignmentAndSize(typechecker);
+                    size = structure->alignedSize;
+                    alignment = structure->alignment;
+                }
             }
             else
             {
-                structure->UpdateAlignmentAndSize(typechecker);
-                size = structure->alignedSize;
-                alignment = structure->alignment;
+                size = 0;
+                alignment = vec4alignment;
             }
         }
         else
         {
-            size = 0;
+            size = 1;
             alignment = vec4alignment;
         }
     }
