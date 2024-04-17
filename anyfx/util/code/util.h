@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <string>
 #include <type_traits>
+#include <immintrin.h>
 
 // remove warning for vsnprintf
 #pragma warning( disable : 4996 )
@@ -113,6 +114,32 @@ operator==(const std::string& lhs, const char* rhs)
 	inline bool operator<(TYPE a, unsigned b) { return static_cast<unsigned>(a) < b; }\
 	inline bool operator<(unsigned a, TYPE b) { return a < static_cast<unsigned>(b); }\
 	inline bool HasFlags(const TYPE& a, TYPE flags) { return (a & flags) == flags; }\
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline unsigned
+FirstOne(unsigned long long value)
+{
+#if __WIN32__
+    unsigned long count = 0;
+    _BitScanForward64(&count, value);
+#else
+    int count = __builtin_ctz(value);
+#endif
+    return count;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline unsigned long long
+PopCnt(unsigned long long value)
+{
+    return _mm_popcnt_u64(value);
+}
 
 } // namespace AnyFX
 

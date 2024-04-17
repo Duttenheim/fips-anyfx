@@ -161,16 +161,20 @@ Structure::Format(const Header& header) const
 
     if (header.GetType() == Header::C)
     {
-        formattedCode.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
+        std::string lookupContents = "";
+        lookupContents.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
         for (i = 0; i < this->parameters.size(); i++)
         {
             const Parameter& param = this->parameters[i];
             if (i > 0)
-                formattedCode.append(", ");
-            formattedCode.append(AnyFX::Format("{ \"%s\", %d }", param.name.c_str(), param.alignedOffset));
+                lookupContents.append(", ");
+            lookupContents.append(AnyFX::Format("{ \"%s\", %d }", param.name.c_str(), param.alignedOffset));
 
+            formattedCode.append(AnyFX::Format("static constexpr uint %s_%s_Offset = %d;\n", this->name.c_str(), param.name.c_str(), param.alignedOffset));
         }
-        formattedCode.append("};\n\n");
+        lookupContents.append("};\n\n");
+        formattedCode.append(lookupContents);
+
     }
     else
     {

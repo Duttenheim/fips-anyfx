@@ -62,9 +62,13 @@ VarBuffer::AddVariable(Variable* var)
 void
 VarBuffer::TypeCheck(TypeChecker& typechecker)
 {
+    if (this->variables.size() == 0)
+        return;
+
     // Find potentially forward declared symbol of same name
     if (!typechecker.AddSymbol(this))
         return;
+    const Header& header = typechecker.GetHeader();
 
     // type check annotation
     if (this->hasAnnotation)
@@ -107,24 +111,24 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
     // get the binding location and increment the global counter
     if (this->binding == -1)
     {
-        if (typechecker.GetHeader().GetType() == Header::GLSL)
+        if (header.GetType() == Header::GLSL)
         {
-            this->binding = Shader::bindingIndices[1]++;
+            this->binding = Shader::ConsumeNewBinding(0);
         }
-        else if (typechecker.GetHeader().GetType() == Header::SPIRV)
+        else if (header.GetType() == Header::SPIRV && !HasFlags(this->qualifierFlags, Qualifiers::Push))
         {
-            this->binding = Shader::bindingIndices[this->group]++;
+            this->binding = Shader::ConsumeNewBinding(this->group);
         }
     }
     else
     {
-        if (typechecker.GetHeader().GetType() == Header::GLSL)
+        if (header.GetType() == Header::GLSL)
         {
-            Shader::bindingIndices[1] = std::max(this->binding + 1, Shader::bindingIndices[1]);
+            Shader::SetBinding(0, this->binding);
         }
-        else if (typechecker.GetHeader().GetType() == Header::SPIRV)
+        else if (header.GetType() == Header::SPIRV && !HasFlags(this->qualifierFlags, Qualifiers::Push))
         {
-            Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
+            Shader::SetBinding(this->group, this->binding);
         }
     }
 
@@ -133,8 +137,6 @@ VarBuffer::TypeCheck(TypeChecker& typechecker)
         this->arraySize = this->arraySizeExpression->EvalUInt(typechecker);
     }
 
-
-    const Header& header = typechecker.GetHeader();
     if (header.GetType() != Header::GLSL && header.GetType() != Header::SPIRV)
     {
         std::string message = AnyFX::Format("Varbuffers are only supported in OpenGL, %s\n", this->ErrorSuffix().c_str());
@@ -297,16 +299,20 @@ VarBuffer::Format(const Header& header) const
 
         if (header.GetType() == Header::C)
         {
-            formattedCode.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
+            std::string lookupContents = "";
+            lookupContents.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
             for (i = 0; i < this->variables.size(); i++)
             {
                 Variable* var = this->variables[i];
                 if (i > 0)
-                    formattedCode.append(", ");
-                formattedCode.append(AnyFX::Format("{ \"%s\", %d }", var->name.c_str(), var->alignedOffset));
+                    lookupContents.append(", ");
+                lookupContents.append(AnyFX::Format("{ \"%s\", %d }", var->name.c_str(), var->alignedOffset));
+
+                formattedCode.append(AnyFX::Format("static constexpr uint %s_%s_Offset = %d;\n", this->name.c_str(), var->name.c_str(), var->alignedOffset));
 
             }
-            formattedCode.append("};\n\n");
+            lookupContents.append("};\n\n");
+            formattedCode.append(lookupContents);
         }
         else
         {

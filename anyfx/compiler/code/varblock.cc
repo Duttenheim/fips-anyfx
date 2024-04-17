@@ -59,9 +59,14 @@ VarBlock::AddVariable(Variable* var)
 void
 VarBlock::TypeCheck(TypeChecker& typechecker)
 {
+    // if empty, just skip
+    if (this->variables.size() == 0)
+        return;
+
     // add varblock, if failed we must have a redefinition
     if (!typechecker.AddSymbol(this)) return;
     const Header& header = typechecker.GetHeader();
+
 
     // type check annotation
     if (this->hasAnnotation)
@@ -101,24 +106,22 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
     {
         if (header.GetType() == Header::GLSL)
         {
-            this->binding = Shader::bindingIndices[0];
-            Shader::bindingIndices[0]++;
+            this->binding = Shader::ConsumeNewBinding(0);
         }
         else if (header.GetType() == Header::SPIRV && !HasFlags(this->qualifierFlags, Qualifiers::Push))
         {
-            this->binding = Shader::bindingIndices[this->group];
-            Shader::bindingIndices[this->group]++;
+            this->binding = Shader::ConsumeNewBinding(this->group);
         }
     }
     else
     {
         if (header.GetType() == Header::GLSL)
         {
-            Shader::bindingIndices[0] = std::max(this->binding + 1, Shader::bindingIndices[0]);
+            Shader::SetBinding(0, this->binding);
         }
         else if (header.GetType() == Header::SPIRV && !HasFlags(this->qualifierFlags, Qualifiers::Push))
         {
-            Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
+            Shader::SetBinding(this->group, this->binding);
         }
     }
 
@@ -346,16 +349,20 @@ VarBlock::Format(const Header& header) const
 
             if (header.GetType() == Header::C)
             {
-                formattedCode.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
+                std::string lookupContents = "";
+                lookupContents.append(AnyFX::Format("static const std::map<std::string, uint> %s_Lookup = {", this->name.c_str()));
                 for (i = 0; i < this->variables.size(); i++)
                 {
                     Variable* var = this->variables[i];
                     if (i > 0)
-                        formattedCode.append(", ");
-                    formattedCode.append(AnyFX::Format("{ \"%s\", %d }", var->name.c_str(), var->alignedOffset));
+                        lookupContents.append(", ");
+                    lookupContents.append(AnyFX::Format("{ \"%s\", %d }", var->name.c_str(), var->alignedOffset));
+
+                    formattedCode.append(AnyFX::Format("static constexpr uint %s_%s_Offset = %d;\n", this->name.c_str(), var->name.c_str(), var->alignedOffset));
 
                 }
-                formattedCode.append("};\n\n");
+                lookupContents.append("};\n\n");
+                formattedCode.append(lookupContents);
             }
             else
             {
@@ -364,12 +371,19 @@ VarBlock::Format(const Header& header) const
         }
         else
         {
-            std::string fullStructName = this->structName;
-            if (this->arrayType == Variable::ArrayType::UnsizedArray)
-                fullStructName.append("[]");
-            else if (this->arrayType == Variable::ArrayType::SimpleArray)
-                fullStructName.append(AnyFX::Format("[%d]", this->arraySize));
-            formattedCode.append(AnyFX::Format("} %s;\n", fullStructName.c_str()));
+            if (header.GetType() == Header::C)
+            {
+                formattedCode.append("};\n");
+            }
+            else
+            {
+                std::string fullStructName = this->structName;
+                if (this->arrayType == Variable::ArrayType::UnsizedArray)
+                    fullStructName.append("[]");
+                else if (this->arrayType == Variable::ArrayType::SimpleArray)
+                    fullStructName.append(AnyFX::Format("[%d]", this->arraySize));
+                formattedCode.append(AnyFX::Format("} %s;\n", fullStructName.c_str()));
+            }
         }
     }
     formattedCode.append("\n");

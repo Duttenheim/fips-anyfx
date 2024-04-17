@@ -83,7 +83,10 @@ public:
         3: images (read-write textures)
         4: sampler objects
     */
-    static unsigned bindingIndices[64]; 
+    static unsigned long long bindingIndices[8]; 
+
+    static unsigned long long ConsumeNewBinding(unsigned group);
+    static void SetBinding(unsigned group, unsigned binding);
 private:
     friend class Program;
 
@@ -224,7 +227,28 @@ Shader::SetSubroutineMappings(const std::map<std::string, std::string>& subrouti
 inline void
 Shader::ResetBindings()
 {
-    memset(Shader::bindingIndices, 0, sizeof(Shader::bindingIndices));
+    // Reset all bindings to 1's, when a binding is consumed, its bit gets flipped
+    memset(Shader::bindingIndices, 0xFF, sizeof(Shader::bindingIndices));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline unsigned long long 
+Shader::ConsumeNewBinding(unsigned group)
+{
+    unsigned long long binding = FirstOne(Shader::bindingIndices[group]);
+    SetBinding(group, binding);
+    return binding;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+Shader::SetBinding(unsigned group, unsigned binding)
+{
+    Shader::bindingIndices[group] &= ~(1 << binding);
 }
 
 } // namespace AnyFX

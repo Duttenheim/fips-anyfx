@@ -127,7 +127,7 @@ DefaultResources.limits.generalConstantMatrixVectorIndexing =1					;
 namespace AnyFX
 {
 
-unsigned Shader::bindingIndices[64];
+unsigned long long Shader::bindingIndices[8];
 //------------------------------------------------------------------------------
 /**
 */

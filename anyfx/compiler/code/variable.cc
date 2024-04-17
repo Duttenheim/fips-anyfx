@@ -187,11 +187,11 @@ Variable::TypeCheck(TypeChecker& typechecker)
         {
             if (this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::SAMPLER_TYPES_END)
             {
-                this->binding = Shader::bindingIndices[2]++;
+                this->binding = Shader::ConsumeNewBinding(2);
             }
             else if (this->type.GetType() >= DataType::IMAGE_TYPES_BEGIN && this->type.GetType() <= DataType::IMAGE_TYPES_END)
             {
-                this->binding = Shader::bindingIndices[3]++;
+                this->binding = Shader::ConsumeNewBinding(3);
             }
 
         }
@@ -201,7 +201,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
                 (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END) ||
                 (this->type.GetType() == DataType::AccelerationStructure))
             {
-                this->binding = Shader::bindingIndices[this->group]++;
+                this->binding = Shader::ConsumeNewBinding(this->group);
             }
         }
     }
@@ -211,9 +211,9 @@ Variable::TypeCheck(TypeChecker& typechecker)
         if (typechecker.GetHeader().GetType() == Header::GLSL)
         {
             if (this->type.GetType() >= DataType::SAMPLER_TYPES_BEGIN && this->type.GetType() <= DataType::SAMPLER_TYPES_END)
-                Shader::bindingIndices[2] = std::max(this->binding + 1, Shader::bindingIndices[2]);
+                Shader::SetBinding(2, this->binding);
             else if (this->type.GetType() >= DataType::IMAGE_TYPES_BEGIN && this->type.GetType() <= DataType::IMAGE_TYPES_END)
-                Shader::bindingIndices[3] = std::max(this->binding + 1, Shader::bindingIndices[3]);
+                Shader::SetBinding(3, this->binding);
 
         }
         else if (typechecker.GetHeader().GetType() == Header::SPIRV)
@@ -222,7 +222,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
                 (this->type.GetType() >= DataType::INPUT_ATTACHMENT_TYPES_BEGIN && this->type.GetType() <= DataType::INPUT_ATTACHMENT_TYPES_END) ||
                 this->type.GetType() == DataType::AccelerationStructure)
             {
-                Shader::bindingIndices[this->group] = std::max(this->binding + 1, Shader::bindingIndices[this->group]);
+                Shader::SetBinding(this->group, this->binding);
             }
         }
     }
