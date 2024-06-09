@@ -9,7 +9,7 @@
 #ifdef __APPLE__
 namespace fs = std::__fs::filesystem;
 #else
-namespace fs = fs;
+namespace fs = std::filesystem;
 #endif
 
 //------------------------------------------------------------------------------
