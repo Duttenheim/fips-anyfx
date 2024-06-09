@@ -6,6 +6,12 @@
 #include <filesystem>
 #include "afxcompiler.h"
 
+#ifdef __APPLE__
+namespace fs = std::__fs::filesystem;
+#else
+namespace fs = fs;
+#endif
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -34,7 +40,7 @@ bool
 SingleShaderCompiler::CompileShader(const std::string& src)
 {
 	// check if source
-	if (!std::filesystem::exists(src))
+	if (!fs::exists(src))
 	{
 		fprintf(stderr, "[anyfxcompiler] error: shader source '%s' not found!\n", src.c_str());
 		return false;
@@ -43,13 +49,13 @@ SingleShaderCompiler::CompileShader(const std::string& src)
 	// make sure the target directory exists
 	if (!this->dstBinary.empty())
     {
-    	std::filesystem::path sp(this->dstBinary);
-		std::filesystem::create_directories(sp.parent_path());
+    	fs::path sp(this->dstBinary);
+		fs::create_directories(sp.parent_path());
     }
 	if (!this->dstHeader.empty())
     {
-        std::filesystem::path sp(this->dstHeader);
-		std::filesystem::create_directories(sp.parent_path());
+        fs::path sp(this->dstHeader);
+		fs::create_directories(sp.parent_path());
     }
 	return this->CompileSPIRV(src);	
 }
@@ -63,7 +69,7 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
 	// start AnyFX compilation
 	AnyFXBeginCompile();
 
-	std::filesystem::path sp(src);
+	fs::path sp(src);
     
 	std::string file = sp.stem().string();
     std::string folder = sp.parent_path().string();
@@ -134,8 +140,8 @@ SingleShaderCompiler::CompileSPIRV(const std::string& src)
     snprintf(buffer,25,"spv%d%d", major, minor);
 	target = buffer;
 
-	std::filesystem::path escapedDst(this->dstBinary);
-	std::filesystem::path escapedHeader(this->dstHeader);
+	fs::path escapedDst(this->dstBinary);
+	fs::path escapedHeader(this->dstHeader);
 
     bool res = AnyFXCompile(
         sp.string().c_str()
@@ -178,16 +184,16 @@ SingleShaderCompiler::CreateDependencies(const std::string& src)
 
     if (!this->dstBinary.empty())
     {
-    	std::filesystem::path sp(this->dstBinary);
-		std::filesystem::create_directories(sp.parent_path());
+    	fs::path sp(this->dstBinary);
+		fs::create_directories(sp.parent_path());
     }
 
-	std::filesystem::path sp(src);
+	fs::path sp(src);
 	std::string file = sp.stem().string();
 	std::string folder = sp.parent_path().string();
 
 	// format destination
-	std::string destFile = std::filesystem::absolute(folder + "/" + file + ".dep").string();
+	std::string destFile = fs::absolute(folder + "/" + file + ".dep").string();
 
 	// compile
 	if (!this->quiet)

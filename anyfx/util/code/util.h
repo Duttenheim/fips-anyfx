@@ -17,7 +17,6 @@
 #include <assert.h>
 #include <string>
 #include <type_traits>
-#include <immintrin.h>
 
 // remove warning for vsnprintf
 #pragma warning( disable : 4996 )
@@ -138,7 +137,11 @@ FirstOne(unsigned long long value)
 inline unsigned long long
 PopCnt(unsigned long long value)
 {
-    return _mm_popcnt_u64(value);
+#ifdef __WIN32__
+	return __popcnt64(value);
+#else
+	return __builtin_popcount(value);
+#endif
 }
 
 } // namespace AnyFX

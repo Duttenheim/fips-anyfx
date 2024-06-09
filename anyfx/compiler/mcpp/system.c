@@ -4841,24 +4841,6 @@ static int  mcpp_getopt(
     return  c;
 }
 
-#if ! HOST_HAVE_STPCPY
-char *  stpcpy(
-    char *          dest,
-    const char *    src
-)
-/*
- * Copy the string and return the advanced pointer.
- */
-{
-    const char * s;
-    char *  d;
-
-    for (s = src, d = dest; (*d++ = *s++) != '\0'; )
-        ;
-    return  d - 1;
-}
-#endif
-
 /*
  * list_heap() is a function to print out information of heap-memory.
  * See "kmmalloc-2.5.3.zip" by kmatsui.
