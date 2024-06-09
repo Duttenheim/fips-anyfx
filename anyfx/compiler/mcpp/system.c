@@ -48,6 +48,9 @@
 #elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC
 #include    "direct.h"
 #define getcwd( buf, size)  _getcwd( buf, size)
+#elif SYSTEM == SYS_MAC
+#define HOST_HAVE_STPCPY TRUE
+#error "MAC"
 #elif   HOST_COMPILER == BORLANDC
 #include    "dir.h"
 #endif
@@ -4840,6 +4843,24 @@ static int  mcpp_getopt(
     }
     return  c;
 }
+
+#if ! HOST_HAVE_STPCPY
+char *  stpcpy(
+    char *          dest,
+    const char *    src
+)
+/*
+ * Copy the string and return the advanced pointer.
+ */
+{
+    const char * s;
+    char *  d;
+
+    for (s = src, d = dest; (*d++ = *s++) != '\0'; )
+        ;
+    return  d - 1;
+}
+#endif
 
 /*
  * list_heap() is a function to print out information of heap-memory.

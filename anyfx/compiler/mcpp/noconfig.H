@@ -26,7 +26,9 @@
 #endif
 
 /* Define target compiler.          */
+#ifndef COMPILER
 #define COMPILER			INDEPENDENT
+#endif
 	
 /* Define host operating-system.    */
 #define HOST_SYSTEM         SYSTEM
@@ -70,6 +72,7 @@
 #define BORLANDC            0x7440  /* Borland C    */
 #define LCC                 0x74C0  /* LCC-Win32    */
 #define GNUC                0x00E0  /* GNU C (GCC)  */
+#define CLANG               0x74D0
 #define INDEPENDENT         0xFFFF  /* No target, compiler-independent build*/
 
 #define SYS_FAMILY          (SYSTEM & 0xF000)
@@ -183,6 +186,7 @@
 #define FNAME_FOLD          TRUE    /* Case-insensitive file-system */
 #define FRAMEWORK1          "/System/Library/Frameworks"
 #define FRAMEWORK2          "/Library/Frameworks"
+#error "SYSTEM IS MAC"
 #endif  /* SYSTEM == SYS_MAC    */
 
 #if     SYSTEM == SYS_CYGWIN
@@ -502,18 +506,20 @@
  *          edit here and there of this part.
  */
 #if     HOST_COMPILER == GNUC
-#if     __GNUC__ >= 3
-#define HAVE_INTMAX_T               TRUE
-#define HAVE_INTTYPES_H             TRUE
-#define HAVE_STDINT_H               TRUE
-#endif
-#define HOST_HAVE_LONG_LONG         TRUE 
-#if     HOST_SYSTEM == SYS_LINUX
+    #if     __GNUC__ >= 3
+        #define HAVE_INTMAX_T               TRUE
+        #define HAVE_INTTYPES_H             TRUE
+        #define HAVE_STDINT_H               TRUE
+    #endif
+    #define HOST_HAVE_LONG_LONG         TRUE 
+    #if     HOST_SYSTEM == SYS_LINUX
+        #define HOST_HAVE_STPCPY            TRUE
+    #endif
+    #if     HOST_SYSTEM == SYS_MAC
+        #define HOST_HAVE_STPCPY            TRUE
+    #endif
+#elif HOST_COMPILER == CLANG
 #define HOST_HAVE_STPCPY            TRUE
-#endif
-#if     HOST_SYSTEM == SYS_MAC
-#define HOST_HAVE_STPCPY            TRUE
-#endif
 
 #elif   HOST_COMPILER == LCC
 #define HOST_HAVE_LONG_LONG         TRUE 
