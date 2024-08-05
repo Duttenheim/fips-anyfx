@@ -48,9 +48,6 @@
 #elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC
 #include    "direct.h"
 #define getcwd( buf, size)  _getcwd( buf, size)
-#elif SYSTEM == SYS_MAC
-#define HOST_HAVE_STPCPY TRUE
-#error "MAC"
 #elif   HOST_COMPILER == BORLANDC
 #include    "dir.h"
 #endif

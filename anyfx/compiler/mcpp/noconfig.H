@@ -186,7 +186,6 @@
 #define FNAME_FOLD          TRUE    /* Case-insensitive file-system */
 #define FRAMEWORK1          "/System/Library/Frameworks"
 #define FRAMEWORK2          "/Library/Frameworks"
-#error "SYSTEM IS MAC"
 #endif  /* SYSTEM == SYS_MAC    */
 
 #if     SYSTEM == SYS_CYGWIN
