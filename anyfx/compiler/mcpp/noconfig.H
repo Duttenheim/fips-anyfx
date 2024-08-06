@@ -505,18 +505,19 @@
  *          edit here and there of this part.
  */
 #if     HOST_COMPILER == GNUC
-    #if     __GNUC__ >= 3
-        #define HAVE_INTMAX_T               TRUE
-        #define HAVE_INTTYPES_H             TRUE
-        #define HAVE_STDINT_H               TRUE
-    #endif
-    #define HOST_HAVE_LONG_LONG         TRUE 
-    #if     HOST_SYSTEM == SYS_LINUX
-        #define HOST_HAVE_STPCPY            TRUE
-    #endif
-    #if     HOST_SYSTEM == SYS_MAC
-        #define HOST_HAVE_STPCPY            TRUE
-    #endif
+#if     __GNUC__ >= 3
+#define HAVE_INTMAX_T               TRUE
+#define HAVE_INTTYPES_H             TRUE
+#define HAVE_STDINT_H               TRUE
+#endif
+#define HOST_HAVE_LONG_LONG         TRUE 
+#if     HOST_SYSTEM == SYS_LINUX
+#define HOST_HAVE_STPCPY            TRUE
+#endif
+#if     HOST_SYSTEM == SYS_MAC
+#define HOST_HAVE_STPCPY            TRUE
+#endif
+
 #elif HOST_COMPILER == CLANG
 #define HOST_HAVE_STPCPY            TRUE
 
