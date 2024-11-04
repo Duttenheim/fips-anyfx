@@ -45,7 +45,7 @@ using namespace AnyFX;
 
 
 
-// Generated from antlr4/grammar/AnyFX.g4 by ANTLR 4.7.1
+// Generated from antlr4/grammar/AnyFX.g4 by ANTLR 4.13.2
 
 
 #include "AnyFXListener.h"
@@ -54,14 +54,384 @@ using namespace AnyFX;
 
 
 using namespace antlrcpp;
+
 using namespace antlr4;
 
-AnyFXParser::AnyFXParser(TokenStream *input) : Parser(input) {
-  _interpreter = new atn::ParserATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);
+namespace {
+
+struct AnyFXParserStaticData final {
+  AnyFXParserStaticData(std::vector<std::string> ruleNames,
+                        std::vector<std::string> literalNames,
+                        std::vector<std::string> symbolicNames)
+      : ruleNames(std::move(ruleNames)), literalNames(std::move(literalNames)),
+        symbolicNames(std::move(symbolicNames)),
+        vocabulary(this->literalNames, this->symbolicNames) {}
+
+  AnyFXParserStaticData(const AnyFXParserStaticData&) = delete;
+  AnyFXParserStaticData(AnyFXParserStaticData&&) = delete;
+  AnyFXParserStaticData& operator=(const AnyFXParserStaticData&) = delete;
+  AnyFXParserStaticData& operator=(AnyFXParserStaticData&&) = delete;
+
+  std::vector<antlr4::dfa::DFA> decisionToDFA;
+  antlr4::atn::PredictionContextCache sharedContextCache;
+  const std::vector<std::string> ruleNames;
+  const std::vector<std::string> literalNames;
+  const std::vector<std::string> symbolicNames;
+  const antlr4::dfa::Vocabulary vocabulary;
+  antlr4::atn::SerializedATNView serializedATN;
+  std::unique_ptr<antlr4::atn::ATN> atn;
+};
+
+::antlr4::internal::OnceFlag anyfxParserOnceFlag;
+#if ANTLR4_USE_THREAD_LOCAL_CACHE
+static thread_local
+#endif
+std::unique_ptr<AnyFXParserStaticData> anyfxParserStaticData = nullptr;
+
+void anyfxParserInitialize() {
+#if ANTLR4_USE_THREAD_LOCAL_CACHE
+  if (anyfxParserStaticData != nullptr) {
+    return;
+  }
+#else
+  assert(anyfxParserStaticData == nullptr);
+#endif
+  auto staticData = std::make_unique<AnyFXParserStaticData>(
+    std::vector<std::string>{
+      "string", "boolean", "preprocess", "entry", "effect", "type", "qualifierExpression", 
+      "structure", "varblock", "varbuffer", "subroutine", "valueList", "valueSingleList", 
+      "variable", "parameter", "parameterList", "functionAttribute", "codeBlock", 
+      "function", "blendStateRow", "renderStateRow", "renderState", "sampler", 
+      "samplerTextureList", "samplerRow", "programRow", "annotation", "program", 
+      "expression", "binaryexp7", "binaryexp6", "binaryexp5", "binaryexp4", 
+      "binaryexp3", "binaryexp2", "binaryexp1", "binaryexpatom", "parantexpression"
+    },
+    std::vector<std::string>{
+      "", "'true'", "'false'", "'#line'", "'struct'", "'constant'", "'rw_buffer'", 
+      "'prototype'", "'subroutine'", "'feedback'", "'slot'", "'shader'", 
+      "'render_state'", "'sampler_state'", "'RenderState'", "'program'", 
+      "';'", "','", "':'", "'('", "')'", "'{'", "'}'", "'['", "']'", "'.'", 
+      "'!'", "'='", "'\"'", "'\\u003F'", "'&'", "'&='", "'|'", "'|='", "'^'", 
+      "'^='", "'~'", "'''", "'#'", "'\\'", "'<'", "'<='", "'>'", "'>='", 
+      "'=='", "'!='", "'&&'", "'||'", "'%'", "'_'", "'+'", "'-'", "'/'", 
+      "'*'"
+    },
+    std::vector<std::string>{
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "SC", 
+      "CO", "COL", "LP", "RP", "LB", "RB", "LL", "RR", "DOT", "NOT", "EQ", 
+      "QO", "QU", "AND", "ANDSET", "OR", "ORSET", "XOR", "XORSET", "CONNJUGATE", 
+      "Q", "NU", "FORWARDSLASH", "LESS", "LESSEQ", "GREATER", "GREATEREQ", 
+      "LOGICEQ", "NOTEQ", "LOGICAND", "LOGICOR", "MOD", "UNDERSC", "ADD_OP", 
+      "SUB_OP", "DIV_OP", "MUL_OP", "INTEGERLITERAL", "COMMENT", "ML_COMMENT", 
+      "FLOATLITERAL", "EXPONENT", "DOUBLELITERAL", "HEX", "IDENTIFIER", 
+      "WS"
+    }
+  );
+  static const int32_t serializedATNSegment[] = {
+  	4,1,62,815,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
+  	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
+  	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
+  	28,2,29,7,29,2,30,7,30,2,31,7,31,2,32,7,32,2,33,7,33,2,34,7,34,2,35,7,
+  	35,2,36,7,36,2,37,7,37,1,0,1,0,1,0,5,0,80,8,0,10,0,12,0,83,9,0,1,0,1,
+  	0,1,0,1,0,5,0,89,8,0,10,0,12,0,92,9,0,1,0,3,0,95,8,0,1,1,1,1,1,1,1,1,
+  	3,1,101,8,1,1,2,1,2,1,2,1,2,1,2,1,2,1,2,5,2,110,8,2,10,2,12,2,113,9,2,
+  	1,2,1,2,1,3,1,3,1,3,1,3,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,
+  	4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,5,4,148,
+  	8,4,10,4,12,4,151,9,4,1,5,1,5,1,5,1,6,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,
+  	5,7,165,8,7,10,7,12,7,168,9,7,1,7,1,7,1,7,1,7,1,7,1,7,1,7,1,7,4,7,178,
+  	8,7,11,7,12,7,179,1,7,1,7,3,7,184,8,7,1,7,1,7,1,7,1,8,1,8,1,8,1,8,1,8,
+  	5,8,194,8,8,10,8,12,8,197,9,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,205,8,8,1,8,
+  	1,8,1,8,1,8,5,8,211,8,8,10,8,12,8,214,9,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,
+  	1,8,1,8,1,8,1,8,3,8,227,8,8,3,8,229,8,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,5,
+  	9,238,8,9,10,9,12,9,241,9,9,1,9,1,9,1,9,1,9,1,9,1,9,3,9,249,8,9,1,9,1,
+  	9,1,9,1,9,4,9,255,8,9,11,9,12,9,256,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,
+  	9,1,9,1,9,3,9,270,8,9,3,9,272,8,9,1,9,1,9,1,10,1,10,1,10,1,10,1,10,1,
+  	10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,3,10,292,8,10,1,
+  	11,1,11,1,11,1,11,1,11,1,11,5,11,300,8,11,10,11,12,11,303,9,11,1,12,1,
+  	12,1,12,1,13,1,13,1,13,1,13,1,13,5,13,313,8,13,10,13,12,13,316,9,13,1,
+  	13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,
+  	13,1,13,1,13,1,13,1,13,1,13,5,13,338,8,13,10,13,12,13,341,9,13,1,13,1,
+  	13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,
+  	13,4,13,359,8,13,11,13,12,13,360,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,
+  	13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,
+  	13,1,13,1,13,1,13,1,13,1,13,1,13,5,13,391,8,13,10,13,12,13,394,9,13,1,
+  	13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,
+  	13,1,13,3,13,412,8,13,1,13,1,13,1,13,3,13,417,8,13,1,13,1,13,1,14,1,14,
+  	1,14,1,14,3,14,425,8,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,
+  	1,14,1,14,3,14,438,8,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,3,14,447,8,
+  	14,1,14,1,14,5,14,451,8,14,10,14,12,14,454,9,14,1,14,1,14,1,14,1,14,1,
+  	14,1,14,1,14,3,14,463,8,14,1,14,1,14,3,14,467,8,14,1,15,1,15,1,15,1,15,
+  	1,15,1,15,1,15,5,15,476,8,15,10,15,12,15,479,9,15,3,15,481,8,15,1,15,
+  	1,15,1,16,1,16,1,16,1,16,1,16,1,16,1,16,1,16,1,16,1,16,1,16,3,16,496,
+  	8,16,1,17,1,17,5,17,500,8,17,10,17,12,17,503,9,17,1,17,1,17,3,17,507,
+  	8,17,1,18,1,18,1,18,5,18,512,8,18,10,18,12,18,515,9,18,1,18,1,18,3,18,
+  	519,8,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,1,19,1,19,1,19,
+  	1,19,1,19,1,19,1,19,1,19,1,19,1,20,1,20,1,20,1,20,1,20,1,20,1,21,1,21,
+  	1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,
+  	5,21,561,8,21,10,21,12,21,564,9,21,1,21,1,21,3,21,568,8,21,1,22,1,22,
+  	1,22,1,22,1,22,5,22,575,8,22,10,22,12,22,578,9,22,1,22,1,22,1,22,1,22,
+  	1,22,1,22,1,22,1,22,1,22,1,22,5,22,590,8,22,10,22,12,22,593,9,22,1,22,
+  	1,22,1,22,1,22,1,22,1,22,1,22,1,22,5,22,603,8,22,10,22,12,22,606,9,22,
+  	1,22,1,22,3,22,610,8,22,1,23,1,23,1,23,1,23,1,23,5,23,617,8,23,10,23,
+  	12,23,620,9,23,1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,
+  	1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,3,24,641,8,24,1,25,1,25,1,25,
+  	1,25,1,25,1,25,1,25,1,25,3,25,651,8,25,1,25,1,25,1,25,1,25,1,25,5,25,
+  	658,8,25,10,25,12,25,661,9,25,1,25,1,25,1,25,1,25,1,25,1,25,1,25,1,25,
+  	3,25,671,8,25,1,26,1,26,1,26,1,26,1,26,1,26,1,26,1,26,1,26,1,26,3,26,
+  	683,8,26,1,26,1,26,1,26,5,26,688,8,26,10,26,12,26,691,9,26,1,26,1,26,
+  	1,26,1,27,1,27,1,27,1,27,1,27,1,27,3,27,702,8,27,1,27,1,27,1,27,1,27,
+  	1,27,5,27,709,8,27,10,27,12,27,712,9,27,1,27,1,27,1,27,1,28,1,28,1,28,
+  	1,29,1,29,1,29,1,29,1,29,1,29,5,29,726,8,29,10,29,12,29,729,9,29,1,30,
+  	1,30,1,30,1,30,1,30,1,30,5,30,737,8,30,10,30,12,30,740,9,30,1,31,1,31,
+  	1,31,1,31,1,31,1,31,5,31,748,8,31,10,31,12,31,751,9,31,1,32,1,32,1,32,
+  	1,32,1,32,1,32,5,32,759,8,32,10,32,12,32,762,9,32,1,33,1,33,1,33,1,33,
+  	1,33,1,33,5,33,770,8,33,10,33,12,33,773,9,33,1,34,1,34,1,34,1,34,1,34,
+  	1,34,5,34,781,8,34,10,34,12,34,784,9,34,1,35,3,35,787,8,35,1,35,1,35,
+  	1,35,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,36,
+  	1,36,1,36,1,36,3,36,808,8,36,1,37,1,37,1,37,1,37,1,37,1,37,2,111,149,
+  	0,38,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,
+  	46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,0,8,1,0,28,28,1,0,37,37,
+  	1,0,21,22,1,0,44,45,1,0,40,43,1,0,50,51,1,0,52,53,2,0,26,26,51,51,870,
+  	0,94,1,0,0,0,2,100,1,0,0,0,4,111,1,0,0,0,6,116,1,0,0,0,8,149,1,0,0,0,
+  	10,152,1,0,0,0,12,155,1,0,0,0,14,166,1,0,0,0,16,195,1,0,0,0,18,239,1,
+  	0,0,0,20,291,1,0,0,0,22,293,1,0,0,0,24,304,1,0,0,0,26,314,1,0,0,0,28,
+  	424,1,0,0,0,30,468,1,0,0,0,32,495,1,0,0,0,34,506,1,0,0,0,36,513,1,0,0,
+  	0,38,529,1,0,0,0,40,538,1,0,0,0,42,567,1,0,0,0,44,609,1,0,0,0,46,611,
+  	1,0,0,0,48,640,1,0,0,0,50,670,1,0,0,0,52,672,1,0,0,0,54,695,1,0,0,0,56,
+  	716,1,0,0,0,58,719,1,0,0,0,60,730,1,0,0,0,62,741,1,0,0,0,64,752,1,0,0,
+  	0,66,763,1,0,0,0,68,774,1,0,0,0,70,786,1,0,0,0,72,807,1,0,0,0,74,809,
+  	1,0,0,0,76,81,5,28,0,0,77,78,8,0,0,0,78,80,6,0,-1,0,79,77,1,0,0,0,80,
+  	83,1,0,0,0,81,79,1,0,0,0,81,82,1,0,0,0,82,84,1,0,0,0,83,81,1,0,0,0,84,
+  	95,5,28,0,0,85,90,5,37,0,0,86,87,8,1,0,0,87,89,6,0,-1,0,88,86,1,0,0,0,
+  	89,92,1,0,0,0,90,88,1,0,0,0,90,91,1,0,0,0,91,93,1,0,0,0,92,90,1,0,0,0,
+  	93,95,5,37,0,0,94,76,1,0,0,0,94,85,1,0,0,0,95,1,1,0,0,0,96,97,5,1,0,0,
+  	97,101,6,1,-1,0,98,99,5,2,0,0,99,101,6,1,-1,0,100,96,1,0,0,0,100,98,1,
+  	0,0,0,101,3,1,0,0,0,102,103,6,2,-1,0,103,104,5,3,0,0,104,105,5,54,0,0,
+  	105,106,3,0,0,0,106,107,6,2,-1,0,107,110,1,0,0,0,108,110,9,0,0,0,109,
+  	102,1,0,0,0,109,108,1,0,0,0,110,113,1,0,0,0,111,112,1,0,0,0,111,109,1,
+  	0,0,0,112,114,1,0,0,0,113,111,1,0,0,0,114,115,5,0,0,1,115,5,1,0,0,0,116,
+  	117,3,8,4,0,117,118,6,3,-1,0,118,119,5,0,0,1,119,7,1,0,0,0,120,121,3,
+  	26,13,0,121,122,6,4,-1,0,122,148,1,0,0,0,123,124,3,42,21,0,124,125,6,
+  	4,-1,0,125,148,1,0,0,0,126,127,3,36,18,0,127,128,6,4,-1,0,128,148,1,0,
+  	0,0,129,130,3,54,27,0,130,131,6,4,-1,0,131,148,1,0,0,0,132,133,3,14,7,
+  	0,133,134,6,4,-1,0,134,148,1,0,0,0,135,136,3,16,8,0,136,137,6,4,-1,0,
+  	137,148,1,0,0,0,138,139,3,18,9,0,139,140,6,4,-1,0,140,148,1,0,0,0,141,
+  	142,3,20,10,0,142,143,6,4,-1,0,143,148,1,0,0,0,144,145,3,44,22,0,145,
+  	146,6,4,-1,0,146,148,1,0,0,0,147,120,1,0,0,0,147,123,1,0,0,0,147,126,
+  	1,0,0,0,147,129,1,0,0,0,147,132,1,0,0,0,147,135,1,0,0,0,147,138,1,0,0,
+  	0,147,141,1,0,0,0,147,144,1,0,0,0,148,151,1,0,0,0,149,150,1,0,0,0,149,
+  	147,1,0,0,0,150,9,1,0,0,0,151,149,1,0,0,0,152,153,5,61,0,0,153,154,6,
+  	5,-1,0,154,11,1,0,0,0,155,156,5,61,0,0,156,157,3,74,37,0,157,158,6,6,
+  	-1,0,158,13,1,0,0,0,159,160,5,61,0,0,160,165,6,7,-1,0,161,162,3,12,6,
+  	0,162,163,6,7,-1,0,163,165,1,0,0,0,164,159,1,0,0,0,164,161,1,0,0,0,165,
+  	168,1,0,0,0,166,164,1,0,0,0,166,167,1,0,0,0,167,169,1,0,0,0,168,166,1,
+  	0,0,0,169,170,5,4,0,0,170,171,5,61,0,0,171,183,6,7,-1,0,172,177,5,21,
+  	0,0,173,174,3,28,14,0,174,175,5,16,0,0,175,176,6,7,-1,0,176,178,1,0,0,
+  	0,177,173,1,0,0,0,178,179,1,0,0,0,179,177,1,0,0,0,179,180,1,0,0,0,180,
+  	181,1,0,0,0,181,182,5,22,0,0,182,184,1,0,0,0,183,172,1,0,0,0,183,184,
+  	1,0,0,0,184,185,1,0,0,0,185,186,5,16,0,0,186,187,6,7,-1,0,187,15,1,0,
+  	0,0,188,189,5,61,0,0,189,194,6,8,-1,0,190,191,3,12,6,0,191,192,6,8,-1,
+  	0,192,194,1,0,0,0,193,188,1,0,0,0,193,190,1,0,0,0,194,197,1,0,0,0,195,
+  	193,1,0,0,0,195,196,1,0,0,0,196,198,1,0,0,0,197,195,1,0,0,0,198,199,5,
+  	5,0,0,199,200,5,61,0,0,200,204,6,8,-1,0,201,202,3,52,26,0,202,203,6,8,
+  	-1,0,203,205,1,0,0,0,204,201,1,0,0,0,204,205,1,0,0,0,205,206,1,0,0,0,
+  	206,212,5,21,0,0,207,208,3,26,13,0,208,209,6,8,-1,0,209,211,1,0,0,0,210,
+  	207,1,0,0,0,211,214,1,0,0,0,212,210,1,0,0,0,212,213,1,0,0,0,213,215,1,
+  	0,0,0,214,212,1,0,0,0,215,228,5,22,0,0,216,217,5,61,0,0,217,226,6,8,-1,
+  	0,218,219,5,23,0,0,219,220,5,24,0,0,220,227,6,8,-1,0,221,222,5,23,0,0,
+  	222,223,3,56,28,0,223,224,5,24,0,0,224,225,6,8,-1,0,225,227,1,0,0,0,226,
+  	218,1,0,0,0,226,221,1,0,0,0,226,227,1,0,0,0,227,229,1,0,0,0,228,216,1,
+  	0,0,0,228,229,1,0,0,0,229,230,1,0,0,0,230,231,5,16,0,0,231,17,1,0,0,0,
+  	232,233,5,61,0,0,233,238,6,9,-1,0,234,235,3,12,6,0,235,236,6,9,-1,0,236,
+  	238,1,0,0,0,237,232,1,0,0,0,237,234,1,0,0,0,238,241,1,0,0,0,239,237,1,
+  	0,0,0,239,240,1,0,0,0,240,242,1,0,0,0,241,239,1,0,0,0,242,243,5,6,0,0,
+  	243,244,5,61,0,0,244,248,6,9,-1,0,245,246,3,52,26,0,246,247,6,9,-1,0,
+  	247,249,1,0,0,0,248,245,1,0,0,0,248,249,1,0,0,0,249,250,1,0,0,0,250,254,
+  	5,21,0,0,251,252,3,26,13,0,252,253,6,9,-1,0,253,255,1,0,0,0,254,251,1,
+  	0,0,0,255,256,1,0,0,0,256,254,1,0,0,0,256,257,1,0,0,0,257,258,1,0,0,0,
+  	258,271,5,22,0,0,259,260,5,61,0,0,260,269,6,9,-1,0,261,262,5,23,0,0,262,
+  	263,5,24,0,0,263,270,6,9,-1,0,264,265,5,23,0,0,265,266,3,56,28,0,266,
+  	267,5,24,0,0,267,268,6,9,-1,0,268,270,1,0,0,0,269,261,1,0,0,0,269,264,
+  	1,0,0,0,269,270,1,0,0,0,270,272,1,0,0,0,271,259,1,0,0,0,271,272,1,0,0,
+  	0,272,273,1,0,0,0,273,274,5,16,0,0,274,19,1,0,0,0,275,276,5,7,0,0,276,
+  	277,3,10,5,0,277,278,5,61,0,0,278,279,6,10,-1,0,279,280,3,30,15,0,280,
+  	281,5,16,0,0,281,282,6,10,-1,0,282,292,1,0,0,0,283,284,5,8,0,0,284,285,
+  	5,19,0,0,285,286,5,61,0,0,286,287,5,20,0,0,287,288,6,10,-1,0,288,289,
+  	3,36,18,0,289,290,6,10,-1,0,290,292,1,0,0,0,291,275,1,0,0,0,291,283,1,
+  	0,0,0,292,21,1,0,0,0,293,294,3,56,28,0,294,301,6,11,-1,0,295,296,5,17,
+  	0,0,296,297,3,56,28,0,297,298,6,11,-1,0,298,300,1,0,0,0,299,295,1,0,0,
+  	0,300,303,1,0,0,0,301,299,1,0,0,0,301,302,1,0,0,0,302,23,1,0,0,0,303,
+  	301,1,0,0,0,304,305,3,56,28,0,305,306,6,12,-1,0,306,25,1,0,0,0,307,308,
+  	5,61,0,0,308,313,6,13,-1,0,309,310,3,12,6,0,310,311,6,13,-1,0,311,313,
+  	1,0,0,0,312,307,1,0,0,0,312,309,1,0,0,0,313,316,1,0,0,0,314,312,1,0,0,
+  	0,314,315,1,0,0,0,315,317,1,0,0,0,316,314,1,0,0,0,317,318,3,10,5,0,318,
+  	319,5,61,0,0,319,411,6,13,-1,0,320,321,5,23,0,0,321,322,5,24,0,0,322,
+  	323,5,27,0,0,323,324,6,13,-1,0,324,325,5,21,0,0,325,326,3,10,5,0,326,
+  	327,5,19,0,0,327,328,3,22,11,0,328,329,5,20,0,0,329,339,6,13,-1,0,330,
+  	331,5,17,0,0,331,332,3,10,5,0,332,333,5,19,0,0,333,334,3,22,11,0,334,
+  	335,5,20,0,0,335,336,6,13,-1,0,336,338,1,0,0,0,337,330,1,0,0,0,338,341,
+  	1,0,0,0,339,337,1,0,0,0,339,340,1,0,0,0,340,342,1,0,0,0,341,339,1,0,0,
+  	0,342,343,5,22,0,0,343,412,1,0,0,0,344,345,5,23,0,0,345,346,5,24,0,0,
+  	346,347,5,27,0,0,347,348,6,13,-1,0,348,349,5,21,0,0,349,350,3,22,11,0,
+  	350,351,5,22,0,0,351,352,6,13,-1,0,352,412,1,0,0,0,353,354,5,23,0,0,354,
+  	355,3,56,28,0,355,356,5,24,0,0,356,357,6,13,-1,0,357,359,1,0,0,0,358,
+  	353,1,0,0,0,359,360,1,0,0,0,360,358,1,0,0,0,360,361,1,0,0,0,361,412,1,
+  	0,0,0,362,363,5,23,0,0,363,364,3,56,28,0,364,365,5,24,0,0,365,366,6,13,
+  	-1,0,366,367,5,27,0,0,367,368,5,21,0,0,368,369,3,22,11,0,369,370,5,22,
+  	0,0,370,371,6,13,-1,0,371,412,1,0,0,0,372,373,5,23,0,0,373,374,3,56,28,
+  	0,374,375,5,24,0,0,375,376,6,13,-1,0,376,377,5,27,0,0,377,378,5,21,0,
+  	0,378,379,3,10,5,0,379,380,5,19,0,0,380,381,3,22,11,0,381,382,5,20,0,
+  	0,382,392,6,13,-1,0,383,384,5,17,0,0,384,385,3,10,5,0,385,386,5,19,0,
+  	0,386,387,3,22,11,0,387,388,5,20,0,0,388,389,6,13,-1,0,389,391,1,0,0,
+  	0,390,383,1,0,0,0,391,394,1,0,0,0,392,390,1,0,0,0,392,393,1,0,0,0,393,
+  	395,1,0,0,0,394,392,1,0,0,0,395,396,5,22,0,0,396,412,1,0,0,0,397,398,
+  	5,23,0,0,398,399,5,24,0,0,399,412,6,13,-1,0,400,401,5,27,0,0,401,402,
+  	3,10,5,0,402,403,5,19,0,0,403,404,3,22,11,0,404,405,5,20,0,0,405,406,
+  	6,13,-1,0,406,412,1,0,0,0,407,408,5,27,0,0,408,409,3,24,12,0,409,410,
+  	6,13,-1,0,410,412,1,0,0,0,411,320,1,0,0,0,411,344,1,0,0,0,411,358,1,0,
+  	0,0,411,362,1,0,0,0,411,372,1,0,0,0,411,397,1,0,0,0,411,400,1,0,0,0,411,
+  	407,1,0,0,0,411,412,1,0,0,0,412,416,1,0,0,0,413,414,3,52,26,0,414,415,
+  	6,13,-1,0,415,417,1,0,0,0,416,413,1,0,0,0,416,417,1,0,0,0,417,418,1,0,
+  	0,0,418,419,5,16,0,0,419,27,1,0,0,0,420,421,5,23,0,0,421,422,5,61,0,0,
+  	422,423,5,24,0,0,423,425,6,14,-1,0,424,420,1,0,0,0,424,425,1,0,0,0,425,
+  	437,1,0,0,0,426,427,5,23,0,0,427,428,5,9,0,0,428,429,5,27,0,0,429,430,
+  	5,19,0,0,430,431,3,56,28,0,431,432,5,17,0,0,432,433,3,56,28,0,433,434,
+  	5,20,0,0,434,435,5,24,0,0,435,436,6,14,-1,0,436,438,1,0,0,0,437,426,1,
+  	0,0,0,437,438,1,0,0,0,438,446,1,0,0,0,439,440,5,23,0,0,440,441,5,10,0,
+  	0,441,442,5,27,0,0,442,443,3,56,28,0,443,444,5,24,0,0,444,445,6,14,-1,
+  	0,445,447,1,0,0,0,446,439,1,0,0,0,446,447,1,0,0,0,447,452,1,0,0,0,448,
+  	449,5,61,0,0,449,451,6,14,-1,0,450,448,1,0,0,0,451,454,1,0,0,0,452,450,
+  	1,0,0,0,452,453,1,0,0,0,453,455,1,0,0,0,454,452,1,0,0,0,455,456,3,10,
+  	5,0,456,457,5,61,0,0,457,466,6,14,-1,0,458,462,5,23,0,0,459,460,3,56,
+  	28,0,460,461,6,14,-1,0,461,463,1,0,0,0,462,459,1,0,0,0,462,463,1,0,0,
+  	0,463,464,1,0,0,0,464,465,5,24,0,0,465,467,6,14,-1,0,466,458,1,0,0,0,
+  	466,467,1,0,0,0,467,29,1,0,0,0,468,480,5,19,0,0,469,470,3,28,14,0,470,
+  	477,6,15,-1,0,471,472,5,17,0,0,472,473,3,28,14,0,473,474,6,15,-1,0,474,
+  	476,1,0,0,0,475,471,1,0,0,0,476,479,1,0,0,0,477,475,1,0,0,0,477,478,1,
+  	0,0,0,478,481,1,0,0,0,479,477,1,0,0,0,480,469,1,0,0,0,480,481,1,0,0,0,
+  	481,482,1,0,0,0,482,483,5,20,0,0,483,31,1,0,0,0,484,485,5,23,0,0,485,
+  	486,5,61,0,0,486,487,5,24,0,0,487,488,5,27,0,0,488,489,3,56,28,0,489,
+  	490,6,16,-1,0,490,496,1,0,0,0,491,492,5,23,0,0,492,493,5,61,0,0,493,494,
+  	5,24,0,0,494,496,6,16,-1,0,495,484,1,0,0,0,495,491,1,0,0,0,496,33,1,0,
+  	0,0,497,501,5,21,0,0,498,500,3,34,17,0,499,498,1,0,0,0,500,503,1,0,0,
+  	0,501,499,1,0,0,0,501,502,1,0,0,0,502,504,1,0,0,0,503,501,1,0,0,0,504,
+  	507,5,22,0,0,505,507,8,2,0,0,506,497,1,0,0,0,506,505,1,0,0,0,507,35,1,
+  	0,0,0,508,509,3,32,16,0,509,510,6,18,-1,0,510,512,1,0,0,0,511,508,1,0,
+  	0,0,512,515,1,0,0,0,513,511,1,0,0,0,513,514,1,0,0,0,514,518,1,0,0,0,515,
+  	513,1,0,0,0,516,517,5,11,0,0,517,519,6,18,-1,0,518,516,1,0,0,0,518,519,
+  	1,0,0,0,519,520,1,0,0,0,520,521,3,10,5,0,521,522,5,61,0,0,522,523,6,18,
+  	-1,0,523,524,3,30,15,0,524,525,6,18,-1,0,525,526,3,34,17,0,526,527,6,
+  	18,-1,0,527,528,6,18,-1,0,528,37,1,0,0,0,529,530,5,61,0,0,530,531,5,23,
+  	0,0,531,532,3,56,28,0,532,533,5,24,0,0,533,534,5,27,0,0,534,535,3,56,
+  	28,0,535,536,5,16,0,0,536,537,6,19,-1,0,537,39,1,0,0,0,538,539,5,61,0,
+  	0,539,540,5,27,0,0,540,541,3,56,28,0,541,542,5,16,0,0,542,543,6,20,-1,
+  	0,543,41,1,0,0,0,544,545,5,12,0,0,545,546,5,61,0,0,546,547,6,21,-1,0,
+  	547,548,5,16,0,0,548,568,6,21,-1,0,549,550,5,12,0,0,550,551,5,61,0,0,
+  	551,552,6,21,-1,0,552,553,5,21,0,0,553,562,6,21,-1,0,554,555,3,40,20,
+  	0,555,556,6,21,-1,0,556,561,1,0,0,0,557,558,3,38,19,0,558,559,6,21,-1,
+  	0,559,561,1,0,0,0,560,554,1,0,0,0,560,557,1,0,0,0,561,564,1,0,0,0,562,
+  	560,1,0,0,0,562,563,1,0,0,0,563,565,1,0,0,0,564,562,1,0,0,0,565,566,5,
+  	22,0,0,566,568,5,16,0,0,567,544,1,0,0,0,567,549,1,0,0,0,568,43,1,0,0,
+  	0,569,570,5,61,0,0,570,575,6,22,-1,0,571,572,3,12,6,0,572,573,6,22,-1,
+  	0,573,575,1,0,0,0,574,569,1,0,0,0,574,571,1,0,0,0,575,578,1,0,0,0,576,
+  	574,1,0,0,0,576,577,1,0,0,0,577,579,1,0,0,0,578,576,1,0,0,0,579,580,5,
+  	13,0,0,580,581,5,61,0,0,581,582,6,22,-1,0,582,583,5,16,0,0,583,610,6,
+  	22,-1,0,584,585,5,61,0,0,585,590,6,22,-1,0,586,587,3,12,6,0,587,588,6,
+  	22,-1,0,588,590,1,0,0,0,589,584,1,0,0,0,589,586,1,0,0,0,590,593,1,0,0,
+  	0,591,589,1,0,0,0,591,592,1,0,0,0,592,594,1,0,0,0,593,591,1,0,0,0,594,
+  	595,5,13,0,0,595,596,5,61,0,0,596,597,6,22,-1,0,597,598,6,22,-1,0,598,
+  	604,5,21,0,0,599,600,3,48,24,0,600,601,6,22,-1,0,601,603,1,0,0,0,602,
+  	599,1,0,0,0,603,606,1,0,0,0,604,602,1,0,0,0,604,605,1,0,0,0,605,607,1,
+  	0,0,0,606,604,1,0,0,0,607,608,5,22,0,0,608,610,5,16,0,0,609,576,1,0,0,
+  	0,609,591,1,0,0,0,610,45,1,0,0,0,611,612,5,61,0,0,612,618,6,23,-1,0,613,
+  	614,5,17,0,0,614,615,5,61,0,0,615,617,6,23,-1,0,616,613,1,0,0,0,617,620,
+  	1,0,0,0,618,616,1,0,0,0,618,619,1,0,0,0,619,47,1,0,0,0,620,618,1,0,0,
+  	0,621,622,5,61,0,0,622,623,5,27,0,0,623,624,5,61,0,0,624,625,5,16,0,0,
+  	625,641,6,24,-1,0,626,627,5,61,0,0,627,628,5,27,0,0,628,629,3,56,28,0,
+  	629,630,5,16,0,0,630,631,6,24,-1,0,631,641,1,0,0,0,632,633,5,61,0,0,633,
+  	634,5,27,0,0,634,635,5,21,0,0,635,636,3,46,23,0,636,637,5,22,0,0,637,
+  	638,5,16,0,0,638,639,6,24,-1,0,639,641,1,0,0,0,640,621,1,0,0,0,640,626,
+  	1,0,0,0,640,632,1,0,0,0,641,49,1,0,0,0,642,643,5,61,0,0,643,644,5,27,
+  	0,0,644,645,5,61,0,0,645,650,5,19,0,0,646,647,5,61,0,0,647,648,5,27,0,
+  	0,648,649,5,61,0,0,649,651,6,25,-1,0,650,646,1,0,0,0,650,651,1,0,0,0,
+  	651,659,1,0,0,0,652,653,5,17,0,0,653,654,5,61,0,0,654,655,5,27,0,0,655,
+  	656,5,61,0,0,656,658,6,25,-1,0,657,652,1,0,0,0,658,661,1,0,0,0,659,657,
+  	1,0,0,0,659,660,1,0,0,0,660,662,1,0,0,0,661,659,1,0,0,0,662,663,5,20,
+  	0,0,663,664,5,16,0,0,664,671,6,25,-1,0,665,666,5,14,0,0,666,667,5,27,
+  	0,0,667,668,5,61,0,0,668,669,5,16,0,0,669,671,6,25,-1,0,670,642,1,0,0,
+  	0,670,665,1,0,0,0,671,51,1,0,0,0,672,689,5,23,0,0,673,674,3,10,5,0,674,
+  	675,5,61,0,0,675,682,5,27,0,0,676,677,3,0,0,0,677,678,6,26,-1,0,678,683,
+  	1,0,0,0,679,680,3,56,28,0,680,681,6,26,-1,0,681,683,1,0,0,0,682,676,1,
+  	0,0,0,682,679,1,0,0,0,683,684,1,0,0,0,684,685,5,16,0,0,685,686,6,26,-1,
+  	0,686,688,1,0,0,0,687,673,1,0,0,0,688,691,1,0,0,0,689,687,1,0,0,0,689,
+  	690,1,0,0,0,690,692,1,0,0,0,691,689,1,0,0,0,692,693,5,24,0,0,693,694,
+  	6,26,-1,0,694,53,1,0,0,0,695,696,5,15,0,0,696,697,5,61,0,0,697,701,6,
+  	27,-1,0,698,699,3,52,26,0,699,700,6,27,-1,0,700,702,1,0,0,0,701,698,1,
+  	0,0,0,701,702,1,0,0,0,702,703,1,0,0,0,703,704,5,21,0,0,704,710,6,27,-1,
+  	0,705,706,3,50,25,0,706,707,6,27,-1,0,707,709,1,0,0,0,708,705,1,0,0,0,
+  	709,712,1,0,0,0,710,708,1,0,0,0,710,711,1,0,0,0,711,713,1,0,0,0,712,710,
+  	1,0,0,0,713,714,5,22,0,0,714,715,5,16,0,0,715,55,1,0,0,0,716,717,3,58,
+  	29,0,717,718,6,28,-1,0,718,57,1,0,0,0,719,720,3,60,30,0,720,727,6,29,
+  	-1,0,721,722,5,47,0,0,722,723,3,60,30,0,723,724,6,29,-1,0,724,726,1,0,
+  	0,0,725,721,1,0,0,0,726,729,1,0,0,0,727,725,1,0,0,0,727,728,1,0,0,0,728,
+  	59,1,0,0,0,729,727,1,0,0,0,730,731,3,62,31,0,731,738,6,30,-1,0,732,733,
+  	5,46,0,0,733,734,3,62,31,0,734,735,6,30,-1,0,735,737,1,0,0,0,736,732,
+  	1,0,0,0,737,740,1,0,0,0,738,736,1,0,0,0,738,739,1,0,0,0,739,61,1,0,0,
+  	0,740,738,1,0,0,0,741,742,3,64,32,0,742,749,6,31,-1,0,743,744,7,3,0,0,
+  	744,745,3,64,32,0,745,746,6,31,-1,0,746,748,1,0,0,0,747,743,1,0,0,0,748,
+  	751,1,0,0,0,749,747,1,0,0,0,749,750,1,0,0,0,750,63,1,0,0,0,751,749,1,
+  	0,0,0,752,753,3,66,33,0,753,760,6,32,-1,0,754,755,7,4,0,0,755,756,3,66,
+  	33,0,756,757,6,32,-1,0,757,759,1,0,0,0,758,754,1,0,0,0,759,762,1,0,0,
+  	0,760,758,1,0,0,0,760,761,1,0,0,0,761,65,1,0,0,0,762,760,1,0,0,0,763,
+  	764,3,68,34,0,764,771,6,33,-1,0,765,766,7,5,0,0,766,767,3,68,34,0,767,
+  	768,6,33,-1,0,768,770,1,0,0,0,769,765,1,0,0,0,770,773,1,0,0,0,771,769,
+  	1,0,0,0,771,772,1,0,0,0,772,67,1,0,0,0,773,771,1,0,0,0,774,775,3,70,35,
+  	0,775,782,6,34,-1,0,776,777,7,6,0,0,777,778,3,70,35,0,778,779,6,34,-1,
+  	0,779,781,1,0,0,0,780,776,1,0,0,0,781,784,1,0,0,0,782,780,1,0,0,0,782,
+  	783,1,0,0,0,783,69,1,0,0,0,784,782,1,0,0,0,785,787,7,7,0,0,786,785,1,
+  	0,0,0,786,787,1,0,0,0,787,788,1,0,0,0,788,789,3,72,36,0,789,790,6,35,
+  	-1,0,790,71,1,0,0,0,791,792,5,54,0,0,792,808,6,36,-1,0,793,794,5,57,0,
+  	0,794,808,6,36,-1,0,795,796,5,59,0,0,796,808,6,36,-1,0,797,798,5,60,0,
+  	0,798,808,6,36,-1,0,799,800,5,61,0,0,800,808,6,36,-1,0,801,802,3,2,1,
+  	0,802,803,6,36,-1,0,803,808,1,0,0,0,804,805,3,74,37,0,805,806,6,36,-1,
+  	0,806,808,1,0,0,0,807,791,1,0,0,0,807,793,1,0,0,0,807,795,1,0,0,0,807,
+  	797,1,0,0,0,807,799,1,0,0,0,807,801,1,0,0,0,807,804,1,0,0,0,808,73,1,
+  	0,0,0,809,810,5,19,0,0,810,811,3,56,28,0,811,812,5,20,0,0,812,813,6,37,
+  	-1,0,813,75,1,0,0,0,72,81,90,94,100,109,111,147,149,164,166,179,183,193,
+  	195,204,212,226,228,237,239,248,256,269,271,291,301,312,314,339,360,392,
+  	411,416,424,437,446,452,462,466,477,480,495,501,506,513,518,560,562,567,
+  	574,576,589,591,604,609,618,640,650,659,670,682,689,701,710,727,738,749,
+  	760,771,782,786,807
+  };
+  staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
+
+  antlr4::atn::ATNDeserializer deserializer;
+  staticData->atn = deserializer.deserialize(staticData->serializedATN);
+
+  const size_t count = staticData->atn->getNumberOfDecisions();
+  staticData->decisionToDFA.reserve(count);
+  for (size_t i = 0; i < count; i++) { 
+    staticData->decisionToDFA.emplace_back(staticData->atn->getDecisionState(i), i);
+  }
+  anyfxParserStaticData = std::move(staticData);
+}
+
+}
+
+AnyFXParser::AnyFXParser(TokenStream *input) : AnyFXParser(input, antlr4::atn::ParserATNSimulatorOptions()) {}
+
+AnyFXParser::AnyFXParser(TokenStream *input, const antlr4::atn::ParserATNSimulatorOptions &options) : Parser(input) {
+  AnyFXParser::initialize();
+  _interpreter = new atn::ParserATNSimulator(this, *anyfxParserStaticData->atn, anyfxParserStaticData->decisionToDFA, anyfxParserStaticData->sharedContextCache, options);
 }
 
 AnyFXParser::~AnyFXParser() {
   delete _interpreter;
+}
+
+const atn::ATN& AnyFXParser::getATN() const {
+  return *anyfxParserStaticData->atn;
 }
 
 std::string AnyFXParser::getGrammarFileName() const {
@@ -69,11 +439,15 @@ std::string AnyFXParser::getGrammarFileName() const {
 }
 
 const std::vector<std::string>& AnyFXParser::getRuleNames() const {
-  return _ruleNames;
+  return anyfxParserStaticData->ruleNames;
 }
 
-dfa::Vocabulary& AnyFXParser::getVocabulary() const {
-  return _vocabulary;
+const dfa::Vocabulary& AnyFXParser::getVocabulary() const {
+  return anyfxParserStaticData->vocabulary;
+}
+
+antlr4::atn::SerializedATNView AnyFXParser::getSerializedATN() const {
+  return anyfxParserStaticData->serializedATN;
 }
 
 
@@ -121,7 +495,11 @@ AnyFXParser::StringContext* AnyFXParser::string() {
   enterRule(_localctx, 0, AnyFXParser::RuleString);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -136,78 +514,18 @@ AnyFXParser::StringContext* AnyFXParser::string() {
         _errHandler->sync(this);
         _la = _input->LA(1);
         while ((((_la & ~ 0x3fULL) == 0) &&
-          ((1ULL << _la) & ((1ULL << AnyFXParser::T__0)
-          | (1ULL << AnyFXParser::T__1)
-          | (1ULL << AnyFXParser::T__2)
-          | (1ULL << AnyFXParser::T__3)
-          | (1ULL << AnyFXParser::T__4)
-          | (1ULL << AnyFXParser::T__5)
-          | (1ULL << AnyFXParser::T__6)
-          | (1ULL << AnyFXParser::T__7)
-          | (1ULL << AnyFXParser::T__8)
-          | (1ULL << AnyFXParser::T__9)
-          | (1ULL << AnyFXParser::T__10)
-          | (1ULL << AnyFXParser::T__11)
-          | (1ULL << AnyFXParser::T__12)
-          | (1ULL << AnyFXParser::T__13)
-          | (1ULL << AnyFXParser::T__14)
-          | (1ULL << AnyFXParser::SC)
-          | (1ULL << AnyFXParser::CO)
-          | (1ULL << AnyFXParser::COL)
-          | (1ULL << AnyFXParser::LP)
-          | (1ULL << AnyFXParser::RP)
-          | (1ULL << AnyFXParser::LB)
-          | (1ULL << AnyFXParser::RB)
-          | (1ULL << AnyFXParser::LL)
-          | (1ULL << AnyFXParser::RR)
-          | (1ULL << AnyFXParser::DOT)
-          | (1ULL << AnyFXParser::NOT)
-          | (1ULL << AnyFXParser::EQ)
-          | (1ULL << AnyFXParser::QU)
-          | (1ULL << AnyFXParser::AND)
-          | (1ULL << AnyFXParser::ANDSET)
-          | (1ULL << AnyFXParser::OR)
-          | (1ULL << AnyFXParser::ORSET)
-          | (1ULL << AnyFXParser::XOR)
-          | (1ULL << AnyFXParser::XORSET)
-          | (1ULL << AnyFXParser::CONNJUGATE)
-          | (1ULL << AnyFXParser::Q)
-          | (1ULL << AnyFXParser::NU)
-          | (1ULL << AnyFXParser::FORWARDSLASH)
-          | (1ULL << AnyFXParser::LESS)
-          | (1ULL << AnyFXParser::LESSEQ)
-          | (1ULL << AnyFXParser::GREATER)
-          | (1ULL << AnyFXParser::GREATEREQ)
-          | (1ULL << AnyFXParser::LOGICEQ)
-          | (1ULL << AnyFXParser::NOTEQ)
-          | (1ULL << AnyFXParser::LOGICAND)
-          | (1ULL << AnyFXParser::LOGICOR)
-          | (1ULL << AnyFXParser::MOD)
-          | (1ULL << AnyFXParser::UNDERSC)
-          | (1ULL << AnyFXParser::ADD_OP)
-          | (1ULL << AnyFXParser::SUB_OP)
-          | (1ULL << AnyFXParser::DIV_OP)
-          | (1ULL << AnyFXParser::MUL_OP)
-          | (1ULL << AnyFXParser::INTEGERLITERAL)
-          | (1ULL << AnyFXParser::COMMENT)
-          | (1ULL << AnyFXParser::ML_COMMENT)
-          | (1ULL << AnyFXParser::FLOATLITERAL)
-          | (1ULL << AnyFXParser::EXPONENT)
-          | (1ULL << AnyFXParser::DOUBLELITERAL)
-          | (1ULL << AnyFXParser::HEX)
-          | (1ULL << AnyFXParser::IDENTIFIER)
-          | (1ULL << AnyFXParser::WS))) != 0)) {
+          ((1ULL << _la) & 9223372036586340350) != 0)) {
           setState(77);
-          dynamic_cast<StringContext *>(_localctx)->data = _input->LT(1);
+          antlrcpp::downCast<StringContext *>(_localctx)->data = _input->LT(1);
           _la = _input->LA(1);
           if (_la == 0 || _la == Token::EOF || (_la == AnyFXParser::QO)) {
-            dynamic_cast<StringContext *>(_localctx)->data = _errHandler->recoverInline(this);
+            antlrcpp::downCast<StringContext *>(_localctx)->data = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
             consume();
           }
-           _localctx->val.append((dynamic_cast<StringContext *>(_localctx)->data != nullptr ? dynamic_cast<StringContext *>(_localctx)->data->getText() : "")); 
+           _localctx->val.append((antlrcpp::downCast<StringContext *>(_localctx)->data != nullptr ? antlrcpp::downCast<StringContext *>(_localctx)->data->getText() : "")); 
           setState(83);
           _errHandler->sync(this);
           _la = _input->LA(1);
@@ -225,78 +543,18 @@ AnyFXParser::StringContext* AnyFXParser::string() {
         _errHandler->sync(this);
         _la = _input->LA(1);
         while ((((_la & ~ 0x3fULL) == 0) &&
-          ((1ULL << _la) & ((1ULL << AnyFXParser::T__0)
-          | (1ULL << AnyFXParser::T__1)
-          | (1ULL << AnyFXParser::T__2)
-          | (1ULL << AnyFXParser::T__3)
-          | (1ULL << AnyFXParser::T__4)
-          | (1ULL << AnyFXParser::T__5)
-          | (1ULL << AnyFXParser::T__6)
-          | (1ULL << AnyFXParser::T__7)
-          | (1ULL << AnyFXParser::T__8)
-          | (1ULL << AnyFXParser::T__9)
-          | (1ULL << AnyFXParser::T__10)
-          | (1ULL << AnyFXParser::T__11)
-          | (1ULL << AnyFXParser::T__12)
-          | (1ULL << AnyFXParser::T__13)
-          | (1ULL << AnyFXParser::T__14)
-          | (1ULL << AnyFXParser::SC)
-          | (1ULL << AnyFXParser::CO)
-          | (1ULL << AnyFXParser::COL)
-          | (1ULL << AnyFXParser::LP)
-          | (1ULL << AnyFXParser::RP)
-          | (1ULL << AnyFXParser::LB)
-          | (1ULL << AnyFXParser::RB)
-          | (1ULL << AnyFXParser::LL)
-          | (1ULL << AnyFXParser::RR)
-          | (1ULL << AnyFXParser::DOT)
-          | (1ULL << AnyFXParser::NOT)
-          | (1ULL << AnyFXParser::EQ)
-          | (1ULL << AnyFXParser::QO)
-          | (1ULL << AnyFXParser::QU)
-          | (1ULL << AnyFXParser::AND)
-          | (1ULL << AnyFXParser::ANDSET)
-          | (1ULL << AnyFXParser::OR)
-          | (1ULL << AnyFXParser::ORSET)
-          | (1ULL << AnyFXParser::XOR)
-          | (1ULL << AnyFXParser::XORSET)
-          | (1ULL << AnyFXParser::CONNJUGATE)
-          | (1ULL << AnyFXParser::NU)
-          | (1ULL << AnyFXParser::FORWARDSLASH)
-          | (1ULL << AnyFXParser::LESS)
-          | (1ULL << AnyFXParser::LESSEQ)
-          | (1ULL << AnyFXParser::GREATER)
-          | (1ULL << AnyFXParser::GREATEREQ)
-          | (1ULL << AnyFXParser::LOGICEQ)
-          | (1ULL << AnyFXParser::NOTEQ)
-          | (1ULL << AnyFXParser::LOGICAND)
-          | (1ULL << AnyFXParser::LOGICOR)
-          | (1ULL << AnyFXParser::MOD)
-          | (1ULL << AnyFXParser::UNDERSC)
-          | (1ULL << AnyFXParser::ADD_OP)
-          | (1ULL << AnyFXParser::SUB_OP)
-          | (1ULL << AnyFXParser::DIV_OP)
-          | (1ULL << AnyFXParser::MUL_OP)
-          | (1ULL << AnyFXParser::INTEGERLITERAL)
-          | (1ULL << AnyFXParser::COMMENT)
-          | (1ULL << AnyFXParser::ML_COMMENT)
-          | (1ULL << AnyFXParser::FLOATLITERAL)
-          | (1ULL << AnyFXParser::EXPONENT)
-          | (1ULL << AnyFXParser::DOUBLELITERAL)
-          | (1ULL << AnyFXParser::HEX)
-          | (1ULL << AnyFXParser::IDENTIFIER)
-          | (1ULL << AnyFXParser::WS))) != 0)) {
+          ((1ULL << _la) & 9223371899415822334) != 0)) {
           setState(86);
-          dynamic_cast<StringContext *>(_localctx)->data = _input->LT(1);
+          antlrcpp::downCast<StringContext *>(_localctx)->data = _input->LT(1);
           _la = _input->LA(1);
           if (_la == 0 || _la == Token::EOF || (_la == AnyFXParser::Q)) {
-            dynamic_cast<StringContext *>(_localctx)->data = _errHandler->recoverInline(this);
+            antlrcpp::downCast<StringContext *>(_localctx)->data = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
             consume();
           }
-           _localctx->val.append((dynamic_cast<StringContext *>(_localctx)->data != nullptr ? dynamic_cast<StringContext *>(_localctx)->data->getText() : "")); 
+           _localctx->val.append((antlrcpp::downCast<StringContext *>(_localctx)->data != nullptr ? antlrcpp::downCast<StringContext *>(_localctx)->data->getText() : "")); 
           setState(92);
           _errHandler->sync(this);
           _la = _input->LA(1);
@@ -347,10 +605,14 @@ AnyFXParser::BooleanContext* AnyFXParser::boolean() {
   BooleanContext *_localctx = _tracker.createInstance<BooleanContext>(_ctx, getState());
   enterRule(_localctx, 2, AnyFXParser::RuleBoolean);
 
-          dynamic_cast<BooleanContext *>(_localctx)->val =  false;
+          antlrcpp::downCast<BooleanContext *>(_localctx)->val =  false;
       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -361,7 +623,7 @@ AnyFXParser::BooleanContext* AnyFXParser::boolean() {
         enterOuterAlt(_localctx, 1);
         setState(96);
         match(AnyFXParser::T__0);
-         dynamic_cast<BooleanContext *>(_localctx)->val =  true; 
+         antlrcpp::downCast<BooleanContext *>(_localctx)->val =  true; 
         break;
       }
 
@@ -369,7 +631,7 @@ AnyFXParser::BooleanContext* AnyFXParser::boolean() {
         enterOuterAlt(_localctx, 2);
         setState(98);
         match(AnyFXParser::T__1);
-         dynamic_cast<BooleanContext *>(_localctx)->val =  false; 
+         antlrcpp::downCast<BooleanContext *>(_localctx)->val =  false; 
         break;
       }
 
@@ -437,7 +699,11 @@ AnyFXParser::PreprocessContext* AnyFXParser::preprocess() {
           Token* start = nullptr;
       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -456,10 +722,10 @@ AnyFXParser::PreprocessContext* AnyFXParser::preprocess() {
           setState(103);
           match(AnyFXParser::T__2);
           setState(104);
-          dynamic_cast<PreprocessContext *>(_localctx)->line = match(AnyFXParser::INTEGERLITERAL);
+          antlrcpp::downCast<PreprocessContext *>(_localctx)->line = match(AnyFXParser::INTEGERLITERAL);
           setState(105);
-          dynamic_cast<PreprocessContext *>(_localctx)->path = string();
-           lines.push_back(std::make_tuple(atoi((dynamic_cast<PreprocessContext *>(_localctx)->line != nullptr ? dynamic_cast<PreprocessContext *>(_localctx)->line->getText() : "").c_str()), _input->LT(-1)->getLine(), start->getStartIndex(), _input->LT(1)->getStartIndex(), (dynamic_cast<PreprocessContext *>(_localctx)->path != nullptr ? _input->getText(dynamic_cast<PreprocessContext *>(_localctx)->path->start, dynamic_cast<PreprocessContext *>(_localctx)->path->stop) : nullptr))); 
+          antlrcpp::downCast<PreprocessContext *>(_localctx)->path = string();
+           lines.push_back(std::make_tuple(atoi((antlrcpp::downCast<PreprocessContext *>(_localctx)->line != nullptr ? antlrcpp::downCast<PreprocessContext *>(_localctx)->line->getText() : "").c_str()), _input->LT(-1)->getLine(), start->getStartIndex(), _input->LT(1)->getStartIndex(), (antlrcpp::downCast<PreprocessContext *>(_localctx)->path != nullptr ? _input->getText(antlrcpp::downCast<PreprocessContext *>(_localctx)->path->start, antlrcpp::downCast<PreprocessContext *>(_localctx)->path->stop) : nullptr))); 
           break;
         }
 
@@ -469,6 +735,8 @@ AnyFXParser::PreprocessContext* AnyFXParser::preprocess() {
           break;
         }
 
+        default:
+          break;
         } 
       }
       setState(113);
@@ -523,15 +791,19 @@ AnyFXParser::EntryContext* AnyFXParser::entry() {
   EntryContext *_localctx = _tracker.createInstance<EntryContext>(_ctx, getState());
   enterRule(_localctx, 6, AnyFXParser::RuleEntry);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(116);
-    dynamic_cast<EntryContext *>(_localctx)->effectContext = effect();
+    antlrcpp::downCast<EntryContext *>(_localctx)->effectContext = effect();
 
-            dynamic_cast<EntryContext *>(_localctx)->returnEffect =  dynamic_cast<EntryContext *>(_localctx)->effectContext->eff;
+            antlrcpp::downCast<EntryContext *>(_localctx)->returnEffect =  antlrcpp::downCast<EntryContext *>(_localctx)->effectContext->eff;
         
     setState(118);
     match(AnyFXParser::EOF);
@@ -645,10 +917,14 @@ AnyFXParser::EffectContext* AnyFXParser::effect() {
   EffectContext *_localctx = _tracker.createInstance<EffectContext>(_ctx, getState());
   enterRule(_localctx, 8, AnyFXParser::RuleEffect);
 
-          dynamic_cast<EffectContext *>(_localctx)->eff =  alloc.Alloc<Effect>();
+          antlrcpp::downCast<EffectContext *>(_localctx)->eff =  alloc.Alloc<Effect>();
       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -664,67 +940,69 @@ AnyFXParser::EffectContext* AnyFXParser::effect() {
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 6, _ctx)) {
         case 1: {
           setState(120);
-          dynamic_cast<EffectContext *>(_localctx)->variableContext = variable();
-           _localctx->eff->AddVariable(dynamic_cast<EffectContext *>(_localctx)->variableContext->var); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->variableContext = variable();
+           _localctx->eff->AddVariable(antlrcpp::downCast<EffectContext *>(_localctx)->variableContext->var); 
           break;
         }
 
         case 2: {
           setState(123);
-          dynamic_cast<EffectContext *>(_localctx)->renderStateContext = renderState();
-           _localctx->eff->AddRenderState(dynamic_cast<EffectContext *>(_localctx)->renderStateContext->state); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->renderStateContext = renderState();
+           _localctx->eff->AddRenderState(antlrcpp::downCast<EffectContext *>(_localctx)->renderStateContext->state); 
           break;
         }
 
         case 3: {
           setState(126);
-          dynamic_cast<EffectContext *>(_localctx)->functionContext = function();
-           _localctx->eff->AddFunction(dynamic_cast<EffectContext *>(_localctx)->functionContext->func); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->functionContext = function();
+           _localctx->eff->AddFunction(antlrcpp::downCast<EffectContext *>(_localctx)->functionContext->func); 
           break;
         }
 
         case 4: {
           setState(129);
-          dynamic_cast<EffectContext *>(_localctx)->programContext = program();
-           _localctx->eff->AddProgram(dynamic_cast<EffectContext *>(_localctx)->programContext->prog); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->programContext = program();
+           _localctx->eff->AddProgram(antlrcpp::downCast<EffectContext *>(_localctx)->programContext->prog); 
           break;
         }
 
         case 5: {
           setState(132);
-          dynamic_cast<EffectContext *>(_localctx)->structureContext = structure();
-           _localctx->eff->AddStructure(dynamic_cast<EffectContext *>(_localctx)->structureContext->struc); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->structureContext = structure();
+           _localctx->eff->AddStructure(antlrcpp::downCast<EffectContext *>(_localctx)->structureContext->struc); 
           break;
         }
 
         case 6: {
           setState(135);
-          dynamic_cast<EffectContext *>(_localctx)->varblockContext = varblock();
-           _localctx->eff->AddVarBlock(dynamic_cast<EffectContext *>(_localctx)->varblockContext->block); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->varblockContext = varblock();
+           _localctx->eff->AddVarBlock(antlrcpp::downCast<EffectContext *>(_localctx)->varblockContext->block); 
           break;
         }
 
         case 7: {
           setState(138);
-          dynamic_cast<EffectContext *>(_localctx)->varbufferContext = varbuffer();
-           _localctx->eff->AddVarBuffer(dynamic_cast<EffectContext *>(_localctx)->varbufferContext->buffer); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->varbufferContext = varbuffer();
+           _localctx->eff->AddVarBuffer(antlrcpp::downCast<EffectContext *>(_localctx)->varbufferContext->buffer); 
           break;
         }
 
         case 8: {
           setState(141);
-          dynamic_cast<EffectContext *>(_localctx)->subroutineContext = subroutine();
-           _localctx->eff->AddSubroutine(dynamic_cast<EffectContext *>(_localctx)->subroutineContext->subrout); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->subroutineContext = subroutine();
+           _localctx->eff->AddSubroutine(antlrcpp::downCast<EffectContext *>(_localctx)->subroutineContext->subrout); 
           break;
         }
 
         case 9: {
           setState(144);
-          dynamic_cast<EffectContext *>(_localctx)->samplerContext = sampler();
-           _localctx->eff->AddSampler(dynamic_cast<EffectContext *>(_localctx)->samplerContext->samp); 
+          antlrcpp::downCast<EffectContext *>(_localctx)->samplerContext = sampler();
+           _localctx->eff->AddSampler(antlrcpp::downCast<EffectContext *>(_localctx)->samplerContext->samp); 
           break;
         }
 
+        default:
+          break;
         } 
       }
       setState(151);
@@ -773,15 +1051,19 @@ AnyFXParser::TypeContext* AnyFXParser::type() {
   TypeContext *_localctx = _tracker.createInstance<TypeContext>(_ctx, getState());
   enterRule(_localctx, 10, AnyFXParser::RuleType);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(152);
-    dynamic_cast<TypeContext *>(_localctx)->identifierToken = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<TypeContext *>(_localctx)->identifierToken = match(AnyFXParser::IDENTIFIER);
 
-            dynamic_cast<TypeContext *>(_localctx)->ty =  DataType::FromString((dynamic_cast<TypeContext *>(_localctx)->identifierToken != nullptr ? dynamic_cast<TypeContext *>(_localctx)->identifierToken->getText() : ""));
+            antlrcpp::downCast<TypeContext *>(_localctx)->ty =  DataType::FromString((antlrcpp::downCast<TypeContext *>(_localctx)->identifierToken != nullptr ? antlrcpp::downCast<TypeContext *>(_localctx)->identifierToken->getText() : ""));
         
    
   }
@@ -829,16 +1111,20 @@ AnyFXParser::QualifierExpressionContext* AnyFXParser::qualifierExpression() {
   QualifierExpressionContext *_localctx = _tracker.createInstance<QualifierExpressionContext>(_ctx, getState());
   enterRule(_localctx, 12, AnyFXParser::RuleQualifierExpression);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(155);
-    dynamic_cast<QualifierExpressionContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<QualifierExpressionContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
     setState(156);
-    dynamic_cast<QualifierExpressionContext *>(_localctx)->parantexpressionContext = parantexpression();
-     _localctx->q.name = (dynamic_cast<QualifierExpressionContext *>(_localctx)->name != nullptr ? dynamic_cast<QualifierExpressionContext *>(_localctx)->name->getText() : ""); _localctx->q.expr = dynamic_cast<QualifierExpressionContext *>(_localctx)->parantexpressionContext->tree; 
+    antlrcpp::downCast<QualifierExpressionContext *>(_localctx)->parantexpressionContext = parantexpression();
+     _localctx->q.name = (antlrcpp::downCast<QualifierExpressionContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<QualifierExpressionContext *>(_localctx)->name->getText() : ""); _localctx->q.expr = antlrcpp::downCast<QualifierExpressionContext *>(_localctx)->parantexpressionContext->tree; 
             
    
   }
@@ -857,6 +1143,14 @@ AnyFXParser::StructureContext::StructureContext(ParserRuleContext *parent, size_
   : ParserRuleContext(parent, invokingState) {
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::StructureContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::StructureContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
+}
+
 std::vector<tree::TerminalNode *> AnyFXParser::StructureContext::IDENTIFIER() {
   return getTokens(AnyFXParser::IDENTIFIER);
 }
@@ -871,6 +1165,14 @@ std::vector<AnyFXParser::QualifierExpressionContext *> AnyFXParser::StructureCon
 
 AnyFXParser::QualifierExpressionContext* AnyFXParser::StructureContext::qualifierExpression(size_t i) {
   return getRuleContext<AnyFXParser::QualifierExpressionContext>(i);
+}
+
+tree::TerminalNode* AnyFXParser::StructureContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::StructureContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
 }
 
 std::vector<AnyFXParser::ParameterContext *> AnyFXParser::StructureContext::parameter() {
@@ -902,11 +1204,15 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
   StructureContext *_localctx = _tracker.createInstance<StructureContext>(_ctx, getState());
   enterRule(_localctx, 14, AnyFXParser::RuleStructure);
 
-          dynamic_cast<StructureContext *>(_localctx)->struc =  alloc.Alloc<Structure>();
+          antlrcpp::downCast<StructureContext *>(_localctx)->struc =  alloc.Alloc<Structure>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -920,18 +1226,20 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
       switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 8, _ctx)) {
       case 1: {
         setState(159);
-        dynamic_cast<StructureContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
-         _localctx->struc->AddQualifier((dynamic_cast<StructureContext *>(_localctx)->qual != nullptr ? dynamic_cast<StructureContext *>(_localctx)->qual->getText() : "")); 
+        antlrcpp::downCast<StructureContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
+         _localctx->struc->AddQualifier((antlrcpp::downCast<StructureContext *>(_localctx)->qual != nullptr ? antlrcpp::downCast<StructureContext *>(_localctx)->qual->getText() : "")); 
         break;
       }
 
       case 2: {
         setState(161);
-        dynamic_cast<StructureContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
-         _localctx->struc->AddQualifierExpression(dynamic_cast<StructureContext *>(_localctx)->qualifierExpressionContext->q); 
+        antlrcpp::downCast<StructureContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
+         _localctx->struc->AddQualifierExpression(antlrcpp::downCast<StructureContext *>(_localctx)->qualifierExpressionContext->q); 
         break;
       }
 
+      default:
+        break;
       }
       setState(168);
       _errHandler->sync(this);
@@ -940,7 +1248,7 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
     setState(169);
     match(AnyFXParser::T__3);
     setState(170);
-    dynamic_cast<StructureContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<StructureContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
      SetupFile(_localctx->struc, _input); 
     setState(183);
     _errHandler->sync(this);
@@ -954,10 +1262,10 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
       _la = _input->LA(1);
       do {
         setState(173);
-        dynamic_cast<StructureContext *>(_localctx)->parameterContext = parameter();
+        antlrcpp::downCast<StructureContext *>(_localctx)->parameterContext = parameter();
         setState(174);
         match(AnyFXParser::SC);
-         _localctx->struc->AddParameter(dynamic_cast<StructureContext *>(_localctx)->parameterContext->param); 
+         _localctx->struc->AddParameter(antlrcpp::downCast<StructureContext *>(_localctx)->parameterContext->param); 
         setState(179); 
         _errHandler->sync(this);
         _la = _input->LA(1);
@@ -969,7 +1277,7 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
     }
     setState(185);
     match(AnyFXParser::SC);
-     _localctx->struc->SetName((dynamic_cast<StructureContext *>(_localctx)->name != nullptr ? dynamic_cast<StructureContext *>(_localctx)->name->getText() : "")); 
+     _localctx->struc->SetName((antlrcpp::downCast<StructureContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<StructureContext *>(_localctx)->name->getText() : "")); 
    
   }
   catch (RecognitionException &e) {
@@ -985,6 +1293,18 @@ AnyFXParser::StructureContext* AnyFXParser::structure() {
 
 AnyFXParser::VarblockContext::VarblockContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::VarblockContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VarblockContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VarblockContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
 }
 
 std::vector<tree::TerminalNode *> AnyFXParser::VarblockContext::IDENTIFIER() {
@@ -1015,6 +1335,14 @@ AnyFXParser::VariableContext* AnyFXParser::VarblockContext::variable(size_t i) {
   return getRuleContext<AnyFXParser::VariableContext>(i);
 }
 
+tree::TerminalNode* AnyFXParser::VarblockContext::LL() {
+  return getToken(AnyFXParser::LL, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VarblockContext::RR() {
+  return getToken(AnyFXParser::RR, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::VarblockContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
 }
@@ -1040,11 +1368,15 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
   VarblockContext *_localctx = _tracker.createInstance<VarblockContext>(_ctx, getState());
   enterRule(_localctx, 16, AnyFXParser::RuleVarblock);
 
-          dynamic_cast<VarblockContext *>(_localctx)->block =  alloc.Alloc<VarBlock>();
+          antlrcpp::downCast<VarblockContext *>(_localctx)->block =  alloc.Alloc<VarBlock>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1058,18 +1390,20 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
       switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 12, _ctx)) {
       case 1: {
         setState(188);
-        dynamic_cast<VarblockContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
-         _localctx->block->AddQualifier((dynamic_cast<VarblockContext *>(_localctx)->qual != nullptr ? dynamic_cast<VarblockContext *>(_localctx)->qual->getText() : "")); 
+        antlrcpp::downCast<VarblockContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
+         _localctx->block->AddQualifier((antlrcpp::downCast<VarblockContext *>(_localctx)->qual != nullptr ? antlrcpp::downCast<VarblockContext *>(_localctx)->qual->getText() : "")); 
         break;
       }
 
       case 2: {
         setState(190);
-        dynamic_cast<VarblockContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
-         _localctx->block->AddQualifierExpression(dynamic_cast<VarblockContext *>(_localctx)->qualifierExpressionContext->q); 
+        antlrcpp::downCast<VarblockContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
+         _localctx->block->AddQualifierExpression(antlrcpp::downCast<VarblockContext *>(_localctx)->qualifierExpressionContext->q); 
         break;
       }
 
+      default:
+        break;
       }
       setState(197);
       _errHandler->sync(this);
@@ -1079,16 +1413,16 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
     setState(198);
     match(AnyFXParser::T__4);
     setState(199);
-    dynamic_cast<VarblockContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
-     SetupFile(_localctx->block, _input); _localctx->block->SetName((dynamic_cast<VarblockContext *>(_localctx)->name != nullptr ? dynamic_cast<VarblockContext *>(_localctx)->name->getText() : "")); 
+    antlrcpp::downCast<VarblockContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+     SetupFile(_localctx->block, _input); _localctx->block->SetName((antlrcpp::downCast<VarblockContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<VarblockContext *>(_localctx)->name->getText() : "")); 
     setState(204);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == AnyFXParser::LL) {
       setState(201);
-      dynamic_cast<VarblockContext *>(_localctx)->annotationContext = annotation();
-       _localctx->block->SetAnnotation(dynamic_cast<VarblockContext *>(_localctx)->annotationContext->annot); 
+      antlrcpp::downCast<VarblockContext *>(_localctx)->annotationContext = annotation();
+       _localctx->block->SetAnnotation(antlrcpp::downCast<VarblockContext *>(_localctx)->annotationContext->annot); 
     }
     setState(206);
     match(AnyFXParser::LB);
@@ -1097,8 +1431,8 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
     _la = _input->LA(1);
     while (_la == AnyFXParser::IDENTIFIER) {
       setState(207);
-      dynamic_cast<VarblockContext *>(_localctx)->variableContext = variable();
-       _localctx->block->AddVariable(dynamic_cast<VarblockContext *>(_localctx)->variableContext->var); 
+      antlrcpp::downCast<VarblockContext *>(_localctx)->variableContext = variable();
+       _localctx->block->AddVariable(antlrcpp::downCast<VarblockContext *>(_localctx)->variableContext->var); 
       setState(214);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -1111,8 +1445,8 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
     _la = _input->LA(1);
     if (_la == AnyFXParser::IDENTIFIER) {
       setState(216);
-      dynamic_cast<VarblockContext *>(_localctx)->varName = match(AnyFXParser::IDENTIFIER);
-       _localctx->block->SetStructName((dynamic_cast<VarblockContext *>(_localctx)->varName != nullptr ? dynamic_cast<VarblockContext *>(_localctx)->varName->getText() : "")); 
+      antlrcpp::downCast<VarblockContext *>(_localctx)->varName = match(AnyFXParser::IDENTIFIER);
+       _localctx->block->SetStructName((antlrcpp::downCast<VarblockContext *>(_localctx)->varName != nullptr ? antlrcpp::downCast<VarblockContext *>(_localctx)->varName->getText() : "")); 
       setState(226);
       _errHandler->sync(this);
 
@@ -1130,13 +1464,15 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
         setState(221);
         match(AnyFXParser::LL);
         setState(222);
-        dynamic_cast<VarblockContext *>(_localctx)->arraySize = expression();
+        antlrcpp::downCast<VarblockContext *>(_localctx)->arraySize = expression();
         setState(223);
         match(AnyFXParser::RR);
-         _localctx->block->SetArrayExpression(dynamic_cast<VarblockContext *>(_localctx)->arraySize->tree); 
+         _localctx->block->SetArrayExpression(antlrcpp::downCast<VarblockContext *>(_localctx)->arraySize->tree); 
         break;
       }
 
+      default:
+        break;
       }
     }
     setState(230);
@@ -1156,6 +1492,18 @@ AnyFXParser::VarblockContext* AnyFXParser::varblock() {
 
 AnyFXParser::VarbufferContext::VarbufferContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::VarbufferContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VarbufferContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VarbufferContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
 }
 
 std::vector<tree::TerminalNode *> AnyFXParser::VarbufferContext::IDENTIFIER() {
@@ -1186,6 +1534,14 @@ AnyFXParser::VariableContext* AnyFXParser::VarbufferContext::variable(size_t i) 
   return getRuleContext<AnyFXParser::VariableContext>(i);
 }
 
+tree::TerminalNode* AnyFXParser::VarbufferContext::LL() {
+  return getToken(AnyFXParser::LL, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VarbufferContext::RR() {
+  return getToken(AnyFXParser::RR, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::VarbufferContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
 }
@@ -1211,11 +1567,15 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
   VarbufferContext *_localctx = _tracker.createInstance<VarbufferContext>(_ctx, getState());
   enterRule(_localctx, 18, AnyFXParser::RuleVarbuffer);
 
-          dynamic_cast<VarbufferContext *>(_localctx)->buffer =  alloc.Alloc<VarBuffer>();
+          antlrcpp::downCast<VarbufferContext *>(_localctx)->buffer =  alloc.Alloc<VarBuffer>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1229,18 +1589,20 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
       switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 18, _ctx)) {
       case 1: {
         setState(232);
-        dynamic_cast<VarbufferContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
-         _localctx->buffer->AddQualifier((dynamic_cast<VarbufferContext *>(_localctx)->qual != nullptr ? dynamic_cast<VarbufferContext *>(_localctx)->qual->getText() : "")); 
+        antlrcpp::downCast<VarbufferContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
+         _localctx->buffer->AddQualifier((antlrcpp::downCast<VarbufferContext *>(_localctx)->qual != nullptr ? antlrcpp::downCast<VarbufferContext *>(_localctx)->qual->getText() : "")); 
         break;
       }
 
       case 2: {
         setState(234);
-        dynamic_cast<VarbufferContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
-         _localctx->buffer->AddQualifierExpression(dynamic_cast<VarbufferContext *>(_localctx)->qualifierExpressionContext->q); 
+        antlrcpp::downCast<VarbufferContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
+         _localctx->buffer->AddQualifierExpression(antlrcpp::downCast<VarbufferContext *>(_localctx)->qualifierExpressionContext->q); 
         break;
       }
 
+      default:
+        break;
       }
       setState(241);
       _errHandler->sync(this);
@@ -1250,16 +1612,16 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
     setState(242);
     match(AnyFXParser::T__5);
     setState(243);
-    dynamic_cast<VarbufferContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
-     SetupFile(_localctx->buffer, _input); _localctx->buffer->SetName((dynamic_cast<VarbufferContext *>(_localctx)->name != nullptr ? dynamic_cast<VarbufferContext *>(_localctx)->name->getText() : "")); 
+    antlrcpp::downCast<VarbufferContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+     SetupFile(_localctx->buffer, _input); _localctx->buffer->SetName((antlrcpp::downCast<VarbufferContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<VarbufferContext *>(_localctx)->name->getText() : "")); 
     setState(248);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == AnyFXParser::LL) {
       setState(245);
-      dynamic_cast<VarbufferContext *>(_localctx)->annotationContext = annotation();
-       _localctx->buffer->SetAnnotation(dynamic_cast<VarbufferContext *>(_localctx)->annotationContext->annot); 
+      antlrcpp::downCast<VarbufferContext *>(_localctx)->annotationContext = annotation();
+       _localctx->buffer->SetAnnotation(antlrcpp::downCast<VarbufferContext *>(_localctx)->annotationContext->annot); 
     }
     setState(250);
     match(AnyFXParser::LB);
@@ -1268,8 +1630,8 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
     _la = _input->LA(1);
     do {
       setState(251);
-      dynamic_cast<VarbufferContext *>(_localctx)->variableContext = variable();
-      _localctx->buffer->AddVariable(dynamic_cast<VarbufferContext *>(_localctx)->variableContext->var); 
+      antlrcpp::downCast<VarbufferContext *>(_localctx)->variableContext = variable();
+      _localctx->buffer->AddVariable(antlrcpp::downCast<VarbufferContext *>(_localctx)->variableContext->var); 
       setState(256); 
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -1282,8 +1644,8 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
     _la = _input->LA(1);
     if (_la == AnyFXParser::IDENTIFIER) {
       setState(259);
-      dynamic_cast<VarbufferContext *>(_localctx)->varName = match(AnyFXParser::IDENTIFIER);
-       _localctx->buffer->SetStructName((dynamic_cast<VarbufferContext *>(_localctx)->varName != nullptr ? dynamic_cast<VarbufferContext *>(_localctx)->varName->getText() : "")); 
+      antlrcpp::downCast<VarbufferContext *>(_localctx)->varName = match(AnyFXParser::IDENTIFIER);
+       _localctx->buffer->SetStructName((antlrcpp::downCast<VarbufferContext *>(_localctx)->varName != nullptr ? antlrcpp::downCast<VarbufferContext *>(_localctx)->varName->getText() : "")); 
       setState(269);
       _errHandler->sync(this);
 
@@ -1301,13 +1663,15 @@ AnyFXParser::VarbufferContext* AnyFXParser::varbuffer() {
         setState(264);
         match(AnyFXParser::LL);
         setState(265);
-        dynamic_cast<VarbufferContext *>(_localctx)->arraySize = expression();
+        antlrcpp::downCast<VarbufferContext *>(_localctx)->arraySize = expression();
         setState(266);
         match(AnyFXParser::RR);
-         _localctx->buffer->SetArrayExpression(dynamic_cast<VarbufferContext *>(_localctx)->arraySize->tree); 
+         _localctx->buffer->SetArrayExpression(antlrcpp::downCast<VarbufferContext *>(_localctx)->arraySize->tree); 
         break;
       }
 
+      default:
+        break;
       }
     }
     setState(273);
@@ -1333,12 +1697,24 @@ AnyFXParser::ParameterListContext* AnyFXParser::SubroutineContext::parameterList
   return getRuleContext<AnyFXParser::ParameterListContext>(0);
 }
 
+tree::TerminalNode* AnyFXParser::SubroutineContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 AnyFXParser::TypeContext* AnyFXParser::SubroutineContext::type() {
   return getRuleContext<AnyFXParser::TypeContext>(0);
 }
 
 tree::TerminalNode* AnyFXParser::SubroutineContext::IDENTIFIER() {
   return getToken(AnyFXParser::IDENTIFIER, 0);
+}
+
+tree::TerminalNode* AnyFXParser::SubroutineContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::SubroutineContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
 }
 
 AnyFXParser::FunctionContext* AnyFXParser::SubroutineContext::function() {
@@ -1366,10 +1742,14 @@ AnyFXParser::SubroutineContext* AnyFXParser::subroutine() {
   SubroutineContext *_localctx = _tracker.createInstance<SubroutineContext>(_ctx, getState());
   enterRule(_localctx, 20, AnyFXParser::RuleSubroutine);
 
-          dynamic_cast<SubroutineContext *>(_localctx)->subrout =  alloc.Alloc<Subroutine>();
+          antlrcpp::downCast<SubroutineContext *>(_localctx)->subrout =  alloc.Alloc<Subroutine>();
       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1381,19 +1761,19 @@ AnyFXParser::SubroutineContext* AnyFXParser::subroutine() {
         setState(275);
         match(AnyFXParser::T__6);
         setState(276);
-        dynamic_cast<SubroutineContext *>(_localctx)->retval = type();
+        antlrcpp::downCast<SubroutineContext *>(_localctx)->retval = type();
         setState(277);
-        dynamic_cast<SubroutineContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+        antlrcpp::downCast<SubroutineContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
          SetupFile(_localctx->subrout, _input); 
         setState(279);
-        dynamic_cast<SubroutineContext *>(_localctx)->parameterListContext = parameterList();
+        antlrcpp::downCast<SubroutineContext *>(_localctx)->parameterListContext = parameterList();
         setState(280);
         match(AnyFXParser::SC);
 
                 _localctx->subrout->SetSubroutineType(Subroutine::Signature);
-                _localctx->subrout->SetName((dynamic_cast<SubroutineContext *>(_localctx)->name != nullptr ? dynamic_cast<SubroutineContext *>(_localctx)->name->getText() : ""));
-                _localctx->subrout->SetParameters(dynamic_cast<SubroutineContext *>(_localctx)->parameterListContext->parameters);
-                _localctx->subrout->SetReturnType(dynamic_cast<SubroutineContext *>(_localctx)->retval->ty);
+                _localctx->subrout->SetName((antlrcpp::downCast<SubroutineContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<SubroutineContext *>(_localctx)->name->getText() : ""));
+                _localctx->subrout->SetParameters(antlrcpp::downCast<SubroutineContext *>(_localctx)->parameterListContext->parameters);
+                _localctx->subrout->SetReturnType(antlrcpp::downCast<SubroutineContext *>(_localctx)->retval->ty);
             
         break;
       }
@@ -1405,17 +1785,17 @@ AnyFXParser::SubroutineContext* AnyFXParser::subroutine() {
         setState(284);
         match(AnyFXParser::LP);
         setState(285);
-        dynamic_cast<SubroutineContext *>(_localctx)->signature = match(AnyFXParser::IDENTIFIER);
+        antlrcpp::downCast<SubroutineContext *>(_localctx)->signature = match(AnyFXParser::IDENTIFIER);
         setState(286);
         match(AnyFXParser::RP);
          SetupFile(_localctx->subrout, _input); 
         setState(288);
-        dynamic_cast<SubroutineContext *>(_localctx)->functionContext = function();
+        antlrcpp::downCast<SubroutineContext *>(_localctx)->functionContext = function();
 
-                _localctx->subrout->SetName(dynamic_cast<SubroutineContext *>(_localctx)->functionContext->func->GetName());
+                _localctx->subrout->SetName(antlrcpp::downCast<SubroutineContext *>(_localctx)->functionContext->func->GetName());
                 _localctx->subrout->SetSubroutineType(Subroutine::Implementation);
-                _localctx->subrout->SetSignature((dynamic_cast<SubroutineContext *>(_localctx)->signature != nullptr ? dynamic_cast<SubroutineContext *>(_localctx)->signature->getText() : ""));
-                _localctx->subrout->SetFunction(dynamic_cast<SubroutineContext *>(_localctx)->functionContext->func);
+                _localctx->subrout->SetSignature((antlrcpp::downCast<SubroutineContext *>(_localctx)->signature != nullptr ? antlrcpp::downCast<SubroutineContext *>(_localctx)->signature->getText() : ""));
+                _localctx->subrout->SetFunction(antlrcpp::downCast<SubroutineContext *>(_localctx)->functionContext->func);
             
         break;
       }
@@ -1448,6 +1828,14 @@ AnyFXParser::ExpressionContext* AnyFXParser::ValueListContext::expression(size_t
   return getRuleContext<AnyFXParser::ExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::ValueListContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::ValueListContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::ValueListContext::getRuleIndex() const {
   return AnyFXParser::RuleValueList;
@@ -1470,14 +1858,18 @@ AnyFXParser::ValueListContext* AnyFXParser::valueList() {
   enterRule(_localctx, 22, AnyFXParser::RuleValueList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(293);
-    dynamic_cast<ValueListContext *>(_localctx)->first = expression();
-     _localctx->valList.AddValue(dynamic_cast<ValueListContext *>(_localctx)->first->tree); 
+    antlrcpp::downCast<ValueListContext *>(_localctx)->first = expression();
+     _localctx->valList.AddValue(antlrcpp::downCast<ValueListContext *>(_localctx)->first->tree); 
     setState(301);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -1485,8 +1877,8 @@ AnyFXParser::ValueListContext* AnyFXParser::valueList() {
       setState(295);
       match(AnyFXParser::CO);
       setState(296);
-      dynamic_cast<ValueListContext *>(_localctx)->rest = expression();
-       _localctx->valList.AddValue(dynamic_cast<ValueListContext *>(_localctx)->rest->tree); 
+      antlrcpp::downCast<ValueListContext *>(_localctx)->rest = expression();
+       _localctx->valList.AddValue(antlrcpp::downCast<ValueListContext *>(_localctx)->rest->tree); 
       setState(303);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -1533,14 +1925,18 @@ AnyFXParser::ValueSingleListContext* AnyFXParser::valueSingleList() {
   ValueSingleListContext *_localctx = _tracker.createInstance<ValueSingleListContext>(_ctx, getState());
   enterRule(_localctx, 24, AnyFXParser::RuleValueSingleList);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(304);
-    dynamic_cast<ValueSingleListContext *>(_localctx)->expressionContext = expression();
-     _localctx->valList.AddValue(dynamic_cast<ValueSingleListContext *>(_localctx)->expressionContext->tree); 
+    antlrcpp::downCast<ValueSingleListContext *>(_localctx)->expressionContext = expression();
+     _localctx->valList.AddValue(antlrcpp::downCast<ValueSingleListContext *>(_localctx)->expressionContext->tree); 
    
   }
   catch (RecognitionException &e) {
@@ -1556,6 +1952,10 @@ AnyFXParser::ValueSingleListContext* AnyFXParser::valueSingleList() {
 
 AnyFXParser::VariableContext::VariableContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
 }
 
 std::vector<AnyFXParser::TypeContext *> AnyFXParser::VariableContext::type() {
@@ -1582,6 +1982,50 @@ AnyFXParser::QualifierExpressionContext* AnyFXParser::VariableContext::qualifier
   return getRuleContext<AnyFXParser::QualifierExpressionContext>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::VariableContext::LL() {
+  return getTokens(AnyFXParser::LL);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::LL(size_t i) {
+  return getToken(AnyFXParser::LL, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::VariableContext::RR() {
+  return getTokens(AnyFXParser::RR);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::RR(size_t i) {
+  return getToken(AnyFXParser::RR, i);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::EQ() {
+  return getToken(AnyFXParser::EQ, 0);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::VariableContext::LP() {
+  return getTokens(AnyFXParser::LP);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::LP(size_t i) {
+  return getToken(AnyFXParser::LP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::VariableContext::RP() {
+  return getTokens(AnyFXParser::RP);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::RP(size_t i) {
+  return getToken(AnyFXParser::RP, i);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
 AnyFXParser::AnnotationContext* AnyFXParser::VariableContext::annotation() {
   return getRuleContext<AnyFXParser::AnnotationContext>(0);
 }
@@ -1606,6 +2050,14 @@ AnyFXParser::ValueSingleListContext* AnyFXParser::VariableContext::valueSingleLi
   return getRuleContext<AnyFXParser::ValueSingleListContext>(0);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::VariableContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::VariableContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::VariableContext::getRuleIndex() const {
   return AnyFXParser::RuleVariable;
@@ -1627,11 +2079,15 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
   VariableContext *_localctx = _tracker.createInstance<VariableContext>(_ctx, getState());
   enterRule(_localctx, 26, AnyFXParser::RuleVariable);
 
-          dynamic_cast<VariableContext *>(_localctx)->var =  alloc.Alloc<Variable>();
+          antlrcpp::downCast<VariableContext *>(_localctx)->var =  alloc.Alloc<Variable>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1647,18 +2103,20 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 26, _ctx)) {
         case 1: {
           setState(307);
-          dynamic_cast<VariableContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
-           _localctx->var->AddQualifier((dynamic_cast<VariableContext *>(_localctx)->qual != nullptr ? dynamic_cast<VariableContext *>(_localctx)->qual->getText() : "")); 
+          antlrcpp::downCast<VariableContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
+           _localctx->var->AddQualifier((antlrcpp::downCast<VariableContext *>(_localctx)->qual != nullptr ? antlrcpp::downCast<VariableContext *>(_localctx)->qual->getText() : "")); 
           break;
         }
 
         case 2: {
           setState(309);
-          dynamic_cast<VariableContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
-           _localctx->var->AddQualifierExpression(dynamic_cast<VariableContext *>(_localctx)->qualifierExpressionContext->q); 
+          antlrcpp::downCast<VariableContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
+           _localctx->var->AddQualifierExpression(antlrcpp::downCast<VariableContext *>(_localctx)->qualifierExpressionContext->q); 
           break;
         }
 
+        default:
+          break;
         } 
       }
       setState(316);
@@ -1666,10 +2124,10 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 27, _ctx);
     }
     setState(317);
-    dynamic_cast<VariableContext *>(_localctx)->declType = type();
+    antlrcpp::downCast<VariableContext *>(_localctx)->declType = type();
     setState(318);
-    dynamic_cast<VariableContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
-     _localctx->var->SetDataType(dynamic_cast<VariableContext *>(_localctx)->declType->ty); _localctx->var->SetName((dynamic_cast<VariableContext *>(_localctx)->name != nullptr ? dynamic_cast<VariableContext *>(_localctx)->name->getText() : "")); SetupFile(_localctx->var, _input); 
+    antlrcpp::downCast<VariableContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+     _localctx->var->SetDataType(antlrcpp::downCast<VariableContext *>(_localctx)->declType->ty); _localctx->var->SetName((antlrcpp::downCast<VariableContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<VariableContext *>(_localctx)->name->getText() : "")); SetupFile(_localctx->var, _input); 
             
     setState(411);
     _errHandler->sync(this);
@@ -1686,14 +2144,14 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       setState(324);
       match(AnyFXParser::LB);
       setState(325);
-      dynamic_cast<VariableContext *>(_localctx)->fstType = type();
+      antlrcpp::downCast<VariableContext *>(_localctx)->fstType = type();
       setState(326);
       match(AnyFXParser::LP);
       setState(327);
-      dynamic_cast<VariableContext *>(_localctx)->fstValue = valueList();
+      antlrcpp::downCast<VariableContext *>(_localctx)->fstValue = valueList();
       setState(328);
       match(AnyFXParser::RP);
-       _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->fstType->ty, dynamic_cast<VariableContext *>(_localctx)->fstValue->valList); 
+       _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->fstType->ty, antlrcpp::downCast<VariableContext *>(_localctx)->fstValue->valList); 
       setState(339);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -1701,14 +2159,14 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
         setState(330);
         match(AnyFXParser::CO);
         setState(331);
-        dynamic_cast<VariableContext *>(_localctx)->cntType = type();
+        antlrcpp::downCast<VariableContext *>(_localctx)->cntType = type();
         setState(332);
         match(AnyFXParser::LP);
         setState(333);
-        dynamic_cast<VariableContext *>(_localctx)->cntValue = valueList();
+        antlrcpp::downCast<VariableContext *>(_localctx)->cntValue = valueList();
         setState(334);
         match(AnyFXParser::RP);
-         _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->cntType->ty, dynamic_cast<VariableContext *>(_localctx)->cntValue->valList); 
+         _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->cntType->ty, antlrcpp::downCast<VariableContext *>(_localctx)->cntValue->valList); 
         setState(341);
         _errHandler->sync(this);
         _la = _input->LA(1);
@@ -1729,10 +2187,10 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       setState(348);
       match(AnyFXParser::LB);
       setState(349);
-      dynamic_cast<VariableContext *>(_localctx)->valList = valueList();
+      antlrcpp::downCast<VariableContext *>(_localctx)->valList = valueList();
       setState(350);
       match(AnyFXParser::RB);
-       _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->valList->valList); 
+       _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->valList->valList); 
       break;
     }
 
@@ -1746,10 +2204,10 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
                 setState(353);
                 match(AnyFXParser::LL);
                 setState(354);
-                dynamic_cast<VariableContext *>(_localctx)->asize0 = expression();
+                antlrcpp::downCast<VariableContext *>(_localctx)->asize0 = expression();
                 setState(355);
                 match(AnyFXParser::RR);
-                 _localctx->var->AddSizeExpression(dynamic_cast<VariableContext *>(_localctx)->asize0->tree); _localctx->var->SetArrayType(Variable::SimpleArray); 
+                 _localctx->var->AddSizeExpression(antlrcpp::downCast<VariableContext *>(_localctx)->asize0->tree); _localctx->var->SetArrayType(Variable::SimpleArray); 
                 break;
               }
 
@@ -1767,19 +2225,19 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       setState(362);
       match(AnyFXParser::LL);
       setState(363);
-      dynamic_cast<VariableContext *>(_localctx)->asize2 = expression();
+      antlrcpp::downCast<VariableContext *>(_localctx)->asize2 = expression();
       setState(364);
       match(AnyFXParser::RR);
-       _localctx->var->AddSizeExpression(dynamic_cast<VariableContext *>(_localctx)->asize2->tree); _localctx->var->SetArrayType(Variable::SimpleArray); 
+       _localctx->var->AddSizeExpression(antlrcpp::downCast<VariableContext *>(_localctx)->asize2->tree); _localctx->var->SetArrayType(Variable::SimpleArray); 
       setState(366);
       match(AnyFXParser::EQ);
       setState(367);
       match(AnyFXParser::LB);
       setState(368);
-      dynamic_cast<VariableContext *>(_localctx)->valList = valueList();
+      antlrcpp::downCast<VariableContext *>(_localctx)->valList = valueList();
       setState(369);
       match(AnyFXParser::RB);
-       _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->valList->valList); 
+       _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->valList->valList); 
       break;
     }
 
@@ -1787,23 +2245,23 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       setState(372);
       match(AnyFXParser::LL);
       setState(373);
-      dynamic_cast<VariableContext *>(_localctx)->asize2 = expression();
+      antlrcpp::downCast<VariableContext *>(_localctx)->asize2 = expression();
       setState(374);
       match(AnyFXParser::RR);
-       _localctx->var->AddSizeExpression(dynamic_cast<VariableContext *>(_localctx)->asize2->tree); _localctx->var->SetArrayType(Variable::TypedArray); 
+       _localctx->var->AddSizeExpression(antlrcpp::downCast<VariableContext *>(_localctx)->asize2->tree); _localctx->var->SetArrayType(Variable::TypedArray); 
       setState(376);
       match(AnyFXParser::EQ);
       setState(377);
       match(AnyFXParser::LB);
       setState(378);
-      dynamic_cast<VariableContext *>(_localctx)->fstType = type();
+      antlrcpp::downCast<VariableContext *>(_localctx)->fstType = type();
       setState(379);
       match(AnyFXParser::LP);
       setState(380);
-      dynamic_cast<VariableContext *>(_localctx)->fstValue = valueList();
+      antlrcpp::downCast<VariableContext *>(_localctx)->fstValue = valueList();
       setState(381);
       match(AnyFXParser::RP);
-       _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->fstType->ty, dynamic_cast<VariableContext *>(_localctx)->fstValue->valList); 
+       _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->fstType->ty, antlrcpp::downCast<VariableContext *>(_localctx)->fstValue->valList); 
       setState(392);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -1811,14 +2269,14 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
         setState(383);
         match(AnyFXParser::CO);
         setState(384);
-        dynamic_cast<VariableContext *>(_localctx)->cntType = type();
+        antlrcpp::downCast<VariableContext *>(_localctx)->cntType = type();
         setState(385);
         match(AnyFXParser::LP);
         setState(386);
-        dynamic_cast<VariableContext *>(_localctx)->cntValue = valueList();
+        antlrcpp::downCast<VariableContext *>(_localctx)->cntValue = valueList();
         setState(387);
         match(AnyFXParser::RP);
-         _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->cntType->ty, dynamic_cast<VariableContext *>(_localctx)->cntValue->valList); 
+         _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->cntType->ty, antlrcpp::downCast<VariableContext *>(_localctx)->cntValue->valList); 
         setState(394);
         _errHandler->sync(this);
         _la = _input->LA(1);
@@ -1841,14 +2299,14 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       setState(400);
       match(AnyFXParser::EQ);
       setState(401);
-      dynamic_cast<VariableContext *>(_localctx)->defType = type();
+      antlrcpp::downCast<VariableContext *>(_localctx)->defType = type();
       setState(402);
       match(AnyFXParser::LP);
       setState(403);
-      dynamic_cast<VariableContext *>(_localctx)->list2 = valueList();
+      antlrcpp::downCast<VariableContext *>(_localctx)->list2 = valueList();
       setState(404);
       match(AnyFXParser::RP);
-       _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->defType->ty, dynamic_cast<VariableContext *>(_localctx)->list2->valList); 
+       _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->defType->ty, antlrcpp::downCast<VariableContext *>(_localctx)->list2->valList); 
       break;
     }
 
@@ -1856,11 +2314,13 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
       setState(407);
       match(AnyFXParser::EQ);
       setState(408);
-      dynamic_cast<VariableContext *>(_localctx)->list3 = valueSingleList();
-       _localctx->var->AddValue(dynamic_cast<VariableContext *>(_localctx)->list3->valList); 
+      antlrcpp::downCast<VariableContext *>(_localctx)->list3 = valueSingleList();
+       _localctx->var->AddValue(antlrcpp::downCast<VariableContext *>(_localctx)->list3->valList); 
       break;
     }
 
+    default:
+      break;
     }
     setState(416);
     _errHandler->sync(this);
@@ -1868,8 +2328,8 @@ AnyFXParser::VariableContext* AnyFXParser::variable() {
     _la = _input->LA(1);
     if (_la == AnyFXParser::LL) {
       setState(413);
-      dynamic_cast<VariableContext *>(_localctx)->annotationContext = annotation();
-       _localctx->var->SetAnnotation(dynamic_cast<VariableContext *>(_localctx)->annotationContext->annot); 
+      antlrcpp::downCast<VariableContext *>(_localctx)->annotationContext = annotation();
+       _localctx->var->SetAnnotation(antlrcpp::downCast<VariableContext *>(_localctx)->annotationContext->annot); 
     }
     setState(418);
     match(AnyFXParser::SC);
@@ -1902,6 +2362,42 @@ tree::TerminalNode* AnyFXParser::ParameterContext::IDENTIFIER(size_t i) {
   return getToken(AnyFXParser::IDENTIFIER, i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::ParameterContext::LL() {
+  return getTokens(AnyFXParser::LL);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterContext::LL(size_t i) {
+  return getToken(AnyFXParser::LL, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::ParameterContext::RR() {
+  return getTokens(AnyFXParser::RR);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterContext::RR(size_t i) {
+  return getToken(AnyFXParser::RR, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::ParameterContext::EQ() {
+  return getTokens(AnyFXParser::EQ);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterContext::EQ(size_t i) {
+  return getToken(AnyFXParser::EQ, i);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterContext::CO() {
+  return getToken(AnyFXParser::CO, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 std::vector<AnyFXParser::ExpressionContext *> AnyFXParser::ParameterContext::expression() {
   return getRuleContexts<AnyFXParser::ExpressionContext>();
 }
@@ -1932,7 +2428,11 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
   enterRule(_localctx, 28, AnyFXParser::RuleParameter);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1946,15 +2446,17 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
       setState(420);
       match(AnyFXParser::LL);
       setState(421);
-      dynamic_cast<ParameterContext *>(_localctx)->attr = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<ParameterContext *>(_localctx)->attr = match(AnyFXParser::IDENTIFIER);
       setState(422);
       match(AnyFXParser::RR);
 
-                  _localctx->param.SetAttribute((dynamic_cast<ParameterContext *>(_localctx)->attr != nullptr ? dynamic_cast<ParameterContext *>(_localctx)->attr->getText() : ""));
+                  _localctx->param.SetAttribute((antlrcpp::downCast<ParameterContext *>(_localctx)->attr != nullptr ? antlrcpp::downCast<ParameterContext *>(_localctx)->attr->getText() : ""));
               
       break;
     }
 
+    default:
+      break;
     }
     setState(437);
     _errHandler->sync(this);
@@ -1970,22 +2472,24 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
       setState(429);
       match(AnyFXParser::LP);
       setState(430);
-      dynamic_cast<ParameterContext *>(_localctx)->feedbackBuffer = expression();
+      antlrcpp::downCast<ParameterContext *>(_localctx)->feedbackBuffer = expression();
       setState(431);
       match(AnyFXParser::CO);
       setState(432);
-      dynamic_cast<ParameterContext *>(_localctx)->feedbackOffset = expression();
+      antlrcpp::downCast<ParameterContext *>(_localctx)->feedbackOffset = expression();
       setState(433);
       match(AnyFXParser::RP);
       setState(434);
       match(AnyFXParser::RR);
 
-                  _localctx->param.SetFeedbackBufferExpression(dynamic_cast<ParameterContext *>(_localctx)->feedbackBuffer->tree);
-                  _localctx->param.SetFeedbackOffsetExpression(dynamic_cast<ParameterContext *>(_localctx)->feedbackOffset->tree);
+                  _localctx->param.SetFeedbackBufferExpression(antlrcpp::downCast<ParameterContext *>(_localctx)->feedbackBuffer->tree);
+                  _localctx->param.SetFeedbackOffsetExpression(antlrcpp::downCast<ParameterContext *>(_localctx)->feedbackOffset->tree);
               
       break;
     }
 
+    default:
+      break;
     }
     setState(446);
     _errHandler->sync(this);
@@ -1999,11 +2503,11 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
       setState(441);
       match(AnyFXParser::EQ);
       setState(442);
-      dynamic_cast<ParameterContext *>(_localctx)->slotExpression = expression();
+      antlrcpp::downCast<ParameterContext *>(_localctx)->slotExpression = expression();
       setState(443);
       match(AnyFXParser::RR);
 
-                  _localctx->param.SetSlotExpression(dynamic_cast<ParameterContext *>(_localctx)->slotExpression->tree);
+                  _localctx->param.SetSlotExpression(antlrcpp::downCast<ParameterContext *>(_localctx)->slotExpression->tree);
               
     }
     setState(452);
@@ -2012,9 +2516,9 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         setState(448);
-        dynamic_cast<ParameterContext *>(_localctx)->qualifier = match(AnyFXParser::IDENTIFIER);
+        antlrcpp::downCast<ParameterContext *>(_localctx)->qualifier = match(AnyFXParser::IDENTIFIER);
 
-                    _localctx->param.AddQualifier((dynamic_cast<ParameterContext *>(_localctx)->qualifier != nullptr ? dynamic_cast<ParameterContext *>(_localctx)->qualifier->getText() : ""));
+                    _localctx->param.AddQualifier((antlrcpp::downCast<ParameterContext *>(_localctx)->qualifier != nullptr ? antlrcpp::downCast<ParameterContext *>(_localctx)->qualifier->getText() : ""));
                  
       }
       setState(454);
@@ -2022,10 +2526,10 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 36, _ctx);
     }
     setState(455);
-    dynamic_cast<ParameterContext *>(_localctx)->typeContext = type();
+    antlrcpp::downCast<ParameterContext *>(_localctx)->typeContext = type();
     setState(456);
-    dynamic_cast<ParameterContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
-     _localctx->param.SetDataType(dynamic_cast<ParameterContext *>(_localctx)->typeContext->ty); _localctx->param.SetName((dynamic_cast<ParameterContext *>(_localctx)->name != nullptr ? dynamic_cast<ParameterContext *>(_localctx)->name->getText() : "")); SetupFile(&_localctx->param, _input); 
+    antlrcpp::downCast<ParameterContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+     _localctx->param.SetDataType(antlrcpp::downCast<ParameterContext *>(_localctx)->typeContext->ty); _localctx->param.SetName((antlrcpp::downCast<ParameterContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<ParameterContext *>(_localctx)->name->getText() : "")); SetupFile(&_localctx->param, _input); 
     setState(466);
     _errHandler->sync(this);
 
@@ -2038,19 +2542,10 @@ AnyFXParser::ParameterContext* AnyFXParser::parameter() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << AnyFXParser::T__0)
-        | (1ULL << AnyFXParser::T__1)
-        | (1ULL << AnyFXParser::LP)
-        | (1ULL << AnyFXParser::NOT)
-        | (1ULL << AnyFXParser::SUB_OP)
-        | (1ULL << AnyFXParser::INTEGERLITERAL)
-        | (1ULL << AnyFXParser::FLOATLITERAL)
-        | (1ULL << AnyFXParser::DOUBLELITERAL)
-        | (1ULL << AnyFXParser::HEX)
-        | (1ULL << AnyFXParser::IDENTIFIER))) != 0)) {
+        ((1ULL << _la) & 4199606652590620678) != 0)) {
         setState(459);
-        dynamic_cast<ParameterContext *>(_localctx)->size = expression();
-         _localctx->param.SetSizeExpression(dynamic_cast<ParameterContext *>(_localctx)->size->tree); 
+        antlrcpp::downCast<ParameterContext *>(_localctx)->size = expression();
+         _localctx->param.SetSizeExpression(antlrcpp::downCast<ParameterContext *>(_localctx)->size->tree); 
       }
       setState(464);
       match(AnyFXParser::RR);
@@ -2073,12 +2568,28 @@ AnyFXParser::ParameterListContext::ParameterListContext(ParserRuleContext *paren
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ParameterListContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterListContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
 std::vector<AnyFXParser::ParameterContext *> AnyFXParser::ParameterListContext::parameter() {
   return getRuleContexts<AnyFXParser::ParameterContext>();
 }
 
 AnyFXParser::ParameterContext* AnyFXParser::ParameterListContext::parameter(size_t i) {
   return getRuleContext<AnyFXParser::ParameterContext>(i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::ParameterListContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::ParameterListContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
 }
 
 
@@ -2103,7 +2614,11 @@ AnyFXParser::ParameterListContext* AnyFXParser::parameterList() {
   enterRule(_localctx, 30, AnyFXParser::RuleParameterList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2118,8 +2633,8 @@ AnyFXParser::ParameterListContext* AnyFXParser::parameterList() {
 
     || _la == AnyFXParser::IDENTIFIER) {
       setState(469);
-      dynamic_cast<ParameterListContext *>(_localctx)->firstParam = parameter();
-       _localctx->parameters.push_back(dynamic_cast<ParameterListContext *>(_localctx)->firstParam->param); 
+      antlrcpp::downCast<ParameterListContext *>(_localctx)->firstParam = parameter();
+       _localctx->parameters.push_back(antlrcpp::downCast<ParameterListContext *>(_localctx)->firstParam->param); 
       setState(477);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -2127,8 +2642,8 @@ AnyFXParser::ParameterListContext* AnyFXParser::parameterList() {
         setState(471);
         match(AnyFXParser::CO);
         setState(472);
-        dynamic_cast<ParameterListContext *>(_localctx)->followParam = parameter();
-         _localctx->parameters.push_back(dynamic_cast<ParameterListContext *>(_localctx)->followParam->param); 
+        antlrcpp::downCast<ParameterListContext *>(_localctx)->followParam = parameter();
+         _localctx->parameters.push_back(antlrcpp::downCast<ParameterListContext *>(_localctx)->followParam->param); 
         setState(479);
         _errHandler->sync(this);
         _la = _input->LA(1);
@@ -2151,6 +2666,18 @@ AnyFXParser::ParameterListContext* AnyFXParser::parameterList() {
 
 AnyFXParser::FunctionAttributeContext::FunctionAttributeContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::FunctionAttributeContext::LL() {
+  return getToken(AnyFXParser::LL, 0);
+}
+
+tree::TerminalNode* AnyFXParser::FunctionAttributeContext::RR() {
+  return getToken(AnyFXParser::RR, 0);
+}
+
+tree::TerminalNode* AnyFXParser::FunctionAttributeContext::EQ() {
+  return getToken(AnyFXParser::EQ, 0);
 }
 
 AnyFXParser::ExpressionContext* AnyFXParser::FunctionAttributeContext::expression() {
@@ -2182,7 +2709,11 @@ AnyFXParser::FunctionAttributeContext* AnyFXParser::functionAttribute() {
   FunctionAttributeContext *_localctx = _tracker.createInstance<FunctionAttributeContext>(_ctx, getState());
   enterRule(_localctx, 32, AnyFXParser::RuleFunctionAttribute);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2194,17 +2725,17 @@ AnyFXParser::FunctionAttributeContext* AnyFXParser::functionAttribute() {
       setState(484);
       match(AnyFXParser::LL);
       setState(485);
-      dynamic_cast<FunctionAttributeContext *>(_localctx)->flag1 = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->flag1 = match(AnyFXParser::IDENTIFIER);
       setState(486);
       match(AnyFXParser::RR);
       setState(487);
       match(AnyFXParser::EQ);
       setState(488);
-      dynamic_cast<FunctionAttributeContext *>(_localctx)->expressionContext = expression();
+      antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->expressionContext = expression();
 
-              std::string identifierString((dynamic_cast<FunctionAttributeContext *>(_localctx)->flag1 != nullptr ? dynamic_cast<FunctionAttributeContext *>(_localctx)->flag1->getText() : ""));
+              std::string identifierString((antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->flag1 != nullptr ? antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->flag1->getText() : ""));
 
-              _localctx->attribute.SetExpression(identifierString, dynamic_cast<FunctionAttributeContext *>(_localctx)->expressionContext->tree);
+              _localctx->attribute.SetExpression(identifierString, antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->expressionContext->tree);
           
       break;
     }
@@ -2214,17 +2745,19 @@ AnyFXParser::FunctionAttributeContext* AnyFXParser::functionAttribute() {
       setState(491);
       match(AnyFXParser::LL);
       setState(492);
-      dynamic_cast<FunctionAttributeContext *>(_localctx)->flag3 = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->flag3 = match(AnyFXParser::IDENTIFIER);
       setState(493);
       match(AnyFXParser::RR);
 
-              std::string identifierString((dynamic_cast<FunctionAttributeContext *>(_localctx)->flag3 != nullptr ? dynamic_cast<FunctionAttributeContext *>(_localctx)->flag3->getText() : ""));
+              std::string identifierString((antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->flag3 != nullptr ? antlrcpp::downCast<FunctionAttributeContext *>(_localctx)->flag3->getText() : ""));
 
               _localctx->attribute.SetBool(identifierString, true);
           
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -2241,6 +2774,14 @@ AnyFXParser::FunctionAttributeContext* AnyFXParser::functionAttribute() {
 
 AnyFXParser::CodeBlockContext::CodeBlockContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::CodeBlockContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::CodeBlockContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
 }
 
 std::vector<AnyFXParser::CodeBlockContext *> AnyFXParser::CodeBlockContext::codeBlock() {
@@ -2273,7 +2814,11 @@ AnyFXParser::CodeBlockContext* AnyFXParser::codeBlock() {
   enterRule(_localctx, 34, AnyFXParser::RuleCodeBlock);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2288,67 +2833,7 @@ AnyFXParser::CodeBlockContext* AnyFXParser::codeBlock() {
         _errHandler->sync(this);
         _la = _input->LA(1);
         while ((((_la & ~ 0x3fULL) == 0) &&
-          ((1ULL << _la) & ((1ULL << AnyFXParser::T__0)
-          | (1ULL << AnyFXParser::T__1)
-          | (1ULL << AnyFXParser::T__2)
-          | (1ULL << AnyFXParser::T__3)
-          | (1ULL << AnyFXParser::T__4)
-          | (1ULL << AnyFXParser::T__5)
-          | (1ULL << AnyFXParser::T__6)
-          | (1ULL << AnyFXParser::T__7)
-          | (1ULL << AnyFXParser::T__8)
-          | (1ULL << AnyFXParser::T__9)
-          | (1ULL << AnyFXParser::T__10)
-          | (1ULL << AnyFXParser::T__11)
-          | (1ULL << AnyFXParser::T__12)
-          | (1ULL << AnyFXParser::T__13)
-          | (1ULL << AnyFXParser::T__14)
-          | (1ULL << AnyFXParser::SC)
-          | (1ULL << AnyFXParser::CO)
-          | (1ULL << AnyFXParser::COL)
-          | (1ULL << AnyFXParser::LP)
-          | (1ULL << AnyFXParser::RP)
-          | (1ULL << AnyFXParser::LB)
-          | (1ULL << AnyFXParser::LL)
-          | (1ULL << AnyFXParser::RR)
-          | (1ULL << AnyFXParser::DOT)
-          | (1ULL << AnyFXParser::NOT)
-          | (1ULL << AnyFXParser::EQ)
-          | (1ULL << AnyFXParser::QO)
-          | (1ULL << AnyFXParser::QU)
-          | (1ULL << AnyFXParser::AND)
-          | (1ULL << AnyFXParser::ANDSET)
-          | (1ULL << AnyFXParser::OR)
-          | (1ULL << AnyFXParser::ORSET)
-          | (1ULL << AnyFXParser::XOR)
-          | (1ULL << AnyFXParser::XORSET)
-          | (1ULL << AnyFXParser::CONNJUGATE)
-          | (1ULL << AnyFXParser::Q)
-          | (1ULL << AnyFXParser::NU)
-          | (1ULL << AnyFXParser::FORWARDSLASH)
-          | (1ULL << AnyFXParser::LESS)
-          | (1ULL << AnyFXParser::LESSEQ)
-          | (1ULL << AnyFXParser::GREATER)
-          | (1ULL << AnyFXParser::GREATEREQ)
-          | (1ULL << AnyFXParser::LOGICEQ)
-          | (1ULL << AnyFXParser::NOTEQ)
-          | (1ULL << AnyFXParser::LOGICAND)
-          | (1ULL << AnyFXParser::LOGICOR)
-          | (1ULL << AnyFXParser::MOD)
-          | (1ULL << AnyFXParser::UNDERSC)
-          | (1ULL << AnyFXParser::ADD_OP)
-          | (1ULL << AnyFXParser::SUB_OP)
-          | (1ULL << AnyFXParser::DIV_OP)
-          | (1ULL << AnyFXParser::MUL_OP)
-          | (1ULL << AnyFXParser::INTEGERLITERAL)
-          | (1ULL << AnyFXParser::COMMENT)
-          | (1ULL << AnyFXParser::ML_COMMENT)
-          | (1ULL << AnyFXParser::FLOATLITERAL)
-          | (1ULL << AnyFXParser::EXPONENT)
-          | (1ULL << AnyFXParser::DOUBLELITERAL)
-          | (1ULL << AnyFXParser::HEX)
-          | (1ULL << AnyFXParser::IDENTIFIER)
-          | (1ULL << AnyFXParser::WS))) != 0)) {
+          ((1ULL << _la) & 9223372036850581502) != 0)) {
           setState(498);
           codeBlock();
           setState(503);
@@ -2500,13 +2985,17 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
   FunctionContext *_localctx = _tracker.createInstance<FunctionContext>(_ctx, getState());
   enterRule(_localctx, 36, AnyFXParser::RuleFunction);
 
-              dynamic_cast<FunctionContext *>(_localctx)->func =  alloc.Alloc<Function>();
+              antlrcpp::downCast<FunctionContext *>(_localctx)->func =  alloc.Alloc<Function>();
               Token* startToken = nullptr;
               Token* endToken = nullptr;
           
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2516,8 +3005,8 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
     _la = _input->LA(1);
     while (_la == AnyFXParser::LL) {
       setState(508);
-      dynamic_cast<FunctionContext *>(_localctx)->functionAttributeContext = functionAttribute();
-       _localctx->func->ConsumeAttribute(dynamic_cast<FunctionContext *>(_localctx)->functionAttributeContext->attribute); 
+      antlrcpp::downCast<FunctionContext *>(_localctx)->functionAttributeContext = functionAttribute();
+       _localctx->func->ConsumeAttribute(antlrcpp::downCast<FunctionContext *>(_localctx)->functionAttributeContext->attribute); 
       setState(515);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -2532,12 +3021,12 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
        _localctx->func->SetShader(true); 
     }
     setState(520);
-    dynamic_cast<FunctionContext *>(_localctx)->typeContext = type();
+    antlrcpp::downCast<FunctionContext *>(_localctx)->typeContext = type();
     setState(521);
-    dynamic_cast<FunctionContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<FunctionContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
      UpdateLine(_input, -2); _localctx->func->SetFunctionLine(this->lineOffset); SetupFile(_localctx->func, _input, false);  
     setState(523);
-    dynamic_cast<FunctionContext *>(_localctx)->parameterListContext = parameterList();
+    antlrcpp::downCast<FunctionContext *>(_localctx)->parameterListContext = parameterList();
 
                 // the code block will be after the next right bracket
                 startToken = _input->LT(2);
@@ -2562,7 +3051,7 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
                     _localctx->func->SetCode(code);
             
      
-                _localctx->func->SetName((dynamic_cast<FunctionContext *>(_localctx)->name != nullptr ? dynamic_cast<FunctionContext *>(_localctx)->name->getText() : "")); _localctx->func->SetReturnType(dynamic_cast<FunctionContext *>(_localctx)->typeContext->ty); _localctx->func->SetParameters(dynamic_cast<FunctionContext *>(_localctx)->parameterListContext->parameters); 
+                _localctx->func->SetName((antlrcpp::downCast<FunctionContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<FunctionContext *>(_localctx)->name->getText() : "")); _localctx->func->SetReturnType(antlrcpp::downCast<FunctionContext *>(_localctx)->typeContext->ty); _localctx->func->SetParameters(antlrcpp::downCast<FunctionContext *>(_localctx)->parameterListContext->parameters); 
             
    
   }
@@ -2579,6 +3068,22 @@ AnyFXParser::FunctionContext* AnyFXParser::function() {
 
 AnyFXParser::BlendStateRowContext::BlendStateRowContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::BlendStateRowContext::LL() {
+  return getToken(AnyFXParser::LL, 0);
+}
+
+tree::TerminalNode* AnyFXParser::BlendStateRowContext::RR() {
+  return getToken(AnyFXParser::RR, 0);
+}
+
+tree::TerminalNode* AnyFXParser::BlendStateRowContext::EQ() {
+  return getToken(AnyFXParser::EQ, 0);
+}
+
+tree::TerminalNode* AnyFXParser::BlendStateRowContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
 }
 
 tree::TerminalNode* AnyFXParser::BlendStateRowContext::IDENTIFIER() {
@@ -2614,28 +3119,32 @@ AnyFXParser::BlendStateRowContext* AnyFXParser::blendStateRow() {
   BlendStateRowContext *_localctx = _tracker.createInstance<BlendStateRowContext>(_ctx, getState());
   enterRule(_localctx, 38, AnyFXParser::RuleBlendStateRow);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(529);
-    dynamic_cast<BlendStateRowContext *>(_localctx)->flag2 = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<BlendStateRowContext *>(_localctx)->flag2 = match(AnyFXParser::IDENTIFIER);
     setState(530);
     match(AnyFXParser::LL);
     setState(531);
-    dynamic_cast<BlendStateRowContext *>(_localctx)->index2 = expression();
+    antlrcpp::downCast<BlendStateRowContext *>(_localctx)->index2 = expression();
     setState(532);
     match(AnyFXParser::RR);
     setState(533);
     match(AnyFXParser::EQ);
     setState(534);
-    dynamic_cast<BlendStateRowContext *>(_localctx)->value = expression();
+    antlrcpp::downCast<BlendStateRowContext *>(_localctx)->value = expression();
     setState(535);
     match(AnyFXParser::SC);
 
-            std::string flag((dynamic_cast<BlendStateRowContext *>(_localctx)->flag2 != nullptr ? dynamic_cast<BlendStateRowContext *>(_localctx)->flag2->getText() : ""));
-            _localctx->row.SetExpression(dynamic_cast<BlendStateRowContext *>(_localctx)->index2->tree, flag, dynamic_cast<BlendStateRowContext *>(_localctx)->value->tree);
+            std::string flag((antlrcpp::downCast<BlendStateRowContext *>(_localctx)->flag2 != nullptr ? antlrcpp::downCast<BlendStateRowContext *>(_localctx)->flag2->getText() : ""));
+            _localctx->row.SetExpression(antlrcpp::downCast<BlendStateRowContext *>(_localctx)->index2->tree, flag, antlrcpp::downCast<BlendStateRowContext *>(_localctx)->value->tree);
         
    
   }
@@ -2654,8 +3163,16 @@ AnyFXParser::RenderStateRowContext::RenderStateRowContext(ParserRuleContext *par
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::RenderStateRowContext::EQ() {
+  return getToken(AnyFXParser::EQ, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::RenderStateRowContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
+}
+
+tree::TerminalNode* AnyFXParser::RenderStateRowContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
 }
 
 tree::TerminalNode* AnyFXParser::RenderStateRowContext::IDENTIFIER() {
@@ -2683,22 +3200,26 @@ AnyFXParser::RenderStateRowContext* AnyFXParser::renderStateRow() {
   RenderStateRowContext *_localctx = _tracker.createInstance<RenderStateRowContext>(_ctx, getState());
   enterRule(_localctx, 40, AnyFXParser::RuleRenderStateRow);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(538);
-    dynamic_cast<RenderStateRowContext *>(_localctx)->flag1 = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<RenderStateRowContext *>(_localctx)->flag1 = match(AnyFXParser::IDENTIFIER);
     setState(539);
     match(AnyFXParser::EQ);
     setState(540);
-    dynamic_cast<RenderStateRowContext *>(_localctx)->expressionContext = expression();
+    antlrcpp::downCast<RenderStateRowContext *>(_localctx)->expressionContext = expression();
     setState(541);
     match(AnyFXParser::SC);
 
-            std::string flag((dynamic_cast<RenderStateRowContext *>(_localctx)->flag1 != nullptr ? dynamic_cast<RenderStateRowContext *>(_localctx)->flag1->getText() : ""));
-            _localctx->row.SetExpression(flag, dynamic_cast<RenderStateRowContext *>(_localctx)->expressionContext->tree);
+            std::string flag((antlrcpp::downCast<RenderStateRowContext *>(_localctx)->flag1 != nullptr ? antlrcpp::downCast<RenderStateRowContext *>(_localctx)->flag1->getText() : ""));
+            _localctx->row.SetExpression(flag, antlrcpp::downCast<RenderStateRowContext *>(_localctx)->expressionContext->tree);
         
    
   }
@@ -2717,8 +3238,20 @@ AnyFXParser::RenderStateContext::RenderStateContext(ParserRuleContext *parent, s
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::RenderStateContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 tree::TerminalNode* AnyFXParser::RenderStateContext::IDENTIFIER() {
   return getToken(AnyFXParser::IDENTIFIER, 0);
+}
+
+tree::TerminalNode* AnyFXParser::RenderStateContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::RenderStateContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
 }
 
 std::vector<AnyFXParser::RenderStateRowContext *> AnyFXParser::RenderStateContext::renderStateRow() {
@@ -2758,11 +3291,15 @@ AnyFXParser::RenderStateContext* AnyFXParser::renderState() {
   RenderStateContext *_localctx = _tracker.createInstance<RenderStateContext>(_ctx, getState());
   enterRule(_localctx, 42, AnyFXParser::RuleRenderState);
 
-          dynamic_cast<RenderStateContext *>(_localctx)->state =  alloc.Alloc<RenderState>();
+          antlrcpp::downCast<RenderStateContext *>(_localctx)->state =  alloc.Alloc<RenderState>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2774,11 +3311,11 @@ AnyFXParser::RenderStateContext* AnyFXParser::renderState() {
       setState(544);
       match(AnyFXParser::T__11);
       setState(545);
-      dynamic_cast<RenderStateContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<RenderStateContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
        SetupFile(_localctx->state, _input); 
       setState(547);
       match(AnyFXParser::SC);
-       _localctx->state->SetName((dynamic_cast<RenderStateContext *>(_localctx)->name != nullptr ? dynamic_cast<RenderStateContext *>(_localctx)->name->getText() : "")); 
+       _localctx->state->SetName((antlrcpp::downCast<RenderStateContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<RenderStateContext *>(_localctx)->name->getText() : "")); 
               
       break;
     }
@@ -2788,11 +3325,11 @@ AnyFXParser::RenderStateContext* AnyFXParser::renderState() {
       setState(549);
       match(AnyFXParser::T__11);
       setState(550);
-      dynamic_cast<RenderStateContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<RenderStateContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
        SetupFile(_localctx->state, _input); 
       setState(552);
       match(AnyFXParser::LB);
-       _localctx->state->SetName((dynamic_cast<RenderStateContext *>(_localctx)->name != nullptr ? dynamic_cast<RenderStateContext *>(_localctx)->name->getText() : "")); 
+       _localctx->state->SetName((antlrcpp::downCast<RenderStateContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<RenderStateContext *>(_localctx)->name->getText() : "")); 
               
       setState(562);
       _errHandler->sync(this);
@@ -2803,18 +3340,20 @@ AnyFXParser::RenderStateContext* AnyFXParser::renderState() {
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 46, _ctx)) {
         case 1: {
           setState(554);
-          dynamic_cast<RenderStateContext *>(_localctx)->renderStateRowContext = renderStateRow();
-           _localctx->state->ConsumeRenderRow(dynamic_cast<RenderStateContext *>(_localctx)->renderStateRowContext->row); 
+          antlrcpp::downCast<RenderStateContext *>(_localctx)->renderStateRowContext = renderStateRow();
+           _localctx->state->ConsumeRenderRow(antlrcpp::downCast<RenderStateContext *>(_localctx)->renderStateRowContext->row); 
           break;
         }
 
         case 2: {
           setState(557);
-          dynamic_cast<RenderStateContext *>(_localctx)->blendStateRowContext = blendStateRow();
-           _localctx->state->ConsumeBlendRow(dynamic_cast<RenderStateContext *>(_localctx)->blendStateRowContext->row); 
+          antlrcpp::downCast<RenderStateContext *>(_localctx)->blendStateRowContext = blendStateRow();
+           _localctx->state->ConsumeBlendRow(antlrcpp::downCast<RenderStateContext *>(_localctx)->blendStateRowContext->row); 
           break;
         }
 
+        default:
+          break;
         }
         setState(564);
         _errHandler->sync(this);
@@ -2827,6 +3366,8 @@ AnyFXParser::RenderStateContext* AnyFXParser::renderState() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -2845,6 +3386,10 @@ AnyFXParser::SamplerContext::SamplerContext(ParserRuleContext *parent, size_t in
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::SamplerContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 std::vector<tree::TerminalNode *> AnyFXParser::SamplerContext::IDENTIFIER() {
   return getTokens(AnyFXParser::IDENTIFIER);
 }
@@ -2859,6 +3404,14 @@ std::vector<AnyFXParser::QualifierExpressionContext *> AnyFXParser::SamplerConte
 
 AnyFXParser::QualifierExpressionContext* AnyFXParser::SamplerContext::qualifierExpression(size_t i) {
   return getRuleContext<AnyFXParser::QualifierExpressionContext>(i);
+}
+
+tree::TerminalNode* AnyFXParser::SamplerContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::SamplerContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
 }
 
 std::vector<AnyFXParser::SamplerRowContext *> AnyFXParser::SamplerContext::samplerRow() {
@@ -2890,11 +3443,15 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
   SamplerContext *_localctx = _tracker.createInstance<SamplerContext>(_ctx, getState());
   enterRule(_localctx, 44, AnyFXParser::RuleSampler);
 
-          dynamic_cast<SamplerContext *>(_localctx)->samp =  alloc.Alloc<Sampler>();
+          antlrcpp::downCast<SamplerContext *>(_localctx)->samp =  alloc.Alloc<Sampler>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2912,18 +3469,20 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 49, _ctx)) {
         case 1: {
           setState(569);
-          dynamic_cast<SamplerContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
-           _localctx->samp->AddQualifier((dynamic_cast<SamplerContext *>(_localctx)->qual != nullptr ? dynamic_cast<SamplerContext *>(_localctx)->qual->getText() : "")); 
+          antlrcpp::downCast<SamplerContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
+           _localctx->samp->AddQualifier((antlrcpp::downCast<SamplerContext *>(_localctx)->qual != nullptr ? antlrcpp::downCast<SamplerContext *>(_localctx)->qual->getText() : "")); 
           break;
         }
 
         case 2: {
           setState(571);
-          dynamic_cast<SamplerContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
-           _localctx->samp->AddQualifierExpression(dynamic_cast<SamplerContext *>(_localctx)->qualifierExpressionContext->q); 
+          antlrcpp::downCast<SamplerContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
+           _localctx->samp->AddQualifierExpression(antlrcpp::downCast<SamplerContext *>(_localctx)->qualifierExpressionContext->q); 
           break;
         }
 
+        default:
+          break;
         }
         setState(578);
         _errHandler->sync(this);
@@ -2933,11 +3492,11 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
       setState(579);
       match(AnyFXParser::T__12);
       setState(580);
-      dynamic_cast<SamplerContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<SamplerContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
        SetupFile(_localctx->samp, _input); 
       setState(582);
       match(AnyFXParser::SC);
-       _localctx->samp->SetName((dynamic_cast<SamplerContext *>(_localctx)->name != nullptr ? dynamic_cast<SamplerContext *>(_localctx)->name->getText() : "")); 
+       _localctx->samp->SetName((antlrcpp::downCast<SamplerContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<SamplerContext *>(_localctx)->name->getText() : "")); 
               
       break;
     }
@@ -2953,18 +3512,20 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
         switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 51, _ctx)) {
         case 1: {
           setState(584);
-          dynamic_cast<SamplerContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
-           _localctx->samp->AddQualifier((dynamic_cast<SamplerContext *>(_localctx)->qual != nullptr ? dynamic_cast<SamplerContext *>(_localctx)->qual->getText() : "")); 
+          antlrcpp::downCast<SamplerContext *>(_localctx)->qual = match(AnyFXParser::IDENTIFIER);
+           _localctx->samp->AddQualifier((antlrcpp::downCast<SamplerContext *>(_localctx)->qual != nullptr ? antlrcpp::downCast<SamplerContext *>(_localctx)->qual->getText() : "")); 
           break;
         }
 
         case 2: {
           setState(586);
-          dynamic_cast<SamplerContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
-           _localctx->samp->AddQualifierExpression(dynamic_cast<SamplerContext *>(_localctx)->qualifierExpressionContext->q); 
+          antlrcpp::downCast<SamplerContext *>(_localctx)->qualifierExpressionContext = qualifierExpression();
+           _localctx->samp->AddQualifierExpression(antlrcpp::downCast<SamplerContext *>(_localctx)->qualifierExpressionContext->q); 
           break;
         }
 
+        default:
+          break;
         }
         setState(593);
         _errHandler->sync(this);
@@ -2974,9 +3535,9 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
       setState(594);
       match(AnyFXParser::T__12);
       setState(595);
-      dynamic_cast<SamplerContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<SamplerContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
        SetupFile(_localctx->samp, _input); 
-       _localctx->samp->SetName((dynamic_cast<SamplerContext *>(_localctx)->name != nullptr ? dynamic_cast<SamplerContext *>(_localctx)->name->getText() : "")); 
+       _localctx->samp->SetName((antlrcpp::downCast<SamplerContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<SamplerContext *>(_localctx)->name->getText() : "")); 
               
       setState(598);
       match(AnyFXParser::LB);
@@ -2985,8 +3546,8 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
       _la = _input->LA(1);
       while (_la == AnyFXParser::IDENTIFIER) {
         setState(599);
-        dynamic_cast<SamplerContext *>(_localctx)->samplerRowContext = samplerRow();
-         _localctx->samp->ConsumeRow(dynamic_cast<SamplerContext *>(_localctx)->samplerRowContext->row); 
+        antlrcpp::downCast<SamplerContext *>(_localctx)->samplerRowContext = samplerRow();
+         _localctx->samp->ConsumeRow(antlrcpp::downCast<SamplerContext *>(_localctx)->samplerRowContext->row); 
         setState(606);
         _errHandler->sync(this);
         _la = _input->LA(1);
@@ -2998,6 +3559,8 @@ AnyFXParser::SamplerContext* AnyFXParser::sampler() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -3024,6 +3587,14 @@ tree::TerminalNode* AnyFXParser::SamplerTextureListContext::IDENTIFIER(size_t i)
   return getToken(AnyFXParser::IDENTIFIER, i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::SamplerTextureListContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::SamplerTextureListContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
+}
+
 
 size_t AnyFXParser::SamplerTextureListContext::getRuleIndex() const {
   return AnyFXParser::RuleSamplerTextureList;
@@ -3046,14 +3617,18 @@ AnyFXParser::SamplerTextureListContext* AnyFXParser::samplerTextureList() {
   enterRule(_localctx, 46, AnyFXParser::RuleSamplerTextureList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(611);
-    dynamic_cast<SamplerTextureListContext *>(_localctx)->firstItem = match(AnyFXParser::IDENTIFIER);
-     _localctx->list.AddTexture((dynamic_cast<SamplerTextureListContext *>(_localctx)->firstItem != nullptr ? dynamic_cast<SamplerTextureListContext *>(_localctx)->firstItem->getText() : "")); 
+    antlrcpp::downCast<SamplerTextureListContext *>(_localctx)->firstItem = match(AnyFXParser::IDENTIFIER);
+     _localctx->list.AddTexture((antlrcpp::downCast<SamplerTextureListContext *>(_localctx)->firstItem != nullptr ? antlrcpp::downCast<SamplerTextureListContext *>(_localctx)->firstItem->getText() : "")); 
     setState(618);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -3061,8 +3636,8 @@ AnyFXParser::SamplerTextureListContext* AnyFXParser::samplerTextureList() {
       setState(613);
       match(AnyFXParser::CO);
       setState(614);
-      dynamic_cast<SamplerTextureListContext *>(_localctx)->nextItem = match(AnyFXParser::IDENTIFIER);
-       _localctx->list.AddTexture((dynamic_cast<SamplerTextureListContext *>(_localctx)->nextItem != nullptr ? dynamic_cast<SamplerTextureListContext *>(_localctx)->nextItem->getText() : "")); 
+      antlrcpp::downCast<SamplerTextureListContext *>(_localctx)->nextItem = match(AnyFXParser::IDENTIFIER);
+       _localctx->list.AddTexture((antlrcpp::downCast<SamplerTextureListContext *>(_localctx)->nextItem != nullptr ? antlrcpp::downCast<SamplerTextureListContext *>(_localctx)->nextItem->getText() : "")); 
       setState(620);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -3084,6 +3659,14 @@ AnyFXParser::SamplerRowContext::SamplerRowContext(ParserRuleContext *parent, siz
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::SamplerRowContext::EQ() {
+  return getToken(AnyFXParser::EQ, 0);
+}
+
+tree::TerminalNode* AnyFXParser::SamplerRowContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 std::vector<tree::TerminalNode *> AnyFXParser::SamplerRowContext::IDENTIFIER() {
   return getTokens(AnyFXParser::IDENTIFIER);
 }
@@ -3096,8 +3679,16 @@ AnyFXParser::ExpressionContext* AnyFXParser::SamplerRowContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
 }
 
+tree::TerminalNode* AnyFXParser::SamplerRowContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
 AnyFXParser::SamplerTextureListContext* AnyFXParser::SamplerRowContext::samplerTextureList() {
   return getRuleContext<AnyFXParser::SamplerTextureListContext>(0);
+}
+
+tree::TerminalNode* AnyFXParser::SamplerRowContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
 }
 
 
@@ -3121,7 +3712,11 @@ AnyFXParser::SamplerRowContext* AnyFXParser::samplerRow() {
   SamplerRowContext *_localctx = _tracker.createInstance<SamplerRowContext>(_ctx, getState());
   enterRule(_localctx, 48, AnyFXParser::RuleSamplerRow);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3131,16 +3726,16 @@ AnyFXParser::SamplerRowContext* AnyFXParser::samplerRow() {
     case 1: {
       enterOuterAlt(_localctx, 1);
       setState(621);
-      dynamic_cast<SamplerRowContext *>(_localctx)->flag1 = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag1 = match(AnyFXParser::IDENTIFIER);
       setState(622);
       match(AnyFXParser::EQ);
       setState(623);
-      dynamic_cast<SamplerRowContext *>(_localctx)->samplerMode = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<SamplerRowContext *>(_localctx)->samplerMode = match(AnyFXParser::IDENTIFIER);
       setState(624);
       match(AnyFXParser::SC);
 
-              std::string flag((dynamic_cast<SamplerRowContext *>(_localctx)->flag1 != nullptr ? dynamic_cast<SamplerRowContext *>(_localctx)->flag1->getText() : ""));
-              _localctx->row.SetString(flag, (dynamic_cast<SamplerRowContext *>(_localctx)->samplerMode != nullptr ? dynamic_cast<SamplerRowContext *>(_localctx)->samplerMode->getText() : ""));
+              std::string flag((antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag1 != nullptr ? antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag1->getText() : ""));
+              _localctx->row.SetString(flag, (antlrcpp::downCast<SamplerRowContext *>(_localctx)->samplerMode != nullptr ? antlrcpp::downCast<SamplerRowContext *>(_localctx)->samplerMode->getText() : ""));
           
       break;
     }
@@ -3148,16 +3743,16 @@ AnyFXParser::SamplerRowContext* AnyFXParser::samplerRow() {
     case 2: {
       enterOuterAlt(_localctx, 2);
       setState(626);
-      dynamic_cast<SamplerRowContext *>(_localctx)->flag2 = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag2 = match(AnyFXParser::IDENTIFIER);
       setState(627);
       match(AnyFXParser::EQ);
       setState(628);
-      dynamic_cast<SamplerRowContext *>(_localctx)->expressionContext = expression();
+      antlrcpp::downCast<SamplerRowContext *>(_localctx)->expressionContext = expression();
       setState(629);
       match(AnyFXParser::SC);
 
-              std::string flag((dynamic_cast<SamplerRowContext *>(_localctx)->flag2 != nullptr ? dynamic_cast<SamplerRowContext *>(_localctx)->flag2->getText() : ""));
-              _localctx->row.SetExpression(flag, dynamic_cast<SamplerRowContext *>(_localctx)->expressionContext->tree);
+              std::string flag((antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag2 != nullptr ? antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag2->getText() : ""));
+              _localctx->row.SetExpression(flag, antlrcpp::downCast<SamplerRowContext *>(_localctx)->expressionContext->tree);
           
       break;
     }
@@ -3165,26 +3760,28 @@ AnyFXParser::SamplerRowContext* AnyFXParser::samplerRow() {
     case 3: {
       enterOuterAlt(_localctx, 3);
       setState(632);
-      dynamic_cast<SamplerRowContext *>(_localctx)->flag4 = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag4 = match(AnyFXParser::IDENTIFIER);
       setState(633);
       match(AnyFXParser::EQ);
       setState(634);
       match(AnyFXParser::LB);
       setState(635);
-      dynamic_cast<SamplerRowContext *>(_localctx)->samplerTextureListContext = samplerTextureList();
+      antlrcpp::downCast<SamplerRowContext *>(_localctx)->samplerTextureListContext = samplerTextureList();
       setState(636);
       match(AnyFXParser::RB);
       setState(637);
       match(AnyFXParser::SC);
 
-              std::string flag((dynamic_cast<SamplerRowContext *>(_localctx)->flag4 != nullptr ? dynamic_cast<SamplerRowContext *>(_localctx)->flag4->getText() : ""));
+              std::string flag((antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag4 != nullptr ? antlrcpp::downCast<SamplerRowContext *>(_localctx)->flag4->getText() : ""));
 
-              if (flag == "Samplers") _localctx->row.SetTextures(dynamic_cast<SamplerRowContext *>(_localctx)->samplerTextureListContext->list);
+              if (flag == "Samplers") _localctx->row.SetTextures(antlrcpp::downCast<SamplerRowContext *>(_localctx)->samplerTextureListContext->list);
               else					_localctx->row.SetString(flag, "Incorrectly formatted texture list");
           
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -3203,12 +3800,40 @@ AnyFXParser::ProgramRowContext::ProgramRowContext(ParserRuleContext *parent, siz
   : ParserRuleContext(parent, invokingState) {
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::ProgramRowContext::EQ() {
+  return getTokens(AnyFXParser::EQ);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramRowContext::EQ(size_t i) {
+  return getToken(AnyFXParser::EQ, i);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramRowContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramRowContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramRowContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
+}
+
 std::vector<tree::TerminalNode *> AnyFXParser::ProgramRowContext::IDENTIFIER() {
   return getTokens(AnyFXParser::IDENTIFIER);
 }
 
 tree::TerminalNode* AnyFXParser::ProgramRowContext::IDENTIFIER(size_t i) {
   return getToken(AnyFXParser::IDENTIFIER, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::ProgramRowContext::CO() {
+  return getTokens(AnyFXParser::CO);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramRowContext::CO(size_t i) {
+  return getToken(AnyFXParser::CO, i);
 }
 
 
@@ -3233,7 +3858,11 @@ AnyFXParser::ProgramRowContext* AnyFXParser::programRow() {
   enterRule(_localctx, 50, AnyFXParser::RuleProgramRow);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3243,11 +3872,11 @@ AnyFXParser::ProgramRowContext* AnyFXParser::programRow() {
       case AnyFXParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 1);
         setState(642);
-        dynamic_cast<ProgramRowContext *>(_localctx)->shader = match(AnyFXParser::IDENTIFIER);
+        antlrcpp::downCast<ProgramRowContext *>(_localctx)->shader = match(AnyFXParser::IDENTIFIER);
         setState(643);
         match(AnyFXParser::EQ);
         setState(644);
-        dynamic_cast<ProgramRowContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+        antlrcpp::downCast<ProgramRowContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
         setState(645);
         match(AnyFXParser::LP);
         setState(650);
@@ -3256,12 +3885,12 @@ AnyFXParser::ProgramRowContext* AnyFXParser::programRow() {
         _la = _input->LA(1);
         if (_la == AnyFXParser::IDENTIFIER) {
           setState(646);
-          dynamic_cast<ProgramRowContext *>(_localctx)->var = match(AnyFXParser::IDENTIFIER);
+          antlrcpp::downCast<ProgramRowContext *>(_localctx)->var = match(AnyFXParser::IDENTIFIER);
           setState(647);
           match(AnyFXParser::EQ);
           setState(648);
-          dynamic_cast<ProgramRowContext *>(_localctx)->implementation = match(AnyFXParser::IDENTIFIER);
-           _localctx->row.SetSubroutineMapping((dynamic_cast<ProgramRowContext *>(_localctx)->var != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->var->getText() : ""), (dynamic_cast<ProgramRowContext *>(_localctx)->implementation != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->implementation->getText() : "")); 
+          antlrcpp::downCast<ProgramRowContext *>(_localctx)->implementation = match(AnyFXParser::IDENTIFIER);
+           _localctx->row.SetSubroutineMapping((antlrcpp::downCast<ProgramRowContext *>(_localctx)->var != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->var->getText() : ""), (antlrcpp::downCast<ProgramRowContext *>(_localctx)->implementation != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->implementation->getText() : "")); 
                       
         }
         setState(659);
@@ -3271,12 +3900,12 @@ AnyFXParser::ProgramRowContext* AnyFXParser::programRow() {
           setState(652);
           match(AnyFXParser::CO);
           setState(653);
-          dynamic_cast<ProgramRowContext *>(_localctx)->var2 = match(AnyFXParser::IDENTIFIER);
+          antlrcpp::downCast<ProgramRowContext *>(_localctx)->var2 = match(AnyFXParser::IDENTIFIER);
           setState(654);
           match(AnyFXParser::EQ);
           setState(655);
-          dynamic_cast<ProgramRowContext *>(_localctx)->implementation2 = match(AnyFXParser::IDENTIFIER);
-           _localctx->row.SetSubroutineMapping((dynamic_cast<ProgramRowContext *>(_localctx)->var2 != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->var2->getText() : ""), (dynamic_cast<ProgramRowContext *>(_localctx)->implementation2 != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->implementation2->getText() : "")); 
+          antlrcpp::downCast<ProgramRowContext *>(_localctx)->implementation2 = match(AnyFXParser::IDENTIFIER);
+           _localctx->row.SetSubroutineMapping((antlrcpp::downCast<ProgramRowContext *>(_localctx)->var2 != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->var2->getText() : ""), (antlrcpp::downCast<ProgramRowContext *>(_localctx)->implementation2 != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->implementation2->getText() : "")); 
                       
           setState(661);
           _errHandler->sync(this);
@@ -3287,8 +3916,8 @@ AnyFXParser::ProgramRowContext* AnyFXParser::programRow() {
         setState(663);
         match(AnyFXParser::SC);
 
-                std::string shaderString((dynamic_cast<ProgramRowContext *>(_localctx)->shader != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->shader->getText() : ""));
-                _localctx->row.SetString(shaderString, (dynamic_cast<ProgramRowContext *>(_localctx)->name != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->name->getText() : ""));
+                std::string shaderString((antlrcpp::downCast<ProgramRowContext *>(_localctx)->shader != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->shader->getText() : ""));
+                _localctx->row.SetString(shaderString, (antlrcpp::downCast<ProgramRowContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->name->getText() : ""));
             
         break;
       }
@@ -3300,11 +3929,11 @@ AnyFXParser::ProgramRowContext* AnyFXParser::programRow() {
         setState(666);
         match(AnyFXParser::EQ);
         setState(667);
-        dynamic_cast<ProgramRowContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+        antlrcpp::downCast<ProgramRowContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
         setState(668);
         match(AnyFXParser::SC);
 
-                _localctx->row.SetString("RenderState", (dynamic_cast<ProgramRowContext *>(_localctx)->name != nullptr ? dynamic_cast<ProgramRowContext *>(_localctx)->name->getText() : ""));
+                _localctx->row.SetString("RenderState", (antlrcpp::downCast<ProgramRowContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<ProgramRowContext *>(_localctx)->name->getText() : ""));
             
         break;
       }
@@ -3329,12 +3958,36 @@ AnyFXParser::AnnotationContext::AnnotationContext(ParserRuleContext *parent, siz
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::AnnotationContext::LL() {
+  return getToken(AnyFXParser::LL, 0);
+}
+
+tree::TerminalNode* AnyFXParser::AnnotationContext::RR() {
+  return getToken(AnyFXParser::RR, 0);
+}
+
 std::vector<AnyFXParser::TypeContext *> AnyFXParser::AnnotationContext::type() {
   return getRuleContexts<AnyFXParser::TypeContext>();
 }
 
 AnyFXParser::TypeContext* AnyFXParser::AnnotationContext::type(size_t i) {
   return getRuleContext<AnyFXParser::TypeContext>(i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AnnotationContext::EQ() {
+  return getTokens(AnyFXParser::EQ);
+}
+
+tree::TerminalNode* AnyFXParser::AnnotationContext::EQ(size_t i) {
+  return getToken(AnyFXParser::EQ, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::AnnotationContext::SC() {
+  return getTokens(AnyFXParser::SC);
+}
+
+tree::TerminalNode* AnyFXParser::AnnotationContext::SC(size_t i) {
+  return getToken(AnyFXParser::SC, i);
 }
 
 std::vector<tree::TerminalNode *> AnyFXParser::AnnotationContext::IDENTIFIER() {
@@ -3383,7 +4036,11 @@ AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
   enterRule(_localctx, 52, AnyFXParser::RuleAnnotation);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3395,9 +4052,9 @@ AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
     _la = _input->LA(1);
     while (_la == AnyFXParser::IDENTIFIER) {
       setState(673);
-      dynamic_cast<AnnotationContext *>(_localctx)->typeContext = type();
+      antlrcpp::downCast<AnnotationContext *>(_localctx)->typeContext = type();
       setState(674);
-      dynamic_cast<AnnotationContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+      antlrcpp::downCast<AnnotationContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
       setState(675);
       match(AnyFXParser::EQ);
       setState(682);
@@ -3406,8 +4063,8 @@ AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
         case AnyFXParser::QO:
         case AnyFXParser::Q: {
           setState(676);
-          dynamic_cast<AnnotationContext *>(_localctx)->stringContext = string();
-           _localctx->annot.AddString(dynamic_cast<AnnotationContext *>(_localctx)->stringContext->val); 
+          antlrcpp::downCast<AnnotationContext *>(_localctx)->stringContext = string();
+           _localctx->annot.AddString(antlrcpp::downCast<AnnotationContext *>(_localctx)->stringContext->val); 
           break;
         }
 
@@ -3422,8 +4079,8 @@ AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
         case AnyFXParser::HEX:
         case AnyFXParser::IDENTIFIER: {
           setState(679);
-          dynamic_cast<AnnotationContext *>(_localctx)->expressionContext = expression();
-           _localctx->annot.AddExpression(dynamic_cast<AnnotationContext *>(_localctx)->expressionContext->tree); 
+          antlrcpp::downCast<AnnotationContext *>(_localctx)->expressionContext = expression();
+           _localctx->annot.AddExpression(antlrcpp::downCast<AnnotationContext *>(_localctx)->expressionContext->tree); 
           break;
         }
 
@@ -3432,7 +4089,7 @@ AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
       }
       setState(684);
       match(AnyFXParser::SC);
-       _localctx->annot.AddType(dynamic_cast<AnnotationContext *>(_localctx)->typeContext->ty); _localctx->annot.AddName((dynamic_cast<AnnotationContext *>(_localctx)->name != nullptr ? dynamic_cast<AnnotationContext *>(_localctx)->name->getText() : ""));  
+       _localctx->annot.AddType(antlrcpp::downCast<AnnotationContext *>(_localctx)->typeContext->ty); _localctx->annot.AddName((antlrcpp::downCast<AnnotationContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<AnnotationContext *>(_localctx)->name->getText() : ""));  
       setState(691);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -3455,6 +4112,18 @@ AnyFXParser::AnnotationContext* AnyFXParser::annotation() {
 
 AnyFXParser::ProgramContext::ProgramContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* AnyFXParser::ProgramContext::LB() {
+  return getToken(AnyFXParser::LB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramContext::RB() {
+  return getToken(AnyFXParser::RB, 0);
+}
+
+tree::TerminalNode* AnyFXParser::ProgramContext::SC() {
+  return getToken(AnyFXParser::SC, 0);
 }
 
 tree::TerminalNode* AnyFXParser::ProgramContext::IDENTIFIER() {
@@ -3494,11 +4163,15 @@ AnyFXParser::ProgramContext* AnyFXParser::program() {
   ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
   enterRule(_localctx, 54, AnyFXParser::RuleProgram);
 
-          dynamic_cast<ProgramContext *>(_localctx)->prog =  alloc.Alloc<Program>();
+          antlrcpp::downCast<ProgramContext *>(_localctx)->prog =  alloc.Alloc<Program>();
       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3506,7 +4179,7 @@ AnyFXParser::ProgramContext* AnyFXParser::program() {
     setState(695);
     match(AnyFXParser::T__14);
     setState(696);
-    dynamic_cast<ProgramContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
+    antlrcpp::downCast<ProgramContext *>(_localctx)->name = match(AnyFXParser::IDENTIFIER);
      SetupFile(_localctx->prog, _input); 
     setState(701);
     _errHandler->sync(this);
@@ -3514,12 +4187,12 @@ AnyFXParser::ProgramContext* AnyFXParser::program() {
     _la = _input->LA(1);
     if (_la == AnyFXParser::LL) {
       setState(698);
-      dynamic_cast<ProgramContext *>(_localctx)->annotationContext = annotation();
-       _localctx->prog->SetAnnotation(dynamic_cast<ProgramContext *>(_localctx)->annotationContext->annot); 
+      antlrcpp::downCast<ProgramContext *>(_localctx)->annotationContext = annotation();
+       _localctx->prog->SetAnnotation(antlrcpp::downCast<ProgramContext *>(_localctx)->annotationContext->annot); 
     }
     setState(703);
     match(AnyFXParser::LB);
-     _localctx->prog->SetName((dynamic_cast<ProgramContext *>(_localctx)->name != nullptr ? dynamic_cast<ProgramContext *>(_localctx)->name->getText() : ""));  
+     _localctx->prog->SetName((antlrcpp::downCast<ProgramContext *>(_localctx)->name != nullptr ? antlrcpp::downCast<ProgramContext *>(_localctx)->name->getText() : ""));  
     setState(710);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -3527,8 +4200,8 @@ AnyFXParser::ProgramContext* AnyFXParser::program() {
 
     || _la == AnyFXParser::IDENTIFIER) {
       setState(705);
-      dynamic_cast<ProgramContext *>(_localctx)->programRowContext = programRow();
-       _localctx->prog->ConsumeRow(dynamic_cast<ProgramContext *>(_localctx)->programRowContext->row); 
+      antlrcpp::downCast<ProgramContext *>(_localctx)->programRowContext = programRow();
+       _localctx->prog->ConsumeRow(antlrcpp::downCast<ProgramContext *>(_localctx)->programRowContext->row); 
       setState(712);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -3579,17 +4252,21 @@ AnyFXParser::ExpressionContext* AnyFXParser::expression() {
   ExpressionContext *_localctx = _tracker.createInstance<ExpressionContext>(_ctx, getState());
   enterRule(_localctx, 56, AnyFXParser::RuleExpression);
 
-                          dynamic_cast<ExpressionContext *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<ExpressionContext *>(_localctx)->tree =  nullptr;
                       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(716);
-    dynamic_cast<ExpressionContext *>(_localctx)->binaryexp7Context = binaryexp7();
-     dynamic_cast<ExpressionContext *>(_localctx)->tree =  dynamic_cast<ExpressionContext *>(_localctx)->binaryexp7Context->tree; 
+    antlrcpp::downCast<ExpressionContext *>(_localctx)->binaryexp7Context = binaryexp7();
+     antlrcpp::downCast<ExpressionContext *>(_localctx)->tree =  antlrcpp::downCast<ExpressionContext *>(_localctx)->binaryexp7Context->tree; 
    
   }
   catch (RecognitionException &e) {
@@ -3615,6 +4292,14 @@ AnyFXParser::Binaryexp6Context* AnyFXParser::Binaryexp7Context::binaryexp6(size_
   return getRuleContext<AnyFXParser::Binaryexp6Context>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp7Context::LOGICOR() {
+  return getTokens(AnyFXParser::LOGICOR);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp7Context::LOGICOR(size_t i) {
+  return getToken(AnyFXParser::LOGICOR, i);
+}
+
 
 size_t AnyFXParser::Binaryexp7Context::getRuleIndex() const {
   return AnyFXParser::RuleBinaryexp7;
@@ -3637,18 +4322,22 @@ AnyFXParser::Binaryexp7Context* AnyFXParser::binaryexp7() {
   enterRule(_localctx, 58, AnyFXParser::RuleBinaryexp7);
 
                           Expression* prev = nullptr;
-                          dynamic_cast<Binaryexp7Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp7Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(719);
-    dynamic_cast<Binaryexp7Context *>(_localctx)->e1 = binaryexp6();
-     dynamic_cast<Binaryexp7Context *>(_localctx)->tree =  dynamic_cast<Binaryexp7Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    antlrcpp::downCast<Binaryexp7Context *>(_localctx)->e1 = binaryexp6();
+     antlrcpp::downCast<Binaryexp7Context *>(_localctx)->tree =  antlrcpp::downCast<Binaryexp7Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
             
     setState(727);
     _errHandler->sync(this);
@@ -3657,22 +4346,22 @@ AnyFXParser::Binaryexp7Context* AnyFXParser::binaryexp7() {
       setState(721);
       match(AnyFXParser::LOGICOR);
       setState(722);
-      dynamic_cast<Binaryexp7Context *>(_localctx)->e2 = binaryexp6();
+      antlrcpp::downCast<Binaryexp7Context *>(_localctx)->e2 = binaryexp6();
 
                               Expression* lhs = nullptr;
 
                               if (prev)
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>("||", prev, dynamic_cast<Binaryexp7Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("||", prev, antlrcpp::downCast<Binaryexp7Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>("||", dynamic_cast<Binaryexp7Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp7Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("||", antlrcpp::downCast<Binaryexp7Context *>(_localctx)->e1->tree, antlrcpp::downCast<Binaryexp7Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
                               prev = lhs;
-                              dynamic_cast<Binaryexp7Context *>(_localctx)->tree =  lhs;
+                              antlrcpp::downCast<Binaryexp7Context *>(_localctx)->tree =  lhs;
                           
       setState(729);
       _errHandler->sync(this);
@@ -3703,6 +4392,14 @@ AnyFXParser::Binaryexp5Context* AnyFXParser::Binaryexp6Context::binaryexp5(size_
   return getRuleContext<AnyFXParser::Binaryexp5Context>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp6Context::LOGICAND() {
+  return getTokens(AnyFXParser::LOGICAND);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp6Context::LOGICAND(size_t i) {
+  return getToken(AnyFXParser::LOGICAND, i);
+}
+
 
 size_t AnyFXParser::Binaryexp6Context::getRuleIndex() const {
   return AnyFXParser::RuleBinaryexp6;
@@ -3725,18 +4422,22 @@ AnyFXParser::Binaryexp6Context* AnyFXParser::binaryexp6() {
   enterRule(_localctx, 60, AnyFXParser::RuleBinaryexp6);
 
                           Expression* prev = nullptr;
-                          dynamic_cast<Binaryexp6Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp6Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(730);
-    dynamic_cast<Binaryexp6Context *>(_localctx)->e1 = binaryexp5();
-     dynamic_cast<Binaryexp6Context *>(_localctx)->tree =  dynamic_cast<Binaryexp6Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    antlrcpp::downCast<Binaryexp6Context *>(_localctx)->e1 = binaryexp5();
+     antlrcpp::downCast<Binaryexp6Context *>(_localctx)->tree =  antlrcpp::downCast<Binaryexp6Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
             
     setState(738);
     _errHandler->sync(this);
@@ -3745,22 +4446,22 @@ AnyFXParser::Binaryexp6Context* AnyFXParser::binaryexp6() {
       setState(732);
       match(AnyFXParser::LOGICAND);
       setState(733);
-      dynamic_cast<Binaryexp6Context *>(_localctx)->e2 = binaryexp5();
+      antlrcpp::downCast<Binaryexp6Context *>(_localctx)->e2 = binaryexp5();
 
                               Expression* lhs = nullptr;
 
                               if (prev)
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>("&&", prev, dynamic_cast<Binaryexp6Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("&&", prev, antlrcpp::downCast<Binaryexp6Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>("&&", dynamic_cast<Binaryexp6Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp6Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>("&&", antlrcpp::downCast<Binaryexp6Context *>(_localctx)->e1->tree, antlrcpp::downCast<Binaryexp6Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
                               prev = lhs;
-                              dynamic_cast<Binaryexp6Context *>(_localctx)->tree =  lhs;
+                              antlrcpp::downCast<Binaryexp6Context *>(_localctx)->tree =  lhs;
                           
       setState(740);
       _errHandler->sync(this);
@@ -3791,6 +4492,22 @@ AnyFXParser::Binaryexp4Context* AnyFXParser::Binaryexp5Context::binaryexp4(size_
   return getRuleContext<AnyFXParser::Binaryexp4Context>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp5Context::LOGICEQ() {
+  return getTokens(AnyFXParser::LOGICEQ);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp5Context::LOGICEQ(size_t i) {
+  return getToken(AnyFXParser::LOGICEQ, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp5Context::NOTEQ() {
+  return getTokens(AnyFXParser::NOTEQ);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp5Context::NOTEQ(size_t i) {
+  return getToken(AnyFXParser::NOTEQ, i);
+}
+
 
 size_t AnyFXParser::Binaryexp5Context::getRuleIndex() const {
   return AnyFXParser::RuleBinaryexp5;
@@ -3813,18 +4530,22 @@ AnyFXParser::Binaryexp5Context* AnyFXParser::binaryexp5() {
   enterRule(_localctx, 62, AnyFXParser::RuleBinaryexp5);
 
                           Expression* prev = nullptr;
-                          dynamic_cast<Binaryexp5Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp5Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(741);
-    dynamic_cast<Binaryexp5Context *>(_localctx)->e1 = binaryexp4();
-     dynamic_cast<Binaryexp5Context *>(_localctx)->tree =  dynamic_cast<Binaryexp5Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    antlrcpp::downCast<Binaryexp5Context *>(_localctx)->e1 = binaryexp4();
+     antlrcpp::downCast<Binaryexp5Context *>(_localctx)->tree =  antlrcpp::downCast<Binaryexp5Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
             
     setState(749);
     _errHandler->sync(this);
@@ -3833,34 +4554,34 @@ AnyFXParser::Binaryexp5Context* AnyFXParser::binaryexp5() {
 
     || _la == AnyFXParser::NOTEQ) {
       setState(743);
-      dynamic_cast<Binaryexp5Context *>(_localctx)->op = _input->LT(1);
+      antlrcpp::downCast<Binaryexp5Context *>(_localctx)->op = _input->LT(1);
       _la = _input->LA(1);
       if (!(_la == AnyFXParser::LOGICEQ
 
       || _la == AnyFXParser::NOTEQ)) {
-        dynamic_cast<Binaryexp5Context *>(_localctx)->op = _errHandler->recoverInline(this);
+        antlrcpp::downCast<Binaryexp5Context *>(_localctx)->op = _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
       setState(744);
-      dynamic_cast<Binaryexp5Context *>(_localctx)->e2 = binaryexp4();
+      antlrcpp::downCast<Binaryexp5Context *>(_localctx)->e2 = binaryexp4();
 
                               Expression* lhs = nullptr;
 
                               if (prev)
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp5Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp5Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp5Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp5Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp5Context *>(_localctx)->op->getText() : ""), prev, antlrcpp::downCast<Binaryexp5Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp5Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp5Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp5Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp5Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp5Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp5Context *>(_localctx)->op->getText() : ""), antlrcpp::downCast<Binaryexp5Context *>(_localctx)->e1->tree, antlrcpp::downCast<Binaryexp5Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
                               prev = lhs;
-                              dynamic_cast<Binaryexp5Context *>(_localctx)->tree =  lhs;
+                              antlrcpp::downCast<Binaryexp5Context *>(_localctx)->tree =  lhs;
                           
       setState(751);
       _errHandler->sync(this);
@@ -3891,6 +4612,38 @@ AnyFXParser::Binaryexp3Context* AnyFXParser::Binaryexp4Context::binaryexp3(size_
   return getRuleContext<AnyFXParser::Binaryexp3Context>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp4Context::LESS() {
+  return getTokens(AnyFXParser::LESS);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp4Context::LESS(size_t i) {
+  return getToken(AnyFXParser::LESS, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp4Context::GREATER() {
+  return getTokens(AnyFXParser::GREATER);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp4Context::GREATER(size_t i) {
+  return getToken(AnyFXParser::GREATER, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp4Context::LESSEQ() {
+  return getTokens(AnyFXParser::LESSEQ);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp4Context::LESSEQ(size_t i) {
+  return getToken(AnyFXParser::LESSEQ, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp4Context::GREATEREQ() {
+  return getTokens(AnyFXParser::GREATEREQ);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp4Context::GREATEREQ(size_t i) {
+  return getToken(AnyFXParser::GREATEREQ, i);
+}
+
 
 size_t AnyFXParser::Binaryexp4Context::getRuleIndex() const {
   return AnyFXParser::RuleBinaryexp4;
@@ -3913,58 +4666,56 @@ AnyFXParser::Binaryexp4Context* AnyFXParser::binaryexp4() {
   enterRule(_localctx, 64, AnyFXParser::RuleBinaryexp4);
 
                           Expression* prev = nullptr;
-                          dynamic_cast<Binaryexp4Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp4Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(752);
-    dynamic_cast<Binaryexp4Context *>(_localctx)->e1 = binaryexp3();
-     dynamic_cast<Binaryexp4Context *>(_localctx)->tree =  dynamic_cast<Binaryexp4Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    antlrcpp::downCast<Binaryexp4Context *>(_localctx)->e1 = binaryexp3();
+     antlrcpp::downCast<Binaryexp4Context *>(_localctx)->tree =  antlrcpp::downCast<Binaryexp4Context *>(_localctx)->e1->tree;	_localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
             
     setState(760);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << AnyFXParser::LESS)
-      | (1ULL << AnyFXParser::LESSEQ)
-      | (1ULL << AnyFXParser::GREATER)
-      | (1ULL << AnyFXParser::GREATEREQ))) != 0)) {
+      ((1ULL << _la) & 16492674416640) != 0)) {
       setState(754);
-      dynamic_cast<Binaryexp4Context *>(_localctx)->op = _input->LT(1);
+      antlrcpp::downCast<Binaryexp4Context *>(_localctx)->op = _input->LT(1);
       _la = _input->LA(1);
       if (!((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << AnyFXParser::LESS)
-        | (1ULL << AnyFXParser::LESSEQ)
-        | (1ULL << AnyFXParser::GREATER)
-        | (1ULL << AnyFXParser::GREATEREQ))) != 0))) {
-        dynamic_cast<Binaryexp4Context *>(_localctx)->op = _errHandler->recoverInline(this);
+        ((1ULL << _la) & 16492674416640) != 0))) {
+        antlrcpp::downCast<Binaryexp4Context *>(_localctx)->op = _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
       setState(755);
-      dynamic_cast<Binaryexp4Context *>(_localctx)->e2 = binaryexp3();
+      antlrcpp::downCast<Binaryexp4Context *>(_localctx)->e2 = binaryexp3();
 
                               Expression* lhs = nullptr;
 
                               if (prev)
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp4Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp4Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp4Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp4Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp4Context *>(_localctx)->op->getText() : ""), prev, antlrcpp::downCast<Binaryexp4Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp4Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp4Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp4Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp4Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp4Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp4Context *>(_localctx)->op->getText() : ""), antlrcpp::downCast<Binaryexp4Context *>(_localctx)->e1->tree, antlrcpp::downCast<Binaryexp4Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
                               prev = lhs;
-                              dynamic_cast<Binaryexp4Context *>(_localctx)->tree =  lhs;
+                              antlrcpp::downCast<Binaryexp4Context *>(_localctx)->tree =  lhs;
                           
       setState(762);
       _errHandler->sync(this);
@@ -3995,6 +4746,22 @@ AnyFXParser::Binaryexp2Context* AnyFXParser::Binaryexp3Context::binaryexp2(size_
   return getRuleContext<AnyFXParser::Binaryexp2Context>(i);
 }
 
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp3Context::ADD_OP() {
+  return getTokens(AnyFXParser::ADD_OP);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp3Context::ADD_OP(size_t i) {
+  return getToken(AnyFXParser::ADD_OP, i);
+}
+
+std::vector<tree::TerminalNode *> AnyFXParser::Binaryexp3Context::SUB_OP() {
+  return getTokens(AnyFXParser::SUB_OP);
+}
+
+tree::TerminalNode* AnyFXParser::Binaryexp3Context::SUB_OP(size_t i) {
+  return getToken(AnyFXParser::SUB_OP, i);
+}
+
 
 size_t AnyFXParser::Binaryexp3Context::getRuleIndex() const {
   return AnyFXParser::RuleBinaryexp3;
@@ -4017,18 +4784,22 @@ AnyFXParser::Binaryexp3Context* AnyFXParser::binaryexp3() {
   enterRule(_localctx, 66, AnyFXParser::RuleBinaryexp3);
 
                           Expression* prev = nullptr;
-                          dynamic_cast<Binaryexp3Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp3Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(763);
-    dynamic_cast<Binaryexp3Context *>(_localctx)->e1 = binaryexp2();
-     dynamic_cast<Binaryexp3Context *>(_localctx)->tree =  dynamic_cast<Binaryexp3Context *>(_localctx)->e1->tree; _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    antlrcpp::downCast<Binaryexp3Context *>(_localctx)->e1 = binaryexp2();
+     antlrcpp::downCast<Binaryexp3Context *>(_localctx)->tree =  antlrcpp::downCast<Binaryexp3Context *>(_localctx)->e1->tree; _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
             
     setState(771);
     _errHandler->sync(this);
@@ -4037,34 +4808,34 @@ AnyFXParser::Binaryexp3Context* AnyFXParser::binaryexp3() {
 
     || _la == AnyFXParser::SUB_OP) {
       setState(765);
-      dynamic_cast<Binaryexp3Context *>(_localctx)->op = _input->LT(1);
+      antlrcpp::downCast<Binaryexp3Context *>(_localctx)->op = _input->LT(1);
       _la = _input->LA(1);
       if (!(_la == AnyFXParser::ADD_OP
 
       || _la == AnyFXParser::SUB_OP)) {
-        dynamic_cast<Binaryexp3Context *>(_localctx)->op = _errHandler->recoverInline(this);
+        antlrcpp::downCast<Binaryexp3Context *>(_localctx)->op = _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
       setState(766);
-      dynamic_cast<Binaryexp3Context *>(_localctx)->e2 = binaryexp2();
+      antlrcpp::downCast<Binaryexp3Context *>(_localctx)->e2 = binaryexp2();
 
                               Expression* lhs = nullptr;
 
                               if (prev)
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp3Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp3Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp3Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp3Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp3Context *>(_localctx)->op->getText() : ""), prev, antlrcpp::downCast<Binaryexp3Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp3Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp3Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp3Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp3Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp3Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp3Context *>(_localctx)->op->getText() : ""), antlrcpp::downCast<Binaryexp3Context *>(_localctx)->e1->tree, antlrcpp::downCast<Binaryexp3Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
                               prev = lhs;
-                              dynamic_cast<Binaryexp3Context *>(_localctx)->tree =  lhs;
+                              antlrcpp::downCast<Binaryexp3Context *>(_localctx)->tree =  lhs;
                           
       setState(773);
       _errHandler->sync(this);
@@ -4133,18 +4904,22 @@ AnyFXParser::Binaryexp2Context* AnyFXParser::binaryexp2() {
   enterRule(_localctx, 68, AnyFXParser::RuleBinaryexp2);
 
                           Expression* prev = nullptr;
-                          dynamic_cast<Binaryexp2Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp2Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
     setState(774);
-    dynamic_cast<Binaryexp2Context *>(_localctx)->e1 = binaryexp1();
-     dynamic_cast<Binaryexp2Context *>(_localctx)->tree =  dynamic_cast<Binaryexp2Context *>(_localctx)->e1->tree; _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+    antlrcpp::downCast<Binaryexp2Context *>(_localctx)->e1 = binaryexp1();
+     antlrcpp::downCast<Binaryexp2Context *>(_localctx)->tree =  antlrcpp::downCast<Binaryexp2Context *>(_localctx)->e1->tree; _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
             
     setState(782);
     _errHandler->sync(this);
@@ -4153,34 +4928,34 @@ AnyFXParser::Binaryexp2Context* AnyFXParser::binaryexp2() {
 
     || _la == AnyFXParser::MUL_OP) {
       setState(776);
-      dynamic_cast<Binaryexp2Context *>(_localctx)->op = _input->LT(1);
+      antlrcpp::downCast<Binaryexp2Context *>(_localctx)->op = _input->LT(1);
       _la = _input->LA(1);
       if (!(_la == AnyFXParser::DIV_OP
 
       || _la == AnyFXParser::MUL_OP)) {
-        dynamic_cast<Binaryexp2Context *>(_localctx)->op = _errHandler->recoverInline(this);
+        antlrcpp::downCast<Binaryexp2Context *>(_localctx)->op = _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
         consume();
       }
       setState(777);
-      dynamic_cast<Binaryexp2Context *>(_localctx)->e2 = binaryexp1();
+      antlrcpp::downCast<Binaryexp2Context *>(_localctx)->e2 = binaryexp1();
 
                               Expression* lhs = nullptr;
 
                               if (prev)
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp2Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp2Context *>(_localctx)->op->getText() : ""), prev, dynamic_cast<Binaryexp2Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp2Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp2Context *>(_localctx)->op->getText() : ""), prev, antlrcpp::downCast<Binaryexp2Context *>(_localctx)->e2->tree);
                               }
                               else
                               {
-                                  lhs = alloc.Alloc<BinaryExpression>((dynamic_cast<Binaryexp2Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp2Context *>(_localctx)->op->getText() : ""), dynamic_cast<Binaryexp2Context *>(_localctx)->e1->tree, dynamic_cast<Binaryexp2Context *>(_localctx)->e2->tree);
+                                  lhs = alloc.Alloc<BinaryExpression>((antlrcpp::downCast<Binaryexp2Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp2Context *>(_localctx)->op->getText() : ""), antlrcpp::downCast<Binaryexp2Context *>(_localctx)->e1->tree, antlrcpp::downCast<Binaryexp2Context *>(_localctx)->e2->tree);
                               }
 
                               SetupFile(lhs, _input);
                               prev = lhs;
-                              dynamic_cast<Binaryexp2Context *>(_localctx)->tree =  lhs;
+                              antlrcpp::downCast<Binaryexp2Context *>(_localctx)->tree =  lhs;
                           
       setState(784);
       _errHandler->sync(this);
@@ -4237,11 +5012,15 @@ AnyFXParser::Binaryexp1Context* AnyFXParser::binaryexp1() {
   enterRule(_localctx, 70, AnyFXParser::RuleBinaryexp1);
 
                           char operat = 0;
-                          dynamic_cast<Binaryexp1Context *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<Binaryexp1Context *>(_localctx)->tree =  nullptr;
                       
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4254,12 +5033,12 @@ AnyFXParser::Binaryexp1Context* AnyFXParser::binaryexp1() {
 
     || _la == AnyFXParser::SUB_OP) {
       setState(785);
-      dynamic_cast<Binaryexp1Context *>(_localctx)->op = _input->LT(1);
+      antlrcpp::downCast<Binaryexp1Context *>(_localctx)->op = _input->LT(1);
       _la = _input->LA(1);
       if (!(_la == AnyFXParser::NOT
 
       || _la == AnyFXParser::SUB_OP)) {
-        dynamic_cast<Binaryexp1Context *>(_localctx)->op = _errHandler->recoverInline(this);
+        antlrcpp::downCast<Binaryexp1Context *>(_localctx)->op = _errHandler->recoverInline(this);
       }
       else {
         _errHandler->reportMatch(this);
@@ -4267,18 +5046,18 @@ AnyFXParser::Binaryexp1Context* AnyFXParser::binaryexp1() {
       }
     }
     setState(788);
-    dynamic_cast<Binaryexp1Context *>(_localctx)->e1 = binaryexpatom();
+    antlrcpp::downCast<Binaryexp1Context *>(_localctx)->e1 = binaryexpatom();
 
-                            Expression* rhs = dynamic_cast<Binaryexp1Context *>(_localctx)->e1->tree;
+                            Expression* rhs = antlrcpp::downCast<Binaryexp1Context *>(_localctx)->e1->tree;
 
-                            if (dynamic_cast<Binaryexp1Context *>(_localctx)->op != 0)
+                            if (antlrcpp::downCast<Binaryexp1Context *>(_localctx)->op != 0)
                             {
-                                operat = (dynamic_cast<Binaryexp1Context *>(_localctx)->op != nullptr ? dynamic_cast<Binaryexp1Context *>(_localctx)->op->getText() : "").c_str()[0];
+                                operat = (antlrcpp::downCast<Binaryexp1Context *>(_localctx)->op != nullptr ? antlrcpp::downCast<Binaryexp1Context *>(_localctx)->op->getText() : "").c_str()[0];
                                 rhs = alloc.Alloc<UnaryExpression>(operat, rhs);
                             }
 
                             SetupFile(rhs, _input);
-                            dynamic_cast<Binaryexp1Context *>(_localctx)->tree =  rhs;
+                            antlrcpp::downCast<Binaryexp1Context *>(_localctx)->tree =  rhs;
 
                         
    
@@ -4347,10 +5126,14 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
   BinaryexpatomContext *_localctx = _tracker.createInstance<BinaryexpatomContext>(_ctx, getState());
   enterRule(_localctx, 72, AnyFXParser::RuleBinaryexpatom);
 
-                          dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  nullptr;
                       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4360,8 +5143,8 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::INTEGERLITERAL: {
         enterOuterAlt(_localctx, 1);
         setState(791);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken = match(AnyFXParser::INTEGERLITERAL);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<IntExpression>(atoi((dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->integerliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->integerliteralToken = match(AnyFXParser::INTEGERLITERAL);
+         antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<IntExpression>(atoi((antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->integerliteralToken != nullptr ? antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->integerliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
                 
         break;
       }
@@ -4369,8 +5152,8 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::FLOATLITERAL: {
         enterOuterAlt(_localctx, 2);
         setState(793);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken = match(AnyFXParser::FLOATLITERAL);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<FloatExpression>(atof((dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->floatliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->floatliteralToken = match(AnyFXParser::FLOATLITERAL);
+         antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<FloatExpression>(atof((antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->floatliteralToken != nullptr ? antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->floatliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine()); 
                 
         break;
       }
@@ -4378,8 +5161,8 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::DOUBLELITERAL: {
         enterOuterAlt(_localctx, 3);
         setState(795);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken = match(AnyFXParser::DOUBLELITERAL);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<FloatExpression>(atof((dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->doubleliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->doubleliteralToken = match(AnyFXParser::DOUBLELITERAL);
+         antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<FloatExpression>(atof((antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->doubleliteralToken != nullptr ? antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->doubleliteralToken->getText() : "").c_str())); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
                 
         break;
       }
@@ -4387,8 +5170,8 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::HEX: {
         enterOuterAlt(_localctx, 4);
         setState(797);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken = match(AnyFXParser::HEX);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<IntExpression>(strtoul((dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->hexToken->getText() : "").c_str(), nullptr, 16)); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->hexToken = match(AnyFXParser::HEX);
+         antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<IntExpression>(strtoul((antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->hexToken != nullptr ? antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->hexToken->getText() : "").c_str(), nullptr, 16)); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
                 
         break;
       }
@@ -4396,8 +5179,8 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 5);
         setState(799);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken = match(AnyFXParser::IDENTIFIER);
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<SymbolExpression>((dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken != nullptr ? dynamic_cast<BinaryexpatomContext *>(_localctx)->identifierToken->getText() : "")); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->identifierToken = match(AnyFXParser::IDENTIFIER);
+         antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<SymbolExpression>((antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->identifierToken != nullptr ? antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->identifierToken->getText() : "")); _localctx->tree->SetLine(_input->LT(1)->getLine()); _localctx->tree->SetPosition(_input->LT(1)->getCharPositionInLine());
                 
         break;
       }
@@ -4406,9 +5189,9 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::T__1: {
         enterOuterAlt(_localctx, 6);
         setState(801);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->booleanContext = boolean();
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->booleanContext = boolean();
 
-                                dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<BoolExpression>(dynamic_cast<BinaryexpatomContext *>(_localctx)->booleanContext->val);
+                                antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  alloc.Alloc<BoolExpression>(antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->booleanContext->val);
                                 SetupFile(_localctx->tree, _input);
                             
         break;
@@ -4417,8 +5200,8 @@ AnyFXParser::BinaryexpatomContext* AnyFXParser::binaryexpatom() {
       case AnyFXParser::LP: {
         enterOuterAlt(_localctx, 7);
         setState(804);
-        dynamic_cast<BinaryexpatomContext *>(_localctx)->parantexpressionContext = parantexpression();
-         dynamic_cast<BinaryexpatomContext *>(_localctx)->tree =  dynamic_cast<BinaryexpatomContext *>(_localctx)->parantexpressionContext->tree; 
+        antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->parantexpressionContext = parantexpression();
+         antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->tree =  antlrcpp::downCast<BinaryexpatomContext *>(_localctx)->parantexpressionContext->tree; 
         break;
       }
 
@@ -4442,8 +5225,16 @@ AnyFXParser::ParantexpressionContext::ParantexpressionContext(ParserRuleContext 
   : ParserRuleContext(parent, invokingState) {
 }
 
+tree::TerminalNode* AnyFXParser::ParantexpressionContext::LP() {
+  return getToken(AnyFXParser::LP, 0);
+}
+
 AnyFXParser::ExpressionContext* AnyFXParser::ParantexpressionContext::expression() {
   return getRuleContext<AnyFXParser::ExpressionContext>(0);
+}
+
+tree::TerminalNode* AnyFXParser::ParantexpressionContext::RP() {
+  return getToken(AnyFXParser::RP, 0);
 }
 
 
@@ -4467,10 +5258,14 @@ AnyFXParser::ParantexpressionContext* AnyFXParser::parantexpression() {
   ParantexpressionContext *_localctx = _tracker.createInstance<ParantexpressionContext>(_ctx, getState());
   enterRule(_localctx, 74, AnyFXParser::RuleParantexpression);
 
-                          dynamic_cast<ParantexpressionContext *>(_localctx)->tree =  nullptr;
+                          antlrcpp::downCast<ParantexpressionContext *>(_localctx)->tree =  nullptr;
                       
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4478,10 +5273,10 @@ AnyFXParser::ParantexpressionContext* AnyFXParser::parantexpression() {
     setState(809);
     match(AnyFXParser::LP);
     setState(810);
-    dynamic_cast<ParantexpressionContext *>(_localctx)->expressionContext = expression();
+    antlrcpp::downCast<ParantexpressionContext *>(_localctx)->expressionContext = expression();
     setState(811);
     match(AnyFXParser::RP);
-     dynamic_cast<ParantexpressionContext *>(_localctx)->tree =  dynamic_cast<ParantexpressionContext *>(_localctx)->expressionContext->tree; 
+     antlrcpp::downCast<ParantexpressionContext *>(_localctx)->tree =  antlrcpp::downCast<ParantexpressionContext *>(_localctx)->expressionContext->tree; 
    
   }
   catch (RecognitionException &e) {
@@ -4493,643 +5288,10 @@ AnyFXParser::ParantexpressionContext* AnyFXParser::parantexpression() {
   return _localctx;
 }
 
-// Static vars and initialization.
-std::vector<dfa::DFA> AnyFXParser::_decisionToDFA;
-atn::PredictionContextCache AnyFXParser::_sharedContextCache;
-
-// We own the ATN which in turn owns the ATN states.
-atn::ATN AnyFXParser::_atn;
-std::vector<uint16_t> AnyFXParser::_serializedATN;
-
-std::vector<std::string> AnyFXParser::_ruleNames = {
-  "string", "boolean", "preprocess", "entry", "effect", "type", "qualifierExpression", 
-  "structure", "varblock", "varbuffer", "subroutine", "valueList", "valueSingleList", 
-  "variable", "parameter", "parameterList", "functionAttribute", "codeBlock", 
-  "function", "blendStateRow", "renderStateRow", "renderState", "sampler", 
-  "samplerTextureList", "samplerRow", "programRow", "annotation", "program", 
-  "expression", "binaryexp7", "binaryexp6", "binaryexp5", "binaryexp4", 
-  "binaryexp3", "binaryexp2", "binaryexp1", "binaryexpatom", "parantexpression"
-};
-
-std::vector<std::string> AnyFXParser::_literalNames = {
-  "", "'true'", "'false'", "'#line'", "'struct'", "'constant'", "'rw_buffer'", 
-  "'prototype'", "'subroutine'", "'feedback'", "'slot'", "'shader'", "'render_state'", 
-  "'sampler_state'", "'RenderState'", "'program'", "';'", "','", "':'", 
-  "'('", "')'", "'{'", "'}'", "'['", "']'", "'.'", "'!'", "'='", "'\"'", 
-  "'?'", "'&'", "'&='", "'|'", "'|='", "'^'", "'^='", "'~'", "'''", "'#'", 
-  "'\\'", "'<'", "'<='", "'>'", "'>='", "'=='", "'!='", "'&&'", "'||'", 
-  "'%'", "'_'", "'+'", "'-'", "'/'", "'*'"
-};
-
-std::vector<std::string> AnyFXParser::_symbolicNames = {
-  "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "SC", 
-  "CO", "COL", "LP", "RP", "LB", "RB", "LL", "RR", "DOT", "NOT", "EQ", "QO", 
-  "QU", "AND", "ANDSET", "OR", "ORSET", "XOR", "XORSET", "CONNJUGATE", "Q", 
-  "NU", "FORWARDSLASH", "LESS", "LESSEQ", "GREATER", "GREATEREQ", "LOGICEQ", 
-  "NOTEQ", "LOGICAND", "LOGICOR", "MOD", "UNDERSC", "ADD_OP", "SUB_OP", 
-  "DIV_OP", "MUL_OP", "INTEGERLITERAL", "COMMENT", "ML_COMMENT", "FLOATLITERAL", 
-  "EXPONENT", "DOUBLELITERAL", "HEX", "IDENTIFIER", "WS"
-};
-
-dfa::Vocabulary AnyFXParser::_vocabulary(_literalNames, _symbolicNames);
-
-std::vector<std::string> AnyFXParser::_tokenNames;
-
-AnyFXParser::Initializer::Initializer() {
-	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
-		std::string name = _vocabulary.getLiteralName(i);
-		if (name.empty()) {
-			name = _vocabulary.getSymbolicName(i);
-		}
-
-		if (name.empty()) {
-			_tokenNames.push_back("<INVALID>");
-		} else {
-      _tokenNames.push_back(name);
-    }
-	}
-
-  _serializedATN = {
-    0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x40, 0x331, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 
-    0x9, 0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 
-    0x4, 0x8, 0x9, 0x8, 0x4, 0x9, 0x9, 0x9, 0x4, 0xa, 0x9, 0xa, 0x4, 0xb, 
-    0x9, 0xb, 0x4, 0xc, 0x9, 0xc, 0x4, 0xd, 0x9, 0xd, 0x4, 0xe, 0x9, 0xe, 
-    0x4, 0xf, 0x9, 0xf, 0x4, 0x10, 0x9, 0x10, 0x4, 0x11, 0x9, 0x11, 0x4, 
-    0x12, 0x9, 0x12, 0x4, 0x13, 0x9, 0x13, 0x4, 0x14, 0x9, 0x14, 0x4, 0x15, 
-    0x9, 0x15, 0x4, 0x16, 0x9, 0x16, 0x4, 0x17, 0x9, 0x17, 0x4, 0x18, 0x9, 
-    0x18, 0x4, 0x19, 0x9, 0x19, 0x4, 0x1a, 0x9, 0x1a, 0x4, 0x1b, 0x9, 0x1b, 
-    0x4, 0x1c, 0x9, 0x1c, 0x4, 0x1d, 0x9, 0x1d, 0x4, 0x1e, 0x9, 0x1e, 0x4, 
-    0x1f, 0x9, 0x1f, 0x4, 0x20, 0x9, 0x20, 0x4, 0x21, 0x9, 0x21, 0x4, 0x22, 
-    0x9, 0x22, 0x4, 0x23, 0x9, 0x23, 0x4, 0x24, 0x9, 0x24, 0x4, 0x25, 0x9, 
-    0x25, 0x4, 0x26, 0x9, 0x26, 0x4, 0x27, 0x9, 0x27, 0x3, 0x2, 0x3, 0x2, 
-    0x3, 0x2, 0x7, 0x2, 0x52, 0xa, 0x2, 0xc, 0x2, 0xe, 0x2, 0x55, 0xb, 0x2, 
-    0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x7, 0x2, 0x5b, 0xa, 0x2, 0xc, 
-    0x2, 0xe, 0x2, 0x5e, 0xb, 0x2, 0x3, 0x2, 0x5, 0x2, 0x61, 0xa, 0x2, 0x3, 
-    0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x5, 0x3, 0x67, 0xa, 0x3, 0x3, 0x4, 
-    0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x7, 0x4, 
-    0x70, 0xa, 0x4, 0xc, 0x4, 0xe, 0x4, 0x73, 0xb, 0x4, 0x3, 0x4, 0x3, 0x4, 
-    0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 
-    0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x7, 0x6, 0x96, 0xa, 0x6, 0xc, 0x6, 0xe, 
-    0x6, 0x99, 0xb, 0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x3, 0x8, 0x3, 0x8, 
-    0x3, 0x8, 0x3, 0x8, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 
-    0x7, 0x9, 0xa7, 0xa, 0x9, 0xc, 0x9, 0xe, 0x9, 0xaa, 0xb, 0x9, 0x3, 0x9, 
-    0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 
-    0x6, 0x9, 0xb4, 0xa, 0x9, 0xd, 0x9, 0xe, 0x9, 0xb5, 0x3, 0x9, 0x3, 0x9, 
-    0x5, 0x9, 0xba, 0xa, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0xa, 0x3, 
-    0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x7, 0xa, 0xc4, 0xa, 0xa, 0xc, 0xa, 
-    0xe, 0xa, 0xc7, 0xb, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 
-    0xa, 0x3, 0xa, 0x5, 0xa, 0xcf, 0xa, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 
-    0x3, 0xa, 0x7, 0xa, 0xd5, 0xa, 0xa, 0xc, 0xa, 0xe, 0xa, 0xd8, 0xb, 0xa, 
-    0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 
-    0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xa, 0x5, 0xa, 0xe5, 0xa, 0xa, 0x5, 
-    0xa, 0xe7, 0xa, 0xa, 0x3, 0xa, 0x3, 0xa, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 
-    0x3, 0xb, 0x3, 0xb, 0x7, 0xb, 0xf0, 0xa, 0xb, 0xc, 0xb, 0xe, 0xb, 0xf3, 
-    0xb, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 
-    0x5, 0xb, 0xfb, 0xa, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x6, 
-    0xb, 0x101, 0xa, 0xb, 0xd, 0xb, 0xe, 0xb, 0x102, 0x3, 0xb, 0x3, 0xb, 
-    0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 
-    0x3, 0xb, 0x3, 0xb, 0x5, 0xb, 0x110, 0xa, 0xb, 0x5, 0xb, 0x112, 0xa, 
-    0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 
-    0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 
-    0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x5, 0xc, 0x126, 0xa, 0xc, 
-    0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x7, 0xd, 
-    0x12e, 0xa, 0xd, 0xc, 0xd, 0xe, 0xd, 0x131, 0xb, 0xd, 0x3, 0xe, 0x3, 
-    0xe, 0x3, 0xe, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x7, 
-    0xf, 0x13b, 0xa, 0xf, 0xc, 0xf, 0xe, 0xf, 0x13e, 0xb, 0xf, 0x3, 0xf, 
-    0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 
-    0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 
-    0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x7, 0xf, 0x154, 0xa, 
-    0xf, 0xc, 0xf, 0xe, 0xf, 0x157, 0xb, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 
-    0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 
-    0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x6, 0xf, 
-    0x169, 0xa, 0xf, 0xd, 0xf, 0xe, 0xf, 0x16a, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x7, 0xf, 0x189, 0xa, 0xf, 
-    0xc, 0xf, 0xe, 0xf, 0x18c, 0xb, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x5, 0xf, 0x19e, 
-    0xa, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x5, 0xf, 0x1a3, 0xa, 0xf, 0x3, 
-    0xf, 0x3, 0xf, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x5, 0x10, 
-    0x1ab, 0xa, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 
-    0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x5, 
-    0x10, 0x1b8, 0xa, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 
-    0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x5, 0x10, 0x1c1, 0xa, 0x10, 0x3, 0x10, 
-    0x3, 0x10, 0x7, 0x10, 0x1c5, 0xa, 0x10, 0xc, 0x10, 0xe, 0x10, 0x1c8, 
-    0xb, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 
-    0x10, 0x3, 0x10, 0x5, 0x10, 0x1d1, 0xa, 0x10, 0x3, 0x10, 0x3, 0x10, 
-    0x5, 0x10, 0x1d5, 0xa, 0x10, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 
-    0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x7, 0x11, 0x1de, 0xa, 0x11, 0xc, 0x11, 
-    0xe, 0x11, 0x1e1, 0xb, 0x11, 0x5, 0x11, 0x1e3, 0xa, 0x11, 0x3, 0x11, 
-    0x3, 0x11, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 
-    0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x12, 0x5, 0x12, 
-    0x1f2, 0xa, 0x12, 0x3, 0x13, 0x3, 0x13, 0x7, 0x13, 0x1f6, 0xa, 0x13, 
-    0xc, 0x13, 0xe, 0x13, 0x1f9, 0xb, 0x13, 0x3, 0x13, 0x3, 0x13, 0x5, 0x13, 
-    0x1fd, 0xa, 0x13, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x7, 0x14, 0x202, 
-    0xa, 0x14, 0xc, 0x14, 0xe, 0x14, 0x205, 0xb, 0x14, 0x3, 0x14, 0x3, 0x14, 
-    0x5, 0x14, 0x209, 0xa, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 
-    0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 0x15, 0x3, 
-    0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 
-    0x3, 0x15, 0x3, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 
-    0x16, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 
-    0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 
-    0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x17, 0x7, 0x17, 0x233, 0xa, 0x17, 
-    0xc, 0x17, 0xe, 0x17, 0x236, 0xb, 0x17, 0x3, 0x17, 0x3, 0x17, 0x5, 0x17, 
-    0x23a, 0xa, 0x17, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 
-    0x7, 0x18, 0x241, 0xa, 0x18, 0xc, 0x18, 0xe, 0x18, 0x244, 0xb, 0x18, 
-    0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 
-    0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x7, 0x18, 0x250, 0xa, 0x18, 
-    0xc, 0x18, 0xe, 0x18, 0x253, 0xb, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 
-    0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x18, 0x7, 0x18, 0x25d, 
-    0xa, 0x18, 0xc, 0x18, 0xe, 0x18, 0x260, 0xb, 0x18, 0x3, 0x18, 0x3, 0x18, 
-    0x5, 0x18, 0x264, 0xa, 0x18, 0x3, 0x19, 0x3, 0x19, 0x3, 0x19, 0x3, 0x19, 
-    0x3, 0x19, 0x7, 0x19, 0x26b, 0xa, 0x19, 0xc, 0x19, 0xe, 0x19, 0x26e, 
-    0xb, 0x19, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 
-    0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 
-    0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 
-    0x1a, 0x5, 0x1a, 0x283, 0xa, 0x1a, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 
-    0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x5, 0x1b, 0x28d, 
-    0xa, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x7, 
-    0x1b, 0x294, 0xa, 0x1b, 0xc, 0x1b, 0xe, 0x1b, 0x297, 0xb, 0x1b, 0x3, 
-    0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 
-    0x3, 0x1b, 0x5, 0x1b, 0x2a1, 0xa, 0x1b, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 
-    0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 
-    0x1c, 0x5, 0x1c, 0x2ad, 0xa, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 
-    0x7, 0x1c, 0x2b2, 0xa, 0x1c, 0xc, 0x1c, 0xe, 0x1c, 0x2b5, 0xb, 0x1c, 
-    0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 
-    0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x5, 0x1d, 0x2c0, 0xa, 0x1d, 0x3, 0x1d, 
-    0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x7, 0x1d, 0x2c7, 0xa, 0x1d, 
-    0xc, 0x1d, 0xe, 0x1d, 0x2ca, 0xb, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 
-    0x3, 0x1e, 0x3, 0x1e, 0x3, 0x1e, 0x3, 0x1f, 0x3, 0x1f, 0x3, 0x1f, 0x3, 
-    0x1f, 0x3, 0x1f, 0x3, 0x1f, 0x7, 0x1f, 0x2d8, 0xa, 0x1f, 0xc, 0x1f, 
-    0xe, 0x1f, 0x2db, 0xb, 0x1f, 0x3, 0x20, 0x3, 0x20, 0x3, 0x20, 0x3, 0x20, 
-    0x3, 0x20, 0x3, 0x20, 0x7, 0x20, 0x2e3, 0xa, 0x20, 0xc, 0x20, 0xe, 0x20, 
-    0x2e6, 0xb, 0x20, 0x3, 0x21, 0x3, 0x21, 0x3, 0x21, 0x3, 0x21, 0x3, 0x21, 
-    0x3, 0x21, 0x7, 0x21, 0x2ee, 0xa, 0x21, 0xc, 0x21, 0xe, 0x21, 0x2f1, 
-    0xb, 0x21, 0x3, 0x22, 0x3, 0x22, 0x3, 0x22, 0x3, 0x22, 0x3, 0x22, 0x3, 
-    0x22, 0x7, 0x22, 0x2f9, 0xa, 0x22, 0xc, 0x22, 0xe, 0x22, 0x2fc, 0xb, 
-    0x22, 0x3, 0x23, 0x3, 0x23, 0x3, 0x23, 0x3, 0x23, 0x3, 0x23, 0x3, 0x23, 
-    0x7, 0x23, 0x304, 0xa, 0x23, 0xc, 0x23, 0xe, 0x23, 0x307, 0xb, 0x23, 
-    0x3, 0x24, 0x3, 0x24, 0x3, 0x24, 0x3, 0x24, 0x3, 0x24, 0x3, 0x24, 0x7, 
-    0x24, 0x30f, 0xa, 0x24, 0xc, 0x24, 0xe, 0x24, 0x312, 0xb, 0x24, 0x3, 
-    0x25, 0x5, 0x25, 0x315, 0xa, 0x25, 0x3, 0x25, 0x3, 0x25, 0x3, 0x25, 
-    0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 
-    0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 
-    0x3, 0x26, 0x3, 0x26, 0x3, 0x26, 0x5, 0x26, 0x32a, 0xa, 0x26, 0x3, 0x27, 
-    0x3, 0x27, 0x3, 0x27, 0x3, 0x27, 0x3, 0x27, 0x3, 0x27, 0x4, 0x71, 0x97, 
-    0x2, 0x28, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 0x10, 0x12, 0x14, 0x16, 
-    0x18, 0x1a, 0x1c, 0x1e, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2a, 0x2c, 0x2e, 
-    0x30, 0x32, 0x34, 0x36, 0x38, 0x3a, 0x3c, 0x3e, 0x40, 0x42, 0x44, 0x46, 
-    0x48, 0x4a, 0x4c, 0x2, 0xa, 0x3, 0x2, 0x1e, 0x1e, 0x3, 0x2, 0x27, 0x27, 
-    0x3, 0x2, 0x17, 0x18, 0x3, 0x2, 0x2e, 0x2f, 0x3, 0x2, 0x2a, 0x2d, 0x3, 
-    0x2, 0x34, 0x35, 0x3, 0x2, 0x36, 0x37, 0x4, 0x2, 0x1c, 0x1c, 0x35, 0x35, 
-    0x2, 0x368, 0x2, 0x60, 0x3, 0x2, 0x2, 0x2, 0x4, 0x66, 0x3, 0x2, 0x2, 
-    0x2, 0x6, 0x71, 0x3, 0x2, 0x2, 0x2, 0x8, 0x76, 0x3, 0x2, 0x2, 0x2, 0xa, 
-    0x97, 0x3, 0x2, 0x2, 0x2, 0xc, 0x9a, 0x3, 0x2, 0x2, 0x2, 0xe, 0x9d, 
-    0x3, 0x2, 0x2, 0x2, 0x10, 0xa8, 0x3, 0x2, 0x2, 0x2, 0x12, 0xc5, 0x3, 
-    0x2, 0x2, 0x2, 0x14, 0xf1, 0x3, 0x2, 0x2, 0x2, 0x16, 0x125, 0x3, 0x2, 
-    0x2, 0x2, 0x18, 0x127, 0x3, 0x2, 0x2, 0x2, 0x1a, 0x132, 0x3, 0x2, 0x2, 
-    0x2, 0x1c, 0x13c, 0x3, 0x2, 0x2, 0x2, 0x1e, 0x1aa, 0x3, 0x2, 0x2, 0x2, 
-    0x20, 0x1d6, 0x3, 0x2, 0x2, 0x2, 0x22, 0x1f1, 0x3, 0x2, 0x2, 0x2, 0x24, 
-    0x1fc, 0x3, 0x2, 0x2, 0x2, 0x26, 0x203, 0x3, 0x2, 0x2, 0x2, 0x28, 0x213, 
-    0x3, 0x2, 0x2, 0x2, 0x2a, 0x21c, 0x3, 0x2, 0x2, 0x2, 0x2c, 0x239, 0x3, 
-    0x2, 0x2, 0x2, 0x2e, 0x263, 0x3, 0x2, 0x2, 0x2, 0x30, 0x265, 0x3, 0x2, 
-    0x2, 0x2, 0x32, 0x282, 0x3, 0x2, 0x2, 0x2, 0x34, 0x2a0, 0x3, 0x2, 0x2, 
-    0x2, 0x36, 0x2a2, 0x3, 0x2, 0x2, 0x2, 0x38, 0x2b9, 0x3, 0x2, 0x2, 0x2, 
-    0x3a, 0x2ce, 0x3, 0x2, 0x2, 0x2, 0x3c, 0x2d1, 0x3, 0x2, 0x2, 0x2, 0x3e, 
-    0x2dc, 0x3, 0x2, 0x2, 0x2, 0x40, 0x2e7, 0x3, 0x2, 0x2, 0x2, 0x42, 0x2f2, 
-    0x3, 0x2, 0x2, 0x2, 0x44, 0x2fd, 0x3, 0x2, 0x2, 0x2, 0x46, 0x308, 0x3, 
-    0x2, 0x2, 0x2, 0x48, 0x314, 0x3, 0x2, 0x2, 0x2, 0x4a, 0x329, 0x3, 0x2, 
-    0x2, 0x2, 0x4c, 0x32b, 0x3, 0x2, 0x2, 0x2, 0x4e, 0x53, 0x7, 0x1e, 0x2, 
-    0x2, 0x4f, 0x50, 0xa, 0x2, 0x2, 0x2, 0x50, 0x52, 0x8, 0x2, 0x1, 0x2, 
-    0x51, 0x4f, 0x3, 0x2, 0x2, 0x2, 0x52, 0x55, 0x3, 0x2, 0x2, 0x2, 0x53, 
-    0x51, 0x3, 0x2, 0x2, 0x2, 0x53, 0x54, 0x3, 0x2, 0x2, 0x2, 0x54, 0x56, 
-    0x3, 0x2, 0x2, 0x2, 0x55, 0x53, 0x3, 0x2, 0x2, 0x2, 0x56, 0x61, 0x7, 
-    0x1e, 0x2, 0x2, 0x57, 0x5c, 0x7, 0x27, 0x2, 0x2, 0x58, 0x59, 0xa, 0x3, 
-    0x2, 0x2, 0x59, 0x5b, 0x8, 0x2, 0x1, 0x2, 0x5a, 0x58, 0x3, 0x2, 0x2, 
-    0x2, 0x5b, 0x5e, 0x3, 0x2, 0x2, 0x2, 0x5c, 0x5a, 0x3, 0x2, 0x2, 0x2, 
-    0x5c, 0x5d, 0x3, 0x2, 0x2, 0x2, 0x5d, 0x5f, 0x3, 0x2, 0x2, 0x2, 0x5e, 
-    0x5c, 0x3, 0x2, 0x2, 0x2, 0x5f, 0x61, 0x7, 0x27, 0x2, 0x2, 0x60, 0x4e, 
-    0x3, 0x2, 0x2, 0x2, 0x60, 0x57, 0x3, 0x2, 0x2, 0x2, 0x61, 0x3, 0x3, 
-    0x2, 0x2, 0x2, 0x62, 0x63, 0x7, 0x3, 0x2, 0x2, 0x63, 0x67, 0x8, 0x3, 
-    0x1, 0x2, 0x64, 0x65, 0x7, 0x4, 0x2, 0x2, 0x65, 0x67, 0x8, 0x3, 0x1, 
-    0x2, 0x66, 0x62, 0x3, 0x2, 0x2, 0x2, 0x66, 0x64, 0x3, 0x2, 0x2, 0x2, 
-    0x67, 0x5, 0x3, 0x2, 0x2, 0x2, 0x68, 0x69, 0x8, 0x4, 0x1, 0x2, 0x69, 
-    0x6a, 0x7, 0x5, 0x2, 0x2, 0x6a, 0x6b, 0x7, 0x38, 0x2, 0x2, 0x6b, 0x6c, 
-    0x5, 0x2, 0x2, 0x2, 0x6c, 0x6d, 0x8, 0x4, 0x1, 0x2, 0x6d, 0x70, 0x3, 
-    0x2, 0x2, 0x2, 0x6e, 0x70, 0xb, 0x2, 0x2, 0x2, 0x6f, 0x68, 0x3, 0x2, 
-    0x2, 0x2, 0x6f, 0x6e, 0x3, 0x2, 0x2, 0x2, 0x70, 0x73, 0x3, 0x2, 0x2, 
-    0x2, 0x71, 0x72, 0x3, 0x2, 0x2, 0x2, 0x71, 0x6f, 0x3, 0x2, 0x2, 0x2, 
-    0x72, 0x74, 0x3, 0x2, 0x2, 0x2, 0x73, 0x71, 0x3, 0x2, 0x2, 0x2, 0x74, 
-    0x75, 0x7, 0x2, 0x2, 0x3, 0x75, 0x7, 0x3, 0x2, 0x2, 0x2, 0x76, 0x77, 
-    0x5, 0xa, 0x6, 0x2, 0x77, 0x78, 0x8, 0x5, 0x1, 0x2, 0x78, 0x79, 0x7, 
-    0x2, 0x2, 0x3, 0x79, 0x9, 0x3, 0x2, 0x2, 0x2, 0x7a, 0x7b, 0x5, 0x1c, 
-    0xf, 0x2, 0x7b, 0x7c, 0x8, 0x6, 0x1, 0x2, 0x7c, 0x96, 0x3, 0x2, 0x2, 
-    0x2, 0x7d, 0x7e, 0x5, 0x2c, 0x17, 0x2, 0x7e, 0x7f, 0x8, 0x6, 0x1, 0x2, 
-    0x7f, 0x96, 0x3, 0x2, 0x2, 0x2, 0x80, 0x81, 0x5, 0x26, 0x14, 0x2, 0x81, 
-    0x82, 0x8, 0x6, 0x1, 0x2, 0x82, 0x96, 0x3, 0x2, 0x2, 0x2, 0x83, 0x84, 
-    0x5, 0x38, 0x1d, 0x2, 0x84, 0x85, 0x8, 0x6, 0x1, 0x2, 0x85, 0x96, 0x3, 
-    0x2, 0x2, 0x2, 0x86, 0x87, 0x5, 0x10, 0x9, 0x2, 0x87, 0x88, 0x8, 0x6, 
-    0x1, 0x2, 0x88, 0x96, 0x3, 0x2, 0x2, 0x2, 0x89, 0x8a, 0x5, 0x12, 0xa, 
-    0x2, 0x8a, 0x8b, 0x8, 0x6, 0x1, 0x2, 0x8b, 0x96, 0x3, 0x2, 0x2, 0x2, 
-    0x8c, 0x8d, 0x5, 0x14, 0xb, 0x2, 0x8d, 0x8e, 0x8, 0x6, 0x1, 0x2, 0x8e, 
-    0x96, 0x3, 0x2, 0x2, 0x2, 0x8f, 0x90, 0x5, 0x16, 0xc, 0x2, 0x90, 0x91, 
-    0x8, 0x6, 0x1, 0x2, 0x91, 0x96, 0x3, 0x2, 0x2, 0x2, 0x92, 0x93, 0x5, 
-    0x2e, 0x18, 0x2, 0x93, 0x94, 0x8, 0x6, 0x1, 0x2, 0x94, 0x96, 0x3, 0x2, 
-    0x2, 0x2, 0x95, 0x7a, 0x3, 0x2, 0x2, 0x2, 0x95, 0x7d, 0x3, 0x2, 0x2, 
-    0x2, 0x95, 0x80, 0x3, 0x2, 0x2, 0x2, 0x95, 0x83, 0x3, 0x2, 0x2, 0x2, 
-    0x95, 0x86, 0x3, 0x2, 0x2, 0x2, 0x95, 0x89, 0x3, 0x2, 0x2, 0x2, 0x95, 
-    0x8c, 0x3, 0x2, 0x2, 0x2, 0x95, 0x8f, 0x3, 0x2, 0x2, 0x2, 0x95, 0x92, 
-    0x3, 0x2, 0x2, 0x2, 0x96, 0x99, 0x3, 0x2, 0x2, 0x2, 0x97, 0x98, 0x3, 
-    0x2, 0x2, 0x2, 0x97, 0x95, 0x3, 0x2, 0x2, 0x2, 0x98, 0xb, 0x3, 0x2, 
-    0x2, 0x2, 0x99, 0x97, 0x3, 0x2, 0x2, 0x2, 0x9a, 0x9b, 0x7, 0x3f, 0x2, 
-    0x2, 0x9b, 0x9c, 0x8, 0x7, 0x1, 0x2, 0x9c, 0xd, 0x3, 0x2, 0x2, 0x2, 
-    0x9d, 0x9e, 0x7, 0x3f, 0x2, 0x2, 0x9e, 0x9f, 0x5, 0x4c, 0x27, 0x2, 0x9f, 
-    0xa0, 0x8, 0x8, 0x1, 0x2, 0xa0, 0xf, 0x3, 0x2, 0x2, 0x2, 0xa1, 0xa2, 
-    0x7, 0x3f, 0x2, 0x2, 0xa2, 0xa7, 0x8, 0x9, 0x1, 0x2, 0xa3, 0xa4, 0x5, 
-    0xe, 0x8, 0x2, 0xa4, 0xa5, 0x8, 0x9, 0x1, 0x2, 0xa5, 0xa7, 0x3, 0x2, 
-    0x2, 0x2, 0xa6, 0xa1, 0x3, 0x2, 0x2, 0x2, 0xa6, 0xa3, 0x3, 0x2, 0x2, 
-    0x2, 0xa7, 0xaa, 0x3, 0x2, 0x2, 0x2, 0xa8, 0xa6, 0x3, 0x2, 0x2, 0x2, 
-    0xa8, 0xa9, 0x3, 0x2, 0x2, 0x2, 0xa9, 0xab, 0x3, 0x2, 0x2, 0x2, 0xaa, 
-    0xa8, 0x3, 0x2, 0x2, 0x2, 0xab, 0xac, 0x7, 0x6, 0x2, 0x2, 0xac, 0xad, 
-    0x7, 0x3f, 0x2, 0x2, 0xad, 0xb9, 0x8, 0x9, 0x1, 0x2, 0xae, 0xb3, 0x7, 
-    0x17, 0x2, 0x2, 0xaf, 0xb0, 0x5, 0x1e, 0x10, 0x2, 0xb0, 0xb1, 0x7, 0x12, 
-    0x2, 0x2, 0xb1, 0xb2, 0x8, 0x9, 0x1, 0x2, 0xb2, 0xb4, 0x3, 0x2, 0x2, 
-    0x2, 0xb3, 0xaf, 0x3, 0x2, 0x2, 0x2, 0xb4, 0xb5, 0x3, 0x2, 0x2, 0x2, 
-    0xb5, 0xb3, 0x3, 0x2, 0x2, 0x2, 0xb5, 0xb6, 0x3, 0x2, 0x2, 0x2, 0xb6, 
-    0xb7, 0x3, 0x2, 0x2, 0x2, 0xb7, 0xb8, 0x7, 0x18, 0x2, 0x2, 0xb8, 0xba, 
-    0x3, 0x2, 0x2, 0x2, 0xb9, 0xae, 0x3, 0x2, 0x2, 0x2, 0xb9, 0xba, 0x3, 
-    0x2, 0x2, 0x2, 0xba, 0xbb, 0x3, 0x2, 0x2, 0x2, 0xbb, 0xbc, 0x7, 0x12, 
-    0x2, 0x2, 0xbc, 0xbd, 0x8, 0x9, 0x1, 0x2, 0xbd, 0x11, 0x3, 0x2, 0x2, 
-    0x2, 0xbe, 0xbf, 0x7, 0x3f, 0x2, 0x2, 0xbf, 0xc4, 0x8, 0xa, 0x1, 0x2, 
-    0xc0, 0xc1, 0x5, 0xe, 0x8, 0x2, 0xc1, 0xc2, 0x8, 0xa, 0x1, 0x2, 0xc2, 
-    0xc4, 0x3, 0x2, 0x2, 0x2, 0xc3, 0xbe, 0x3, 0x2, 0x2, 0x2, 0xc3, 0xc0, 
-    0x3, 0x2, 0x2, 0x2, 0xc4, 0xc7, 0x3, 0x2, 0x2, 0x2, 0xc5, 0xc3, 0x3, 
-    0x2, 0x2, 0x2, 0xc5, 0xc6, 0x3, 0x2, 0x2, 0x2, 0xc6, 0xc8, 0x3, 0x2, 
-    0x2, 0x2, 0xc7, 0xc5, 0x3, 0x2, 0x2, 0x2, 0xc8, 0xc9, 0x7, 0x7, 0x2, 
-    0x2, 0xc9, 0xca, 0x7, 0x3f, 0x2, 0x2, 0xca, 0xce, 0x8, 0xa, 0x1, 0x2, 
-    0xcb, 0xcc, 0x5, 0x36, 0x1c, 0x2, 0xcc, 0xcd, 0x8, 0xa, 0x1, 0x2, 0xcd, 
-    0xcf, 0x3, 0x2, 0x2, 0x2, 0xce, 0xcb, 0x3, 0x2, 0x2, 0x2, 0xce, 0xcf, 
-    0x3, 0x2, 0x2, 0x2, 0xcf, 0xd0, 0x3, 0x2, 0x2, 0x2, 0xd0, 0xd6, 0x7, 
-    0x17, 0x2, 0x2, 0xd1, 0xd2, 0x5, 0x1c, 0xf, 0x2, 0xd2, 0xd3, 0x8, 0xa, 
-    0x1, 0x2, 0xd3, 0xd5, 0x3, 0x2, 0x2, 0x2, 0xd4, 0xd1, 0x3, 0x2, 0x2, 
-    0x2, 0xd5, 0xd8, 0x3, 0x2, 0x2, 0x2, 0xd6, 0xd4, 0x3, 0x2, 0x2, 0x2, 
-    0xd6, 0xd7, 0x3, 0x2, 0x2, 0x2, 0xd7, 0xd9, 0x3, 0x2, 0x2, 0x2, 0xd8, 
-    0xd6, 0x3, 0x2, 0x2, 0x2, 0xd9, 0xe6, 0x7, 0x18, 0x2, 0x2, 0xda, 0xdb, 
-    0x7, 0x3f, 0x2, 0x2, 0xdb, 0xe4, 0x8, 0xa, 0x1, 0x2, 0xdc, 0xdd, 0x7, 
-    0x19, 0x2, 0x2, 0xdd, 0xde, 0x7, 0x1a, 0x2, 0x2, 0xde, 0xe5, 0x8, 0xa, 
-    0x1, 0x2, 0xdf, 0xe0, 0x7, 0x19, 0x2, 0x2, 0xe0, 0xe1, 0x5, 0x3a, 0x1e, 
-    0x2, 0xe1, 0xe2, 0x7, 0x1a, 0x2, 0x2, 0xe2, 0xe3, 0x8, 0xa, 0x1, 0x2, 
-    0xe3, 0xe5, 0x3, 0x2, 0x2, 0x2, 0xe4, 0xdc, 0x3, 0x2, 0x2, 0x2, 0xe4, 
-    0xdf, 0x3, 0x2, 0x2, 0x2, 0xe4, 0xe5, 0x3, 0x2, 0x2, 0x2, 0xe5, 0xe7, 
-    0x3, 0x2, 0x2, 0x2, 0xe6, 0xda, 0x3, 0x2, 0x2, 0x2, 0xe6, 0xe7, 0x3, 
-    0x2, 0x2, 0x2, 0xe7, 0xe8, 0x3, 0x2, 0x2, 0x2, 0xe8, 0xe9, 0x7, 0x12, 
-    0x2, 0x2, 0xe9, 0x13, 0x3, 0x2, 0x2, 0x2, 0xea, 0xeb, 0x7, 0x3f, 0x2, 
-    0x2, 0xeb, 0xf0, 0x8, 0xb, 0x1, 0x2, 0xec, 0xed, 0x5, 0xe, 0x8, 0x2, 
-    0xed, 0xee, 0x8, 0xb, 0x1, 0x2, 0xee, 0xf0, 0x3, 0x2, 0x2, 0x2, 0xef, 
-    0xea, 0x3, 0x2, 0x2, 0x2, 0xef, 0xec, 0x3, 0x2, 0x2, 0x2, 0xf0, 0xf3, 
-    0x3, 0x2, 0x2, 0x2, 0xf1, 0xef, 0x3, 0x2, 0x2, 0x2, 0xf1, 0xf2, 0x3, 
-    0x2, 0x2, 0x2, 0xf2, 0xf4, 0x3, 0x2, 0x2, 0x2, 0xf3, 0xf1, 0x3, 0x2, 
-    0x2, 0x2, 0xf4, 0xf5, 0x7, 0x8, 0x2, 0x2, 0xf5, 0xf6, 0x7, 0x3f, 0x2, 
-    0x2, 0xf6, 0xfa, 0x8, 0xb, 0x1, 0x2, 0xf7, 0xf8, 0x5, 0x36, 0x1c, 0x2, 
-    0xf8, 0xf9, 0x8, 0xb, 0x1, 0x2, 0xf9, 0xfb, 0x3, 0x2, 0x2, 0x2, 0xfa, 
-    0xf7, 0x3, 0x2, 0x2, 0x2, 0xfa, 0xfb, 0x3, 0x2, 0x2, 0x2, 0xfb, 0xfc, 
-    0x3, 0x2, 0x2, 0x2, 0xfc, 0x100, 0x7, 0x17, 0x2, 0x2, 0xfd, 0xfe, 0x5, 
-    0x1c, 0xf, 0x2, 0xfe, 0xff, 0x8, 0xb, 0x1, 0x2, 0xff, 0x101, 0x3, 0x2, 
-    0x2, 0x2, 0x100, 0xfd, 0x3, 0x2, 0x2, 0x2, 0x101, 0x102, 0x3, 0x2, 0x2, 
-    0x2, 0x102, 0x100, 0x3, 0x2, 0x2, 0x2, 0x102, 0x103, 0x3, 0x2, 0x2, 
-    0x2, 0x103, 0x104, 0x3, 0x2, 0x2, 0x2, 0x104, 0x111, 0x7, 0x18, 0x2, 
-    0x2, 0x105, 0x106, 0x7, 0x3f, 0x2, 0x2, 0x106, 0x10f, 0x8, 0xb, 0x1, 
-    0x2, 0x107, 0x108, 0x7, 0x19, 0x2, 0x2, 0x108, 0x109, 0x7, 0x1a, 0x2, 
-    0x2, 0x109, 0x110, 0x8, 0xb, 0x1, 0x2, 0x10a, 0x10b, 0x7, 0x19, 0x2, 
-    0x2, 0x10b, 0x10c, 0x5, 0x3a, 0x1e, 0x2, 0x10c, 0x10d, 0x7, 0x1a, 0x2, 
-    0x2, 0x10d, 0x10e, 0x8, 0xb, 0x1, 0x2, 0x10e, 0x110, 0x3, 0x2, 0x2, 
-    0x2, 0x10f, 0x107, 0x3, 0x2, 0x2, 0x2, 0x10f, 0x10a, 0x3, 0x2, 0x2, 
-    0x2, 0x10f, 0x110, 0x3, 0x2, 0x2, 0x2, 0x110, 0x112, 0x3, 0x2, 0x2, 
-    0x2, 0x111, 0x105, 0x3, 0x2, 0x2, 0x2, 0x111, 0x112, 0x3, 0x2, 0x2, 
-    0x2, 0x112, 0x113, 0x3, 0x2, 0x2, 0x2, 0x113, 0x114, 0x7, 0x12, 0x2, 
-    0x2, 0x114, 0x15, 0x3, 0x2, 0x2, 0x2, 0x115, 0x116, 0x7, 0x9, 0x2, 0x2, 
-    0x116, 0x117, 0x5, 0xc, 0x7, 0x2, 0x117, 0x118, 0x7, 0x3f, 0x2, 0x2, 
-    0x118, 0x119, 0x8, 0xc, 0x1, 0x2, 0x119, 0x11a, 0x5, 0x20, 0x11, 0x2, 
-    0x11a, 0x11b, 0x7, 0x12, 0x2, 0x2, 0x11b, 0x11c, 0x8, 0xc, 0x1, 0x2, 
-    0x11c, 0x126, 0x3, 0x2, 0x2, 0x2, 0x11d, 0x11e, 0x7, 0xa, 0x2, 0x2, 
-    0x11e, 0x11f, 0x7, 0x15, 0x2, 0x2, 0x11f, 0x120, 0x7, 0x3f, 0x2, 0x2, 
-    0x120, 0x121, 0x7, 0x16, 0x2, 0x2, 0x121, 0x122, 0x8, 0xc, 0x1, 0x2, 
-    0x122, 0x123, 0x5, 0x26, 0x14, 0x2, 0x123, 0x124, 0x8, 0xc, 0x1, 0x2, 
-    0x124, 0x126, 0x3, 0x2, 0x2, 0x2, 0x125, 0x115, 0x3, 0x2, 0x2, 0x2, 
-    0x125, 0x11d, 0x3, 0x2, 0x2, 0x2, 0x126, 0x17, 0x3, 0x2, 0x2, 0x2, 0x127, 
-    0x128, 0x5, 0x3a, 0x1e, 0x2, 0x128, 0x12f, 0x8, 0xd, 0x1, 0x2, 0x129, 
-    0x12a, 0x7, 0x13, 0x2, 0x2, 0x12a, 0x12b, 0x5, 0x3a, 0x1e, 0x2, 0x12b, 
-    0x12c, 0x8, 0xd, 0x1, 0x2, 0x12c, 0x12e, 0x3, 0x2, 0x2, 0x2, 0x12d, 
-    0x129, 0x3, 0x2, 0x2, 0x2, 0x12e, 0x131, 0x3, 0x2, 0x2, 0x2, 0x12f, 
-    0x12d, 0x3, 0x2, 0x2, 0x2, 0x12f, 0x130, 0x3, 0x2, 0x2, 0x2, 0x130, 
-    0x19, 0x3, 0x2, 0x2, 0x2, 0x131, 0x12f, 0x3, 0x2, 0x2, 0x2, 0x132, 0x133, 
-    0x5, 0x3a, 0x1e, 0x2, 0x133, 0x134, 0x8, 0xe, 0x1, 0x2, 0x134, 0x1b, 
-    0x3, 0x2, 0x2, 0x2, 0x135, 0x136, 0x7, 0x3f, 0x2, 0x2, 0x136, 0x13b, 
-    0x8, 0xf, 0x1, 0x2, 0x137, 0x138, 0x5, 0xe, 0x8, 0x2, 0x138, 0x139, 
-    0x8, 0xf, 0x1, 0x2, 0x139, 0x13b, 0x3, 0x2, 0x2, 0x2, 0x13a, 0x135, 
-    0x3, 0x2, 0x2, 0x2, 0x13a, 0x137, 0x3, 0x2, 0x2, 0x2, 0x13b, 0x13e, 
-    0x3, 0x2, 0x2, 0x2, 0x13c, 0x13a, 0x3, 0x2, 0x2, 0x2, 0x13c, 0x13d, 
-    0x3, 0x2, 0x2, 0x2, 0x13d, 0x13f, 0x3, 0x2, 0x2, 0x2, 0x13e, 0x13c, 
-    0x3, 0x2, 0x2, 0x2, 0x13f, 0x140, 0x5, 0xc, 0x7, 0x2, 0x140, 0x141, 
-    0x7, 0x3f, 0x2, 0x2, 0x141, 0x19d, 0x8, 0xf, 0x1, 0x2, 0x142, 0x143, 
-    0x7, 0x19, 0x2, 0x2, 0x143, 0x144, 0x7, 0x1a, 0x2, 0x2, 0x144, 0x145, 
-    0x7, 0x1d, 0x2, 0x2, 0x145, 0x146, 0x8, 0xf, 0x1, 0x2, 0x146, 0x147, 
-    0x7, 0x17, 0x2, 0x2, 0x147, 0x148, 0x5, 0xc, 0x7, 0x2, 0x148, 0x149, 
-    0x7, 0x15, 0x2, 0x2, 0x149, 0x14a, 0x5, 0x18, 0xd, 0x2, 0x14a, 0x14b, 
-    0x7, 0x16, 0x2, 0x2, 0x14b, 0x155, 0x8, 0xf, 0x1, 0x2, 0x14c, 0x14d, 
-    0x7, 0x13, 0x2, 0x2, 0x14d, 0x14e, 0x5, 0xc, 0x7, 0x2, 0x14e, 0x14f, 
-    0x7, 0x15, 0x2, 0x2, 0x14f, 0x150, 0x5, 0x18, 0xd, 0x2, 0x150, 0x151, 
-    0x7, 0x16, 0x2, 0x2, 0x151, 0x152, 0x8, 0xf, 0x1, 0x2, 0x152, 0x154, 
-    0x3, 0x2, 0x2, 0x2, 0x153, 0x14c, 0x3, 0x2, 0x2, 0x2, 0x154, 0x157, 
-    0x3, 0x2, 0x2, 0x2, 0x155, 0x153, 0x3, 0x2, 0x2, 0x2, 0x155, 0x156, 
-    0x3, 0x2, 0x2, 0x2, 0x156, 0x158, 0x3, 0x2, 0x2, 0x2, 0x157, 0x155, 
-    0x3, 0x2, 0x2, 0x2, 0x158, 0x159, 0x7, 0x18, 0x2, 0x2, 0x159, 0x19e, 
-    0x3, 0x2, 0x2, 0x2, 0x15a, 0x15b, 0x7, 0x19, 0x2, 0x2, 0x15b, 0x15c, 
-    0x7, 0x1a, 0x2, 0x2, 0x15c, 0x15d, 0x7, 0x1d, 0x2, 0x2, 0x15d, 0x15e, 
-    0x8, 0xf, 0x1, 0x2, 0x15e, 0x15f, 0x7, 0x17, 0x2, 0x2, 0x15f, 0x160, 
-    0x5, 0x18, 0xd, 0x2, 0x160, 0x161, 0x7, 0x18, 0x2, 0x2, 0x161, 0x162, 
-    0x8, 0xf, 0x1, 0x2, 0x162, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x163, 0x164, 
-    0x7, 0x19, 0x2, 0x2, 0x164, 0x165, 0x5, 0x3a, 0x1e, 0x2, 0x165, 0x166, 
-    0x7, 0x1a, 0x2, 0x2, 0x166, 0x167, 0x8, 0xf, 0x1, 0x2, 0x167, 0x169, 
-    0x3, 0x2, 0x2, 0x2, 0x168, 0x163, 0x3, 0x2, 0x2, 0x2, 0x169, 0x16a, 
-    0x3, 0x2, 0x2, 0x2, 0x16a, 0x168, 0x3, 0x2, 0x2, 0x2, 0x16a, 0x16b, 
-    0x3, 0x2, 0x2, 0x2, 0x16b, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x16c, 0x16d, 
-    0x7, 0x19, 0x2, 0x2, 0x16d, 0x16e, 0x5, 0x3a, 0x1e, 0x2, 0x16e, 0x16f, 
-    0x7, 0x1a, 0x2, 0x2, 0x16f, 0x170, 0x8, 0xf, 0x1, 0x2, 0x170, 0x171, 
-    0x7, 0x1d, 0x2, 0x2, 0x171, 0x172, 0x7, 0x17, 0x2, 0x2, 0x172, 0x173, 
-    0x5, 0x18, 0xd, 0x2, 0x173, 0x174, 0x7, 0x18, 0x2, 0x2, 0x174, 0x175, 
-    0x8, 0xf, 0x1, 0x2, 0x175, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x176, 0x177, 
-    0x7, 0x19, 0x2, 0x2, 0x177, 0x178, 0x5, 0x3a, 0x1e, 0x2, 0x178, 0x179, 
-    0x7, 0x1a, 0x2, 0x2, 0x179, 0x17a, 0x8, 0xf, 0x1, 0x2, 0x17a, 0x17b, 
-    0x7, 0x1d, 0x2, 0x2, 0x17b, 0x17c, 0x7, 0x17, 0x2, 0x2, 0x17c, 0x17d, 
-    0x5, 0xc, 0x7, 0x2, 0x17d, 0x17e, 0x7, 0x15, 0x2, 0x2, 0x17e, 0x17f, 
-    0x5, 0x18, 0xd, 0x2, 0x17f, 0x180, 0x7, 0x16, 0x2, 0x2, 0x180, 0x18a, 
-    0x8, 0xf, 0x1, 0x2, 0x181, 0x182, 0x7, 0x13, 0x2, 0x2, 0x182, 0x183, 
-    0x5, 0xc, 0x7, 0x2, 0x183, 0x184, 0x7, 0x15, 0x2, 0x2, 0x184, 0x185, 
-    0x5, 0x18, 0xd, 0x2, 0x185, 0x186, 0x7, 0x16, 0x2, 0x2, 0x186, 0x187, 
-    0x8, 0xf, 0x1, 0x2, 0x187, 0x189, 0x3, 0x2, 0x2, 0x2, 0x188, 0x181, 
-    0x3, 0x2, 0x2, 0x2, 0x189, 0x18c, 0x3, 0x2, 0x2, 0x2, 0x18a, 0x188, 
-    0x3, 0x2, 0x2, 0x2, 0x18a, 0x18b, 0x3, 0x2, 0x2, 0x2, 0x18b, 0x18d, 
-    0x3, 0x2, 0x2, 0x2, 0x18c, 0x18a, 0x3, 0x2, 0x2, 0x2, 0x18d, 0x18e, 
-    0x7, 0x18, 0x2, 0x2, 0x18e, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x18f, 0x190, 
-    0x7, 0x19, 0x2, 0x2, 0x190, 0x191, 0x7, 0x1a, 0x2, 0x2, 0x191, 0x19e, 
-    0x8, 0xf, 0x1, 0x2, 0x192, 0x193, 0x7, 0x1d, 0x2, 0x2, 0x193, 0x194, 
-    0x5, 0xc, 0x7, 0x2, 0x194, 0x195, 0x7, 0x15, 0x2, 0x2, 0x195, 0x196, 
-    0x5, 0x18, 0xd, 0x2, 0x196, 0x197, 0x7, 0x16, 0x2, 0x2, 0x197, 0x198, 
-    0x8, 0xf, 0x1, 0x2, 0x198, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x199, 0x19a, 
-    0x7, 0x1d, 0x2, 0x2, 0x19a, 0x19b, 0x5, 0x1a, 0xe, 0x2, 0x19b, 0x19c, 
-    0x8, 0xf, 0x1, 0x2, 0x19c, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x19d, 0x142, 
-    0x3, 0x2, 0x2, 0x2, 0x19d, 0x15a, 0x3, 0x2, 0x2, 0x2, 0x19d, 0x168, 
-    0x3, 0x2, 0x2, 0x2, 0x19d, 0x16c, 0x3, 0x2, 0x2, 0x2, 0x19d, 0x176, 
-    0x3, 0x2, 0x2, 0x2, 0x19d, 0x18f, 0x3, 0x2, 0x2, 0x2, 0x19d, 0x192, 
-    0x3, 0x2, 0x2, 0x2, 0x19d, 0x199, 0x3, 0x2, 0x2, 0x2, 0x19d, 0x19e, 
-    0x3, 0x2, 0x2, 0x2, 0x19e, 0x1a2, 0x3, 0x2, 0x2, 0x2, 0x19f, 0x1a0, 
-    0x5, 0x36, 0x1c, 0x2, 0x1a0, 0x1a1, 0x8, 0xf, 0x1, 0x2, 0x1a1, 0x1a3, 
-    0x3, 0x2, 0x2, 0x2, 0x1a2, 0x19f, 0x3, 0x2, 0x2, 0x2, 0x1a2, 0x1a3, 
-    0x3, 0x2, 0x2, 0x2, 0x1a3, 0x1a4, 0x3, 0x2, 0x2, 0x2, 0x1a4, 0x1a5, 
-    0x7, 0x12, 0x2, 0x2, 0x1a5, 0x1d, 0x3, 0x2, 0x2, 0x2, 0x1a6, 0x1a7, 
-    0x7, 0x19, 0x2, 0x2, 0x1a7, 0x1a8, 0x7, 0x3f, 0x2, 0x2, 0x1a8, 0x1a9, 
-    0x7, 0x1a, 0x2, 0x2, 0x1a9, 0x1ab, 0x8, 0x10, 0x1, 0x2, 0x1aa, 0x1a6, 
-    0x3, 0x2, 0x2, 0x2, 0x1aa, 0x1ab, 0x3, 0x2, 0x2, 0x2, 0x1ab, 0x1b7, 
-    0x3, 0x2, 0x2, 0x2, 0x1ac, 0x1ad, 0x7, 0x19, 0x2, 0x2, 0x1ad, 0x1ae, 
-    0x7, 0xb, 0x2, 0x2, 0x1ae, 0x1af, 0x7, 0x1d, 0x2, 0x2, 0x1af, 0x1b0, 
-    0x7, 0x15, 0x2, 0x2, 0x1b0, 0x1b1, 0x5, 0x3a, 0x1e, 0x2, 0x1b1, 0x1b2, 
-    0x7, 0x13, 0x2, 0x2, 0x1b2, 0x1b3, 0x5, 0x3a, 0x1e, 0x2, 0x1b3, 0x1b4, 
-    0x7, 0x16, 0x2, 0x2, 0x1b4, 0x1b5, 0x7, 0x1a, 0x2, 0x2, 0x1b5, 0x1b6, 
-    0x8, 0x10, 0x1, 0x2, 0x1b6, 0x1b8, 0x3, 0x2, 0x2, 0x2, 0x1b7, 0x1ac, 
-    0x3, 0x2, 0x2, 0x2, 0x1b7, 0x1b8, 0x3, 0x2, 0x2, 0x2, 0x1b8, 0x1c0, 
-    0x3, 0x2, 0x2, 0x2, 0x1b9, 0x1ba, 0x7, 0x19, 0x2, 0x2, 0x1ba, 0x1bb, 
-    0x7, 0xc, 0x2, 0x2, 0x1bb, 0x1bc, 0x7, 0x1d, 0x2, 0x2, 0x1bc, 0x1bd, 
-    0x5, 0x3a, 0x1e, 0x2, 0x1bd, 0x1be, 0x7, 0x1a, 0x2, 0x2, 0x1be, 0x1bf, 
-    0x8, 0x10, 0x1, 0x2, 0x1bf, 0x1c1, 0x3, 0x2, 0x2, 0x2, 0x1c0, 0x1b9, 
-    0x3, 0x2, 0x2, 0x2, 0x1c0, 0x1c1, 0x3, 0x2, 0x2, 0x2, 0x1c1, 0x1c6, 
-    0x3, 0x2, 0x2, 0x2, 0x1c2, 0x1c3, 0x7, 0x3f, 0x2, 0x2, 0x1c3, 0x1c5, 
-    0x8, 0x10, 0x1, 0x2, 0x1c4, 0x1c2, 0x3, 0x2, 0x2, 0x2, 0x1c5, 0x1c8, 
-    0x3, 0x2, 0x2, 0x2, 0x1c6, 0x1c4, 0x3, 0x2, 0x2, 0x2, 0x1c6, 0x1c7, 
-    0x3, 0x2, 0x2, 0x2, 0x1c7, 0x1c9, 0x3, 0x2, 0x2, 0x2, 0x1c8, 0x1c6, 
-    0x3, 0x2, 0x2, 0x2, 0x1c9, 0x1ca, 0x5, 0xc, 0x7, 0x2, 0x1ca, 0x1cb, 
-    0x7, 0x3f, 0x2, 0x2, 0x1cb, 0x1d4, 0x8, 0x10, 0x1, 0x2, 0x1cc, 0x1d0, 
-    0x7, 0x19, 0x2, 0x2, 0x1cd, 0x1ce, 0x5, 0x3a, 0x1e, 0x2, 0x1ce, 0x1cf, 
-    0x8, 0x10, 0x1, 0x2, 0x1cf, 0x1d1, 0x3, 0x2, 0x2, 0x2, 0x1d0, 0x1cd, 
-    0x3, 0x2, 0x2, 0x2, 0x1d0, 0x1d1, 0x3, 0x2, 0x2, 0x2, 0x1d1, 0x1d2, 
-    0x3, 0x2, 0x2, 0x2, 0x1d2, 0x1d3, 0x7, 0x1a, 0x2, 0x2, 0x1d3, 0x1d5, 
-    0x8, 0x10, 0x1, 0x2, 0x1d4, 0x1cc, 0x3, 0x2, 0x2, 0x2, 0x1d4, 0x1d5, 
-    0x3, 0x2, 0x2, 0x2, 0x1d5, 0x1f, 0x3, 0x2, 0x2, 0x2, 0x1d6, 0x1e2, 0x7, 
-    0x15, 0x2, 0x2, 0x1d7, 0x1d8, 0x5, 0x1e, 0x10, 0x2, 0x1d8, 0x1df, 0x8, 
-    0x11, 0x1, 0x2, 0x1d9, 0x1da, 0x7, 0x13, 0x2, 0x2, 0x1da, 0x1db, 0x5, 
-    0x1e, 0x10, 0x2, 0x1db, 0x1dc, 0x8, 0x11, 0x1, 0x2, 0x1dc, 0x1de, 0x3, 
-    0x2, 0x2, 0x2, 0x1dd, 0x1d9, 0x3, 0x2, 0x2, 0x2, 0x1de, 0x1e1, 0x3, 
-    0x2, 0x2, 0x2, 0x1df, 0x1dd, 0x3, 0x2, 0x2, 0x2, 0x1df, 0x1e0, 0x3, 
-    0x2, 0x2, 0x2, 0x1e0, 0x1e3, 0x3, 0x2, 0x2, 0x2, 0x1e1, 0x1df, 0x3, 
-    0x2, 0x2, 0x2, 0x1e2, 0x1d7, 0x3, 0x2, 0x2, 0x2, 0x1e2, 0x1e3, 0x3, 
-    0x2, 0x2, 0x2, 0x1e3, 0x1e4, 0x3, 0x2, 0x2, 0x2, 0x1e4, 0x1e5, 0x7, 
-    0x16, 0x2, 0x2, 0x1e5, 0x21, 0x3, 0x2, 0x2, 0x2, 0x1e6, 0x1e7, 0x7, 
-    0x19, 0x2, 0x2, 0x1e7, 0x1e8, 0x7, 0x3f, 0x2, 0x2, 0x1e8, 0x1e9, 0x7, 
-    0x1a, 0x2, 0x2, 0x1e9, 0x1ea, 0x7, 0x1d, 0x2, 0x2, 0x1ea, 0x1eb, 0x5, 
-    0x3a, 0x1e, 0x2, 0x1eb, 0x1ec, 0x8, 0x12, 0x1, 0x2, 0x1ec, 0x1f2, 0x3, 
-    0x2, 0x2, 0x2, 0x1ed, 0x1ee, 0x7, 0x19, 0x2, 0x2, 0x1ee, 0x1ef, 0x7, 
-    0x3f, 0x2, 0x2, 0x1ef, 0x1f0, 0x7, 0x1a, 0x2, 0x2, 0x1f0, 0x1f2, 0x8, 
-    0x12, 0x1, 0x2, 0x1f1, 0x1e6, 0x3, 0x2, 0x2, 0x2, 0x1f1, 0x1ed, 0x3, 
-    0x2, 0x2, 0x2, 0x1f2, 0x23, 0x3, 0x2, 0x2, 0x2, 0x1f3, 0x1f7, 0x7, 0x17, 
-    0x2, 0x2, 0x1f4, 0x1f6, 0x5, 0x24, 0x13, 0x2, 0x1f5, 0x1f4, 0x3, 0x2, 
-    0x2, 0x2, 0x1f6, 0x1f9, 0x3, 0x2, 0x2, 0x2, 0x1f7, 0x1f5, 0x3, 0x2, 
-    0x2, 0x2, 0x1f7, 0x1f8, 0x3, 0x2, 0x2, 0x2, 0x1f8, 0x1fa, 0x3, 0x2, 
-    0x2, 0x2, 0x1f9, 0x1f7, 0x3, 0x2, 0x2, 0x2, 0x1fa, 0x1fd, 0x7, 0x18, 
-    0x2, 0x2, 0x1fb, 0x1fd, 0xa, 0x4, 0x2, 0x2, 0x1fc, 0x1f3, 0x3, 0x2, 
-    0x2, 0x2, 0x1fc, 0x1fb, 0x3, 0x2, 0x2, 0x2, 0x1fd, 0x25, 0x3, 0x2, 0x2, 
-    0x2, 0x1fe, 0x1ff, 0x5, 0x22, 0x12, 0x2, 0x1ff, 0x200, 0x8, 0x14, 0x1, 
-    0x2, 0x200, 0x202, 0x3, 0x2, 0x2, 0x2, 0x201, 0x1fe, 0x3, 0x2, 0x2, 
-    0x2, 0x202, 0x205, 0x3, 0x2, 0x2, 0x2, 0x203, 0x201, 0x3, 0x2, 0x2, 
-    0x2, 0x203, 0x204, 0x3, 0x2, 0x2, 0x2, 0x204, 0x208, 0x3, 0x2, 0x2, 
-    0x2, 0x205, 0x203, 0x3, 0x2, 0x2, 0x2, 0x206, 0x207, 0x7, 0xd, 0x2, 
-    0x2, 0x207, 0x209, 0x8, 0x14, 0x1, 0x2, 0x208, 0x206, 0x3, 0x2, 0x2, 
-    0x2, 0x208, 0x209, 0x3, 0x2, 0x2, 0x2, 0x209, 0x20a, 0x3, 0x2, 0x2, 
-    0x2, 0x20a, 0x20b, 0x5, 0xc, 0x7, 0x2, 0x20b, 0x20c, 0x7, 0x3f, 0x2, 
-    0x2, 0x20c, 0x20d, 0x8, 0x14, 0x1, 0x2, 0x20d, 0x20e, 0x5, 0x20, 0x11, 
-    0x2, 0x20e, 0x20f, 0x8, 0x14, 0x1, 0x2, 0x20f, 0x210, 0x5, 0x24, 0x13, 
-    0x2, 0x210, 0x211, 0x8, 0x14, 0x1, 0x2, 0x211, 0x212, 0x8, 0x14, 0x1, 
-    0x2, 0x212, 0x27, 0x3, 0x2, 0x2, 0x2, 0x213, 0x214, 0x7, 0x3f, 0x2, 
-    0x2, 0x214, 0x215, 0x7, 0x19, 0x2, 0x2, 0x215, 0x216, 0x5, 0x3a, 0x1e, 
-    0x2, 0x216, 0x217, 0x7, 0x1a, 0x2, 0x2, 0x217, 0x218, 0x7, 0x1d, 0x2, 
-    0x2, 0x218, 0x219, 0x5, 0x3a, 0x1e, 0x2, 0x219, 0x21a, 0x7, 0x12, 0x2, 
-    0x2, 0x21a, 0x21b, 0x8, 0x15, 0x1, 0x2, 0x21b, 0x29, 0x3, 0x2, 0x2, 
-    0x2, 0x21c, 0x21d, 0x7, 0x3f, 0x2, 0x2, 0x21d, 0x21e, 0x7, 0x1d, 0x2, 
-    0x2, 0x21e, 0x21f, 0x5, 0x3a, 0x1e, 0x2, 0x21f, 0x220, 0x7, 0x12, 0x2, 
-    0x2, 0x220, 0x221, 0x8, 0x16, 0x1, 0x2, 0x221, 0x2b, 0x3, 0x2, 0x2, 
-    0x2, 0x222, 0x223, 0x7, 0xe, 0x2, 0x2, 0x223, 0x224, 0x7, 0x3f, 0x2, 
-    0x2, 0x224, 0x225, 0x8, 0x17, 0x1, 0x2, 0x225, 0x226, 0x7, 0x12, 0x2, 
-    0x2, 0x226, 0x23a, 0x8, 0x17, 0x1, 0x2, 0x227, 0x228, 0x7, 0xe, 0x2, 
-    0x2, 0x228, 0x229, 0x7, 0x3f, 0x2, 0x2, 0x229, 0x22a, 0x8, 0x17, 0x1, 
-    0x2, 0x22a, 0x22b, 0x7, 0x17, 0x2, 0x2, 0x22b, 0x234, 0x8, 0x17, 0x1, 
-    0x2, 0x22c, 0x22d, 0x5, 0x2a, 0x16, 0x2, 0x22d, 0x22e, 0x8, 0x17, 0x1, 
-    0x2, 0x22e, 0x233, 0x3, 0x2, 0x2, 0x2, 0x22f, 0x230, 0x5, 0x28, 0x15, 
-    0x2, 0x230, 0x231, 0x8, 0x17, 0x1, 0x2, 0x231, 0x233, 0x3, 0x2, 0x2, 
-    0x2, 0x232, 0x22c, 0x3, 0x2, 0x2, 0x2, 0x232, 0x22f, 0x3, 0x2, 0x2, 
-    0x2, 0x233, 0x236, 0x3, 0x2, 0x2, 0x2, 0x234, 0x232, 0x3, 0x2, 0x2, 
-    0x2, 0x234, 0x235, 0x3, 0x2, 0x2, 0x2, 0x235, 0x237, 0x3, 0x2, 0x2, 
-    0x2, 0x236, 0x234, 0x3, 0x2, 0x2, 0x2, 0x237, 0x238, 0x7, 0x18, 0x2, 
-    0x2, 0x238, 0x23a, 0x7, 0x12, 0x2, 0x2, 0x239, 0x222, 0x3, 0x2, 0x2, 
-    0x2, 0x239, 0x227, 0x3, 0x2, 0x2, 0x2, 0x23a, 0x2d, 0x3, 0x2, 0x2, 0x2, 
-    0x23b, 0x23c, 0x7, 0x3f, 0x2, 0x2, 0x23c, 0x241, 0x8, 0x18, 0x1, 0x2, 
-    0x23d, 0x23e, 0x5, 0xe, 0x8, 0x2, 0x23e, 0x23f, 0x8, 0x18, 0x1, 0x2, 
-    0x23f, 0x241, 0x3, 0x2, 0x2, 0x2, 0x240, 0x23b, 0x3, 0x2, 0x2, 0x2, 
-    0x240, 0x23d, 0x3, 0x2, 0x2, 0x2, 0x241, 0x244, 0x3, 0x2, 0x2, 0x2, 
-    0x242, 0x240, 0x3, 0x2, 0x2, 0x2, 0x242, 0x243, 0x3, 0x2, 0x2, 0x2, 
-    0x243, 0x245, 0x3, 0x2, 0x2, 0x2, 0x244, 0x242, 0x3, 0x2, 0x2, 0x2, 
-    0x245, 0x246, 0x7, 0xf, 0x2, 0x2, 0x246, 0x247, 0x7, 0x3f, 0x2, 0x2, 
-    0x247, 0x248, 0x8, 0x18, 0x1, 0x2, 0x248, 0x249, 0x7, 0x12, 0x2, 0x2, 
-    0x249, 0x264, 0x8, 0x18, 0x1, 0x2, 0x24a, 0x24b, 0x7, 0x3f, 0x2, 0x2, 
-    0x24b, 0x250, 0x8, 0x18, 0x1, 0x2, 0x24c, 0x24d, 0x5, 0xe, 0x8, 0x2, 
-    0x24d, 0x24e, 0x8, 0x18, 0x1, 0x2, 0x24e, 0x250, 0x3, 0x2, 0x2, 0x2, 
-    0x24f, 0x24a, 0x3, 0x2, 0x2, 0x2, 0x24f, 0x24c, 0x3, 0x2, 0x2, 0x2, 
-    0x250, 0x253, 0x3, 0x2, 0x2, 0x2, 0x251, 0x24f, 0x3, 0x2, 0x2, 0x2, 
-    0x251, 0x252, 0x3, 0x2, 0x2, 0x2, 0x252, 0x254, 0x3, 0x2, 0x2, 0x2, 
-    0x253, 0x251, 0x3, 0x2, 0x2, 0x2, 0x254, 0x255, 0x7, 0xf, 0x2, 0x2, 
-    0x255, 0x256, 0x7, 0x3f, 0x2, 0x2, 0x256, 0x257, 0x8, 0x18, 0x1, 0x2, 
-    0x257, 0x258, 0x8, 0x18, 0x1, 0x2, 0x258, 0x25e, 0x7, 0x17, 0x2, 0x2, 
-    0x259, 0x25a, 0x5, 0x32, 0x1a, 0x2, 0x25a, 0x25b, 0x8, 0x18, 0x1, 0x2, 
-    0x25b, 0x25d, 0x3, 0x2, 0x2, 0x2, 0x25c, 0x259, 0x3, 0x2, 0x2, 0x2, 
-    0x25d, 0x260, 0x3, 0x2, 0x2, 0x2, 0x25e, 0x25c, 0x3, 0x2, 0x2, 0x2, 
-    0x25e, 0x25f, 0x3, 0x2, 0x2, 0x2, 0x25f, 0x261, 0x3, 0x2, 0x2, 0x2, 
-    0x260, 0x25e, 0x3, 0x2, 0x2, 0x2, 0x261, 0x262, 0x7, 0x18, 0x2, 0x2, 
-    0x262, 0x264, 0x7, 0x12, 0x2, 0x2, 0x263, 0x242, 0x3, 0x2, 0x2, 0x2, 
-    0x263, 0x251, 0x3, 0x2, 0x2, 0x2, 0x264, 0x2f, 0x3, 0x2, 0x2, 0x2, 0x265, 
-    0x266, 0x7, 0x3f, 0x2, 0x2, 0x266, 0x26c, 0x8, 0x19, 0x1, 0x2, 0x267, 
-    0x268, 0x7, 0x13, 0x2, 0x2, 0x268, 0x269, 0x7, 0x3f, 0x2, 0x2, 0x269, 
-    0x26b, 0x8, 0x19, 0x1, 0x2, 0x26a, 0x267, 0x3, 0x2, 0x2, 0x2, 0x26b, 
-    0x26e, 0x3, 0x2, 0x2, 0x2, 0x26c, 0x26a, 0x3, 0x2, 0x2, 0x2, 0x26c, 
-    0x26d, 0x3, 0x2, 0x2, 0x2, 0x26d, 0x31, 0x3, 0x2, 0x2, 0x2, 0x26e, 0x26c, 
-    0x3, 0x2, 0x2, 0x2, 0x26f, 0x270, 0x7, 0x3f, 0x2, 0x2, 0x270, 0x271, 
-    0x7, 0x1d, 0x2, 0x2, 0x271, 0x272, 0x7, 0x3f, 0x2, 0x2, 0x272, 0x273, 
-    0x7, 0x12, 0x2, 0x2, 0x273, 0x283, 0x8, 0x1a, 0x1, 0x2, 0x274, 0x275, 
-    0x7, 0x3f, 0x2, 0x2, 0x275, 0x276, 0x7, 0x1d, 0x2, 0x2, 0x276, 0x277, 
-    0x5, 0x3a, 0x1e, 0x2, 0x277, 0x278, 0x7, 0x12, 0x2, 0x2, 0x278, 0x279, 
-    0x8, 0x1a, 0x1, 0x2, 0x279, 0x283, 0x3, 0x2, 0x2, 0x2, 0x27a, 0x27b, 
-    0x7, 0x3f, 0x2, 0x2, 0x27b, 0x27c, 0x7, 0x1d, 0x2, 0x2, 0x27c, 0x27d, 
-    0x7, 0x17, 0x2, 0x2, 0x27d, 0x27e, 0x5, 0x30, 0x19, 0x2, 0x27e, 0x27f, 
-    0x7, 0x18, 0x2, 0x2, 0x27f, 0x280, 0x7, 0x12, 0x2, 0x2, 0x280, 0x281, 
-    0x8, 0x1a, 0x1, 0x2, 0x281, 0x283, 0x3, 0x2, 0x2, 0x2, 0x282, 0x26f, 
-    0x3, 0x2, 0x2, 0x2, 0x282, 0x274, 0x3, 0x2, 0x2, 0x2, 0x282, 0x27a, 
-    0x3, 0x2, 0x2, 0x2, 0x283, 0x33, 0x3, 0x2, 0x2, 0x2, 0x284, 0x285, 0x7, 
-    0x3f, 0x2, 0x2, 0x285, 0x286, 0x7, 0x1d, 0x2, 0x2, 0x286, 0x287, 0x7, 
-    0x3f, 0x2, 0x2, 0x287, 0x28c, 0x7, 0x15, 0x2, 0x2, 0x288, 0x289, 0x7, 
-    0x3f, 0x2, 0x2, 0x289, 0x28a, 0x7, 0x1d, 0x2, 0x2, 0x28a, 0x28b, 0x7, 
-    0x3f, 0x2, 0x2, 0x28b, 0x28d, 0x8, 0x1b, 0x1, 0x2, 0x28c, 0x288, 0x3, 
-    0x2, 0x2, 0x2, 0x28c, 0x28d, 0x3, 0x2, 0x2, 0x2, 0x28d, 0x295, 0x3, 
-    0x2, 0x2, 0x2, 0x28e, 0x28f, 0x7, 0x13, 0x2, 0x2, 0x28f, 0x290, 0x7, 
-    0x3f, 0x2, 0x2, 0x290, 0x291, 0x7, 0x1d, 0x2, 0x2, 0x291, 0x292, 0x7, 
-    0x3f, 0x2, 0x2, 0x292, 0x294, 0x8, 0x1b, 0x1, 0x2, 0x293, 0x28e, 0x3, 
-    0x2, 0x2, 0x2, 0x294, 0x297, 0x3, 0x2, 0x2, 0x2, 0x295, 0x293, 0x3, 
-    0x2, 0x2, 0x2, 0x295, 0x296, 0x3, 0x2, 0x2, 0x2, 0x296, 0x298, 0x3, 
-    0x2, 0x2, 0x2, 0x297, 0x295, 0x3, 0x2, 0x2, 0x2, 0x298, 0x299, 0x7, 
-    0x16, 0x2, 0x2, 0x299, 0x29a, 0x7, 0x12, 0x2, 0x2, 0x29a, 0x2a1, 0x8, 
-    0x1b, 0x1, 0x2, 0x29b, 0x29c, 0x7, 0x10, 0x2, 0x2, 0x29c, 0x29d, 0x7, 
-    0x1d, 0x2, 0x2, 0x29d, 0x29e, 0x7, 0x3f, 0x2, 0x2, 0x29e, 0x29f, 0x7, 
-    0x12, 0x2, 0x2, 0x29f, 0x2a1, 0x8, 0x1b, 0x1, 0x2, 0x2a0, 0x284, 0x3, 
-    0x2, 0x2, 0x2, 0x2a0, 0x29b, 0x3, 0x2, 0x2, 0x2, 0x2a1, 0x35, 0x3, 0x2, 
-    0x2, 0x2, 0x2a2, 0x2b3, 0x7, 0x19, 0x2, 0x2, 0x2a3, 0x2a4, 0x5, 0xc, 
-    0x7, 0x2, 0x2a4, 0x2a5, 0x7, 0x3f, 0x2, 0x2, 0x2a5, 0x2ac, 0x7, 0x1d, 
-    0x2, 0x2, 0x2a6, 0x2a7, 0x5, 0x2, 0x2, 0x2, 0x2a7, 0x2a8, 0x8, 0x1c, 
-    0x1, 0x2, 0x2a8, 0x2ad, 0x3, 0x2, 0x2, 0x2, 0x2a9, 0x2aa, 0x5, 0x3a, 
-    0x1e, 0x2, 0x2aa, 0x2ab, 0x8, 0x1c, 0x1, 0x2, 0x2ab, 0x2ad, 0x3, 0x2, 
-    0x2, 0x2, 0x2ac, 0x2a6, 0x3, 0x2, 0x2, 0x2, 0x2ac, 0x2a9, 0x3, 0x2, 
-    0x2, 0x2, 0x2ad, 0x2ae, 0x3, 0x2, 0x2, 0x2, 0x2ae, 0x2af, 0x7, 0x12, 
-    0x2, 0x2, 0x2af, 0x2b0, 0x8, 0x1c, 0x1, 0x2, 0x2b0, 0x2b2, 0x3, 0x2, 
-    0x2, 0x2, 0x2b1, 0x2a3, 0x3, 0x2, 0x2, 0x2, 0x2b2, 0x2b5, 0x3, 0x2, 
-    0x2, 0x2, 0x2b3, 0x2b1, 0x3, 0x2, 0x2, 0x2, 0x2b3, 0x2b4, 0x3, 0x2, 
-    0x2, 0x2, 0x2b4, 0x2b6, 0x3, 0x2, 0x2, 0x2, 0x2b5, 0x2b3, 0x3, 0x2, 
-    0x2, 0x2, 0x2b6, 0x2b7, 0x7, 0x1a, 0x2, 0x2, 0x2b7, 0x2b8, 0x8, 0x1c, 
-    0x1, 0x2, 0x2b8, 0x37, 0x3, 0x2, 0x2, 0x2, 0x2b9, 0x2ba, 0x7, 0x11, 
-    0x2, 0x2, 0x2ba, 0x2bb, 0x7, 0x3f, 0x2, 0x2, 0x2bb, 0x2bf, 0x8, 0x1d, 
-    0x1, 0x2, 0x2bc, 0x2bd, 0x5, 0x36, 0x1c, 0x2, 0x2bd, 0x2be, 0x8, 0x1d, 
-    0x1, 0x2, 0x2be, 0x2c0, 0x3, 0x2, 0x2, 0x2, 0x2bf, 0x2bc, 0x3, 0x2, 
-    0x2, 0x2, 0x2bf, 0x2c0, 0x3, 0x2, 0x2, 0x2, 0x2c0, 0x2c1, 0x3, 0x2, 
-    0x2, 0x2, 0x2c1, 0x2c2, 0x7, 0x17, 0x2, 0x2, 0x2c2, 0x2c8, 0x8, 0x1d, 
-    0x1, 0x2, 0x2c3, 0x2c4, 0x5, 0x34, 0x1b, 0x2, 0x2c4, 0x2c5, 0x8, 0x1d, 
-    0x1, 0x2, 0x2c5, 0x2c7, 0x3, 0x2, 0x2, 0x2, 0x2c6, 0x2c3, 0x3, 0x2, 
-    0x2, 0x2, 0x2c7, 0x2ca, 0x3, 0x2, 0x2, 0x2, 0x2c8, 0x2c6, 0x3, 0x2, 
-    0x2, 0x2, 0x2c8, 0x2c9, 0x3, 0x2, 0x2, 0x2, 0x2c9, 0x2cb, 0x3, 0x2, 
-    0x2, 0x2, 0x2ca, 0x2c8, 0x3, 0x2, 0x2, 0x2, 0x2cb, 0x2cc, 0x7, 0x18, 
-    0x2, 0x2, 0x2cc, 0x2cd, 0x7, 0x12, 0x2, 0x2, 0x2cd, 0x39, 0x3, 0x2, 
-    0x2, 0x2, 0x2ce, 0x2cf, 0x5, 0x3c, 0x1f, 0x2, 0x2cf, 0x2d0, 0x8, 0x1e, 
-    0x1, 0x2, 0x2d0, 0x3b, 0x3, 0x2, 0x2, 0x2, 0x2d1, 0x2d2, 0x5, 0x3e, 
-    0x20, 0x2, 0x2d2, 0x2d9, 0x8, 0x1f, 0x1, 0x2, 0x2d3, 0x2d4, 0x7, 0x31, 
-    0x2, 0x2, 0x2d4, 0x2d5, 0x5, 0x3e, 0x20, 0x2, 0x2d5, 0x2d6, 0x8, 0x1f, 
-    0x1, 0x2, 0x2d6, 0x2d8, 0x3, 0x2, 0x2, 0x2, 0x2d7, 0x2d3, 0x3, 0x2, 
-    0x2, 0x2, 0x2d8, 0x2db, 0x3, 0x2, 0x2, 0x2, 0x2d9, 0x2d7, 0x3, 0x2, 
-    0x2, 0x2, 0x2d9, 0x2da, 0x3, 0x2, 0x2, 0x2, 0x2da, 0x3d, 0x3, 0x2, 0x2, 
-    0x2, 0x2db, 0x2d9, 0x3, 0x2, 0x2, 0x2, 0x2dc, 0x2dd, 0x5, 0x40, 0x21, 
-    0x2, 0x2dd, 0x2e4, 0x8, 0x20, 0x1, 0x2, 0x2de, 0x2df, 0x7, 0x30, 0x2, 
-    0x2, 0x2df, 0x2e0, 0x5, 0x40, 0x21, 0x2, 0x2e0, 0x2e1, 0x8, 0x20, 0x1, 
-    0x2, 0x2e1, 0x2e3, 0x3, 0x2, 0x2, 0x2, 0x2e2, 0x2de, 0x3, 0x2, 0x2, 
-    0x2, 0x2e3, 0x2e6, 0x3, 0x2, 0x2, 0x2, 0x2e4, 0x2e2, 0x3, 0x2, 0x2, 
-    0x2, 0x2e4, 0x2e5, 0x3, 0x2, 0x2, 0x2, 0x2e5, 0x3f, 0x3, 0x2, 0x2, 0x2, 
-    0x2e6, 0x2e4, 0x3, 0x2, 0x2, 0x2, 0x2e7, 0x2e8, 0x5, 0x42, 0x22, 0x2, 
-    0x2e8, 0x2ef, 0x8, 0x21, 0x1, 0x2, 0x2e9, 0x2ea, 0x9, 0x5, 0x2, 0x2, 
-    0x2ea, 0x2eb, 0x5, 0x42, 0x22, 0x2, 0x2eb, 0x2ec, 0x8, 0x21, 0x1, 0x2, 
-    0x2ec, 0x2ee, 0x3, 0x2, 0x2, 0x2, 0x2ed, 0x2e9, 0x3, 0x2, 0x2, 0x2, 
-    0x2ee, 0x2f1, 0x3, 0x2, 0x2, 0x2, 0x2ef, 0x2ed, 0x3, 0x2, 0x2, 0x2, 
-    0x2ef, 0x2f0, 0x3, 0x2, 0x2, 0x2, 0x2f0, 0x41, 0x3, 0x2, 0x2, 0x2, 0x2f1, 
-    0x2ef, 0x3, 0x2, 0x2, 0x2, 0x2f2, 0x2f3, 0x5, 0x44, 0x23, 0x2, 0x2f3, 
-    0x2fa, 0x8, 0x22, 0x1, 0x2, 0x2f4, 0x2f5, 0x9, 0x6, 0x2, 0x2, 0x2f5, 
-    0x2f6, 0x5, 0x44, 0x23, 0x2, 0x2f6, 0x2f7, 0x8, 0x22, 0x1, 0x2, 0x2f7, 
-    0x2f9, 0x3, 0x2, 0x2, 0x2, 0x2f8, 0x2f4, 0x3, 0x2, 0x2, 0x2, 0x2f9, 
-    0x2fc, 0x3, 0x2, 0x2, 0x2, 0x2fa, 0x2f8, 0x3, 0x2, 0x2, 0x2, 0x2fa, 
-    0x2fb, 0x3, 0x2, 0x2, 0x2, 0x2fb, 0x43, 0x3, 0x2, 0x2, 0x2, 0x2fc, 0x2fa, 
-    0x3, 0x2, 0x2, 0x2, 0x2fd, 0x2fe, 0x5, 0x46, 0x24, 0x2, 0x2fe, 0x305, 
-    0x8, 0x23, 0x1, 0x2, 0x2ff, 0x300, 0x9, 0x7, 0x2, 0x2, 0x300, 0x301, 
-    0x5, 0x46, 0x24, 0x2, 0x301, 0x302, 0x8, 0x23, 0x1, 0x2, 0x302, 0x304, 
-    0x3, 0x2, 0x2, 0x2, 0x303, 0x2ff, 0x3, 0x2, 0x2, 0x2, 0x304, 0x307, 
-    0x3, 0x2, 0x2, 0x2, 0x305, 0x303, 0x3, 0x2, 0x2, 0x2, 0x305, 0x306, 
-    0x3, 0x2, 0x2, 0x2, 0x306, 0x45, 0x3, 0x2, 0x2, 0x2, 0x307, 0x305, 0x3, 
-    0x2, 0x2, 0x2, 0x308, 0x309, 0x5, 0x48, 0x25, 0x2, 0x309, 0x310, 0x8, 
-    0x24, 0x1, 0x2, 0x30a, 0x30b, 0x9, 0x8, 0x2, 0x2, 0x30b, 0x30c, 0x5, 
-    0x48, 0x25, 0x2, 0x30c, 0x30d, 0x8, 0x24, 0x1, 0x2, 0x30d, 0x30f, 0x3, 
-    0x2, 0x2, 0x2, 0x30e, 0x30a, 0x3, 0x2, 0x2, 0x2, 0x30f, 0x312, 0x3, 
-    0x2, 0x2, 0x2, 0x310, 0x30e, 0x3, 0x2, 0x2, 0x2, 0x310, 0x311, 0x3, 
-    0x2, 0x2, 0x2, 0x311, 0x47, 0x3, 0x2, 0x2, 0x2, 0x312, 0x310, 0x3, 0x2, 
-    0x2, 0x2, 0x313, 0x315, 0x9, 0x9, 0x2, 0x2, 0x314, 0x313, 0x3, 0x2, 
-    0x2, 0x2, 0x314, 0x315, 0x3, 0x2, 0x2, 0x2, 0x315, 0x316, 0x3, 0x2, 
-    0x2, 0x2, 0x316, 0x317, 0x5, 0x4a, 0x26, 0x2, 0x317, 0x318, 0x8, 0x25, 
-    0x1, 0x2, 0x318, 0x49, 0x3, 0x2, 0x2, 0x2, 0x319, 0x31a, 0x7, 0x38, 
-    0x2, 0x2, 0x31a, 0x32a, 0x8, 0x26, 0x1, 0x2, 0x31b, 0x31c, 0x7, 0x3b, 
-    0x2, 0x2, 0x31c, 0x32a, 0x8, 0x26, 0x1, 0x2, 0x31d, 0x31e, 0x7, 0x3d, 
-    0x2, 0x2, 0x31e, 0x32a, 0x8, 0x26, 0x1, 0x2, 0x31f, 0x320, 0x7, 0x3e, 
-    0x2, 0x2, 0x320, 0x32a, 0x8, 0x26, 0x1, 0x2, 0x321, 0x322, 0x7, 0x3f, 
-    0x2, 0x2, 0x322, 0x32a, 0x8, 0x26, 0x1, 0x2, 0x323, 0x324, 0x5, 0x4, 
-    0x3, 0x2, 0x324, 0x325, 0x8, 0x26, 0x1, 0x2, 0x325, 0x32a, 0x3, 0x2, 
-    0x2, 0x2, 0x326, 0x327, 0x5, 0x4c, 0x27, 0x2, 0x327, 0x328, 0x8, 0x26, 
-    0x1, 0x2, 0x328, 0x32a, 0x3, 0x2, 0x2, 0x2, 0x329, 0x319, 0x3, 0x2, 
-    0x2, 0x2, 0x329, 0x31b, 0x3, 0x2, 0x2, 0x2, 0x329, 0x31d, 0x3, 0x2, 
-    0x2, 0x2, 0x329, 0x31f, 0x3, 0x2, 0x2, 0x2, 0x329, 0x321, 0x3, 0x2, 
-    0x2, 0x2, 0x329, 0x323, 0x3, 0x2, 0x2, 0x2, 0x329, 0x326, 0x3, 0x2, 
-    0x2, 0x2, 0x32a, 0x4b, 0x3, 0x2, 0x2, 0x2, 0x32b, 0x32c, 0x7, 0x15, 
-    0x2, 0x2, 0x32c, 0x32d, 0x5, 0x3a, 0x1e, 0x2, 0x32d, 0x32e, 0x7, 0x16, 
-    0x2, 0x2, 0x32e, 0x32f, 0x8, 0x27, 0x1, 0x2, 0x32f, 0x4d, 0x3, 0x2, 
-    0x2, 0x2, 0x4a, 0x53, 0x5c, 0x60, 0x66, 0x6f, 0x71, 0x95, 0x97, 0xa6, 
-    0xa8, 0xb5, 0xb9, 0xc3, 0xc5, 0xce, 0xd6, 0xe4, 0xe6, 0xef, 0xf1, 0xfa, 
-    0x102, 0x10f, 0x111, 0x125, 0x12f, 0x13a, 0x13c, 0x155, 0x16a, 0x18a, 
-    0x19d, 0x1a2, 0x1aa, 0x1b7, 0x1c0, 0x1c6, 0x1d0, 0x1d4, 0x1df, 0x1e2, 
-    0x1f1, 0x1f7, 0x1fc, 0x203, 0x208, 0x232, 0x234, 0x239, 0x240, 0x242, 
-    0x24f, 0x251, 0x25e, 0x263, 0x26c, 0x282, 0x28c, 0x295, 0x2a0, 0x2ac, 
-    0x2b3, 0x2bf, 0x2c8, 0x2d9, 0x2e4, 0x2ef, 0x2fa, 0x305, 0x310, 0x314, 
-    0x329, 
-  };
-
-  atn::ATNDeserializer deserializer;
-  _atn = deserializer.deserialize(_serializedATN);
-
-  size_t count = _atn.getNumberOfDecisions();
-  _decisionToDFA.reserve(count);
-  for (size_t i = 0; i < count; i++) { 
-    _decisionToDFA.emplace_back(_atn.getDecisionState(i), i);
-  }
+void AnyFXParser::initialize() {
+#if ANTLR4_USE_THREAD_LOCAL_CACHE
+  anyfxParserInitialize();
+#else
+  ::antlr4::internal::call_once(anyfxParserOnceFlag, anyfxParserInitialize);
+#endif
 }
-
-AnyFXParser::Initializer AnyFXParser::_init;

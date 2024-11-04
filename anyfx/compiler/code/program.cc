@@ -893,6 +893,10 @@ Program::LinkSPIRV(Generator& generator, Shader* const* shaders, unsigned numSha
             options.disableOptimizer = false;
             options.optimizeSize = true;
             glslang::GlslangToSpv(*intermediate, this->binary[shaderIndex]);
+            spv_context spvContext = spvContextCreate(SPV_ENV_VULKAN_1_2);
+            spv_text text;
+            spv_diagnostic diag;
+            spvBinaryToText(spvContext, this->binary[shaderIndex].data(), this->binary[shaderIndex].size(), 0x0, &text, &diag);
 
             std::vector<unsigned int> optimized;
             if (optimizer.Run(this->binary[shaderIndex].data(), this->binary[shaderIndex].size(), &optimized))

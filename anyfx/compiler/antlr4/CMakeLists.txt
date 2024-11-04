@@ -3,9 +3,6 @@
 #-------------------------------------------------------------------------------
 
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
-					src)
-
 ADD_DEFINITIONS(-DANTLR4CPP_STATIC)
 FILE(GLOB SRC "src/*.cpp")
 FILE(GLOB HEAD "src/*.h")
@@ -19,7 +16,12 @@ LIST(APPEND CODE ${SRC} ${HEAD})
 
 FILE(GLOB SRC "src/dfa/*.cpp")
 FILE(GLOB HEAD "src/dfa/*.h")
-SOURCE_GROUP("antlr4\\dfs" FILES ${SRC} ${HEAD})
+SOURCE_GROUP("antlr4\\dfa" FILES ${SRC} ${HEAD})
+LIST(APPEND CODE ${SRC} ${HEAD})
+
+FILE(GLOB SRC "src/internal/*.cpp")
+FILE(GLOB HEAD "src/internal/*.h")
+SOURCE_GROUP("antlr4\\internal" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
 FILE(GLOB SRC "src/tree/*.cpp")
@@ -48,4 +50,4 @@ SOURCE_GROUP("antlr4\\misc" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
 ADD_LIBRARY(antlr4 STATIC ${CODE})
-target_include_directories(antlr4 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(antlr4 PUBLIC ${CMAKE_CURRENT_BINARY_DIR} src)

@@ -1,6 +1,6 @@
 #include "anyfxtoken.h"
 
-const Ref<TokenFactory<CommonToken>> AnyFXTokenFactory::DEFAULT = std::make_shared<AnyFXTokenFactory>();
+TokenFactory<CommonToken>* AnyFXTokenFactory::DEFAULT = new AnyFXTokenFactory;
 
 AnyFXTokenFactory::AnyFXTokenFactory(){
 }
