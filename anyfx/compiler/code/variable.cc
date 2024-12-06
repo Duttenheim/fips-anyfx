@@ -521,6 +521,9 @@ Variable::Format(const Header& header) const
 {
     std::string formattedCode;
 
+    if (header.GetType() == Header::C && this->qualifierFlags & GroupShared)
+        return "";
+
     if (header.GetFlags() & Header::NoSubroutines && this->isSubroutine) return formattedCode;
 
     if (header.GetType() == Header::GLSL)
