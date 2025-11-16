@@ -16,9 +16,9 @@ class Allocator
 public:
     /// Construct allocator with block size
     Allocator(unsigned blockSize = 4096) 
-        : blockSize(blockSize)
+        : currentChunk(nullptr)
         , iterator(nullptr)
-        , currentChunk(nullptr)
+        , blockSize(blockSize)
     {}
 
     ~Allocator()
